@@ -1,0 +1,7 @@
+The sole purpose of this file is to cause the Azure DevOps pipeline to run without actually changing any source code.
+
+Simply add or remove a space or CR and PR into master and the pipeline will run if it's setup.
+
+Changes to doc files will run the pipeline but will NOT publish to ACR as no code was changed.
+
+This file can safely be deleted.

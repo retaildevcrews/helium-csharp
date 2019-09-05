@@ -1,0 +1,122 @@
+[
+	{
+		"id": "adventure",
+		"key": 0,
+		"type": "Genre",
+		"genre": "Adventure"
+	},
+	{
+		"id": "fantasy",
+		"key": 0,
+		"type": "Genre",
+		"genre": "Fantasy"
+	},
+	{
+		"id": "war",
+		"key": 0,
+		"type": "Genre",
+		"genre": "War"
+	},
+	{
+		"id": "biography",
+		"key": 0,
+		"type": "Genre",
+		"genre": "Biography"
+	},
+	{
+		"id": "music",
+		"key": 0,
+		"type": "Genre",
+		"genre": "Music"
+	},
+	{
+		"id": "documentary",
+		"key": 0,
+		"type": "Genre",
+		"genre": "Documentary"
+	},
+	{
+		"id": "sport",
+		"key": 0,
+		"type": "Genre",
+		"genre": "Sport"
+	},
+	{
+		"id": "horror",
+		"key": 0,
+		"type": "Genre",
+		"genre": "Horror"
+	},
+	{
+		"id": "mystery",
+		"key": 0,
+		"type": "Genre",
+		"genre": "Mystery"
+	},
+	{
+		"id": "musical",
+		"key": 0,
+		"type": "Genre",
+		"genre": "Musical"
+	},
+	{
+		"id": "romance",
+		"key": 0,
+		"type": "Genre",
+		"genre": "Romance"
+	},
+	{
+		"id": "family",
+		"key": 0,
+		"type": "Genre",
+		"genre": "Family"
+	},
+	{
+		"id": "animation",
+		"key": 0,
+		"type": "Genre",
+		"genre": "Animation"
+	},
+	{
+		"id": "comedy",
+		"key": 0,
+		"type": "Genre",
+		"genre": "Comedy"
+	},
+	{
+		"id": "sci-fi",
+		"key": 0,
+		"type": "Genre",
+		"genre": "Sci-Fi"
+	},
+	{
+		"id": "thriller",
+		"key": 0,
+		"type": "Genre",
+		"genre": "Thriller"
+	},
+	{
+		"id": "crime",
+		"key": 0,
+		"type": "Genre",
+		"genre": "Crime"
+	},
+	{
+		"id": "history",
+		"key": 0,
+		"type": "Genre",
+		"genre": "History"
+	},
+	{
+		"id": "drama",
+		"key": 0,
+		"type": "Genre",
+		"genre": "Drama"
+	},
+	{
+		"id": "action",
+		"key": 0,
+		"type": "Genre",
+		"genre": "Action"
+	}
+]

@@ -1,0 +1,194 @@
+[
+  {
+    "Verb": "GET",
+    "Url": "/healthz",
+    "SortOrder":  -1000000,
+    "ContentType": "text/plain",
+    "Body": "",
+    "Headers": [],
+    "Validation": {
+      "Code": 200,
+      "ContentType": "text/plain",
+      "MinLength": 25,
+      "MaxLength": 200,
+      "MaxMilliseconds": 0,
+      "Contains": [
+        {
+          "Value": "Movies: 100",
+          "IsCaseSensitive": true
+        },
+        {
+          "Value": "Actors: 553",
+          "IsCaseSensitive": true
+        },
+        {
+          "Value": "Genres: 20",
+          "IsCaseSensitive": true
+        }
+      ],
+      "Json": {
+        "MinLength": 0,
+        "MaxLength": 0
+      }
+    }
+  },
+  {
+    "Verb": "GET",
+    "Url": "/api/movies",
+    "ContentType": "application/json",
+    "Body": "",
+    "Headers": [],
+    "Validation": {
+      "Code": 200,
+      "ContentType": "application/json",
+      "MinLength": 0,
+      "MaxLength": 0,
+      "MaxMilliseconds": 0,
+      "Contains": [],
+      "Json": {
+        "MinLength": 100,
+        "MaxLength": 100
+      }
+    }
+  },
+  {
+    "Verb": "GET",
+    "Url": "/api/movies?q=ring",
+    "ContentType": "application/json",
+    "Body": "",
+    "Headers": [],
+    "Validation": {
+      "Code": 200,
+      "ContentType": "application/json",
+      "MinLength": 0,
+      "MaxLength": 0,
+      "MaxMilliseconds": 0,
+      "Contains": [],
+      "Json": {
+        "MinLength": 3,
+        "MaxLength": 3
+      }
+    }
+  },
+  {
+    "Verb": "GET",
+    "Url": "/api/movies/tt0133093",
+    "ContentType": "application/json",
+    "Body": "",
+    "Headers": [],
+    "Validation": {
+      "Code": 200,
+      "ContentType": "application/json",
+      "MinLength": 0,
+      "MaxLength": 0,
+      "MaxMilliseconds": 0,
+      "Contains": [
+        {
+          "Value": "\"movieId\":\"tt0133093\",",
+          "IsCaseSensitive": true
+        },
+        {
+          "Value": "\"title\":\"The Matrix\"",
+          "IsCaseSensitive": true
+        },
+        {
+          "Value": "\"year\":1999,",
+          "IsCaseSensitive": true
+        }
+      ],
+      "Json": {
+        "MinLength": 0,
+        "MaxLength": 0
+      }
+    }
+  },
+  {
+    "Verb": "GET",
+    "Url": "/api/actors",
+    "ContentType": "application/json",
+    "Body": "",
+    "Headers": [],
+    "Validation": {
+      "Code": 200,
+      "ContentType": "application/json",
+      "MinLength": 0,
+      "MaxLength": 0,
+      "MaxMilliseconds": 0,
+      "Contains": [],
+      "Json": {
+        "MinLength": 553,
+        "MaxLength": 553
+      }
+    }
+  },
+  {
+    "Verb": "GET",
+    "Url": "/api/actors?q=nicole",
+    "ContentType": "application/json",
+    "Body": "",
+    "Headers": [],
+    "Validation": {
+      "Code": 200,
+      "ContentType": "application/json",
+      "MinLength": 0,
+      "MaxLength": 0,
+      "MaxMilliseconds": 0,
+      "Contains": [],
+      "Json": {
+        "MinLength": 3,
+        "MaxLength": 3
+      }
+    }
+  },
+  {
+    "Verb": "GET",
+    "Url": "/api/actors/nm0000173",
+    "ContentType": "application/json",
+    "Body": "",
+    "Headers": [],
+    "Validation": {
+      "Code": 200,
+      "ContentType": "application/json",
+      "MinLength": 0,
+      "MaxLength": 0,
+      "MaxMilliseconds": 0,
+      "Contains": [
+        {
+          "Value": "\"actorId\":\"nm0000173\",",
+          "IsCaseSensitive": true
+        },
+        {
+          "Value": "\"name\":\"Nicole Kidman\",",
+          "IsCaseSensitive": true
+        },
+        {
+          "Value": "\"birthYear\":1967,",
+          "IsCaseSensitive": true
+        }
+      ],
+      "Json": {
+        "MinLength": 0,
+        "MaxLength": 0
+      }
+    }
+  },
+  {
+    "Verb": "GET",
+    "Url": "/api/genres",
+    "ContentType": "application/json",
+    "Body": "",
+    "Headers": [],
+    "Validation": {
+      "Code": 200,
+      "ContentType": "application/json",
+      "MinLength": 0,
+      "MaxLength": 0,
+      "MaxMilliseconds": 0,
+      "Contains": [],
+      "Json": {
+        "MinLength": 20,
+        "MaxLength": 20
+      }
+    }
+  }
+]

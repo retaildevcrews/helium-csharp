@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <RootNamespace>HeliumIntegrationTest</RootNamespace>
+  </PropertyGroup>
+
+   <ItemGroup>
+      <PackageReference Include="newtonsoft.json" Version="12.0.2" />
+      <PackageReference Include="System.Runtime.Serialization.Json" Version="4.3.0" />
+   </ItemGroup>
+
+   <ItemGroup>
+     <None Update="dotnet.json">
+       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+     </None>
+     <None Update="integration-test.json">
+       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+     </None>
+   </ItemGroup>
+
+</Project>
