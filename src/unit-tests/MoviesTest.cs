@@ -50,10 +50,11 @@ namespace UnitTests
 
             Assert.NotNull(ok);
 
-            Movie m = ok.Value as Movie;
+            Movie mov = ok.Value as Movie;
 
-            Assert.NotNull(m);
-            Assert.Equal(AssertValues.MovieByIdTitle, m.Title);
+            Assert.NotNull(mov);
+            Assert.Equal(Helium.DataAccessLayer.DAL.GetPartitionKey(mov.MovieId), mov.PartitionKey);
+            Assert.Equal(AssertValues.MovieByIdTitle, mov.Title);
         }
 
         [Fact]

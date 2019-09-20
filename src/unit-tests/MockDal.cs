@@ -83,10 +83,6 @@ namespace UnitTests
 
         public Task<Movie> GetMovieAsync(string movieId)
         {
-            string partitionKey = GetPartitionKey(movieId);
-
-            Assert.Equal("0", partitionKey);
-
             foreach (Movie m in Movies)
             {
                 if (m.MovieId == movieId)
@@ -118,11 +114,6 @@ namespace UnitTests
             }
 
             return res.AsQueryable();
-        }
-
-        public string GetPartitionKey(string id)
-        {
-            return "0";
         }
 
         public string GetHealthz()

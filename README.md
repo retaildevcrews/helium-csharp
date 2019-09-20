@@ -35,6 +35,8 @@ This sample is an ASP.NET Core WebAPI application designed to "fork and code" wi
 * Connect to and query CosmosDB
 * Automatically send telemetry and logs to Azure Monitor
 
+![alt text](./docs/images/architecture.jpg "Architecture Diagram")
+
 ## Contents
 
 | File/folder           | Description |
@@ -50,10 +52,11 @@ This sample is an ASP.NET Core WebAPI application designed to "fork and code" wi
 
 ## Prerequisites
 
-* Azure subscription (with appropriate permissions)
+* Azure subscription with permissions to create:
+  * Resource Groups, Service Principals, Keyvault, CosmosDB, App Service, Azure Container Registry, Azure Monitor
 * Bash shell (tested on Mac, Ubuntu, Windows with WSL2)
   * Will not work in Cloud Shell unless you have a remote dockerd
-* Azure CLI 2.0.72+ ([download](//https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest)) 
+* Azure CLI 2.0.72+ ([download](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest)) 
 * Docker CLI ([download](https://docs.docker.com/install/))
 * .NET Core SDK 2.2 ([download](https://dotnet.microsoft.com/download))
 * Visual Studio Code (optional) ([download](https://code.visualstudio.com/download))
@@ -112,6 +115,10 @@ Create Resource Groups
 # set location
 export He_Location=centralus
 
+# set port
+# if custom port value is set, make sure to update the value in the Dockerfile
+export He_Port=4120
+
 # resource group names
 export He_ACR_RG=${He_Name}-rg-acr
 export He_App_RG=${He_Name}-rg-app
@@ -121,6 +128,20 @@ export He_Cosmos_RG=${He_Name}-rg-cosmos
 az group create -n $He_App_RG -l $He_Location
 az group create -n $He_ACR_RG -l $He_Location
 az group create -n $He_Cosmos_RG -l $He_Location
+
+```
+
+Save your environment variables for ease of reuse and picking up where you left off.
+
+```bash
+
+# run the saveenv.sh script at any time to save He_* variables to ~/${He_Name}.env
+# make sure you are in the root of the repo
+./saveenv.sh
+
+# at any point if your terminal environment gets cleared, you can source the file
+# you only need to remember the name of the env file (or set the $He_Name variable again)
+source ~/{yoursameuniquename}.env
 
 ```
 
@@ -145,8 +166,9 @@ az cosmosdb database create -d $He_Cosmos_DB -g $He_Cosmos_RG -n $He_Name
 
 # create the collection
 # 400 is the minimum RUs
-# /key is the partition key ("0" for the imdb data)
-az cosmosdb collection create --throughput 400 --partition-key-path /key -g $He_Cosmos_RG -n $He_Name -d $He_Cosmos_DB -c $He_Cosmos_Col
+# /partitionKey is the partition key
+# partition key is the id mod 10
+az cosmosdb collection create --throughput 400 --partition-key-path /partitionKey -g $He_Cosmos_RG -n $He_Name -d $He_Cosmos_DB -c $He_Cosmos_Col
 
 # get Cosmos readonly key (used by App Service)
 export He_Cosmos_RO_Key=$(az cosmosdb keys list -n $He_Name -g $He_Cosmos_RG --query primaryReadonlyMasterKey -o tsv)
@@ -157,6 +179,8 @@ export He_Cosmos_RW_Key=$(az cosmosdb keys list -n $He_Name -g $He_Cosmos_RG --q
 # run the IMDb Import
 docker run -it --rm fourco/imdb-import $He_Name $He_Cosmos_RW_Key $He_Cosmos_DB $He_Cosmos_Col
 
+# option: Run ./saveenv.sh to save latest variables
+
 ```
 
 Create Azure Key Vault
@@ -166,7 +190,7 @@ Create Azure Key Vault
 
 ```bash
 
-## Create the Key Vault and add secrets
+## create the Key Vault and add secrets
 az keyvault create -g $He_App_RG -n $He_Name
 
 # add CosmosDB keys
@@ -174,6 +198,10 @@ az keyvault secret set -o table --vault-name $He_Name --name "CosmosUrl" --value
 az keyvault secret set -o table --vault-name $He_Name --name "CosmosKey" --value $He_Cosmos_RO_Key
 az keyvault secret set -o table --vault-name $He_Name --name "CosmosDatabase" --value $He_Cosmos_DB
 az keyvault secret set -o table --vault-name $He_Name --name "CosmosCollection" --value $He_Cosmos_Col
+
+# add port 
+# note: this is only required if He_Port is not the default 4120
+az keyvault secret set -o table --vault-name $He_Name --name "Port" --value $He_Port
 
 ```
 
@@ -186,7 +214,7 @@ Use the following command to grant permissions to each developer that will need 
 export dev_Object_Id=$(az ad user show --id {developer email address} --query objectId -o tsv)
 
 # grant Key Vault access to each developer (optional)
-az keyvault set-policy -n $mikv_Name --secret-permissions get list --key-permissions get list --object-id $dev_Object_Id
+az keyvault set-policy -n $He_Name --secret-permissions get list --key-permissions get list --object-id $dev_Object_Id
 
 ```
 
@@ -213,7 +241,7 @@ dotnet run $He_Name &
 
 # test the application
 # the application takes about 10 seconds to start
-curl http://localhost:4120/healthz
+curl http://localhost:${He_Port}/healthz
 
 ```
 
@@ -225,7 +253,7 @@ Run the Integration Test
 
 cd ../integration-test
 
-dotnet run -- -h http://localhost:4120
+dotnet run -- -h http://localhost:${He_Port}
 
 cd ..
 
@@ -276,6 +304,8 @@ export He_AppInsights_Key=$(az monitor app-insights component create -g $He_App_
 # add App Insights Key to Key Vault
 az keyvault secret set -o table --vault-name $He_Name --name "AppInsightsKey" --value $He_AppInsights_Key
 
+# Option: Run ./saveenv.sh to save latest variables
+
 ```
 
 Create a Service Principal for Container Registry
@@ -297,6 +327,8 @@ az role assignment create --assignee $He_SP_ID --scope $He_ACR_Id --role acrpull
 # add credentials to Key Vault
 az keyvault secret set -o table --vault-name $He_Name --name "AcrUserId" --value $He_SP_ID
 az keyvault secret set -o table --vault-name $He_Name --name "AcrPassword" --value $He_SP_PWD
+
+# Option: Run ./saveenv.sh to save latest variables
 
 ```
 
@@ -349,6 +381,8 @@ az webapp restart -g $He_App_RG -n $He_Name
 # this will eventually work, but may take a minute or two
 # you may get a 403 error, if so, just run again
 curl https://${He_Name}.azurewebsites.net/healthz
+
+# Option: Run ./saveenv.sh to save latest variables
 
 ```
 
@@ -407,7 +441,7 @@ This sample is an ASP.NET Core WebAPI application designed to "fork and code" wi
 * Securely store secrets in Key Vault
 * Securely build and deploy the Docker container from Container Registry or Azure DevOps
 * Connect to and query CosmosDB
-* Automatically send telemtry and logs to Azure Monitor
+* Automatically send telemetry and logs to Azure Monitor
 
 ## Contributing
 

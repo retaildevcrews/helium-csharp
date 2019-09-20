@@ -1,33 +1,45 @@
 ﻿using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Helium.Model
 {
     public class MovieBase
     {
+        [JsonProperty(Order = 2)]
         public string MovieId;
+        [JsonProperty(Order = 5)]
         public string Type;
-        public string TextSearch;
+        [JsonProperty(Order = 6)]
         public string Title;
+        [JsonProperty(Order = 8)]
         public int Year;
+        [JsonProperty(Order = 9)]
         public int Runtime;
-        public double Rating;
-        public int Votes;
+        [JsonProperty(Order = 30)]
         public List<string> Genres;
     }
 
     public class Movie : MovieBase
     {
+        [JsonProperty(Order = 1)]
+        public string Id;
+        [JsonProperty(Order = 3)]
+        public string PartitionKey;
+        [JsonProperty(Order = 21)]
+        public double Rating;
+        [JsonProperty(Order = 22)]
+        public long Votes;
+        [JsonProperty(Order = 23)]
+        public long TotalScore;
+        [JsonProperty(Order = 7)]
+        public string TextSearch;
         [JsonProperty(Order = 99)]
         public List<Role> Roles;
     }
 
     public class Role : ActorBase
     {
-        [JsonProperty(Order = 97)]
+        [JsonProperty(Order = 1)]
         public int Order;
         [JsonProperty(Order = 98)]
         public string Category;

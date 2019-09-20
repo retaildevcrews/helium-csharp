@@ -62,5 +62,65 @@
         "MaxLength": 0
       }
     }
+  },
+  {
+    "Verb": "GET",
+    "Url": "/robots.txt",
+    "SortOrder":  99,
+    "ContentType": "text/plain",
+    "Body": "",
+    "Headers": [],
+    "Validation": {
+      "Code": 200,
+      "ContentType": "text/plain",
+      "MinLength": 28,
+      "MaxLength": 28,
+      "MaxMilliseconds": 0,
+      "Contains": 
+      [
+        {
+          "Value": "User-agent: *",
+          "IsCaseSensitive": true
+        },
+        {
+          "Value": "Disallow: /",
+          "IsCaseSensitive": true
+        }
+      ],
+      "Json": {
+        "MinLength": 0,
+        "MaxLength": 0
+      }
+    }
+  },
+  {
+    "Verb": "GET",
+    "Url": "/robots1234.txt",
+    "SortOrder":  99,
+    "ContentType": "text/plain",
+    "Body": "",
+    "Headers": [],
+    "Validation": {
+      "Code": 200,
+      "ContentType": "text/plain",
+      "MinLength": 28,
+      "MaxLength": 28,
+      "MaxMilliseconds": 0,
+      "Contains": 
+      [
+        {
+          "Value": "User-agent: *",
+          "IsCaseSensitive": true
+        },
+        {
+          "Value": "Disallow: /",
+          "IsCaseSensitive": true
+        }
+      ],
+      "Json": {
+        "MinLength": 0,
+        "MaxLength": 0
+      }
+    }
   }
 ]

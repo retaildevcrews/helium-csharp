@@ -6,7 +6,7 @@ namespace Helium.DataAccessLayer
     /// <summary>
     /// Data Access Layer for CosmosDB
     /// </summary>
-    public partial class IDal
+    public partial class DAL
     {
         /// <summary>
         /// Read the genres from CosmosDB

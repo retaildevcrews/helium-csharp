@@ -2,7 +2,7 @@
 {
     public class AssertValues
     {
-        public static readonly int ActorsCount = 553;
+        public static readonly int ActorsCount = 531;
 
         public static readonly string ActorSearchString = "nicole";
         public static readonly int ActorsSearchCount = 3;
@@ -10,7 +10,7 @@
         public static readonly string ActorById = "nm0000173";
         public static readonly string ActorByIdName = "Nicole Kidman";
 
-        public static readonly int GenresCount = 20;
+        public static readonly int GenresCount = 19;
 
         public static readonly int MoviesCount = 100;
 
