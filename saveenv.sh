@@ -18,8 +18,9 @@ else
     fi
   fi
   echo '#!/bin/bash' > ~/${He_Name}.env
+  echo '' >> ~/${He_Name}.env
 
-  for var in $(env | grep He_)
+  for var in $(env | grep He_ | sort)
   do
     echo "export ${var}" >> ~/${He_Name}.env
   done
