@@ -14,7 +14,7 @@ trigger:
 
 # run on a PR to master
 # ignore documentation updates
-pr:
+pr: none
   branches:
     include:
     - '*'
@@ -67,7 +67,7 @@ stages:
         failTaskOnFailedTests: true
 
     - task: Docker@2
-      condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
+      condition: eq(variables['Build.SourceBranchName'], 'master')
       displayName: Build and push to container registry
       inputs:
         command: buildAndPush
