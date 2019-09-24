@@ -14,7 +14,7 @@ trigger:
 
 # run on a PR to master
 # ignore documentation updates
-pr: none
+pr:
   branches:
     include:
     - '*'
