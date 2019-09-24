@@ -5,3 +5,4 @@ Simply add or remove a space or CR and PR into master and the pipeline will run 
 Changes to doc files will run the pipeline but will NOT publish to ACR as no code was changed.
 
 This file can safely be deleted.
+
