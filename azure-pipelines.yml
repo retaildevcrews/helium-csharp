@@ -55,12 +55,20 @@ stages:
     steps:
     - script: |
          cd src
+
          docker build -t helium --target build .
-         docker run -it --name helium --entrypoint /bin/bash helium
+         docker run --name helium helium
          docker cp helium:./src/unit-tests/TestResults .
 
          cd ..
       displayName: Run unit tests
+
+    - task: PublishTestResults@2
+      displayName: Publish test results
+      inputs:
+        testRunner: VSTest
+        testResultsFiles: '**/*.trx'
+        failTaskOnFailedTests: true
 
     - task: Docker@2
       condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
@@ -73,11 +81,3 @@ stages:
         tags: |
           $(tag)
           latest
-
-    - task: PublishTestResults@2
-      displayName: Publish test results
-      inputs:
-        testRunner: VSTest
-        testResultsFiles: '**/*.trx'
-        failTaskOnFailedTests: true
-
