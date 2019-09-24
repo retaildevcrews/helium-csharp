@@ -54,8 +54,12 @@ stages:
 
     steps:
     - script: |
-         cd src/unit-tests
-         dotnet test --logger:trx
+         cd src
+
+         docker build -t helium --target build .
+         docker run --name helium helium
+         docker cp helium:./src/unit-tests/TestResults .
+
          cd ..
       displayName: Run unit tests
 
