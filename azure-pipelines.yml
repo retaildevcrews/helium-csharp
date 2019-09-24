@@ -54,7 +54,7 @@ stages:
 
     steps:
     - script: |
-         cd src/app
+         cd src
          docker build -t helium --target build .
          docker run -it --name helium --entrypoint /bin/bash helium
          docker cp helium:./src/unit-tests/TestResults .
