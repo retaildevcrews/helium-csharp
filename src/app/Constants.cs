@@ -39,5 +39,8 @@
 
         public static readonly int NotFound = 404;
         public static readonly int ServerError = 500;
+
+        public static readonly int RotateKeyCheckSeconds = 600;
+        public static int MainLoopSleepMs = 1000;
     }
 }

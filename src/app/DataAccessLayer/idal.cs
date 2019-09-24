@@ -16,6 +16,5 @@ namespace Helium.DataAccessLayer
         IQueryable<Model.Movie> GetMovies();
         IQueryable<Model.Movie> GetMoviesByQuery(string q);
         string GetHealthz();
-        string GetPartitionKey(string id);
     }
 }

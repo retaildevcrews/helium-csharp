@@ -8,7 +8,7 @@ namespace Helium.DataAccessLayer
     /// <summary>
     /// Data Access Layer for CosmosDB
     /// </summary>
-    public partial class IDal : IDAL
+    public partial class DAL : IDAL
     {
         // CosmosDB options
         private readonly FeedOptions feedOptions = new FeedOptions { EnableCrossPartitionQuery = true, MaxItemCount = 2000 };
@@ -23,24 +23,15 @@ namespace Helium.DataAccessLayer
         /// <param name="cosmosKey">CosmosDB connection key</param>
         /// <param name="cosmosDatabase">CosmosDB Database</param>
         /// <param name="cosmosCollection">CosmosDB Collection</param>
-        public IDal(string cosmosUrl, string cosmosKey, string cosmosDatabase, string cosmosCollection)
+        public DAL(string cosmosUrl, string cosmosKey, string cosmosDatabase, string cosmosCollection)
         {
             // create and open the CosmosDB client
+            // this does not run any queries, so the connection still needs to be tested
             client = new DocumentClient(new Uri(cosmosUrl), cosmosKey);
             client.OpenAsync();
 
             // create the collection link
             collectionLink = UriFactory.CreateDocumentCollectionUri(cosmosDatabase, cosmosCollection);
-
-            // run the health query to validate connection
-            try
-            {
-                GetHealthz();
-            }
-            catch (Exception ex)
-            {
-                throw new ArgumentException("GetHealthz failed", ex);
-            }
         }
 
         /// <summary>
@@ -56,20 +47,20 @@ namespace Helium.DataAccessLayer
         /// <summary>
         /// Compute the partition key based on the movieId or actorId
         /// 
-        /// For this sample, the partition key is always "0"
+        /// For this sample, the partitionkey is the id mod 10
         /// 
-        /// In a full implementation, you would have multiple partition for scaling
+        /// In a full implementation, you would update the logic to determine the partition key
         /// </summary>
         /// <param name="id">document id</param>
-        /// <returns>the partition key (always "0" in this implementation)</returns>
-        public string GetPartitionKey(string id)
+        /// <returns>the partition key</returns>
+        public static string GetPartitionKey(string id)
         {
             // validate id
             if (id.Length > 5 &&
                 (id.StartsWith("tt") || id.StartsWith("nm")) &&
                 Int32.TryParse(id.Substring(2), out int idInt))
             {
-                return (idInt % 1).ToString();
+                return (idInt % 10).ToString();
             }
 
             throw new ArgumentException("Invalid id");

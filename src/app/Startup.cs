@@ -74,7 +74,11 @@ namespace Helium
                 c.RoutePrefix = string.Empty;
             });
 
+            // handle api and healthz
             app.UseMvc();
+
+            // use the robots middleware to handle /robots*.txt requests
+            app.UseRobots();
         }
 
         /// <summary>

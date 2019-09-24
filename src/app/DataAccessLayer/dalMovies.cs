@@ -9,10 +9,10 @@ namespace Helium.DataAccessLayer
     /// <summary>
     /// Data Access Layer for CosmosDB
     /// </summary>
-    public partial class IDal
+    public partial class DAL
     {
         // select template for movies
-        const string movieSelect = "select m.id, m.key, m.movieId, m.type, m.textSearch, m.title, m.year, m.runtime, m.rating, m.votes, m.genres, m.roles from m ";
+        const string movieSelect = "select m.id, m.partitionKey, m.movieId, m.type, m.textSearch, m.title, m.year, m.runtime, m.rating, m.votes, m.totalScore, m.genres, m.roles from m ";
 
         /// <summary>
         /// Get a single movie by movieId

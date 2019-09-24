@@ -47,10 +47,11 @@ namespace UnitTests
 
             Assert.NotNull(ok);
 
-            Actor m = ok.Value as Actor;
+            Actor actor = ok.Value as Actor;
 
-            Assert.NotNull(m);
-            Assert.Equal(AssertValues.ActorByIdName, m.Name);
+            Assert.NotNull(actor);
+            Assert.Equal(Helium.DataAccessLayer.DAL.GetPartitionKey(actor.ActorId), actor.PartitionKey);
+            Assert.Equal(AssertValues.ActorByIdName, actor.Name);
         }
 
         [Fact]
