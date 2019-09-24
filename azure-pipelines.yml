@@ -17,7 +17,7 @@ trigger:
 pr:
   branches:
     include:
-    - '*'
+    - master
   paths:
     include:
     - src/*
@@ -54,20 +54,16 @@ stages:
 
     steps:
     - script: |
-         cd src/unit-tests
-         dotnet test --logger:trx
+         cd src/app
+         docker build -t helium --target build .
+         docker run -it --name helium --entrypoint /bin/bash helium
+         docker cp helium:./src/unit-tests/TestResults .
+
          cd ..
       displayName: Run unit tests
 
-    - task: PublishTestResults@2
-      displayName: Publish test results
-      inputs:
-        testRunner: VSTest
-        testResultsFiles: '**/*.trx'
-        failTaskOnFailedTests: true
-
     - task: Docker@2
-      condition: eq(variables['Build.SourceBranchName'], 'master')
+      condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
       displayName: Build and push to container registry
       inputs:
         command: buildAndPush
@@ -77,3 +73,11 @@ stages:
         tags: |
           $(tag)
           latest
+
+    - task: PublishTestResults@2
+      displayName: Publish test results
+      inputs:
+        testRunner: VSTest
+        testResultsFiles: '**/*.trx'
+        failTaskOnFailedTests: true
+
