@@ -57,8 +57,9 @@ stages:
          cd src
 
          docker build -t helium --target build .
-         docker run --name helium helium
+         docker create --name helium helium
          docker cp helium:./src/unit-tests/TestResults .
+         docker rm helium
 
          cd ..
       displayName: Run unit tests

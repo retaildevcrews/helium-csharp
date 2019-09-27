@@ -24,7 +24,8 @@ urlFragment: "/azure-samples/app-service-managed-identity-key-vault-csharp"
 
 # Build an ASP.NET Core application using App Service, Managed Identity and Key Vault
 
-![License](https://img.shields.io/badge/license-MIT-green.svg)   ![Build Status](https://dev.azure.com/4co/helium-csharp/_apis/build/status/Helium-csharp?branchName=master)
+![License](https://img.shields.io/badge/license-MIT-green.svg)
+![Build Status](https://bartr-ms.visualstudio.com/bluebell/_apis/build/status/bartr.bluebell?branchName=master)
 
 This sample is an ASP.NET Core WebAPI application designed to "fork and code" with the following features:
 
