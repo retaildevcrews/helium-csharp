@@ -1,11 +1,11 @@
 # Change Log
 
-## Sept 20, 2019
+## Sept 27, 2019
 
 - Added logic to support CosmosDB key rotation
 - Added middleware to handle /robots*.txt requests
 - Added integration test (to dotnet.json) for robots*.txt
-- added dockerfile to build dev environment (per Walmart request)
+- added dockerfile to build dev environment
 - added optional proxy variables in dockerfile
 - added .dockerignore
 - simplified dockerfile
@@ -19,7 +19,7 @@
 - added call to dal.Healthz() on DAL create and reload
   - if CreateDal() fails, the app will exit(-1) - "fail early"
   - if ReloadDal() fails, an error is logged and the old DAL is used until the next check
-- renamed class IDal to DAL - not sure why it had the I preface
+- renamed class IDal to DAL for clarity
 - added asserts to check /partitionKey in unit tests
 - added architecture diagram
 - added custom port instructions to readme
