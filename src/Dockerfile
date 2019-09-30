@@ -1,5 +1,6 @@
 ### Build and Unit Test the App
 FROM mcr.microsoft.com/dotnet/core/sdk:2.2 AS build
+
 RUN mkdir -p /src/app && \
     mkdir -p /src/unit-tests
 
@@ -30,6 +31,7 @@ RUN dotnet publish -c Release -o /app
 
 ### Build the runtime container
 FROM mcr.microsoft.com/dotnet/core/aspnet:2.2 AS runtime
+
 EXPOSE 4120
 WORKDIR /app
 
