@@ -25,6 +25,7 @@ namespace Helium.DataAccessLayer
         {
             // get the partition key for the movie ID
             // note: if the key cannot be determined from the ID, ReadDocumentAsync cannot be used.
+            // GetPartitionKey will throw an ArgumentException if the movieId isn't valid
             RequestOptions requestOptions = new RequestOptions { PartitionKey = new PartitionKey(GetPartitionKey(movieId)) };
 
             // get a movie by ID
@@ -38,8 +39,7 @@ namespace Helium.DataAccessLayer
         public IQueryable<Movie> GetMovies()
         {
             // get all movies
-            string sql = movieSelect + "where m.type = 'Movie' order by m.movieId";
-            return QueryMovieWorker(sql);
+            return GetMoviesByQuery(string.Empty);
         }
 
         /// <summary>
@@ -49,8 +49,22 @@ namespace Helium.DataAccessLayer
         /// <returns>List of Movies or an empty list</returns>
         public IQueryable<Movie> GetMoviesByQuery(string q)
         {
-            // get movies by a "like" search on title
-            string sql = string.Format("{0} where contains(m.textSearch, '{1}') order by m.movieId", movieSelect, q.ToLower());
+            if (q == null)
+            {
+                q = string.Empty;
+            }
+
+            // convert to lower and escape embedded '
+            q = q.Trim().ToLower().Replace("'", "''");
+
+            string sql = movieSelect + "where m.type = 'Movie' order by m.movieId";
+
+            if (!string.IsNullOrEmpty(q))
+            {
+                // get movies by a "like" search on title
+                sql = string.Format("{0} where contains(m.textSearch, '{1}') order by m.movieId", movieSelect, q);
+            }
+
             return QueryMovieWorker(sql);
         }
 

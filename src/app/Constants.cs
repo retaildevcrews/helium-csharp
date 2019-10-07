@@ -30,9 +30,8 @@
         public static readonly string AppInsightsKey = "AppInsightsKey";
         public static readonly string AppInsightsKeyError = "App Insights Key specified";
 
-        public static readonly string Port = "Port";
-        public static readonly string PortError = "Listen port is invalid: {0}";
-        public static readonly string PortException = "Port not specified";
+        // if port is changed, also update value in the Dockerfiles
+        public static readonly string Port = "4120";
 
         public static readonly string HealthzResult = "Movies: 100\r\nActors: 553\r\nGenres: 20";
         public static readonly string HealthzError = "Healthz Failed:\r\n{0}";

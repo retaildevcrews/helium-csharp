@@ -1,5 +1,10 @@
 # Change Log
 
+## Oct 8, 2019
+
+- Enhanced exception logging to include CosmosDB information where available
+- Simplified dockerfile
+
 ## Sept 27, 2019
 
 - Added logic to support CosmosDB key rotation

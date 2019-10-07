@@ -27,7 +27,22 @@ namespace Helium.DataAccessLayer
         {
             // create and open the CosmosDB client
             // this does not run any queries, so the connection still needs to be tested
-            client = new DocumentClient(new Uri(cosmosUrl), cosmosKey);
+
+            ConnectionPolicy cp = new ConnectionPolicy
+            {
+                ConnectionProtocol = Protocol.Tcp,
+                ConnectionMode = ConnectionMode.Direct,
+                MaxConnectionLimit = 100,
+                RequestTimeout = TimeSpan.FromSeconds(60),
+                RetryOptions = new RetryOptions
+                {
+                    MaxRetryAttemptsOnThrottledRequests = 10,
+                    MaxRetryWaitTimeInSeconds = 45
+                }
+            };
+
+            client = new DocumentClient(new Uri(cosmosUrl), cosmosKey, cp);
+
             client.OpenAsync();
 
             // create the collection link
@@ -63,7 +78,7 @@ namespace Helium.DataAccessLayer
                 return (idInt % 10).ToString();
             }
 
-            throw new ArgumentException("Invalid id");
+            throw new ArgumentException("GetPartitionKey");
         }
     }
 }

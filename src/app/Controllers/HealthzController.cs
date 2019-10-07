@@ -1,5 +1,6 @@
 using Helium.DataAccessLayer;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Documents;
 using Microsoft.Extensions.Logging;
 using System;
 
@@ -33,34 +34,44 @@ namespace Helium.Controllers
         /// 
         ///     Expected Response:
         /// 
-        ///     Movies: 100\r\nActors: 553\r\nGenres: 20
+        ///     Movies: 100\r\nActors: 531\r\nGenres: 19
         /// </remarks>
-        /// <returns>200 OK or 400 Error</returns>
+        /// <returns>200 OK or 500 Error</returns>
         /// <response code="200">returns a count of the Actors, Genres and Movies as text/plain</response>
-        /// <response code="400">failed due to unexpected results</response>
+        /// <response code="500">failed due to unexpected results</response>
         [HttpGet]
         [Produces("text/plain")]
         [ProducesResponseType(typeof(string), 200)]
-        [ProducesResponseType(typeof(void), 400)]
+        [ProducesResponseType(typeof(void), 500)]
         public IActionResult Healthz()
         {
             // healthcheck counts the document types
-            // Should return: "Movies: 100\r\nActors: 553\r\nGenres: 20" as text/plain
 
             try
             {
-                string res = string.Empty;
-
                 logger.LogInformation("Healthz");
 
                 // return 200 OK with payload
                 return Ok(dal.GetHealthz());
             }
+
+            catch (DocumentClientException dce)
+            {
+                // log and return 500
+                logger.LogError("DocumentClientException:Healthz:{0}:{1}:{2}:{3}\r\n{4}", dce.StatusCode, dce.Error, dce.ActivityId, dce.Message, dce);
+
+                return new ObjectResult("HealthzControllerException")
+                {
+                    StatusCode = Constants.ServerError
+                };
+            }
+
             catch (Exception ex)
             {
-                logger.LogError("Healthz Exception: {0}", ex);
+                // log and return 500
+                logger.LogError("Exception:Healthz\r\n{0}", ex);
 
-                return new ObjectResult("healthz exception")
+                return new ObjectResult("HealthzControllerException")
                 {
                     StatusCode = Constants.ServerError
                 };

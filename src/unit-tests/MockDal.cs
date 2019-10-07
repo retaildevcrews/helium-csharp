@@ -43,6 +43,8 @@ namespace UnitTests
 
         public Task<Actor> GetActorAsync(string actorId)
         {
+            string pk = Helium.DataAccessLayer.DAL.GetPartitionKey(actorId);
+
             foreach(Actor a in Actors)
             {
                 if (a.ActorId == actorId)
@@ -51,7 +53,7 @@ namespace UnitTests
                 }
             }
 
-            throw new Exception("Invalid id");
+            throw new ArgumentException("NotFound");
         }
 
         public IQueryable<Actor> GetActors()
@@ -83,6 +85,8 @@ namespace UnitTests
 
         public Task<Movie> GetMovieAsync(string movieId)
         {
+            string pk = Helium.DataAccessLayer.DAL.GetPartitionKey(movieId);
+
             foreach (Movie m in Movies)
             {
                 if (m.MovieId == movieId)
@@ -91,7 +95,7 @@ namespace UnitTests
                 }
             }
 
-            throw new Exception("Invalid id");
+            throw new ArgumentException("NotFound");
         }
 
         public IQueryable<Movie> GetMovies()

@@ -1,9 +1,9 @@
 ﻿using Helium.DataAccessLayer;
 using Helium.Model;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Documents;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
 
 namespace Helium.Controllers
 {
@@ -35,22 +35,45 @@ namespace Helium.Controllers
         /// <response code="200">json array of Actor objects or empty array if not found</response>
         [HttpGet]
         [Produces("application/json")]
-        public IEnumerable<Actor> GetActors([FromQuery] string q)
+        public IActionResult GetActors([FromQuery] string q)
         {
-            // get actors
-
-            // check the query string for search
-            if (!string.IsNullOrEmpty(q))
+            // check the query string
+            if (q == null)
             {
-                logger.LogInformation("GetActorsByQuery {0}", q);
-
-                return dal.GetActorsByQuery(q);
+                q = string.Empty;
             }
 
-            // get all actors
-            logger.LogInformation("GetActors");
+            q = q.Trim();
 
-            return dal.GetActors();
+            string method = string.IsNullOrEmpty(q) ? "GetActors" : string.Format("SearchActors:{0}", q);
+
+            logger.LogInformation(method, q);
+
+            try
+            {
+                return Ok(dal.GetActorsByQuery(q));
+            }
+
+            catch (DocumentClientException dce)
+            {
+                // log and return 500
+                logger.LogError("DocumentClientException:" + method + ":{0}:{1}:{2}:{3}\r\n{4}", dce.StatusCode, dce.Error, dce.ActivityId, dce.Message, dce);
+
+                return new ObjectResult("ActorsControllerException")
+                {
+                    StatusCode = Constants.ServerError
+                };
+            }
+
+            catch (Exception ex)
+            {
+                logger.LogError("Exception:" + method + "\r\n{0}", ex);
+
+                return new ObjectResult("ActorsControllerException")
+                {
+                    StatusCode = Constants.ServerError
+                };
+            }
         }
 
         /// <summary>
@@ -69,29 +92,49 @@ namespace Helium.Controllers
             try
             {
                 // get a single actor
-                // CosmosDB API will throw an exception on a bad actorId
-                Actor a = await dal.GetActorAsync(actorId);
-
-                return Ok(a);
+                return Ok(await dal.GetActorAsync(actorId));
             }
-            catch (Exception e)
+
+            // actorId isn't well formed
+            catch (ArgumentException)
             {
-                if (e.Message == "Invalid id")
+                logger.LogInformation("NotFound:GetActorByIdAsync:{0}", actorId);
+
+                // return a 404
+                return NotFound();
+            }
+
+            catch (DocumentClientException dce)
+            {
+                // CosmosDB API will throw an exception on an actorId not found
+                if (dce.StatusCode == System.Net.HttpStatusCode.NotFound)
                 {
-                    logger.LogError("Not Found: GetActorByIdAsync {0}", actorId);
+                    logger.LogInformation("NotFound:GetActorByIdAsync:{0}", actorId);
 
                     // return a 404
                     return NotFound();
                 }
                 else
                 {
-                    logger.LogError("GetActorByIdAsync Exception: {0}", e);
+                    // log and return 500
+                    logger.LogError("DocumentClientException:GetActorByIdAsync:{0}:{1}:{2}:{3}\r\n{4}", dce.StatusCode, dce.Error, dce.ActivityId, dce.Message, dce);
 
-                    return new ObjectResult("ActorController exception")
+                    return new ObjectResult("ActorsControllerException")
                     {
                         StatusCode = Constants.ServerError
                     };
                 }
+            }
+
+            // log and return 500
+            catch (Exception e)
+            {
+                logger.LogError("Exception:GetActorByIdAsync:{0}\r\n{1}", e.Message, e);
+
+                return new ObjectResult("ActorsControllerException")
+                {
+                    StatusCode = Constants.ServerError
+                };
             }
         }
     }

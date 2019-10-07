@@ -1,8 +1,9 @@
 ﻿using Helium.DataAccessLayer;
 using Helium.Model;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Documents;
 using Microsoft.Extensions.Logging;
-using System.Collections.Generic;
+using System;
 
 namespace Helium.Controllers
 {
@@ -34,20 +35,44 @@ namespace Helium.Controllers
         /// <response code="200">json array of Movie objects or empty array if not found</response>
         [HttpGet]
         [Produces("application/json")]
-        public IEnumerable<Movie> GetMovies([FromQuery]string q)
+        public IActionResult GetMovies([FromQuery]string q)
         {
-            // limit by search string
-            if (!string.IsNullOrEmpty(q))
+            if (q == null)
             {
-                logger.LogInformation("GetMoviesBySearch {0}", q);
-
-                return dal.GetMoviesByQuery(q);
+                q = string.Empty;
             }
 
-            logger.LogInformation("GetMoviesByAll");
+            q = q.Trim();
 
-            // get all movies
-            return dal.GetMovies();
+            string method = string.IsNullOrEmpty(q) ? "GetMovies" : string.Format("SearchMovies {0}", q);
+
+            logger.LogInformation(method, q);
+
+            try
+            {
+                return Ok(dal.GetMoviesByQuery(q));
+            }
+
+            catch (DocumentClientException dce)
+            {
+                // log and return 500
+                logger.LogError("DocumentClientException:" + method + ":{0}:{1}:{2}:{3}\r\n{4}", dce.StatusCode, dce.Error, dce.ActivityId, dce.Message, dce);
+
+                return new ObjectResult("MoviesControllerException")
+                {
+                    StatusCode = Constants.ServerError
+                };
+            }
+
+            catch (Exception ex)
+            {
+                logger.LogError(method + "\r\n{0}", ex);
+
+                return new ObjectResult("MoviesControllerException")
+                {
+                    StatusCode = Constants.ServerError
+                };
+            }
         }
 
         /// <summary>
@@ -71,24 +96,47 @@ namespace Helium.Controllers
 
                 return Ok(m);
             }
-            catch (System.Exception e)
-            {
-                if (e.Message == "Invalid id")
-                {
-                    logger.LogError("NotFound: GetMovieByIdAsync {0}", movieId);
 
-                    // return 404
+            // movieId isn't well formed
+            catch (ArgumentException)
+            {
+                logger.LogInformation("NotFound:GetMovieByIdAsync:{0}", movieId);
+
+                // return a 404
+                return NotFound();
+            }
+
+            catch (DocumentClientException dce)
+            {
+                // CosmosDB API will throw an exception on an movieId not found
+                if (dce.StatusCode == System.Net.HttpStatusCode.NotFound)
+                {
+                    logger.LogInformation("NotFound:GetMovieByIdAsync:{0}", movieId);
+
+                    // return a 404
                     return NotFound();
                 }
                 else
                 {
-                    logger.LogError("Exception: GetMovieByIdAsync {0}", e);
+                    // log and return 500
+                    logger.LogError("DocumentClientException:MovieByIdAsync:{0}:{1}:{2}:{3}\r\n{4}", dce.StatusCode, dce.Error, dce.ActivityId, dce.Message, dce);
 
-                    return new ObjectResult("MoviesController exception")
+                    return new ObjectResult("MovieControllerException")
                     {
                         StatusCode = Constants.ServerError
                     };
                 }
+            }
+
+            catch (Exception e)
+            {
+                // log and return 500
+                logger.LogError("Exception:GetActorByIdAsync:{0}\r\n{1}", e.Message, e);
+
+                return new ObjectResult("MovieControllerException")
+                {
+                    StatusCode = Constants.ServerError
+                };
             }
         }
     }

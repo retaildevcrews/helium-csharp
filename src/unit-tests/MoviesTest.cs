@@ -4,6 +4,7 @@ using Helium.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
+using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 
@@ -23,20 +24,30 @@ namespace UnitTests
         public void GetAllMovies()
         {
 
-            var l = c.GetMovies(string.Empty).ToList();
+            OkObjectResult ok = c.GetMovies(string.Empty) as OkObjectResult;
 
-            Assert.Equal(AssertValues.MoviesCount, l.Count);
+            Assert.NotNull(ok);
 
+            var ie = ok.Value as IEnumerable<Movie>;
+
+            Assert.NotNull(ie);
+
+            Assert.Equal(AssertValues.MoviesCount, ie.ToList<Movie>().Count);
         }
 
         [Fact]
         public void GetMoviesBySearch()
         {
 
-            var l = c.GetMovies(AssertValues.MoviesSearchString).ToList();
+            OkObjectResult ok = c.GetMovies(AssertValues.MoviesSearchString) as OkObjectResult;
 
-            Assert.Equal(AssertValues.MoviesSearchCount, l.Count);
+            Assert.NotNull(ok);
 
+            var ie = ok.Value as IEnumerable<Movie>;
+
+            Assert.NotNull(ie);
+
+            Assert.Equal(AssertValues.MoviesSearchCount, ie.ToList<Movie>().Count);
         }
 
         [Fact]
@@ -60,9 +71,14 @@ namespace UnitTests
         [Fact]
         public async void GetMovieByIdFail()
         {
-            var res = await c.GetMovieByIdAsync(AssertValues.BadId);
+            // this will fail GetPartitionKey
+            NotFoundResult nf = await c.GetMovieByIdAsync(AssertValues.BadId) as NotFoundResult;
 
-            NotFoundResult nf = res as NotFoundResult;
+            Assert.NotNull(nf);
+            Assert.Equal(Constants.NotFound, nf.StatusCode);
+
+            // this will fail search
+            nf = await c.GetMovieByIdAsync(AssertValues.MovieById + "000") as NotFoundResult;
 
             Assert.NotNull(nf);
             Assert.Equal(Constants.NotFound, nf.StatusCode);

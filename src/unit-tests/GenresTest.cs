@@ -1,6 +1,8 @@
 using Helium.Controllers;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
+using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 
@@ -20,9 +22,15 @@ namespace UnitTests
         public void GetGenres()
         {
 
-            var l = c.GetGenres().ToList();
+            OkObjectResult ok = c.GetGenres() as OkObjectResult;
 
-            Assert.Equal(AssertValues.GenresCount, l.Count);
+            Assert.NotNull(ok);
+
+            var ie = ok.Value as IEnumerable<string>;
+
+            Assert.NotNull(ie);
+
+            Assert.Equal(AssertValues.GenresCount, ie.ToList().Count);
 
         }
     }

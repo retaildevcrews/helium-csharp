@@ -1,9 +1,6 @@
 ### Build and Unit Test the App
 FROM mcr.microsoft.com/dotnet/core/sdk:2.2 AS build
 
-RUN mkdir -p /src/app && \
-    mkdir -p /src/unit-tests
-
 ### Optional: Set Proxy Variables
 # ENV http_proxy {value}
 # ENV https_proxy {value}
@@ -12,11 +9,10 @@ RUN mkdir -p /src/app && \
 # ENV no_proxy {value}
 # ENV NO_PROXY {value}
 
-WORKDIR /src/unit-tests
-
 ### copy the source and unit tests code 
-COPY app /src/app
-COPY unit-tests /src/unit-tests
+COPY . /src
+
+WORKDIR /src/unit-tests
 
 ### Run the unit tests
 RUN dotnet test --logger:trx
@@ -32,6 +28,7 @@ RUN dotnet publish -c Release -o /app
 ### Build the runtime container
 FROM mcr.microsoft.com/dotnet/core/aspnet:2.2 AS runtime
 
+### if port is changed, also update value in Constants.cs
 EXPOSE 4120
 WORKDIR /app
 
