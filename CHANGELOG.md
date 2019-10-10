@@ -1,7 +1,8 @@
 # Change Log
 
-## Oct 8, 2019
+## Oct 10, 2019
 
+- Added ability to deploy Integration Test to App Service as a container
 - Enhanced exception logging to include CosmosDB information where available
 - Simplified dockerfile
 
