@@ -28,7 +28,6 @@
 - renamed class IDal to DAL for clarity
 - added asserts to check /partitionKey in unit tests
 - added architecture diagram
-- added custom port instructions to readme
 - added webhook setup command to readme
 
 ## Sept 5, 2019
