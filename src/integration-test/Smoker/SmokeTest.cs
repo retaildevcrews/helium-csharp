@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Runtime.Serialization.Json;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Smoker
@@ -59,57 +60,7 @@ namespace Smoker
             // send each request
             foreach (Request r in requestList)
             {
-                try
-                {
-                    // create the request
-                    using (req = new HttpRequestMessage(new HttpMethod(r.Verb), MakeUrl(r.Url)))
-                    {
-                        dt = DateTime.Now;
-
-                        // process the response
-                        using (HttpResponseMessage resp = await client.SendAsync(req))
-                        {
-                            body = await resp.Content.ReadAsStringAsync();
-
-                            Console.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}", DateTime.Now.ToString("MM/dd hh:mm:ss"), (int)resp.StatusCode, (int)DateTime.Now.Subtract(dt).TotalMilliseconds, resp.Content.Headers.ContentLength, r.Url);
-
-                            // validate the response
-                            if (r.Validation != null)
-                            {
-                                ValidateContentType(r, resp);
-                                ValidateContentLength(r, resp);
-                                ValidateContains(r, body);
-                                ValidateJson(r, body);
-                            }
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    // ignore any error and keep processing
-                    Console.WriteLine("{0}\tException: {1}", DateTime.Now.ToString("MM/dd hh:mm:ss"), ex.Message);
-                    isError = true;
-                }
-            }
-
-            return isError;
-        }
-
-        // run the tests
-        public async Task RunLoop(int sleepMs)
-        {
-            DateTime dt;
-            HttpRequestMessage req;
-            string body;
-
-            // send the first request as a warm up
-            await Warmup(requestList[0].Url);
-
-            // loop forever
-            while (true)
-            {
-                // send each request
-                foreach (Request r in requestList)
+                if (r.IsBaseTest)
                 {
                     try
                     {
@@ -140,10 +91,164 @@ namespace Smoker
                     {
                         // ignore any error and keep processing
                         Console.WriteLine("{0}\tException: {1}", DateTime.Now.ToString("MM/dd hh:mm:ss"), ex.Message);
+                        isError = true;
+                    }
+                }
+            }
+
+            return isError;
+        }
+
+        public async Task<string> RunFromWebRequest(int id)
+        {
+            DateTime dt;
+            HttpRequestMessage req;
+            string body;
+            string res = string.Empty;
+
+            // send the first request as a warm up
+            await Warmup(requestList[0].Url);
+
+            // send each request
+            foreach (Request r in requestList)
+            {
+                if (r.IsBaseTest)
+                {
+                    try
+                    {
+                        // create the request
+                        using (req = new HttpRequestMessage(new HttpMethod(r.Verb), MakeUrl(r.Url)))
+                        {
+                            dt = DateTime.Now;
+
+                            // process the response
+                            using (HttpResponseMessage resp = await client.SendAsync(req))
+                            {
+                                body = await resp.Content.ReadAsStringAsync();
+
+                                Console.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}", id, (int)resp.StatusCode, (int)DateTime.Now.Subtract(dt).TotalMilliseconds, resp.Content.Headers.ContentLength, r.Url);
+
+                                res += string.Format("{0}\t{1}\t{2}\t{3}\t{4}\r\n", DateTime.Now.ToString("MM/dd hh:mm:ss"), (int)resp.StatusCode, (int)DateTime.Now.Subtract(dt).TotalMilliseconds, resp.Content.Headers.ContentLength, r.Url);
+
+                                // validate the response
+                                if (r.Validation != null)
+                                {
+                                    res += ValidateContentType(r, resp);
+                                    res += ValidateContentLength(r, resp);
+                                    res += ValidateContains(r, body);
+                                    res += ValidateJson(r, body);
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        // ignore any error and keep processing
+                        Console.WriteLine("{0}\tException: {1}", DateTime.Now.ToString("MM/dd hh:mm:ss"), ex.Message);
+                    }
+                }
+            }
+
+            return res;
+        }
+
+        // run the tests
+        public async Task RunLoop(int id, HeliumIntegrationTest.Config config, CancellationToken ct)
+        {
+            DateTime dt;
+            HttpRequestMessage req;
+            string body;
+
+            int i = 0;
+            Request r;
+
+            Random rand = new Random(DateTime.Now.Millisecond);
+
+            if (ct.IsCancellationRequested)
+            {
+                return;
+            }
+
+            // send the first request as a warm up
+            await Warmup(requestList[0].Url);
+
+            // loop forever
+            while (true)
+            {
+                i = 0;
+
+                // send each request
+                while (i < requestList.Count)
+                {
+                    if (ct.IsCancellationRequested)
+                    {
+                        return;
+                    }
+
+                    if (config.Random)
+                    {
+                        i = rand.Next(0, requestList.Count - 1);
+                    }
+
+                    r = requestList[i];
+
+                    try
+                    {
+                        // create the request
+                        using (req = new HttpRequestMessage(new HttpMethod(r.Verb), MakeUrl(r.Url)))
+                        {
+                            dt = DateTime.Now;
+
+                            // process the response
+                            using (HttpResponseMessage resp = await client.SendAsync(req))
+                            {
+                                body = await resp.Content.ReadAsStringAsync();
+
+                                // datetime is redundant for web app
+                                if (config.RunWeb)
+                                {
+                                    Console.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}", id, (int)resp.StatusCode, (int)DateTime.Now.Subtract(dt).TotalMilliseconds, resp.Content.Headers.ContentLength, r.Url);
+                                }
+                                else
+                                {
+                                    Console.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}\t{5}", id, DateTime.Now.ToString("MM/dd hh:mm:ss"), (int)resp.StatusCode, (int)DateTime.Now.Subtract(dt).TotalMilliseconds, resp.Content.Headers.ContentLength, r.Url);
+                                }
+
+                                // validate the response
+                                if (r.Validation != null)
+                                {
+                                    ValidateContentType(r, resp);
+                                    ValidateContentLength(r, resp);
+                                    ValidateContains(r, body);
+                                    ValidateJson(r, body);
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        // ignore any error and keep processing
+                        Console.WriteLine("{0}\tException: {1}", DateTime.Now.ToString("MM/dd hh:mm:ss"), ex.Message);
+                    }
+
+                    // increment the index
+                    if (!config.Random)
+                    {
+                        i++;
+                    }
+
+                    if (ct.IsCancellationRequested)
+                    {
+                        return;
                     }
 
                     // sleep between each request
-                    System.Threading.Thread.Sleep(sleepMs);
+                    System.Threading.Thread.Sleep(config.SleepMs);
+
+                    if (ct.IsCancellationRequested)
+                    {
+                        return;
+                    }
                 }
             }
         }
@@ -170,26 +275,34 @@ namespace Smoker
         }
 
         // validate the content type header if specified in the test
-        public void ValidateContentType(Request r, HttpResponseMessage resp)
+        public string ValidateContentType(Request r, HttpResponseMessage resp)
         {
+            string res = string.Empty;
+
             if (!string.IsNullOrEmpty(r.ContentType))
             {
                 if (!resp.Content.Headers.ContentType.ToString().StartsWith(r.Validation.ContentType))
                 {
-                    Console.WriteLine("\tValidation Failed: ContentType: {0}", resp.Content.Headers.ContentType);
+                    res += string.Format("\tValidation Failed: ContentType: {0}\r\n", resp.Content.Headers.ContentType);
                 }
             }
+
+            Console.Write(res);
+
+            return res;
         }
 
         // validate the content length range if specified in test
-        public void ValidateContentLength(Request r, HttpResponseMessage resp)
+        public string ValidateContentLength(Request r, HttpResponseMessage resp)
         {
+            string res = string.Empty;
+
             // validate the content min length if specified in test
             if (r.Validation.MinLength > 0)
             {
                 if (resp.Content.Headers.ContentLength < r.Validation.MinLength)
                 {
-                    Console.WriteLine("\tValidation Failed: MinContentLength: {0}", resp.Content.Headers.ContentLength);
+                    res = string.Format("\tValidation Failed: MinContentLength: {0}\r\n", resp.Content.Headers.ContentLength);
                 }
             }
 
@@ -198,14 +311,20 @@ namespace Smoker
             {
                 if (resp.Content.Headers.ContentLength > r.Validation.MaxLength)
                 {
-                    Console.WriteLine("\tValidation Failed: MaxContentLength: {0}", resp.Content.Headers.ContentLength);
+                    res += string.Format("\tValidation Failed: MaxContentLength: {0}\r\n", resp.Content.Headers.ContentLength);
                 }
             }
+
+            Console.Write(res);
+
+            return res;
         }
 
         // validate the contains rules
-        public void ValidateContains(Request r, string body)
+        public string ValidateContains(Request r, string body)
         {
+            string res = string.Empty;
+
             if (!string.IsNullOrEmpty(body) && r.Validation.Contains != null && r.Validation.Contains.Count > 0)
             {
                 // validate each rule
@@ -214,15 +333,21 @@ namespace Smoker
                     // compare values
                     if (!body.Contains(c.Value, c.IsCaseSensitive ? StringComparison.InvariantCultureIgnoreCase : StringComparison.InvariantCulture))
                     {
-                        Console.WriteLine("\tValidation Failed: Contains: {0}", c.Value.PadRight(40).Substring(0, 40).Trim());
+                        res += string.Format("\tValidation Failed: Contains: {0}\r\n", c.Value.PadRight(40).Substring(0, 40).Trim());
                     }
                 }
             }
+
+            Console.Write(res);
+
+            return res;
         }
 
         // run json validation rules
-        public void ValidateJson(Request r, string body)
+        public string ValidateJson(Request r, string body)
         {
+            string res = string.Empty;
+
             if (r.Validation.Json != null)
             {
                 if (r.Validation.Json.MinLength > 0 || r.Validation.Json.MaxLength > 0)
@@ -234,16 +359,20 @@ namespace Smoker
                     // validate min length
                     if (r.Validation.Json.MinLength > 0 && r.Validation.Json.MinLength > resList.Count)
                     {
-                        Console.WriteLine("\tValidation Failed: MinJsonCount: {0}", resList.Count);
+                        res += string.Format("\tValidation Failed: MinJsonCount: {0}\r\n", resList.Count);
                     }
 
                     // validate max length
                     if (r.Validation.Json.MaxLength > 0 && r.Validation.Json.MaxLength < resList.Count)
                     {
-                        Console.WriteLine("\tValidation Failed: MaxJsonCount: {0}", resList.Count);
+                        res += string.Format("\tValidation Failed: MaxJsonCount: {0}\r\n", resList.Count);
                     }
                 }
             }
+
+            Console.Write(res);
+
+            return res;
         }
 
         // read json test file

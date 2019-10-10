@@ -248,12 +248,12 @@ curl http://localhost:4120/healthz
 # make sure you are in the src folder
 cd ..
 
-# build the dev container
+# build the dev image
 # you may see red warnings in the build output, they are safe to ignore
 # examples: "debconf: ..." or "dpkg-preconfigure: ..."
 docker build -t ${He_Name}-dev -f Dockerfile-Dev .
 
-# run the image
+# run the container
 # mount your ~/.azure directory to container root/.azure directory
 docker run -d -p 4120:4120 --name ${He_Name} -v ~/.azure:/root/.azure ${He_Name}-dev "dotnet" "run" "${He_Name}"
 
@@ -275,6 +275,31 @@ Run the Integration Test
 cd ../integration-test
 
 dotnet run -- -h http://localhost:4120
+
+# run the following to see complete usage options
+dotnet run -- --help
+
+cd ..
+
+```
+
+(Alternative) Run the Integration Test as a Docker container
+
+- Make sure the app is running per previous step
+
+```bash
+
+cd ../integration-test
+
+# build the image
+docker build -t ${He_Name}-integration .
+
+# run the tests in the container
+docker run --name ${He_Name}-test ${He_Name}-integration -h http://localhost:4120
+
+# stop and remove the container
+docker stop ${He_Name}-test
+docker rm ${He_Name}-test
 
 cd ..
 
