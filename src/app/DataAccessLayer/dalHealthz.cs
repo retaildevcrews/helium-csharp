@@ -10,7 +10,7 @@ namespace Helium.DataAccessLayer
             // build the payload
             string res = GetCount("Movie") + "\r\n";
             res += GetCount("Actor") + "\r\n";
-            res += GetCount("Genre") +"\r\n";
+            res += GetCount("Genre") + "\r\n";
             res += "Instance: " + System.Environment.GetEnvironmentVariable("WEBSITE_ROLE_INSTANCE_ID") + "\r\n";
 
             return res;

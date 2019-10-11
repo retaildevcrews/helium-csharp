@@ -26,10 +26,11 @@ namespace Helium.DataAccessLayer
         {
             // get the partition key for the actor ID
             // note: if the key cannot be determined from the ID, ReadDocumentAsync cannot be used.
+            // GetPartitionKey will throw an ArgumentException if the actorId isn't valid
             RequestOptions requestOptions = new RequestOptions { PartitionKey = new PartitionKey(GetPartitionKey(actorId)) };
 
             // get an actor by ID
-            return await client.ReadDocumentAsync<Actor>(collectionLink.ToString() + "/docs/" + actorId,  requestOptions);
+            return await client.ReadDocumentAsync<Actor>(collectionLink.ToString() + "/docs/" + actorId, requestOptions);
         }
 
         /// <summary>
@@ -39,21 +40,35 @@ namespace Helium.DataAccessLayer
         public IQueryable<Actor> GetActors()
         {
             // get all actors
-            string sql = actorSelect + "where m.type = 'Actor' order by m.actorId";
-            return QueryActorWorker(sql);
+            return GetActorsByQuery(string.Empty);
         }
 
         /// <summary>
         /// Get Actors by search string
         /// 
         /// The search is a "contains" search on actor name
+        /// If q is empty, all actors are returned
         /// </summary>
         /// <param name="q">search term</param>
         /// <returns>a list of Actors or an empty list</returns>
         public IQueryable<Actor> GetActorsByQuery(string q)
         {
-            // get actors by a "like" search on name
-            string sql = string.Format("{0} where contains(m.textSearch, '{1}')", actorSelect, q.ToLower());
+            if (q == null)
+            {
+                q = string.Empty;
+            }
+
+            // convert to lower and escape embedded '
+            q = q.Trim().ToLower().Replace("'", "''");
+
+            string sql = actorSelect + "where m.type = 'Actor' order by m.actorId";
+
+            if (!string.IsNullOrEmpty(q))
+            {
+                // get actors by a "like" search on name
+                sql = string.Format("{0} where contains(m.textSearch, '{1}')", actorSelect, q);
+            }
+
             return QueryActorWorker(sql);
         }
 

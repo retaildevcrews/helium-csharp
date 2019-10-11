@@ -6,7 +6,7 @@ namespace Helium
     {
         // response that prevents all indexing
         static readonly byte[] responseBytes = System.Text.Encoding.UTF8.GetBytes("# Prevent indexing\r\nUser-agent: *\r\nDisallow: /\r\n");
-        
+
         /// <summary>
         /// Middleware extension method to handle /robots*.txt request
         /// App Service sends a warmup request of /robots8327.txt (where 8327 is a random number)
@@ -25,7 +25,7 @@ namespace Helium
 
                 // matches /robots*.txt (/robots.txt /robots123.txt etc)
                 // does not match /robots/robots.txt
-                if (! path.Contains("/") && path.StartsWith("robots") && path.EndsWith(".txt"))
+                if (!path.Contains("/") && path.StartsWith("robots") && path.EndsWith(".txt"))
                 {
                     // return the content
                     context.Response.ContentType = "text/plain";

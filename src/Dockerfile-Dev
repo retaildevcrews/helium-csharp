@@ -1,9 +1,6 @@
 ### Build a developer version of the container
 FROM mcr.microsoft.com/dotnet/core/sdk:2.2
 
-RUN mkdir -p /src && \
-    mkdir -p /root/.azure
-
 ### Optional: Set Proxy Variables
 # ENV http_proxy {value}
 # ENV https_proxy {value}
@@ -12,15 +9,17 @@ RUN mkdir -p /src && \
 # ENV no_proxy {value}
 # ENV NO_PROXY {value}
 
+RUN mkdir -p /root/.azure
+
 ### copy the source and unit tests
 COPY . /src
 
+### if port is changed, also update value in Constants.cs
 EXPOSE 4120
 WORKDIR /src/app
 
 ### install azure cli
-RUN dotnet restore && \
-    apt-get update && \
+RUN apt-get update && \
     apt-get install -y apt-transport-https ca-certificates curl software-properties-common libssl-dev git wget nano lsb-release jq && \
     curl -sL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > /etc/apt/trusted.gpg.d/microsoft.asc.gpg && \
     CLI_REPO=$(lsb_release -cs) && \

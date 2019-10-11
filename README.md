@@ -1,21 +1,21 @@
 ---
 page_type: sample
 languages:
-- csharp
+  - csharp
 products:
-- aspnet-core
-- azure-app-service
-- azure-cosmos-db
-- azure-devops
-- azure-container-registry
-- azure-key-vault
-- azure-monitor
+  - aspnet-core
+  - azure-app-service
+  - azure-cosmos-db
+  - azure-devops
+  - azure-container-registry
+  - azure-key-vault
+  - azure-monitor
 roles:
-- developer
-- devops-engineer
-- solution-architect
+  - developer
+  - devops-engineer
+  - solution-architect
 levels:
-- beginner
+  - beginner
 
 description: "A sample ASP.NET Core WebAPI for bootstrapping your next App Service app using Managed Identity and Key Vault"
 
@@ -29,44 +29,44 @@ urlFragment: "/azure-samples/app-service-managed-identity-key-vault-csharp"
 
 This sample is an ASP.NET Core WebAPI application designed to "fork and code" with the following features:
 
-* Securely build, deploy and run an App Service (Web App for Containers) application
-* Use Managed Identity to securely access resources
-* Securely store secrets in Key Vault
-* Securely build and deploy the Docker container from Container Registry or Azure DevOps
-* Connect to and query CosmosDB
-* Automatically send telemetry and logs to Azure Monitor
+- Securely build, deploy and run an App Service (Web App for Containers) application
+- Use Managed Identity to securely access resources
+- Securely store secrets in Key Vault
+- Securely build and deploy the Docker container from Container Registry or Azure DevOps
+- Connect to and query CosmosDB
+- Automatically send telemetry and logs to Azure Monitor
 
 ![alt text](./docs/images/architecture.jpg "Architecture Diagram")
 
 ## Contents
 
-| File/folder           | Description |
-|-----------------------|--------------------------------------------|
-| `.gitignore`          | Define what to ignore at commit time |
-| `azure-pipelines.yml` | Azure DevOps CI-CD Pipeline |
-| `CHANGELOG.md`        | Repo change log |
-| `CODE_OF_CONDUCT.md`  | Microsoft Open Source Code of Conduct |
+| File/folder           | Description                             |
+| --------------------- | --------------------------------------- |
+| `.gitignore`          | Define what to ignore at commit time    |
+| `azure-pipelines.yml` | Azure DevOps CI-CD Pipeline             |
+| `CHANGELOG.md`        | Repo change log                         |
+| `CODE_OF_CONDUCT.md`  | Microsoft Open Source Code of Conduct   |
 | `CONTRIBUTING.md`     | Guidelines for contributing to the repo |
-| `LICENSE`             | The license for the sample |
-| `README.md`           | This README file |
-| `SECURITY.md`         | Microsoft Security information |
-| `src`                 | Source code and tests |
+| `LICENSE`             | The license for the sample              |
+| `README.md`           | This README file                        |
+| `SECURITY.md`         | Microsoft Security information          |
+| `src`                 | Source code and tests                   |
 
 ## Prerequisites
 
-* Azure subscription with permissions to create:
-  * Resource Groups, Service Principals, Keyvault, CosmosDB, App Service, Azure Container Registry, Azure Monitor
-* Bash shell (tested on Mac, Ubuntu, Windows with WSL2)
-  * Will not work in Cloud Shell unless you have a remote dockerd
-* Azure CLI 2.0.72+ ([download](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest)) 
-* Docker CLI ([download](https://docs.docker.com/install/))
-* .NET Core SDK 2.2 ([download](https://dotnet.microsoft.com/download))
-* Visual Studio Code (optional) ([download](https://code.visualstudio.com/download))
+- Azure subscription with permissions to create:
+  - Resource Groups, Service Principals, Keyvault, CosmosDB, App Service, Azure Container Registry, Azure Monitor
+- Bash shell (tested on Mac, Ubuntu, Windows with WSL2)
+  - Will not work in Cloud Shell unless you have a remote dockerd
+- Azure CLI 2.0.72+ ([download](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest))
+- Docker CLI ([download](https://docs.docker.com/install/))
+- .NET Core SDK 2.2 ([download](https://dotnet.microsoft.com/download))
+- Visual Studio Code (optional) ([download](https://code.visualstudio.com/download))
 
 ## Setup
 
-* Fork this repo and clone to your local machine
-  * cd to the base directory of the repo
+- Fork this repo and clone to your local machine
+  - cd to the base directory of the repo
 
 Login to Azure and select subscription
 
@@ -89,7 +89,7 @@ Choose a unique DNS name
 # this will be the prefix for all resources
 # do not include punctuation - only use a-z and 0-9
 # must be at least 5 characters long
-# must start with a-z
+# must start with a-z (only lowercase)
 export He_Name="youruniquename"
 
 ### if true, change He_Name
@@ -104,22 +104,19 @@ nslookup ${He_Name}.azurecr.io
 
 Create Resource Groups
 
-* When experimenting with this sample, you should create new resource groups to avoid accidentally deleting resources
-  * If you use an existing resource group, please make sure to apply resource locks to avoid accidentally deleting resources
-  
-* You will create 3 resource groups
-  * One for CosmosDB
-  * One for ACR
-  * One for App Service, Key Vault and Azure Monitor
+- When experimenting with this sample, you should create new resource groups to avoid accidentally deleting resources
+
+  - If you use an existing resource group, please make sure to apply resource locks to avoid accidentally deleting resources
+
+- You will create 3 resource groups
+  - One for CosmosDB
+  - One for ACR
+  - One for App Service, Key Vault and Azure Monitor
 
 ```bash
 
 # set location
 export He_Location=centralus
-
-# set port
-# if custom port value is set, make sure to update the value in the Dockerfile
-export He_Port=4120
 
 # resource group names
 export He_ACR_RG=${He_Name}-rg-acr
@@ -149,9 +146,9 @@ source ~/{yoursameuniquename}.env
 
 Create and load sample data into CosmosDB
 
-* This takes several minutes to run
-* This sample is designed to use a simple dataset from IMDb of 100 movies and their associated actors and genres
-  * See full explanation of data model design decisions [here:](https://github.com/4-co/imdb)
+- This takes several minutes to run
+- This sample is designed to use a simple dataset from IMDb of 100 movies and their associated actors and genres
+  - See full explanation of data model design decisions [here:](https://github.com/4-co/imdb)
 
 ```bash
 
@@ -181,14 +178,14 @@ export He_Cosmos_RW_Key=$(az cosmosdb keys list -n $He_Name -g $He_Cosmos_RG --q
 # run the IMDb Import
 docker run -it --rm fourco/imdb-import $He_Name $He_Cosmos_RW_Key $He_Cosmos_DB $He_Cosmos_Col
 
-# option: Run ./saveenv.sh to save latest variables
+# Optional: Run ./saveenv.sh to save latest variables
 
 ```
 
 Create Azure Key Vault
 
-* All secrets are stored in Azure Key Vault for security
-  * This sample uses Managed Identity to access Key Vault
+- All secrets are stored in Azure Key Vault for security
+  - This sample uses Managed Identity to access Key Vault
 
 ```bash
 
@@ -201,10 +198,6 @@ az keyvault secret set -o table --vault-name $He_Name --name "CosmosKey" --value
 az keyvault secret set -o table --vault-name $He_Name --name "CosmosDatabase" --value $He_Cosmos_DB
 az keyvault secret set -o table --vault-name $He_Name --name "CosmosCollection" --value $He_Cosmos_Col
 
-# add port 
-# note: this is only required if He_Port is not the default 4120
-az keyvault secret set -o table --vault-name $He_Name --name "Port" --value $He_Port
-
 ```
 
 (Optional) In order to run the application locally, each developer will need access to the Key Vault. Since you created the Key Vault during setup, you will automatically have permission, so this step is only required for additional developers.
@@ -212,6 +205,7 @@ az keyvault secret set -o table --vault-name $He_Name --name "Port" --value $He_
 Use the following command to grant permissions to each developer that will need access.
 
 ```bash
+
 # get the object id for each developer (optional)
 export dev_Object_Id=$(az ad user show --id {developer email address} --query objectId -o tsv)
 
@@ -222,7 +216,7 @@ az keyvault set-policy -n $He_Name --secret-permissions get list --key-permissio
 
 Run the unit tests
 
-* The unit tests run as part of the Docker build process. You can also run the unit tests manually.
+- The unit tests run as part of the Docker build process. You can also run the unit tests manually.
 
 ```bash
 
@@ -243,19 +237,47 @@ dotnet run $He_Name &
 
 # test the application
 # the application takes about 10 seconds to start
-curl http://localhost:${He_Port}/healthz
+curl http://localhost:4120/healthz
+
+```
+
+(Alternative) Run the application as a local container
+
+```bash
+
+# make sure you are in the src folder
+cd ..
+
+# build the dev image
+# you may see red warnings in the build output, they are safe to ignore
+# examples: "debconf: ..." or "dpkg-preconfigure: ..."
+docker build -t helium-dev -f Dockerfile-Dev .
+
+# run the container
+# mount your ~/.azure directory to container root/.azure directory
+docker run -d -p 4120:4120 --name helium-dev -v ~/.azure:/root/.azure helium-dev "dotnet" "run" "${He_Name}"
+
+# check the logs
+# re-run until the application started message appears
+docker logs helium-dev
+
+# curl the health check endpoint
+curl http://localhost:4120/healthz
 
 ```
 
 Run the Integration Test
 
-* make sure the app is running per previous step
+- Make sure the app is running per previous step
 
 ```bash
 
 cd ../integration-test
 
-dotnet run -- -h http://localhost:${He_Port}
+dotnet run -- -h http://localhost:4120
+
+# run the following to see complete usage options
+dotnet run -- --help
 
 cd ..
 
@@ -271,9 +293,19 @@ fg
 
 ```
 
+(Alternative) Stop and remove the container
+
+```bash
+
+docker stop ${He_Name}
+
+docker rm ${He_Name}
+
+```
+
 Setup Container Registry
 
-* Create the Container Registry with admin access *disabled*
+- Create the Container Registry with admin access _disabled_
 
 ```bash
 
@@ -293,7 +325,7 @@ az acr build -r $He_Name -t $He_Name.azurecr.io/helium-csharp .
 
 Create Azure Monitor
 
-* The Application Insights extension is in preview and needs to be added to the CLI
+- The Application Insights extension is in preview and needs to be added to the CLI
 
 ```bash
 
@@ -306,13 +338,13 @@ export He_AppInsights_Key=$(az monitor app-insights component create -g $He_App_
 # add App Insights Key to Key Vault
 az keyvault secret set -o table --vault-name $He_Name --name "AppInsightsKey" --value $He_AppInsights_Key
 
-# Option: Run ./saveenv.sh to save latest variables
+# Optional: Run ./saveenv.sh to save latest variables
 
 ```
 
 Create a Service Principal for Container Registry
 
-* App Service will use this Service Principal to access Container Registry
+- App Service will use this Service Principal to access Container Registry
 
 ```bash
 
@@ -330,13 +362,13 @@ az role assignment create --assignee $He_SP_ID --scope $He_ACR_Id --role acrpull
 az keyvault secret set -o table --vault-name $He_Name --name "AcrUserId" --value $He_SP_ID
 az keyvault secret set -o table --vault-name $He_Name --name "AcrPassword" --value $He_SP_PWD
 
-# Option: Run ./saveenv.sh to save latest variables
+# Optional: Run ./saveenv.sh to save latest variables
 
 ```
 
 Create and configure App Service (Web App for Containers)
 
-* App Service will fail to start until configured properly
+- App Service will fail to start until configured properly
 
 ```bash
 
@@ -401,56 +433,72 @@ dotnet run -- -h https://${He_Name}.azurewebsites.net
 
 ```
 
+(Alternative) Run the Integration Test as a Docker container
+
+```bash
+
+# build the image
+docker build -t helium-integration .
+
+# run the tests in the container
+docker run --name helium-integration helium-integration -h https://${He_Name}.azurewebsites.net
+
+# stop and remove the container
+docker stop helium-integration
+docker rm helium-integration
+
+```
+
 Setup CI-CD with Azure DevOps
 
-* The [pipeline file](azure-pipelines.yml) contains the build definition for this sample
-* You will need to setup a "Container Registry Service Connection" in Azure DevOps before importing the build pipeline
-* The pipeline defines "helium" as the name of the service connection
-* You can change this to an existing service connection or create a new service connection called helium
-* If you use a different name, make sure to update the pipeline
+- The [pipeline file](azure-pipelines.yml) contains the build definition for this sample
+- You will need to setup a "Container Registry Service Connection" in Azure DevOps before importing the build pipeline
+- The pipeline defines "helium" as the name of the service connection
+- You can change this to an existing service connection or create a new service connection called helium
+- If you use a different name, make sure to update the pipeline
 
 Creating a new Azure DevOps project
 
-* Open Azure DevOps
-* Click on New Project
-* Enter the project information
-* Click on Create
+- Open Azure DevOps
+- Click on New Project
+- Enter the project information
+- Click on Create
 
 Adding a Service Connection
 
-* Click on the project created above
-* Click on Project Settings
-* Click on Service connections (under Pipelines heading)
-* Click on New service connection
-* Select Docker Registry
-* Select Azure Container Registry
-* Enter helium in the Connection name field
-* Select your Azure Subscription
-* Select your Container Registry
-* Ensure Allow all pipelines to use this connection is checked
-* Click OK
+- Click on the project created above
+- Click on Project Settings
+- Click on Service connections (under Pipelines heading)
+- Click on New service connection
+- Select Docker Registry
+- Select Azure Container Registry
+- Enter helium in the Connection name field
+- Select your Azure Subscription
+- Select your Container Registry
+- Ensure Allow all pipelines to use this connection is checked
+- Click OK
 
 Adding a pipeline
 
-* Click on Pipelines
-* Click on Create your first Pipeline
-* Select the repo that your code was forked to
-* Click run
+- Click on Pipelines
+- Click on Create your first Pipeline
+- Select the repo that your code was forked to
+- Click run
 
 ## Key concepts
 
 This sample is an ASP.NET Core WebAPI application designed to "fork and code" with the following features:
 
-* Securely build, deploy and run an App Service (Web App for Containers) application
-* Use Managed Identity to securely access resources
-* Securely store secrets in Key Vault
-* Securely build and deploy the Docker container from Container Registry or Azure DevOps
-* Connect to and query CosmosDB
-* Automatically send telemetry and logs to Azure Monitor
+- Securely build, deploy and run an App Service (Web App for Containers) application
+- Use Managed Identity to securely access resources
+- Securely store secrets in Key Vault
+- Securely build and deploy the Docker container from Container Registry or Azure DevOps
+- Connect to and query CosmosDB
+- Automatically send telemetry and logs to Azure Monitor
 
 ## Contributing
 
-This project welcomes contributions and suggestions.  Most contributions require you to agree to a
+This project welcomes contributions and suggestions. Most contributions require you to agree to a
 Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
 the rights to use your contribution. For details, visit [Microsoft Contributor License Agreement](https://cla.opensource.microsoft.com).
 

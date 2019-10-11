@@ -18,7 +18,7 @@
   </PropertyGroup> 
 
   <ItemGroup>
-    <Compile Include="..\Middleware\robotsText.cs" />
+    <Compile Include="..\integration-test\Middleware\robotsText.cs" />
   </ItemGroup>
 
   <ItemGroup>

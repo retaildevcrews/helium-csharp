@@ -73,8 +73,8 @@
     "Validation": {
       "Code": 200,
       "ContentType": "text/plain",
-      "MinLength": 28,
-      "MaxLength": 28,
+      "MinLength": 48,
+      "MaxLength": 48,
       "MaxMilliseconds": 0,
       "Contains": 
       [
@@ -103,8 +103,8 @@
     "Validation": {
       "Code": 200,
       "ContentType": "text/plain",
-      "MinLength": 28,
-      "MaxLength": 28,
+      "MinLength": 48,
+      "MaxLength": 48,
       "MaxMilliseconds": 0,
       "Contains": 
       [

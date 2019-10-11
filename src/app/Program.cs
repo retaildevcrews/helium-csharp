@@ -52,7 +52,7 @@ namespace Helium
 
                 // Create data access layer
                 dal = CreateDal();
-                
+
                 // validate the CosmosDB connection / collection
                 dal.GetHealthz();
 
@@ -168,7 +168,7 @@ namespace Helium
                     }
                     catch (Exception ex)
                     {
-                        logger.LogError("DAL reload failed");
+                        logger.LogError(Constants.DALReloadError);
                         logger.LogError(ex.ToString());
                     }
 
@@ -177,7 +177,7 @@ namespace Helium
                 }
                 else
                 {
-                    logger.LogError("DAL reload failed");
+                    logger.LogError(Constants.DALReloadError);
                 }
             }
 
@@ -247,16 +247,8 @@ namespace Helium
         /// <param name="builder">Web Host Builder</param>
         static void UseUrls(IWebHostBuilder builder)
         {
-            // get the port or use default
-            int port = config.GetValue<int>(Constants.Port);
-
-            if (port == 0)
-            {
-                port = 4120;
-            }
-
-            // listen on the port
-            builder.UseUrls(string.Format("http://*:{0}/", port));
+            // listen on the default port
+            builder.UseUrls(string.Format("http://*:{0}/", Constants.Port));
         }
 
         /// <summary>
@@ -274,22 +266,22 @@ namespace Helium
             // validate required parameters
             if (string.IsNullOrEmpty(cosmosUrl))
             {
-                throw new ArgumentException(string.Format(Constants.CosmosUrlError, cosmosUrl));
+                throw new ArgumentException(string.Format("CosmosUrl not set correctly {0}", cosmosUrl));
             }
 
             if (string.IsNullOrEmpty(cosmosKey))
             {
-                throw new ArgumentException(string.Format(Constants.CosmosKeyError, cosmosKey));
+                throw new ArgumentException(string.Format("CosmosKey not set correctly {0}", cosmosKey));
             }
 
             if (string.IsNullOrEmpty(cosmosDatabase))
             {
-                throw new ArgumentException(string.Format(Constants.CosmosDatabaseError, cosmosDatabase));
+                throw new ArgumentException(string.Format("CosmosDatabase not set correctly {0}", cosmosDatabase));
             }
 
             if (string.IsNullOrEmpty(cosmosCollection))
             {
-                throw new ArgumentException(string.Format(Constants.CosmosCollectionError, cosmosCollection));
+                throw new ArgumentException(string.Format("CosmosCollection not set correctly {0}", cosmosCollection));
             }
 
             return new DAL(cosmosUrl, cosmosKey, cosmosDatabase, cosmosCollection);
@@ -302,7 +294,8 @@ namespace Helium
         static void UseDal(IWebHostBuilder builder)
         {
             // add the data access layer as a singleton
-            builder.ConfigureServices(services => {
+            builder.ConfigureServices(services =>
+            {
                 services.AddSingleton<IDAL>(dal);
             });
         }
@@ -318,13 +311,13 @@ namespace Helium
             string kvName = Environment.GetEnvironmentVariable(Constants.KeyVaultName);
 
             // command line arg overrides environment variable
-            if (args.Length > 0 && ! args[0].StartsWith("-"))
+            if (args.Length > 0 && !args[0].StartsWith("-"))
             {
                 kvName = args[0].Trim();
             }
 
             // build the URL
-            if (!string.IsNullOrEmpty(kvName) && ! kvName.StartsWith("https://"))
+            if (!string.IsNullOrEmpty(kvName) && !kvName.StartsWith("https://"))
             {
                 return "https://" + kvName + ".vault.azure.net/";
             }

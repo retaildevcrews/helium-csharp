@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Xunit;
 
 namespace UnitTests
 {
@@ -43,7 +42,9 @@ namespace UnitTests
 
         public Task<Actor> GetActorAsync(string actorId)
         {
-            foreach(Actor a in Actors)
+            string pk = Helium.DataAccessLayer.DAL.GetPartitionKey(actorId);
+
+            foreach (Actor a in Actors)
             {
                 if (a.ActorId == actorId)
                 {
@@ -51,7 +52,7 @@ namespace UnitTests
                 }
             }
 
-            throw new Exception("Invalid id");
+            throw new ArgumentException("NotFound");
         }
 
         public IQueryable<Actor> GetActors()
@@ -65,7 +66,7 @@ namespace UnitTests
 
             q = q.ToLower().Trim();
 
-            foreach(Actor a in Actors)
+            foreach (Actor a in Actors)
             {
                 if (a.TextSearch.Contains(q))
                 {
@@ -83,6 +84,8 @@ namespace UnitTests
 
         public Task<Movie> GetMovieAsync(string movieId)
         {
+            string pk = Helium.DataAccessLayer.DAL.GetPartitionKey(movieId);
+
             foreach (Movie m in Movies)
             {
                 if (m.MovieId == movieId)
@@ -91,7 +94,7 @@ namespace UnitTests
                 }
             }
 
-            throw new Exception("Invalid id");
+            throw new ArgumentException("NotFound");
         }
 
         public IQueryable<Movie> GetMovies()

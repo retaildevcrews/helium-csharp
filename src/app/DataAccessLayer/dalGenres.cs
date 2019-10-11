@@ -21,5 +21,5 @@ namespace Helium.DataAccessLayer
             return client.CreateDocumentQuery<string>(collectionLink, new SqlQuerySpec(sql), feedOptions);
         }
 
-   }
+    }
 }

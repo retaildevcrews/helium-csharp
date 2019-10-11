@@ -1,5 +1,11 @@
 # Change Log
 
+## Oct 10, 2019
+
+- Added ability to deploy Integration Test to App Service as a container
+- Enhanced exception logging to include CosmosDB information where available
+- Simplified dockerfile
+
 ## Sept 27, 2019
 
 - Added logic to support CosmosDB key rotation
@@ -22,7 +28,6 @@
 - renamed class IDal to DAL for clarity
 - added asserts to check /partitionKey in unit tests
 - added architecture diagram
-- added custom port instructions to readme
 - added webhook setup command to readme
 
 ## Sept 5, 2019
