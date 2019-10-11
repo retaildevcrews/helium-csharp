@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Xunit;
 
 namespace UnitTests
 {
@@ -45,7 +44,7 @@ namespace UnitTests
         {
             string pk = Helium.DataAccessLayer.DAL.GetPartitionKey(actorId);
 
-            foreach(Actor a in Actors)
+            foreach (Actor a in Actors)
             {
                 if (a.ActorId == actorId)
                 {
@@ -67,7 +66,7 @@ namespace UnitTests
 
             q = q.ToLower().Trim();
 
-            foreach(Actor a in Actors)
+            foreach (Actor a in Actors)
             {
                 if (a.TextSearch.Contains(q))
                 {

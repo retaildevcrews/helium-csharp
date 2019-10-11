@@ -47,7 +47,7 @@ namespace Helium.Controllers
                 // log and return 500
                 logger.LogError("DocumentClientException:GetGenres:{0}:{1}:{2}:{3}\r\n{4}", dce.StatusCode, dce.Error, dce.ActivityId, dce.Message, dce);
 
-                return new ObjectResult("GenresControllerException")
+                return new ObjectResult(Constants.GenresControllerException)
                 {
                     StatusCode = Constants.ServerError
                 };
@@ -58,7 +58,7 @@ namespace Helium.Controllers
                 // log and return 500
                 logger.LogError("Exception:GetGenres\r\n{0}", ex);
 
-                return new ObjectResult("GenresControllerException")
+                return new ObjectResult(Constants.GenresControllerException)
                 {
                     StatusCode = Constants.ServerError
                 };

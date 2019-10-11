@@ -168,7 +168,7 @@ namespace Helium
                     }
                     catch (Exception ex)
                     {
-                        logger.LogError("DAL reload failed");
+                        logger.LogError(Constants.DALReloadError);
                         logger.LogError(ex.ToString());
                     }
 
@@ -177,7 +177,7 @@ namespace Helium
                 }
                 else
                 {
-                    logger.LogError("DAL reload failed");
+                    logger.LogError(Constants.DALReloadError);
                 }
             }
 
@@ -266,22 +266,22 @@ namespace Helium
             // validate required parameters
             if (string.IsNullOrEmpty(cosmosUrl))
             {
-                throw new ArgumentException(string.Format(Constants.CosmosUrlError, cosmosUrl));
+                throw new ArgumentException(string.Format("CosmosUrl not set correctly {0}", cosmosUrl));
             }
 
             if (string.IsNullOrEmpty(cosmosKey))
             {
-                throw new ArgumentException(string.Format(Constants.CosmosKeyError, cosmosKey));
+                throw new ArgumentException(string.Format("CosmosKey not set correctly {0}", cosmosKey));
             }
 
             if (string.IsNullOrEmpty(cosmosDatabase))
             {
-                throw new ArgumentException(string.Format(Constants.CosmosDatabaseError, cosmosDatabase));
+                throw new ArgumentException(string.Format("CosmosDatabase not set correctly {0}", cosmosDatabase));
             }
 
             if (string.IsNullOrEmpty(cosmosCollection))
             {
-                throw new ArgumentException(string.Format(Constants.CosmosCollectionError, cosmosCollection));
+                throw new ArgumentException(string.Format("CosmosCollection not set correctly {0}", cosmosCollection));
             }
 
             return new DAL(cosmosUrl, cosmosKey, cosmosDatabase, cosmosCollection);

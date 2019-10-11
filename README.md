@@ -89,7 +89,7 @@ Choose a unique DNS name
 # this will be the prefix for all resources
 # do not include punctuation - only use a-z and 0-9
 # must be at least 5 characters long
-# must start with a-z
+# must start with a-z (only lowercase)
 export He_Name="youruniquename"
 
 ### if true, change He_Name
@@ -251,15 +251,15 @@ cd ..
 # build the dev image
 # you may see red warnings in the build output, they are safe to ignore
 # examples: "debconf: ..." or "dpkg-preconfigure: ..."
-docker build -t ${He_Name}-dev -f Dockerfile-Dev .
+docker build -t helium-dev -f Dockerfile-Dev .
 
 # run the container
 # mount your ~/.azure directory to container root/.azure directory
-docker run -d -p 4120:4120 --name ${He_Name} -v ~/.azure:/root/.azure ${He_Name}-dev "dotnet" "run" "${He_Name}"
+docker run -d -p 4120:4120 --name helium-dev -v ~/.azure:/root/.azure helium-dev "dotnet" "run" "${He_Name}"
 
 # check the logs
 # re-run until the application started message appears
-docker logs ${He_Name}
+docker logs helium-dev
 
 # curl the health check endpoint
 curl http://localhost:4120/healthz
@@ -278,28 +278,6 @@ dotnet run -- -h http://localhost:4120
 
 # run the following to see complete usage options
 dotnet run -- --help
-
-cd ..
-
-```
-
-(Alternative) Run the Integration Test as a Docker container
-
-- Make sure the app is running per previous step
-
-```bash
-
-cd ../integration-test
-
-# build the image
-docker build -t ${He_Name}-integration .
-
-# run the tests in the container
-docker run --name ${He_Name}-test ${He_Name}-integration -h http://localhost:4120
-
-# stop and remove the container
-docker stop ${He_Name}-test
-docker rm ${He_Name}-test
 
 cd ..
 
@@ -452,6 +430,22 @@ Run Integration Test
 cd src/integration-test
 
 dotnet run -- -h https://${He_Name}.azurewebsites.net
+
+```
+
+(Alternative) Run the Integration Test as a Docker container
+
+```bash
+
+# build the image
+docker build -t helium-integration .
+
+# run the tests in the container
+docker run --name helium-integration helium-integration -h https://${He_Name}.azurewebsites.net
+
+# stop and remove the container
+docker stop helium-integration
+docker rm helium-integration
 
 ```
 

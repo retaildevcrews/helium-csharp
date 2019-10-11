@@ -12,16 +12,13 @@ FROM mcr.microsoft.com/dotnet/core/sdk:2.2 AS build
 ### copy the source and unit tests code 
 COPY . /src
 
-WORKDIR /src/unit-tests
-
 ### Run the unit tests
+WORKDIR /src/unit-tests
 RUN dotnet test --logger:trx
 
 ### Build the release app
 WORKDIR /src/app
-
 RUN dotnet publish -c Release -o /app
-
 
 ###########################################################
 
@@ -35,7 +32,7 @@ WORKDIR /app
 ### create a user
 RUN groupadd -g 4120 helium && \
     useradd -r  -u 4120 -g helium helium && \
-### dotnet needs a home directory for the secret store
+    ### dotnet needs a home directory for the secret store
     mkdir -p /home/helium && \
     chown -R helium:helium /home/helium
 

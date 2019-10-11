@@ -58,7 +58,7 @@ namespace Helium.Controllers
                 // log and return 500
                 logger.LogError("DocumentClientException:" + method + ":{0}:{1}:{2}:{3}\r\n{4}", dce.StatusCode, dce.Error, dce.ActivityId, dce.Message, dce);
 
-                return new ObjectResult("MoviesControllerException")
+                return new ObjectResult(Constants.MoviesControllerException)
                 {
                     StatusCode = Constants.ServerError
                 };
@@ -68,7 +68,7 @@ namespace Helium.Controllers
             {
                 logger.LogError(method + "\r\n{0}", ex);
 
-                return new ObjectResult("MoviesControllerException")
+                return new ObjectResult(Constants.MoviesControllerException)
                 {
                     StatusCode = Constants.ServerError
                 };
@@ -121,7 +121,7 @@ namespace Helium.Controllers
                     // log and return 500
                     logger.LogError("DocumentClientException:MovieByIdAsync:{0}:{1}:{2}:{3}\r\n{4}", dce.StatusCode, dce.Error, dce.ActivityId, dce.Message, dce);
 
-                    return new ObjectResult("MovieControllerException")
+                    return new ObjectResult(Constants.MoviesControllerException)
                     {
                         StatusCode = Constants.ServerError
                     };
@@ -133,7 +133,7 @@ namespace Helium.Controllers
                 // log and return 500
                 logger.LogError("Exception:GetActorByIdAsync:{0}\r\n{1}", e.Message, e);
 
-                return new ObjectResult("MovieControllerException")
+                return new ObjectResult(Constants.MoviesControllerException)
                 {
                     StatusCode = Constants.ServerError
                 };

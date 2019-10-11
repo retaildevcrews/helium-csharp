@@ -10,6 +10,9 @@ namespace HeliumIntegrationTest
     public class App
     {
         static readonly string defaultInputFile = "integration-test.json";
+        static readonly string fileNotFoundError = "File not found: {0}";
+        static readonly string sleepParameterError = "Invalid sleep (millisecond) parameter: {0}\r\n";
+        static readonly string threadsParameterError = "Invalid number of concurrent threads parameter: {0}\r\n";
         public static readonly Config config = new Config();
         public static readonly List<TaskRunner> taskRunners = new List<TaskRunner>();
         public static Smoker.Test smoker;
@@ -44,7 +47,7 @@ namespace HeliumIntegrationTest
                 IWebHostBuilder builder = WebHost.CreateDefaultBuilder(args)
                     .UseKestrel()
                     .UseStartup<Startup>()
-                    .UseUrls(string.Format("http://*:4122/"));
+                    .UseUrls("http://*:4122/");
 
                 // build the host
                 IWebHost host = builder.Build();
@@ -183,7 +186,7 @@ namespace HeliumIntegrationTest
                                 }
                                 else
                                 {
-                                    Console.WriteLine("File not found: {0}", file);
+                                    Console.WriteLine(fileNotFoundError, file);
                                 }
 
                                 i++;
@@ -208,7 +211,7 @@ namespace HeliumIntegrationTest
                             else
                             {
                                 // exit on error
-                                Console.WriteLine("Invalid sleep (millisecond) parameter: {0}\r\n", args[i + 1]);
+                                Console.WriteLine(sleepParameterError, args[i + 1]);
                                 Usage();
                                 Environment.Exit(-1);
                             }
@@ -224,7 +227,7 @@ namespace HeliumIntegrationTest
                             else
                             {
                                 // exit on error
-                                Console.WriteLine("Invalid number of concurrent threads parameter: {0}\r\n", args[i + 1]);
+                                Console.WriteLine(threadsParameterError, args[i + 1]);
                                 Usage();
                                 Environment.Exit(-1);
                             }
@@ -273,7 +276,7 @@ namespace HeliumIntegrationTest
                     }
                     else
                     {
-                        Console.WriteLine("File not found: {0}", file);
+                        Console.WriteLine(fileNotFoundError, file);
                     }
                 }
 
@@ -291,7 +294,7 @@ namespace HeliumIntegrationTest
                 if (!int.TryParse(env, out config.SleepMs))
                 {
                     // exit on error
-                    Console.WriteLine("Invalid sleep (millisecond) parameter: {0}\r\n", env);
+                    Console.WriteLine(sleepParameterError, env);
                     Environment.Exit(-1);
                 }
             }
@@ -302,7 +305,7 @@ namespace HeliumIntegrationTest
                 if (!int.TryParse(env, out config.Threads))
                 {
                     // exit on error
-                    Console.WriteLine("Invalid number of concurrent threads parameter: {0}\r\n", env);
+                    Console.WriteLine(threadsParameterError, env);
                     Environment.Exit(-1);
                 }
             }
