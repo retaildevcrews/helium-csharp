@@ -60,96 +60,40 @@ namespace Smoker
             // send each request
             foreach (Request r in requestList)
             {
-                if (r.IsBaseTest)
+                try
                 {
-                    try
+                    // create the request
+                    using (req = new HttpRequestMessage(new HttpMethod(r.Verb), MakeUrl(r.Url)))
                     {
-                        // create the request
-                        using (req = new HttpRequestMessage(new HttpMethod(r.Verb), MakeUrl(r.Url)))
+                        dt = DateTime.Now;
+
+                        // process the response
+                        using (HttpResponseMessage resp = await client.SendAsync(req))
                         {
-                            dt = DateTime.Now;
+                            body = await resp.Content.ReadAsStringAsync();
 
-                            // process the response
-                            using (HttpResponseMessage resp = await client.SendAsync(req))
+                            Console.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}", DateTime.Now.ToString("MM/dd hh:mm:ss"), (int)resp.StatusCode, (int)DateTime.Now.Subtract(dt).TotalMilliseconds, resp.Content.Headers.ContentLength, r.Url);
+
+                            // validate the response
+                            if (r.Validation != null)
                             {
-                                body = await resp.Content.ReadAsStringAsync();
-
-                                Console.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}", DateTime.Now.ToString("MM/dd hh:mm:ss"), (int)resp.StatusCode, (int)DateTime.Now.Subtract(dt).TotalMilliseconds, resp.Content.Headers.ContentLength, r.Url);
-
-                                // validate the response
-                                if (r.Validation != null)
-                                {
-                                    ValidateContentType(r, resp);
-                                    ValidateContentLength(r, resp);
-                                    ValidateContains(r, body);
-                                    ValidateJson(r, body);
-                                }
+                                ValidateContentType(r, resp);
+                                ValidateContentLength(r, resp);
+                                ValidateContains(r, body);
+                                ValidateJson(r, body);
                             }
                         }
                     }
-                    catch (Exception ex)
-                    {
-                        // ignore any error and keep processing
-                        Console.WriteLine("{0}\tException: {1}", DateTime.Now.ToString("MM/dd hh:mm:ss"), ex.Message);
-                        isError = true;
-                    }
+                }
+                catch (Exception ex)
+                {
+                    // ignore any error and keep processing
+                    Console.WriteLine("{0}\tException: {1}", DateTime.Now.ToString("MM/dd hh:mm:ss"), ex.Message);
+                    isError = true;
                 }
             }
 
             return isError;
-        }
-
-        public async Task<string> RunFromWebRequest(int id)
-        {
-            DateTime dt;
-            HttpRequestMessage req;
-            string body;
-            string res = string.Empty;
-
-            // send the first request as a warm up
-            await Warmup(requestList[0].Url);
-
-            // send each request
-            foreach (Request r in requestList)
-            {
-                if (r.IsBaseTest)
-                {
-                    try
-                    {
-                        // create the request
-                        using (req = new HttpRequestMessage(new HttpMethod(r.Verb), MakeUrl(r.Url)))
-                        {
-                            dt = DateTime.Now;
-
-                            // process the response
-                            using (HttpResponseMessage resp = await client.SendAsync(req))
-                            {
-                                body = await resp.Content.ReadAsStringAsync();
-
-                                Console.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}", id, (int)resp.StatusCode, (int)DateTime.Now.Subtract(dt).TotalMilliseconds, resp.Content.Headers.ContentLength, r.Url);
-
-                                res += string.Format("{0}\t{1}\t{2}\t{3}\t{4}\r\n", DateTime.Now.ToString("MM/dd hh:mm:ss"), (int)resp.StatusCode, (int)DateTime.Now.Subtract(dt).TotalMilliseconds, resp.Content.Headers.ContentLength, r.Url);
-
-                                // validate the response
-                                if (r.Validation != null)
-                                {
-                                    res += ValidateContentType(r, resp);
-                                    res += ValidateContentLength(r, resp);
-                                    res += ValidateContains(r, body);
-                                    res += ValidateJson(r, body);
-                                }
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        // ignore any error and keep processing
-                        Console.WriteLine("{0}\tException: {1}", DateTime.Now.ToString("MM/dd hh:mm:ss"), ex.Message);
-                    }
-                }
-            }
-
-            return res;
         }
 
         // run the tests
