@@ -35,6 +35,7 @@ namespace Helium.Controllers
         /// <response code="200">json array of Movie objects or empty array if not found</response>
         [HttpGet]
         [Produces("application/json")]
+        [ProducesResponseType(typeof(Movie[]), 200)]
         public IActionResult GetMovies([FromQuery]string q)
         {
             if (q == null)
@@ -60,7 +61,7 @@ namespace Helium.Controllers
 
                 return new ObjectResult(Constants.MoviesControllerException)
                 {
-                    StatusCode = Constants.ServerError
+                    StatusCode = (int)System.Net.HttpStatusCode.InternalServerError
                 };
             }
 
@@ -70,7 +71,7 @@ namespace Helium.Controllers
 
                 return new ObjectResult(Constants.MoviesControllerException)
                 {
-                    StatusCode = Constants.ServerError
+                    StatusCode = (int)System.Net.HttpStatusCode.InternalServerError
                 };
             }
         }
@@ -123,7 +124,7 @@ namespace Helium.Controllers
 
                     return new ObjectResult(Constants.MoviesControllerException)
                     {
-                        StatusCode = Constants.ServerError
+                        StatusCode = (int)System.Net.HttpStatusCode.InternalServerError
                     };
                 }
             }
@@ -135,7 +136,7 @@ namespace Helium.Controllers
 
                 return new ObjectResult(Constants.MoviesControllerException)
                 {
-                    StatusCode = Constants.ServerError
+                    StatusCode = (int)System.Net.HttpStatusCode.InternalServerError
                 };
             }
         }

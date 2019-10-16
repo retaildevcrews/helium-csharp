@@ -2,49 +2,25 @@
   {
     "Verb": "GET",
     "Url": "/healthz",
-    "SortOrder":  -1000000,
-    "ContentType": "text/plain",
-    "Body": "",
-    "Headers": [],
+    "SortOrder":  0,
     "Validation": {
-      "Code": 200,
-      "ContentType": "text/plain",
-      "MinLength": 25,
-      "MaxLength": 200,
-      "MaxMilliseconds": 0,
       "Contains": [
         {
-          "Value": "Movies: 100",
-          "IsCaseSensitive": true
+          "Value": "\"movies\":100"
         },
         {
-          "Value": "Actors: 531",
-          "IsCaseSensitive": true
+          "Value": "\"actors\":531"
         },
         {
-          "Value": "Genres: 19",
-          "IsCaseSensitive": true
+          "Value": "\"genres\":19"
         }
-      ],
-      "Json": {
-        "MinLength": 0,
-        "MaxLength": 0
-      }
+      ]
     }
   },
   {
     "Verb": "GET",
     "Url": "/api/movies",
-    "ContentType": "application/json",
-    "Body": "",
-    "Headers": [],
     "Validation": {
-      "Code": 200,
-      "ContentType": "application/json",
-      "MinLength": 0,
-      "MaxLength": 0,
-      "MaxMilliseconds": 0,
-      "Contains": [],
       "Json": {
         "MinLength": 100,
         "MaxLength": 100
@@ -54,16 +30,7 @@
   {
     "Verb": "GET",
     "Url": "/api/movies?q=ring",
-    "ContentType": "application/json",
-    "Body": "",
-    "Headers": [],
     "Validation": {
-      "Code": 200,
-      "ContentType": "application/json",
-      "MinLength": 0,
-      "MaxLength": 0,
-      "MaxMilliseconds": 0,
-      "Contains": [],
       "Json": {
         "MinLength": 3,
         "MaxLength": 3
@@ -73,48 +40,24 @@
   {
     "Verb": "GET",
     "Url": "/api/movies/tt0133093",
-    "ContentType": "application/json",
-    "Body": "",
-    "Headers": [],
     "Validation": {
-      "Code": 200,
-      "ContentType": "application/json",
-      "MinLength": 0,
-      "MaxLength": 0,
-      "MaxMilliseconds": 0,
       "Contains": [
         {
-          "Value": "\"movieId\":\"tt0133093\",",
-          "IsCaseSensitive": true
+          "Value": "\"movieId\":\"tt0133093\","
         },
         {
-          "Value": "\"title\":\"The Matrix\"",
-          "IsCaseSensitive": true
+          "Value": "\"title\":\"The Matrix\""
         },
         {
-          "Value": "\"year\":1999,",
-          "IsCaseSensitive": true
+          "Value": "\"year\":1999,"
         }
-      ],
-      "Json": {
-        "MinLength": 0,
-        "MaxLength": 0
-      }
+      ]
     }
   },
   {
     "Verb": "GET",
     "Url": "/api/actors",
-    "ContentType": "application/json",
-    "Body": "",
-    "Headers": [],
     "Validation": {
-      "Code": 200,
-      "ContentType": "application/json",
-      "MinLength": 0,
-      "MaxLength": 0,
-      "MaxMilliseconds": 0,
-      "Contains": [],
       "Json": {
         "MinLength": 531,
         "MaxLength": 531
@@ -124,16 +67,7 @@
   {
     "Verb": "GET",
     "Url": "/api/actors?q=nicole",
-    "ContentType": "application/json",
-    "Body": "",
-    "Headers": [],
     "Validation": {
-      "Code": 200,
-      "ContentType": "application/json",
-      "MinLength": 0,
-      "MaxLength": 0,
-      "MaxMilliseconds": 0,
-      "Contains": [],
       "Json": {
         "MinLength": 3,
         "MaxLength": 3
@@ -143,48 +77,24 @@
   {
     "Verb": "GET",
     "Url": "/api/actors/nm0000173",
-    "ContentType": "application/json",
-    "Body": "",
-    "Headers": [],
     "Validation": {
-      "Code": 200,
-      "ContentType": "application/json",
-      "MinLength": 0,
-      "MaxLength": 0,
-      "MaxMilliseconds": 0,
       "Contains": [
         {
-          "Value": "\"actorId\":\"nm0000173\",",
-          "IsCaseSensitive": true
+          "Value": "\"actorId\":\"nm0000173\","
         },
         {
-          "Value": "\"name\":\"Nicole Kidman\",",
-          "IsCaseSensitive": true
+          "Value": "\"name\":\"Nicole Kidman\","
         },
         {
-          "Value": "\"birthYear\":1967,",
-          "IsCaseSensitive": true
+          "Value": "\"birthYear\":1967,"
         }
-      ],
-      "Json": {
-        "MinLength": 0,
-        "MaxLength": 0
-      }
+      ]
     }
   },
   {
     "Verb": "GET",
     "Url": "/api/genres",
-    "ContentType": "application/json",
-    "Body": "",
-    "Headers": [],
     "Validation": {
-      "Code": 200,
-      "ContentType": "application/json",
-      "MinLength": 0,
-      "MaxLength": 0,
-      "MaxMilliseconds": 0,
-      "Contains": [],
       "Json": {
         "MinLength": 19,
         "MaxLength": 19

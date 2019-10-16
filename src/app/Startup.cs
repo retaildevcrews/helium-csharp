@@ -64,6 +64,8 @@ namespace Helium
                 app.UseHsts();
             }
 
+            app.UseLogger();
+
             // Enable middleware to serve generated Swagger as a JSON endpoint.
             app.UseSwagger();
 

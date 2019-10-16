@@ -1,4 +1,3 @@
-using Helium;
 using Helium.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -27,10 +26,14 @@ namespace UnitTests
 
             Assert.NotNull(ok);
 
-            string s = ok.Value.ToString();
+            Helium.Model.HealthzSuccess z = ok.Value as Helium.Model.HealthzSuccess;
 
-            Assert.Equal(Constants.HealthzResult, s);
+            Assert.NotNull(z);
 
+            Assert.Equal(200, z.details.cosmosDb.details.Status);
+            Assert.Equal(100, z.details.cosmosDb.details.Movies);
+            Assert.Equal(531, z.details.cosmosDb.details.Actors);
+            Assert.Equal(19, z.details.cosmosDb.details.Genres);
         }
     }
 }

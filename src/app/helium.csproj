@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <Compile Include="..\integration-test\Middleware\robotsText.cs" />
+    <Compile Include="..\integration-test\Middleware\requestLogger.cs" />
   </ItemGroup>
 
   <ItemGroup>

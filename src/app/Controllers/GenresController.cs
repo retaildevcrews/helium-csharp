@@ -32,6 +32,7 @@ namespace Helium.Controllers
         /// <response code="200">json array of strings or empty array if not found</response>
         [HttpGet]
         [Produces("application/json")]
+        [ProducesResponseType(typeof(string[]), 200)]
         public IActionResult GetGenres()
         {
             // get list of genres as list of string
@@ -49,7 +50,7 @@ namespace Helium.Controllers
 
                 return new ObjectResult(Constants.GenresControllerException)
                 {
-                    StatusCode = Constants.ServerError
+                    StatusCode = (int)System.Net.HttpStatusCode.InternalServerError
                 };
             }
 
@@ -60,7 +61,7 @@ namespace Helium.Controllers
 
                 return new ObjectResult(Constants.GenresControllerException)
                 {
-                    StatusCode = Constants.ServerError
+                    StatusCode = (int)System.Net.HttpStatusCode.InternalServerError
                 };
             }
         }

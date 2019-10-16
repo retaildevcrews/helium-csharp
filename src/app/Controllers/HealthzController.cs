@@ -1,4 +1,5 @@
 using Helium.DataAccessLayer;
+using Helium.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Documents;
 using Microsoft.Extensions.Logging;
@@ -30,39 +31,44 @@ namespace Helium.Controllers
         /// The health check end point
         /// </summary>
         /// <remarks>
-        /// Returns a count of the Actors, Genres and Movies as text/plain
-        /// 
-        ///     Expected Response:
-        /// 
-        ///     Movies: 100\r\nActors: 531\r\nGenres: 19
+        /// Returns a HealthzSuccess or HealthzError as application/json
         /// </remarks>
-        /// <returns>200 OK or 500 Error</returns>
-        /// <response code="200">returns a count of the Actors, Genres and Movies as text/plain</response>
-        /// <response code="500">failed due to unexpected results</response>
+        /// <returns>200 OK or 503 Error</returns>
+        /// <response code="200">Returns a HealthzSuccess as application/json</response>
+        /// <response code="503">Returns a HealthzError as application/json due to unexpected results</response>
         [HttpGet]
-        [Produces("text/plain")]
-        [ProducesResponseType(typeof(string), 200)]
-        [ProducesResponseType(typeof(void), 500)]
+        [Produces("application/json")]
+        [ProducesResponseType(typeof(HealthzSuccess), 200)]
+        [ProducesResponseType(typeof(HealthzError), 503)]
         public IActionResult Healthz()
         {
             // healthcheck counts the document types
 
             try
             {
+                HealthzSuccess res = new HealthzSuccess();
+
                 logger.LogInformation("Healthz");
 
+                HealthzSuccessDetails s = dal.GetHealthz();
+
+                res.details.cosmosDb.details = s;
+
                 // return 200 OK with payload
-                return Ok(dal.GetHealthz());
+                return Ok(res);
             }
 
             catch (DocumentClientException dce)
             {
-                // log and return 500
+                // log and return 503
                 logger.LogError("DocumentClientException:Healthz:{0}:{1}:{2}:{3}\r\n{4}", dce.StatusCode, dce.Error, dce.ActivityId, dce.Message, dce);
 
-                return new ObjectResult("HealthzControllerException")
+                HealthzError e = new HealthzError();
+                e.details.cosmosDb.details.Error = dce.Message;
+
+                return new ObjectResult(e)
                 {
-                    StatusCode = Constants.ServerError
+                    StatusCode = (int)System.Net.HttpStatusCode.ServiceUnavailable
                 };
             }
 
@@ -71,9 +77,12 @@ namespace Helium.Controllers
                 // log and return 500
                 logger.LogError("Exception:Healthz\r\n{0}", ex);
 
-                return new ObjectResult("HealthzControllerException")
+                HealthzError e = new HealthzError();
+                e.details.cosmosDb.details.Error = ex.Message;
+
+                return new ObjectResult(e)
                 {
-                    StatusCode = Constants.ServerError
+                    StatusCode = (int)System.Net.HttpStatusCode.ServiceUnavailable
                 };
             }
         }

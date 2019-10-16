@@ -7,11 +7,11 @@ namespace Smoker
     {
         public int SortOrder = 100;
         public bool IsBaseTest = false;
-        [JsonProperty(NullValueHandling=NullValueHandling.Ignore)]
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public int? Index;
         public string Verb = "GET";
         public string Url = string.Empty;
-        [JsonProperty(NullValueHandling=NullValueHandling.Ignore)]
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string ContentType = null;
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string Body = null;

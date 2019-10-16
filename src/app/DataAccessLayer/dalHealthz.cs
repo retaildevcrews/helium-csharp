@@ -1,3 +1,5 @@
+using Helium.Model;
+
 namespace Helium.DataAccessLayer
 {
     /// <summary>
@@ -5,15 +7,18 @@ namespace Helium.DataAccessLayer
     /// </summary>
     public partial class DAL
     {
-        public string GetHealthz()
+        public HealthzSuccessDetails GetHealthz()
         {
-            // build the payload
-            string res = GetCount("Movie") + "\r\n";
-            res += GetCount("Actor") + "\r\n";
-            res += GetCount("Genre") + "\r\n";
-            res += "Instance: " + System.Environment.GetEnvironmentVariable("WEBSITE_ROLE_INSTANCE_ID") + "\r\n";
 
-            return res;
+            HealthzSuccessDetails d = new HealthzSuccessDetails();
+
+            d.Actors = GetCount("Actor");
+            d.Movies = GetCount("Movie");
+            d.Genres = GetCount("Genre");
+            int.TryParse(System.Environment.GetEnvironmentVariable("WEBSITE_ROLE_INSTANCE_ID"), out d.Instance);
+
+            // build the payload
+            return d;
         }
 
         /// <summary>
@@ -21,7 +26,7 @@ namespace Helium.DataAccessLayer
         /// </summary>
         /// <param name="type">the type to count</param>
         /// <returns>string - count of documents of type</returns>
-        private string GetCount(string type)
+        private long GetCount(string type)
         {
             string sql = string.Format("select value count(1) from m where m.type = '{0}'", type);
 
@@ -29,10 +34,10 @@ namespace Helium.DataAccessLayer
 
             foreach (var doc in query)
             {
-                return string.Format("{0}s: {1}", type, doc);
+                return doc;
             }
 
-            return string.Empty;
+            return -1;
         }
     }
 }

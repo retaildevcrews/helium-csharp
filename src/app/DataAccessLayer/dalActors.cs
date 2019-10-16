@@ -11,7 +11,7 @@ namespace Helium.DataAccessLayer
     public partial class DAL
     {
         // select template for Actors
-        const string actorSelect = "select m.id, m.partitionKey, m.actorId, m.type, m.name, m.birthYear, m.deathYear, m.profession, m.textSearch, m.movies from m ";
+        const string actorSelect = "select m.id, m.partitionKey, m.actorId, m.type, m.name, m.birthYear, m.deathYear, m.profession, m.textSearch, m.movies from m where m.type = 'Actor' ";
 
         /// <summary>
         /// Retrieve a single actor from CosmosDB by actorId
@@ -61,12 +61,12 @@ namespace Helium.DataAccessLayer
             // convert to lower and escape embedded '
             q = q.Trim().ToLower().Replace("'", "''");
 
-            string sql = actorSelect + "where m.type = 'Actor' order by m.actorId";
+            string sql = actorSelect + " order by m.actorId";
 
             if (!string.IsNullOrEmpty(q))
             {
                 // get actors by a "like" search on name
-                sql = string.Format("{0} where contains(m.textSearch, '{1}')", actorSelect, q);
+                sql = string.Format("{0} and contains(m.textSearch, '{1}') order by m.actorId", actorSelect, q);
             }
 
             return QueryActorWorker(sql);

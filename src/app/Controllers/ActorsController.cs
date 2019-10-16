@@ -35,6 +35,7 @@ namespace Helium.Controllers
         /// <response code="200">json array of Actor objects or empty array if not found</response>
         [HttpGet]
         [Produces("application/json")]
+        [ProducesResponseType(typeof(Actor[]), 200)]
         public IActionResult GetActors([FromQuery] string q)
         {
             // check the query string
@@ -61,7 +62,7 @@ namespace Helium.Controllers
 
                 return new ObjectResult(Constants.ActorsControllerException)
                 {
-                    StatusCode = Constants.ServerError
+                    StatusCode = (int)System.Net.HttpStatusCode.InternalServerError
                 };
             }
 
@@ -71,7 +72,7 @@ namespace Helium.Controllers
 
                 return new ObjectResult(Constants.ActorsControllerException)
                 {
-                    StatusCode = Constants.ServerError
+                    StatusCode = (int)System.Net.HttpStatusCode.InternalServerError
                 };
             }
         }
@@ -121,7 +122,7 @@ namespace Helium.Controllers
 
                     return new ObjectResult(Constants.ActorsControllerException)
                     {
-                        StatusCode = Constants.ServerError
+                        StatusCode = (int)System.Net.HttpStatusCode.InternalServerError
                     };
                 }
             }
@@ -133,7 +134,7 @@ namespace Helium.Controllers
 
                 return new ObjectResult(Constants.ActorsControllerException)
                 {
-                    StatusCode = Constants.ServerError
+                    StatusCode = (int)System.Net.HttpStatusCode.InternalServerError
                 };
             }
         }

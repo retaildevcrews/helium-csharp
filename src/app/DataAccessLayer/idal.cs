@@ -15,6 +15,6 @@ namespace Helium.DataAccessLayer
         System.Threading.Tasks.Task<Model.Movie> GetMovieAsync(string movieId);
         IQueryable<Model.Movie> GetMovies();
         IQueryable<Model.Movie> GetMoviesByQuery(string q);
-        string GetHealthz();
+        Helium.Model.HealthzSuccessDetails GetHealthz();
     }
 }

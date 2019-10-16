@@ -152,6 +152,13 @@ namespace HeliumIntegrationTest
 
                 while (i < args.Length)
                 {
+                    if (!args[i].StartsWith("-"))
+                    {
+                        Console.WriteLine("\nInvalid argument: {0}\n", args[i]);
+                        Usage();
+                        Environment.Exit(-1);
+                    }
+
                     // handle web (-w)
                     if (args[i] == "-w")
                     {

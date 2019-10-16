@@ -1,126 +1,68 @@
 [
   {
-    "Verb": "GET",
     "Url": "/index.html",
     "SortOrder":  1,
-    "ContentType": "text/html",
-    "Body": "",
-    "Headers": [],
     "Validation": {
-      "Code": 200,
-      "ContentType": "text/html",
-      "MinLength": 0,
-      "MaxLength": 0,
-      "MaxMilliseconds": 0,
-      "Contains": [],
-      "Json": {
-        "MinLength": 0,
-        "MaxLength": 0
-      }
+      "ContentType": "text/html"
     }
   },
   {
-    "Verb": "GET",
     "Url": "/swagger/helium/swagger.json",
-    "ContentType": "application/json",
-    "Body": "",
-    "Headers": [],
     "Validation": {
-      "Code": 200,
-      "ContentType": "application/json",
-      "MinLength": 0,
-      "MaxLength": 0,
-      "MaxMilliseconds": 0,
       "Contains": [
         {
-          "Value": "\"swagger\":\"2.0\",",
-          "IsCaseSensitive": true
+          "Value": "\"swagger\":\"2.0\","
         },
         {
-          "Value": "\"title\":\"Helium",
-          "IsCaseSensitive": true
+          "Value": "\"title\":\"Helium"
         },
         {
-          "Value": "\"/api/Actors\":{\"get\":",
-          "IsCaseSensitive": true
+          "Value": "\"/api/Actors\":{\"get\":"
         },
         {
-          "Value": "\"/api/Genres\":{\"get\":",
-          "IsCaseSensitive": true
+          "Value": "\"/api/Genres\":{\"get\":"
         },
         {
-          "Value": "\"/api/Movies\":{\"get\":",
-          "IsCaseSensitive": true
+          "Value": "\"/api/Movies\":{\"get\":"
         },
         {
-          "Value": "\"/Healthz\":{\"get\":",
-          "IsCaseSensitive": true
+          "Value": "\"/Healthz\":{\"get\":"
         }
-      ],
-      "Json": {
-        "MinLength": 0,
-        "MaxLength": 0
-      }
+      ]
     }
   },
   {
-    "Verb": "GET",
     "Url": "/robots.txt",
-    "SortOrder":  99,
-    "ContentType": "text/plain",
-    "Body": "",
-    "Headers": [],
     "Validation": {
-      "Code": 200,
       "ContentType": "text/plain",
       "MinLength": 48,
       "MaxLength": 48,
-      "MaxMilliseconds": 0,
       "Contains": 
       [
         {
-          "Value": "User-agent: *",
-          "IsCaseSensitive": true
+          "Value": "User-agent: *"
         },
         {
-          "Value": "Disallow: /",
-          "IsCaseSensitive": true
+          "Value": "Disallow: /"
         }
-      ],
-      "Json": {
-        "MinLength": 0,
-        "MaxLength": 0
-      }
+      ]
     }
   },
   {
-    "Verb": "GET",
     "Url": "/robots1234.txt",
-    "SortOrder":  99,
-    "ContentType": "text/plain",
-    "Body": "",
-    "Headers": [],
     "Validation": {
-      "Code": 200,
       "ContentType": "text/plain",
       "MinLength": 48,
       "MaxLength": 48,
-      "MaxMilliseconds": 0,
       "Contains": 
       [
         {
-          "Value": "User-agent: *",
-          "IsCaseSensitive": true
+          "Value": "User-agent: *"
         },
         {
-          "Value": "Disallow: /",
-          "IsCaseSensitive": true
+          "Value": "Disallow: /"
         }
-      ],
-      "Json": {
-        "MinLength": 0,
-        "MaxLength": 0
-      }
+      ]
     }
   }
 ]

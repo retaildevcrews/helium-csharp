@@ -25,11 +25,6 @@
         // if port is changed, also update value in the Dockerfiles
         public static readonly string Port = "4120";
 
-        public static readonly string HealthzResult = "Movies: 100\r\nActors: 531\r\nGenres: 19";
-
-        public static readonly int NotFound = (int)System.Net.HttpStatusCode.NotFound;
-        public static readonly int ServerError = (int)System.Net.HttpStatusCode.InternalServerError;
-
         public static readonly int RotateKeyCheckSeconds = 600;
         public static int MainLoopSleepMs = 1000;
 

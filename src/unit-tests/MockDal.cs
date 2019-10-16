@@ -1,4 +1,3 @@
-using Helium;
 using Helium.DataAccessLayer;
 using Helium.Model;
 using Newtonsoft.Json;
@@ -119,9 +118,16 @@ namespace UnitTests
             return res.AsQueryable();
         }
 
-        public string GetHealthz()
+        public HealthzSuccessDetails GetHealthz()
         {
-            return Constants.HealthzResult;
+            HealthzSuccessDetails d = new HealthzSuccessDetails();
+
+            d.Actors = 531;
+            d.Movies = 100;
+            d.Genres = 19;
+            d.Instance = 0;
+
+            return d;
         }
     }
 

@@ -1,4 +1,3 @@
-using Helium;
 using Helium.Controllers;
 using Helium.Model;
 using Microsoft.AspNetCore.Mvc;
@@ -73,13 +72,13 @@ namespace UnitTests
             NotFoundResult nf = await c.GetActorByIdAsync(AssertValues.BadId) as NotFoundResult;
 
             Assert.NotNull(nf);
-            Assert.Equal(Constants.NotFound, nf.StatusCode);
+            Assert.Equal((int)System.Net.HttpStatusCode.NotFound, nf.StatusCode);
 
             // this will fail search
             nf = await c.GetActorByIdAsync(AssertValues.ActorById + "000") as NotFoundResult;
 
             Assert.NotNull(nf);
-            Assert.Equal(Constants.NotFound, nf.StatusCode);
+            Assert.Equal((int)System.Net.HttpStatusCode.NotFound, nf.StatusCode);
         }
     }
 }

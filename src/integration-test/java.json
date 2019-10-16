@@ -1,0 +1,30 @@
+[
+  {
+    "Url": "/swagger-ui.html",
+    "Validation": {
+      "ContentType": "text/html"
+    }
+  },
+  {
+    "Url": "/v2/api-docs",
+    "Validation": {
+      "Contains": [
+        {
+          "Value": "\"swagger\":\"2.0\","
+        },
+        {
+          "Value": "\"title\":\"Helium"
+        },
+        {
+          "Value": "\"/api/Actors\":{\"get\":"
+        },
+        {
+          "Value": "\"/api/Genres\":{\"get\":"
+        },
+        {
+          "Value": "\"/api/Movies\":{\"get\":"
+        }
+      ]
+    }
+  }
+]

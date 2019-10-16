@@ -12,7 +12,7 @@ namespace Helium.DataAccessLayer
     public partial class DAL
     {
         // select template for movies
-        const string movieSelect = "select m.id, m.partitionKey, m.movieId, m.type, m.textSearch, m.title, m.year, m.runtime, m.rating, m.votes, m.totalScore, m.genres, m.roles from m ";
+        const string movieSelect = "select m.id, m.partitionKey, m.movieId, m.type, m.textSearch, m.title, m.year, m.runtime, m.rating, m.votes, m.totalScore, m.genres, m.roles from m where m.type = 'Movie' ";
 
         /// <summary>
         /// Get a single movie by movieId
@@ -57,12 +57,12 @@ namespace Helium.DataAccessLayer
             // convert to lower and escape embedded '
             q = q.Trim().ToLower().Replace("'", "''");
 
-            string sql = movieSelect + "where m.type = 'Movie' order by m.movieId";
+            string sql = movieSelect + "order by m.movieId";
 
             if (!string.IsNullOrEmpty(q))
             {
                 // get movies by a "like" search on title
-                sql = string.Format("{0} where contains(m.textSearch, '{1}') order by m.movieId", movieSelect, q);
+                sql = string.Format("{0} and contains(m.textSearch, '{1}') order by m.movieId", movieSelect, q);
             }
 
             return QueryMovieWorker(sql);
