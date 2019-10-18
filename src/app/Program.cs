@@ -1,11 +1,15 @@
 ﻿using Helium.DataAccessLayer;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Azure.KeyVault;
+using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration.AzureKeyVault;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
+using System.Threading;
 
 namespace Helium
 {
@@ -199,10 +203,37 @@ namespace Helium
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: false);
 
-            // use Azure Key Vault
-            // use Managed Identity (MSI) for secure access to Key Vault
-            // use the default secret manager
-            cfgBuilder.AddAzureKeyVault(kvUrl);
+            DateTime timeout = DateTime.Now.AddSeconds(90.0);
+
+            while (true)
+            {
+                try
+                {
+                    // use Managed Identity (MSI) for secure access to Key Vault
+                    var keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(new AzureServiceTokenProvider().KeyVaultTokenCallback));
+
+                    // read a key to make sure the connection is valid 
+                    keyVaultClient.GetSecretAsync(kvUrl, Constants.CosmosUrl).Wait(500);
+
+                    // use Azure Key Vault
+                    cfgBuilder.AddAzureKeyVault(kvUrl, keyVaultClient, new DefaultKeyVaultSecretManager());
+
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    if (DateTime.Now <= timeout)
+                    {
+                        Console.WriteLine("KeyVault:Retry: {0}", ex.Message);
+                        Thread.Sleep(500);
+                    }
+                    else
+                    {
+                        Console.WriteLine("KeyVault:Exception: {0}\r\n{1}", ex.Message, ex);
+                        Environment.Exit(-1);
+                    }
+                }
+            }
 
             // build the config
             return cfgBuilder.Build();

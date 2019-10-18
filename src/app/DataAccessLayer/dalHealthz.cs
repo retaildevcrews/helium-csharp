@@ -15,7 +15,7 @@ namespace Helium.DataAccessLayer
             d.Actors = GetCount("Actor");
             d.Movies = GetCount("Movie");
             d.Genres = GetCount("Genre");
-            
+
             // build the payload
             return d;
         }
