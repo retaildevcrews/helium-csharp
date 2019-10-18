@@ -229,14 +229,6 @@ namespace Helium
             // add the data access layer
             UseDal(builder);
 
-            // add App Insights if key set
-            string appInsightsKey = config.GetValue<string>(Constants.AppInsightsKey);
-
-            if (!string.IsNullOrEmpty(appInsightsKey))
-            {
-                builder.UseApplicationInsights(appInsightsKey);
-            }
-
             // build the host
             return builder.Build();
         }

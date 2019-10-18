@@ -438,14 +438,11 @@ dotnet run -- -h https://${He_Name}.azurewebsites.net
 ```bash
 
 # build the image
-docker build -t helium-integration .
+# from the src directory
+docker build -t helium-integration -f Dockerfile-Integration-Test .
 
 # run the tests in the container
-docker run --name helium-integration helium-integration -h https://${He_Name}.azurewebsites.net
-
-# stop and remove the container
-docker stop helium-integration
-docker rm helium-integration
+docker run -it --rm helium-integration -h https://${He_Name}.azurewebsites.net
 
 ```
 

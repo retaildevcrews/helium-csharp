@@ -46,6 +46,19 @@
         public long Actors;
         public long Movies;
         public long Genres;
-        public int Instance = 0;
+        public readonly string Instance;
+        public readonly string Version = Helium.Version.AssemblyVersion;
+
+        public HealthzSuccessDetails()
+        {
+            if (string.IsNullOrEmpty(System.Environment.GetEnvironmentVariable("WEBSITE_ROLE_INSTANCE_ID")))
+            {
+                Instance = "unknown";
+            }
+            else
+            { 
+                Instance = System.Environment.GetEnvironmentVariable("WEBSITE_ROLE_INSTANCE_ID");
+            }
+        }
     }
 }

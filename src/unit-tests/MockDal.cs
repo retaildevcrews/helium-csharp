@@ -24,12 +24,27 @@ namespace UnitTests
 
         public MockDal()
         {
+            string path = "../data/";
+
+            if (!File.Exists(path + "actors.json"))
+            {
+                path = "../../../" + path;
+            }
+
+            if (!File.Exists(path + "actors.json") ||
+                !File.Exists(path + "genres.json") ||
+                !File.Exists(path + "movies.json"))
+            {
+                Console.WriteLine("Unable to find data files");
+                Environment.Exit(-1);
+            }
+
             // load the data from the json files
-            Actors = JsonConvert.DeserializeObject<List<Actor>>(File.ReadAllText(@"data/actors.json"));
+            Actors = JsonConvert.DeserializeObject<List<Actor>>(File.ReadAllText(path + "actors.json"));
 
-            Movies = JsonConvert.DeserializeObject<List<Movie>>(File.ReadAllText(@"data/movies.json"));
+            Movies = JsonConvert.DeserializeObject<List<Movie>>(File.ReadAllText(path + "movies.json"));
 
-            List<GenreDoc> list = JsonConvert.DeserializeObject<List<GenreDoc>>(File.ReadAllText(@"data/genres.json"));
+            List<GenreDoc> list = JsonConvert.DeserializeObject<List<GenreDoc>>(File.ReadAllText(path + "genres.json"));
 
             Genres = new List<string>();
 
@@ -125,7 +140,6 @@ namespace UnitTests
             d.Actors = 531;
             d.Movies = 100;
             d.Genres = 19;
-            d.Instance = 0;
 
             return d;
         }

@@ -11,6 +11,16 @@
    </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="..\shared\Middleware\indexHandler.cs"><Link>shared/Middleware/indexHandler.cs</Link></Compile>
+    <Compile Include="..\shared\Middleware\requestLogger.cs"><Link>shared/Middleware/requestLogger.cs</Link></Compile>
+    <Compile Include="..\shared\Middleware\robotsText.cs"><Link>shared/Middleware/robotsText.cs</Link></Compile>
+    <Compile Include="..\shared\Model\Actor.cs"><Link>shared/Model/Actor.cs</Link></Compile>
+    <Compile Include="..\shared\Model\Healthz.cs"><Link>shared/Model/Healthz.cs</Link></Compile>
+    <Compile Include="..\shared\Model\Movie.cs"><Link>shared/Model/Movie.cs</Link></Compile>
+    <Compile Include="..\shared\Version.cs"><Link>shared/Version.cs</Link></Compile>
+  </ItemGroup>
+
+  <ItemGroup>
      <None Update="dotnet.json">
        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
      </None>

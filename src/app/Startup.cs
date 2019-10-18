@@ -44,6 +44,14 @@ namespace Helium
             {
                 c.SwaggerDoc(Constants.SwaggerName, new Info { Title = Constants.SwaggerTitle, Version = Constants.SwaggerVersion });
             });
+
+            // add App Insights if key set
+            string appInsightsKey = Configuration.GetValue<string>(Constants.AppInsightsKey);
+
+            if (!string.IsNullOrEmpty(appInsightsKey))
+            {
+                services.AddApplicationInsightsTelemetry(appInsightsKey);
+            }
         }
 
         /// <summary>
