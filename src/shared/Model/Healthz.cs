@@ -56,11 +56,7 @@
                 Instance = "unknown";
             }
             else
-<<<<<<< HEAD:src/shared/Model/Healthz.cs
-            {
-=======
             { 
->>>>>>> 1ee74d8537908f61a1f92432cc54855dd6889973:src/app/Model/Healthz.cs
                 Instance = System.Environment.GetEnvironmentVariable("WEBSITE_ROLE_INSTANCE_ID");
             }
         }
