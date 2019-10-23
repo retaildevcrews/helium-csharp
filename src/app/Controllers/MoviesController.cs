@@ -4,11 +4,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Documents;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 
 namespace Helium.Controllers
 {
     /// <summary>
-    /// Handle all of the /api/actors requests
+    /// Handle all of the /api/movies requests
     /// </summary>
     [Produces("application/json")]
     [Route("api/[controller]")]
@@ -16,6 +17,7 @@ namespace Helium.Controllers
     {
         private readonly ILogger logger;
         private readonly IDAL dal;
+        private readonly Random rand = new Random(DateTime.Now.Millisecond);
 
         /// <summary>
         ///  Constructor
@@ -31,27 +33,25 @@ namespace Helium.Controllers
         /// <summary>
         /// </summary>
         /// <remarks>Returns a json array of all Movie objects</remarks>
-        /// <param name="q">(optional) The term used to search by movie title</param>
+        /// <param name="q">(optional) The term used to search by movie title (rings)</param>
+        /// <param name="genre">(optional) Movies of a genre (Action)</param>
+        /// <param name="year">(optional) Get movies by year (2005)</param>
+        /// <param name="rating">(optional) Get movies with a rating >= rating (8.5)</param>
+        /// <param name="topRated">(optional) Get top rated movies (true)</param>
+        /// <param name="actorId">(optional) Get movies by Actor Id (nm0000704)</param>
         /// <response code="200">json array of Movie objects or empty array if not found</response>
         [HttpGet]
         [Produces("application/json")]
         [ProducesResponseType(typeof(Movie[]), 200)]
-        public IActionResult GetMovies([FromQuery]string q)
+        public IActionResult GetMovies([FromQuery]string q = "", [FromQuery] string genre = "", [FromQuery] int year = 0, [FromQuery] double rating = 0, [FromQuery] bool topRated = false, [FromQuery] string actorId = "")
         {
-            if (q == null)
-            {
-                q = string.Empty;
-            }
-
-            q = q.Trim();
-
             string method = string.IsNullOrEmpty(q) ? "GetMovies" : string.Format("SearchMovies {0}", q);
 
-            logger.LogInformation(method, q);
+            logger.LogInformation(method);
 
             try
             {
-                return Ok(dal.GetMoviesByQuery(q));
+                return Ok(dal.GetMoviesByQuery(q, genre, year, rating, topRated, actorId));
             }
 
             catch (DocumentClientException dce)

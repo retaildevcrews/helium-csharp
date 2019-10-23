@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Helium
 {
@@ -36,7 +37,7 @@ namespace Helium
         /// Configure and run the web server
         /// </summary>
         /// <param name="args">command line args</param>
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             try
             {
@@ -52,7 +53,7 @@ namespace Helium
                 }
 
                 // build the config first so Key Vault secrets are available to dependent services
-                config = BuildConfig(kvUrl);
+                config = await BuildConfig(kvUrl);
 
                 // Create data access layer
                 dal = CreateDal();
@@ -93,6 +94,7 @@ namespace Helium
             bool cancel = false;
             Console.CancelKeyPress += delegate (object sender, ConsoleCancelEventArgs e)
             {
+                Console.WriteLine("Ctl-C Pressed - Starting shutdown ...");
                 e.Cancel = true;
                 cancel = true;
             };
@@ -144,6 +146,7 @@ namespace Helium
             }
 
             logger.LogInformation("Web Server Started");
+            Console.WriteLine("Version: {0}", Version.AssemblyVersion);
         }
 
         /// <summary>
@@ -196,47 +199,52 @@ namespace Helium
         /// </summary>
         /// <param name="kvUrl">URL of the Key Vault to use</param>
         /// <returns>Root Configuration</returns>
-        static IConfigurationRoot BuildConfig(string kvUrl)
+        static async Task<IConfigurationRoot> BuildConfig(string kvUrl)
         {
             // standard config builder
             var cfgBuilder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: false);
 
+            // retry Managed Identity for 90 seconds
             DateTime timeout = DateTime.Now.AddSeconds(90.0);
 
             while (true)
             {
+                // AKS has to spin up an MI pod which can take a while
+
                 try
                 {
                     // use Managed Identity (MSI) for secure access to Key Vault
                     var keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(new AzureServiceTokenProvider().KeyVaultTokenCallback));
 
                     // read a key to make sure the connection is valid 
-                    keyVaultClient.GetSecretAsync(kvUrl, Constants.CosmosUrl).Wait(500);
+                    await keyVaultClient.GetSecretAsync(kvUrl, Constants.CosmosUrl);
 
                     // use Azure Key Vault
                     cfgBuilder.AddAzureKeyVault(kvUrl, keyVaultClient, new DefaultKeyVaultSecretManager());
 
-                    break;
+                    // build the config
+                    return cfgBuilder.Build();
                 }
                 catch (Exception ex)
                 {
                     if (DateTime.Now <= timeout)
                     {
+                        // log and retry
+
                         Console.WriteLine("KeyVault:Retry: {0}", ex.Message);
                         Thread.Sleep(500);
                     }
                     else
                     {
+                        // log and fail
+
                         Console.WriteLine("KeyVault:Exception: {0}\r\n{1}", ex.Message, ex);
                         Environment.Exit(-1);
                     }
                 }
             }
-
-            // build the config
-            return cfgBuilder.Build();
         }
 
         /// <summary>

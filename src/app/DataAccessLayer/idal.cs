@@ -14,7 +14,8 @@ namespace Helium.DataAccessLayer
         IQueryable<string> GetGenres();
         System.Threading.Tasks.Task<Model.Movie> GetMovieAsync(string movieId);
         IQueryable<Model.Movie> GetMovies();
-        IQueryable<Model.Movie> GetMoviesByQuery(string q);
+        IQueryable<Model.Movie> GetMoviesByQuery(string q, string genre = "", int year = 0, double rating = 0, bool toprated = false, string actorId = "");
+        System.Collections.Generic.List<string> GetFeaturedMovieList();
         Helium.Model.HealthzSuccessDetails GetHealthz();
     }
 }

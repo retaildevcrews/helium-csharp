@@ -38,7 +38,7 @@ namespace UnitTests
         public void GetMoviesBySearch()
         {
 
-            OkObjectResult ok = c.GetMovies(AssertValues.MoviesSearchString) as OkObjectResult;
+            OkObjectResult ok = c.GetMovies(q: AssertValues.MoviesSearchString) as OkObjectResult;
 
             Assert.NotNull(ok);
 
@@ -47,6 +47,83 @@ namespace UnitTests
             Assert.NotNull(ie);
 
             Assert.Equal(AssertValues.MoviesSearchCount, ie.ToList<Movie>().Count);
+        }
+
+        [Fact]
+        public void GetMoviesByYear()
+        {
+
+            OkObjectResult ok = c.GetMovies(year: 2000) as OkObjectResult;
+
+            Assert.NotNull(ok);
+
+            var ie = ok.Value as IEnumerable<Movie>;
+
+            Assert.NotNull(ie);
+
+            Assert.Equal(9, ie.ToList<Movie>().Count);
+        }
+
+        [Fact]
+        public void GetMoviesByRating()
+        {
+
+            OkObjectResult ok = c.GetMovies(rating: 8.9) as OkObjectResult;
+
+            Assert.NotNull(ok);
+
+            var ie = ok.Value as IEnumerable<Movie>;
+
+            Assert.NotNull(ie);
+
+            Assert.Equal(2, ie.ToList<Movie>().Count);
+        }
+
+        [Fact]
+        public void GetMoviesByTopRated()
+        {
+
+            OkObjectResult ok = c.GetMovies(topRated: true) as OkObjectResult;
+
+            Assert.NotNull(ok);
+
+            var ie = ok.Value as IEnumerable<Movie>;
+
+            Assert.NotNull(ie);
+
+            Assert.Equal(4, ie.ToList<Movie>().Count);
+        }
+
+        [Fact]
+        public void GetMoviesByGenre()
+        {
+
+            OkObjectResult ok = c.GetMovies(genre: "Action") as OkObjectResult;
+
+            Assert.NotNull(ok);
+
+            var ie = ok.Value as IEnumerable<Movie>;
+
+            Assert.NotNull(ie);
+
+            Assert.Equal(19, ie.ToList<Movie>().Count);
+        }
+
+        [Fact]
+        public void GetMoviesByActorId()
+        {
+
+            OkObjectResult ok = c.GetMovies(actorId: AssertValues.ActorById) as OkObjectResult;
+
+            Assert.NotNull(ok);
+
+            var ie = ok.Value as IEnumerable<Movie>;
+
+            Assert.NotNull(ie);
+
+            //Assert.Equal(1, ie.ToList<Movie>().Count);
+
+            Assert.Single(ie.ToList<Movie>());
         }
 
         [Fact]
@@ -81,6 +158,27 @@ namespace UnitTests
 
             Assert.NotNull(nf);
             Assert.Equal((int)System.Net.HttpStatusCode.NotFound, nf.StatusCode);
+        }
+
+        [Fact]
+        public async void GetFeaturedMovie()
+        {
+            var list = new MockDal().GetFeaturedMovieList();
+
+            Assert.NotNull(list);
+            Assert.Equal(7, list.Count);
+
+            var res = await c.GetMovieByIdAsync(list[0]);
+
+            OkObjectResult ok = res as OkObjectResult;
+
+            Assert.NotNull(ok);
+
+            Movie mov = ok.Value as Movie;
+
+            Assert.NotNull(mov);
+            Assert.Equal(Helium.DataAccessLayer.DAL.GetPartitionKey(mov.MovieId), mov.PartitionKey);
+            Assert.Equal(list[0], mov.MovieId);
         }
     }
 }

@@ -27,7 +27,7 @@ namespace Helium.Model
         public string Type;
         [JsonProperty(Order = 98)]
         public string TextSearch;
-        [JsonProperty(Order = 99)]
+        [JsonProperty(Order = 99, NullValueHandling = NullValueHandling.Ignore)]
         public List<MovieBase> Movies;
     }
 }

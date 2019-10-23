@@ -53,21 +53,21 @@ namespace Helium.DataAccessLayer
         /// <returns>a list of Actors or an empty list</returns>
         public IQueryable<Actor> GetActorsByQuery(string q)
         {
-            if (q == null)
-            {
-                q = string.Empty;
-            }
-
-            // convert to lower and escape embedded '
-            q = q.Trim().ToLower().Replace("'", "''");
-
-            string sql = actorSelect + " order by m.actorId";
+            string sql = actorSelect;
 
             if (!string.IsNullOrEmpty(q))
             {
-                // get actors by a "like" search on name
-                sql = string.Format("{0} and contains(m.textSearch, '{1}') order by m.actorId", actorSelect, q);
+                // convert to lower and escape embedded '
+                q = q.Trim().ToLower().Replace("'", "''");
+
+                if (!string.IsNullOrEmpty(q))
+                {
+                    // get actors by a "like" search on name
+                    sql += string.Format(" and contains(m.textSearch, '{0}') ", q);
+                }
             }
+
+            sql += " order by m.name";
 
             return QueryActorWorker(sql);
         }

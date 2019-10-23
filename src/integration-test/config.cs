@@ -4,6 +4,7 @@ namespace HeliumIntegrationTest
 {
     public class Config
     {
+        public bool Verbose = false;
         public bool Random = false;
         public int SleepMs = 0;
         public int Threads = 0;

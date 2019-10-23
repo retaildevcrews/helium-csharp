@@ -47,12 +47,19 @@ namespace Smoker
             requestList = fullList.OrderBy(x => x.SortOrder).ThenBy(x => x.Index).ToList();
         }
 
+        public Test()
+        {
+            // set timeout to 30 seconds
+            client.Timeout = new TimeSpan(0, 0, 30);
+        }
+
         public async Task<bool> Run()
         {
             bool isError = false;
             DateTime dt;
             HttpRequestMessage req;
             string body;
+            string res = string.Empty;
 
             // send the first request as a warm up
             await Warmup(requestList[0].Url);
@@ -77,10 +84,16 @@ namespace Smoker
                             // validate the response
                             if (r.Validation != null)
                             {
-                                ValidateContentType(r, resp);
-                                ValidateContentLength(r, resp);
-                                ValidateContains(r, body);
-                                ValidateJson(r, body);
+                                res = ValidateContentType(r, resp);
+                                res += ValidateContentLength(r, resp);
+                                res += ValidateContains(r, body);
+                                res += ValidateJson(r, body);
+
+                                if (!string.IsNullOrEmpty(res))
+                                {
+                                    Console.Write(res);
+                                    res = string.Empty;
+                                }
                             }
                         }
                     }
@@ -96,12 +109,64 @@ namespace Smoker
             return isError;
         }
 
-        // run the tests
-        public async Task RunLoop(int id, HeliumIntegrationTest.Config config, CancellationToken ct)
+        public async Task<string> RunFromWebRequest(int id)
         {
             DateTime dt;
             HttpRequestMessage req;
             string body;
+            string res = string.Format("Version: {0}\n\n", Helium.Version.AssemblyVersion);
+
+            // send the first request as a warm up
+            await Warmup(requestList[0].Url);
+
+            // send each request
+            foreach (Request r in requestList)
+            {
+                if (r.IsBaseTest)
+                {
+                    try
+                    {
+                        // create the request
+                        using (req = new HttpRequestMessage(new HttpMethod(r.Verb), MakeUrl(r.Url)))
+                        {
+                            dt = DateTime.Now;
+
+                            // process the response
+                            using (HttpResponseMessage resp = await client.SendAsync(req))
+                            {
+                                body = await resp.Content.ReadAsStringAsync();
+
+                                res += string.Format("{0}\t{1}\t{2}\t{3}\t{4}\r\n", DateTime.Now.ToString("MM/dd hh:mm:ss"), (int)resp.StatusCode, (int)DateTime.Now.Subtract(dt).TotalMilliseconds, resp.Content.Headers.ContentLength, r.Url);
+
+                                // validate the response
+                                if (r.Validation != null)
+                                {
+                                    res += ValidateContentType(r, resp);
+                                    res += ValidateContentLength(r, resp);
+                                    res += ValidateContains(r, body);
+                                    res += ValidateJson(r, body);
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        // ignore any error and keep processing
+                        Console.WriteLine("{0}\tException: {1}", DateTime.Now.ToString("MM/dd hh:mm:ss"), ex.Message);
+                    }
+                }
+            }
+
+            return res;
+        }
+
+        // run the tests
+        public async Task RunLoop(int id, HeliumIntegrationTest.Config config, CancellationToken ct)
+        {
+            DateTime dt = DateTime.Now;
+            HttpRequestMessage req;
+            string body;
+            string res;
 
             int i = 0;
             Request r;
@@ -147,32 +212,54 @@ namespace Smoker
                             using (HttpResponseMessage resp = await client.SendAsync(req))
                             {
                                 body = await resp.Content.ReadAsStringAsync();
+                                res = string.Empty;
 
+                                // validate the response
+                                if (r.Validation != null)
+                                {
+                                    res = ValidateContentType(r, resp);
+                                    res += ValidateContentLength(r, resp);
+                                    res += ValidateContains(r, body);
+                                    res += ValidateJson(r, body);
+                                }
                                 // datetime is redundant for web app
                                 if (config.RunWeb)
                                 {
-                                    Console.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}", id, (int)resp.StatusCode, (int)DateTime.Now.Subtract(dt).TotalMilliseconds, resp.Content.Headers.ContentLength, r.Url);
+                                    // only log 4XX and 5XX status codes
+                                    if ((int)resp.StatusCode > 399 || !string.IsNullOrEmpty(res) || config.Verbose)
+                                    {
+                                        Console.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}", id, (int)resp.StatusCode, (int)DateTime.Now.Subtract(dt).TotalMilliseconds, resp.Content.Headers.ContentLength, r.Url);
+                                    }
                                 }
                                 else
                                 {
                                     Console.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}\t{5}", id, DateTime.Now.ToString("MM/dd hh:mm:ss"), (int)resp.StatusCode, (int)DateTime.Now.Subtract(dt).TotalMilliseconds, resp.Content.Headers.ContentLength, r.Url);
                                 }
 
-                                // validate the response
-                                if (r.Validation != null)
+                                if (!string.IsNullOrEmpty(res))
                                 {
-                                    ValidateContentType(r, resp);
-                                    ValidateContentLength(r, resp);
-                                    ValidateContains(r, body);
-                                    ValidateJson(r, body);
+                                    Console.Write(res);
                                 }
                             }
                         }
                     }
+                    catch (System.Threading.Tasks.TaskCanceledException tce)
+                    {
+                        // request timeout error
+
+                        string message = tce.Message;
+
+                        if (tce.InnerException != null)
+                        {
+                            message = tce.InnerException.Message;
+                        }
+
+                        Console.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}\tSmokerException\t{5}", id, 500, (int)DateTime.Now.Subtract(dt).TotalMilliseconds, 0, r.Url, message);
+                    }
                     catch (Exception ex)
                     {
                         // ignore any error and keep processing
-                        Console.WriteLine("{0}\tException: {1}", DateTime.Now.ToString("MM/dd hh:mm:ss"), ex.Message);
+                        Console.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}\tSmokerException\t{5}\n{6}", id, 500, (int)DateTime.Now.Subtract(dt).TotalMilliseconds, 0, r.Url, ex.Message, ex);
                     }
 
                     // increment the index
@@ -231,8 +318,6 @@ namespace Smoker
                 }
             }
 
-            Console.Write(res);
-
             return res;
         }
 
@@ -259,8 +344,6 @@ namespace Smoker
                 }
             }
 
-            Console.Write(res);
-
             return res;
         }
 
@@ -281,8 +364,6 @@ namespace Smoker
                     }
                 }
             }
-
-            Console.Write(res);
 
             return res;
         }
@@ -313,8 +394,6 @@ namespace Smoker
                     }
                 }
             }
-
-            Console.Write(res);
 
             return res;
         }

@@ -7,16 +7,18 @@ namespace Helium.DataAccessLayer
     /// </summary>
     public partial class DAL
     {
+        const string healthzSelect = "select value count(1) from m where m.type = '{0}'";
+
         public HealthzSuccessDetails GetHealthz()
         {
 
             HealthzSuccessDetails d = new HealthzSuccessDetails();
 
+            // get count of documents for each type
             d.Actors = GetCount("Actor");
             d.Movies = GetCount("Movie");
             d.Genres = GetCount("Genre");
 
-            // build the payload
             return d;
         }
 
@@ -27,7 +29,7 @@ namespace Helium.DataAccessLayer
         /// <returns>string - count of documents of type</returns>
         private long GetCount(string type)
         {
-            string sql = string.Format("select value count(1) from m where m.type = '{0}'", type);
+            string sql = string.Format(healthzSelect, type);
 
             var query = QueryWorker(sql);
 

@@ -1,116 +1,21 @@
 [
-{
-  "genre": "Action",
-  "id": "action",
-  "partitionKey": "0",
-  "type": "Genre"
-},
-{
-  "genre": "Adventure",
-  "id": "adventure",
-  "partitionKey": "0",
-  "type": "Genre"
-},
-{
-  "genre": "Animation",
-  "id": "animation",
-  "partitionKey": "0",
-  "type": "Genre"
-},
-{
-  "genre": "Biography",
-  "id": "biography",
-  "partitionKey": "0",
-  "type": "Genre"
-},
-{
-  "genre": "Comedy",
-  "id": "comedy",
-  "partitionKey": "0",
-  "type": "Genre"
-},
-{
-  "genre": "Crime",
-  "id": "crime",
-  "partitionKey": "0",
-  "type": "Genre"
-},
-{
-  "genre": "Documentary",
-  "id": "documentary",
-  "partitionKey": "0",
-  "type": "Genre"
-},
-{
-  "genre": "Drama",
-  "id": "drama",
-  "partitionKey": "0",
-  "type": "Genre"
-},
-{
-  "genre": "Family",
-  "id": "family",
-  "partitionKey": "0",
-  "type": "Genre"
-},
-{
-  "genre": "Fantasy",
-  "id": "fantasy",
-  "partitionKey": "0",
-  "type": "Genre"
-},
-{
-  "genre": "History",
-  "id": "history",
-  "partitionKey": "0",
-  "type": "Genre"
-},
-{
-  "genre": "Music",
-  "id": "music",
-  "partitionKey": "0",
-  "type": "Genre"
-},
-{
-  "genre": "Musical",
-  "id": "musical",
-  "partitionKey": "0",
-  "type": "Genre"
-},
-{
-  "genre": "Mystery",
-  "id": "mystery",
-  "partitionKey": "0",
-  "type": "Genre"
-},
-{
-  "genre": "Romance",
-  "id": "romance",
-  "partitionKey": "0",
-  "type": "Genre"
-},
-{
-  "genre": "Sci-Fi",
-  "id": "sci-fi",
-  "partitionKey": "0",
-  "type": "Genre"
-},
-{
-  "genre": "Sport",
-  "id": "sport",
-  "partitionKey": "0",
-  "type": "Genre"
-},
-{
-  "genre": "Thriller",
-  "id": "thriller",
-  "partitionKey": "0",
-  "type": "Genre"
-},
-{
-  "genre": "War",
-  "id": "war",
-  "partitionKey": "0",
-  "type": "Genre"
-}
+{"genre":"Action","id":"action","partitionKey":"0","type":"Genre"},
+{"genre":"Adventure","id":"adventure","partitionKey":"0","type":"Genre"},
+{"genre":"Animation","id":"animation","partitionKey":"0","type":"Genre"},
+{"genre":"Biography","id":"biography","partitionKey":"0","type":"Genre"},
+{"genre":"Comedy","id":"comedy","partitionKey":"0","type":"Genre"},
+{"genre":"Crime","id":"crime","partitionKey":"0","type":"Genre"},
+{"genre":"Documentary","id":"documentary","partitionKey":"0","type":"Genre"},
+{"genre":"Drama","id":"drama","partitionKey":"0","type":"Genre"},
+{"genre":"Family","id":"family","partitionKey":"0","type":"Genre"},
+{"genre":"Fantasy","id":"fantasy","partitionKey":"0","type":"Genre"},
+{"genre":"History","id":"history","partitionKey":"0","type":"Genre"},
+{"genre":"Music","id":"music","partitionKey":"0","type":"Genre"},
+{"genre":"Musical","id":"musical","partitionKey":"0","type":"Genre"},
+{"genre":"Mystery","id":"mystery","partitionKey":"0","type":"Genre"},
+{"genre":"Romance","id":"romance","partitionKey":"0","type":"Genre"},
+{"genre":"Sci-Fi","id":"sci-fi","partitionKey":"0","type":"Genre"},
+{"genre":"Sport","id":"sport","partitionKey":"0","type":"Genre"},
+{"genre":"Thriller","id":"thriller","partitionKey":"0","type":"Genre"},
+{"genre":"War","id":"war","partitionKey":"0","type":"Genre"}
 ]

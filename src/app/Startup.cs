@@ -72,7 +72,9 @@ namespace Helium
                 app.UseHsts();
             }
 
-            app.UseLogger();
+            // log 4xx and 5xx results to console
+            app.UseLogger( new LoggerOptions { Log2xx = false, Log3xx = false });
+
 
             // Enable middleware to serve generated Swagger as a JSON endpoint.
             app.UseSwagger();
@@ -89,6 +91,9 @@ namespace Helium
 
             // use the robots middleware to handle /robots*.txt requests
             app.UseRobots();
+
+            // use the version middleware to handle /version
+            app.UseVersion();
         }
 
         /// <summary>

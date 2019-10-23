@@ -20,8 +20,7 @@ namespace HeliumIntegrationTest
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            // since we don't have an API, we don't need this
-            //services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddMvc().SetCompatibilityVersion(Microsoft.AspNetCore.Mvc.CompatibilityVersion.Version_2_2);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -37,12 +36,12 @@ namespace HeliumIntegrationTest
                 app.UseHsts();
             }
 
-            // since we don't have an API, we don't need this
-            //app.UseMvc();
+            app.UseMvc();
 
             // add our custom middleware
             app.UseRobots();
             app.UseHomePage();
+            app.UseVersion();
         }
     }
 }

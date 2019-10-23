@@ -116,21 +116,94 @@ namespace UnitTests
             return Movies.AsQueryable();
         }
 
-        public IQueryable<Movie> GetMoviesByQuery(string q)
+        public IQueryable<Movie> GetMoviesByQuery(string q, string genre, int year = 0, double rating = 0.0, bool topRated = false, string actorId = "")
         {
             List<Movie> res = new List<Movie>();
 
-            q = q.ToLower();
-
-            foreach (Movie m in Movies)
+            if (!string.IsNullOrEmpty(q))
             {
-                if (m.TextSearch.Contains(q))
+                q = q.ToLower();
+
+                foreach (Movie m in Movies)
                 {
-                    res.Add(m);
+                    if (m.TextSearch.Contains(q))
+                    {
+                        res.Add(m);
+                    }
                 }
             }
 
+            else if (!string.IsNullOrEmpty(genre))
+            {
+                foreach (Movie m in Movies)
+                {
+                    if (m.Genres.Contains(genre, StringComparer.OrdinalIgnoreCase))
+                    {
+                        res.Add(m);
+                    }
+                }
+            }
+
+            else if (year > 0)
+            {
+                foreach (Movie m in Movies)
+                {
+                    if (m.Year == year)
+                    {
+                        res.Add(m);
+                    }
+                }
+            }
+
+            else if (rating > 0)
+            {
+                foreach (Movie m in Movies)
+                {
+                    if (m.Rating >= rating)
+                    {
+                        res.Add(m);
+                    }
+                }
+            }
+
+            else if (topRated)
+            {
+                foreach (Movie m in Movies)
+                {
+                    if (m.Rating >= 8.8)
+                    {
+                        res.Add(m);
+                    }
+                }
+            }
+
+            else if (!string.IsNullOrEmpty(actorId))
+            {
+                actorId = actorId.Trim().ToLower();
+
+                foreach (Movie m in Movies)
+                {
+                    foreach (var a in m.Roles)
+                    {
+                        if (a.ActorId == actorId)
+                        {
+                            res.Add(m);
+                        }
+                    }
+                }
+            }
+
+            else
+            {
+                return Movies.AsQueryable();
+            }
+
             return res.AsQueryable();
+        }
+
+        public List<string> GetFeaturedMovieList()
+        {
+            return new List<string> { "tt0133093", "tt0120737", "tt0167260", "tt0167261", "tt0372784", "tt0172495", "tt0317705" };
         }
 
         public HealthzSuccessDetails GetHealthz()
@@ -144,7 +217,6 @@ namespace UnitTests
             return d;
         }
     }
-
 
     public class GenreDoc
     {

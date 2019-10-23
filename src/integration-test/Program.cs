@@ -38,7 +38,17 @@ namespace HeliumIntegrationTest
                 return;
             }
 
-            Task webTask = null;
+            IWebHost host = null;
+
+            // setup ctl c handler
+            bool cancel = false;
+
+            Console.CancelKeyPress += delegate (object sender, ConsoleCancelEventArgs e)
+            {
+                Console.WriteLine("Ctl-C Pressed - Starting shutdown ...");
+                e.Cancel = true;
+                cancel = true;
+            };
 
             // run as a web server
             if (config.RunWeb)
@@ -50,10 +60,7 @@ namespace HeliumIntegrationTest
                     .UseUrls("http://*:4122/");
 
                 // build the host
-                IWebHost host = builder.Build();
-
-                // run the web server
-                webTask = host.RunAsync();
+                host = builder.Build();
             }
 
             // run tests in config.RunLoop
@@ -73,10 +80,26 @@ namespace HeliumIntegrationTest
 
             if (config.RunWeb)
             {
-                // wait for web server to complete or ctrl c
-                webTask.Wait();
+                while (!cancel)
+                {
+                    try
+                    {
+                        Console.WriteLine("Version: {0}", Helium.Version.AssemblyVersion);
+
+                        host.Run();
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("Web Server Exception\n{0}", ex);
+                    }
+                }
+
+                Console.WriteLine("Web server shutdown");
+
+                return;
             }
-            else if (config.RunLoop && taskRunners.Count > 0)
+            
+            if (config.RunLoop && taskRunners.Count > 0)
             {
                 // Wait for all tasks to complete
                 List<Task> tasks = new List<Task>();
@@ -88,6 +111,8 @@ namespace HeliumIntegrationTest
 
                 // wait for the run loop to complete or ctrl c
                 Task.WaitAll(tasks.ToArray());
+
+                Console.WriteLine("tasks Completed");
             }
         }
 
@@ -168,6 +193,11 @@ namespace HeliumIntegrationTest
                     else if (args[i] == "-r")
                     {
                         config.Random = true;
+                    }
+
+                    else if (args[i] == "-v")
+                    {
+                        config.Verbose = true;
                     }
 
                     // process all other args in pairs
@@ -260,6 +290,12 @@ namespace HeliumIntegrationTest
             if (!string.IsNullOrEmpty(env))
             {
                 bool.TryParse(env, out config.Random);
+            }
+
+            env = Environment.GetEnvironmentVariable("VERBOSE");
+            if (!string.IsNullOrEmpty(env))
+            {
+                bool.TryParse(env, out config.Verbose);
             }
 
             env = Environment.GetEnvironmentVariable("HOST");

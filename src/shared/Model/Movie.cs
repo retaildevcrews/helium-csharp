@@ -15,7 +15,7 @@ namespace Helium.Model
         public int Year;
         [JsonProperty(Order = 9)]
         public int Runtime;
-        [JsonProperty(Order = 30)]
+        [JsonProperty(Order = 30, NullValueHandling = NullValueHandling.Ignore)]
         public List<string> Genres;
     }
 
@@ -33,7 +33,7 @@ namespace Helium.Model
         public long TotalScore;
         [JsonProperty(Order = 7)]
         public string TextSearch;
-        [JsonProperty(Order = 99)]
+        [JsonProperty(Order = 99, NullValueHandling = NullValueHandling.Ignore)]
         public List<Role> Roles;
     }
 
@@ -43,7 +43,7 @@ namespace Helium.Model
         public int Order;
         [JsonProperty(Order = 98)]
         public string Category;
-        [JsonProperty(Order = 99)]
+        [JsonProperty(Order = 99, NullValueHandling = NullValueHandling.Ignore)]
         public List<string> Characters;
     }
 }
