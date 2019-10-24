@@ -98,7 +98,7 @@ namespace HeliumIntegrationTest
 
                 return;
             }
-            
+
             if (config.RunLoop && taskRunners.Count > 0)
             {
                 // Wait for all tasks to complete

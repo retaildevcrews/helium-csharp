@@ -1,5 +1,17 @@
 # Change Log
 
+## Oct 24, 2019
+
+- added retry for AKS pod identity (it takes ~ 30 seconds to spin up the first time in the cluster)
+- added /version endpoint
+- added additional movie APIs
+  - /api/movies?genre=action
+  - /api/movies?year=1999
+  - /api/movies?rating=8.5 (this returns >= 8.5)
+  - /api/movies?actorid=nm0000206
+  - /api/movies?toprated=true (returns the 10 top rated movies sorted by rating desc)
+  - /api/featured/movie (returns a random movie from the featured movies)
+
 ## Oct 10, 2019
 
 - Added ability to deploy Integration Test to App Service as a container

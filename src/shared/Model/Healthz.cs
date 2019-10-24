@@ -56,7 +56,7 @@
                 Instance = "unknown";
             }
             else
-            { 
+            {
                 Instance = System.Environment.GetEnvironmentVariable("WEBSITE_ROLE_INSTANCE_ID");
             }
         }

@@ -73,8 +73,7 @@ namespace Helium
             }
 
             // log 4xx and 5xx results to console
-            app.UseLogger( new LoggerOptions { Log2xx = false, Log3xx = false });
-
+            app.UseLogger(new LoggerOptions { Log2xx = false, Log3xx = false });
 
             // Enable middleware to serve generated Swagger as a JSON endpoint.
             app.UseSwagger();
