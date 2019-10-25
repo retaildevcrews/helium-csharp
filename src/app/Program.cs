@@ -159,6 +159,7 @@ namespace Helium
 
             // only reload dal if key changed
             string newCosmosKey = config.GetValue<string>(Constants.CosmosKey);
+
             if (newCosmosKey != cosmosKey)
             {
                 // create a new data access layer
@@ -171,6 +172,8 @@ namespace Helium
                     {
                         // run a test query
                         dal.GetHealthz();
+
+                        cosmosKey = newCosmosKey;
                     }
                     catch (Exception ex)
                     {
@@ -348,13 +351,30 @@ namespace Helium
                 kvName = args[0].Trim();
             }
 
-            // build the URL
-            if (!string.IsNullOrEmpty(kvName) && !kvName.StartsWith("https://"))
+            if (kvName == null || string.IsNullOrEmpty(kvName.Trim()))
             {
-                return "https://" + kvName + ".vault.azure.net/";
+                return string.Empty;
             }
 
-            return string.Empty;
+            string kvUrl = kvName.Trim();
+
+            // build the URL
+            if (!kvUrl.StartsWith("https://"))
+            {
+                kvUrl = "https://" + kvUrl;
+            }
+
+            if (!kvUrl.EndsWith(".vault.azure.net/") && !kvUrl.EndsWith(".vault.azure.net"))
+            {
+                kvUrl += ".vault.azure.net/";
+            }
+
+            if (!kvUrl.EndsWith("/"))
+            {
+                kvUrl += "/";
+            }
+
+            return kvUrl;
         }
     }
 }
