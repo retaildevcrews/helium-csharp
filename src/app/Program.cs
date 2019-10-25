@@ -113,7 +113,6 @@ namespace Helium
 
             // make sure sleep isn't too long
             Constants.MainLoopSleepMs = Constants.MainLoopSleepMs > 5000 ? 5000 : Constants.MainLoopSleepMs;
-
             // run until cancelled
             while (!cancel)
             {
@@ -159,8 +158,8 @@ namespace Helium
             config.Reload();
 
             // only reload dal if key changed
-
-            if (config.GetValue<string>(Constants.CosmosKey) != cosmosKey)
+            string newCosmosKey = config.GetValue<string>(Constants.CosmosKey);
+            if (newCosmosKey != cosmosKey)
             {
                 // create a new data access layer
                 DAL d = CreateDal();
@@ -180,7 +179,9 @@ namespace Helium
                     }
 
                     dal = d;
+
                     logger.LogInformation("DAL reloaded");
+                    Console.WriteLine("Cosmos key rotated from {0}... to {1}...", cosmosKey.Substring(0, 5), newCosmosKey.Substring(0, 5));
                 }
                 else
                 {
