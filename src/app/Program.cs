@@ -171,9 +171,7 @@ namespace Helium
                     try
                     {
                         // run a test query
-                        dal.GetHealthz();
-
-                        cosmosKey = newCosmosKey;
+                        d.GetHealthz();
                     }
                     catch (Exception ex)
                     {
@@ -181,10 +179,11 @@ namespace Helium
                         logger.LogError(ex.ToString());
                     }
 
-                    dal = d;
-
                     logger.LogInformation("DAL reloaded");
                     Console.WriteLine("Cosmos key rotated from {0}... to {1}...", cosmosKey.Substring(0, 5), newCosmosKey.Substring(0, 5));
+
+                    dal = d;
+                    cosmosKey = newCosmosKey;
                 }
                 else
                 {
