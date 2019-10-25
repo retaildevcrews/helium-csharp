@@ -172,18 +172,19 @@ namespace Helium
                     {
                         // run a test query
                         d.GetHealthz();
+
+                        logger.LogInformation("DAL reloaded");
+                        Console.WriteLine("DAL Reload: Cosmos key rotated from {0}... to {1}...", cosmosKey.Substring(0, 5), newCosmosKey.Substring(0, 5));
+
+                        dal = d;
+                        cosmosKey = newCosmosKey;
                     }
-                    catch (Exception ex)
+                    catch //(Exception ex)
                     {
-                        logger.LogError(Constants.DALReloadError);
-                        logger.LogError(ex.ToString());
+                        Console.WriteLine("DAL Reload: New Cosmos key not ready");
+                        //logger.LogError(Constants.DALReloadError);
+                        //logger.LogError(ex.ToString());
                     }
-
-                    logger.LogInformation("DAL reloaded");
-                    Console.WriteLine("Cosmos key rotated from {0}... to {1}...", cosmosKey.Substring(0, 5), newCosmosKey.Substring(0, 5));
-
-                    dal = d;
-                    cosmosKey = newCosmosKey;
                 }
                 else
                 {
