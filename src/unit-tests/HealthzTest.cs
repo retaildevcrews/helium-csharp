@@ -2,6 +2,7 @@ using Helium.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace UnitTests
@@ -17,10 +18,10 @@ namespace UnitTests
         }
 
         [Fact]
-        public void GetHealthz()
+        public async Task GetHealthz()
         {
 
-            var res = (ObjectResult)c.Healthz();
+            var res = await c.HealthzAsync();
 
             OkObjectResult ok = res as OkObjectResult;
 

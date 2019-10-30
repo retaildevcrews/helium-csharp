@@ -1,7 +1,7 @@
 using Helium.Model;
-using Microsoft.Azure.Documents;
-using Microsoft.Azure.Documents.Client;
-using System.Linq;
+using Microsoft.Azure.Cosmos;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Helium.DataAccessLayer
 {
@@ -27,20 +27,18 @@ namespace Helium.DataAccessLayer
             // get the partition key for the actor ID
             // note: if the key cannot be determined from the ID, ReadDocumentAsync cannot be used.
             // GetPartitionKey will throw an ArgumentException if the actorId isn't valid
-            RequestOptions requestOptions = new RequestOptions { PartitionKey = new PartitionKey(GetPartitionKey(actorId)) };
-
             // get an actor by ID
-            return await client.ReadDocumentAsync<Actor>(collectionLink.ToString() + "/docs/" + actorId, requestOptions);
+            return await container.ReadItemAsync<Actor>(actorId, new PartitionKey(GetPartitionKey(actorId)));
         }
 
         /// <summary>
         /// Get all Actors from CosmosDB
         /// </summary>
         /// <returns>List of Actors</returns>
-        public IQueryable<Actor> GetActors()
+        public async Task<IEnumerable<Actor>> GetActorsAsync()
         {
             // get all actors
-            return GetActorsByQuery(string.Empty);
+            return await GetActorsByQueryAsync(string.Empty);
         }
 
         /// <summary>
@@ -51,7 +49,7 @@ namespace Helium.DataAccessLayer
         /// </summary>
         /// <param name="q">search term</param>
         /// <returns>a list of Actors or an empty list</returns>
-        public IQueryable<Actor> GetActorsByQuery(string q)
+        public async Task<IEnumerable<Actor>> GetActorsByQueryAsync(string q)
         {
             string sql = actorSelect;
 
@@ -69,7 +67,7 @@ namespace Helium.DataAccessLayer
 
             sql += " order by m.name";
 
-            return QueryActorWorker(sql);
+            return await QueryActorWorkerAsync(sql);
         }
 
         /// <summary>
@@ -77,10 +75,21 @@ namespace Helium.DataAccessLayer
         /// </summary>
         /// <param name="sql">select statement to execute</param>
         /// <returns>List of Actors</returns>
-        public IQueryable<Actor> QueryActorWorker(string sql)
+        public async Task<IEnumerable<Actor>> QueryActorWorkerAsync(string sql)
         {
             // run query
-            return client.CreateDocumentQuery<Actor>(collectionLink, sql, feedOptions);
+            var query = container.GetItemQueryIterator<Actor>(sql, requestOptions: queryRequestOptions);
+
+            List<Actor> results = new List<Actor>();
+
+            while (query.HasMoreResults)
+            {
+                foreach (var doc in await query.ReadNextAsync())
+                {
+                    results.Add(doc);
+                }
+            }
+            return results;
         }
     }
 }

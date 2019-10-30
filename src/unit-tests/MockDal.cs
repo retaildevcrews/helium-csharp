@@ -69,12 +69,12 @@ namespace UnitTests
             throw new ArgumentException("NotFound");
         }
 
-        public IQueryable<Actor> GetActors()
+        public Task<IEnumerable<Actor>> GetActorsAsync()
         {
-            return Actors.AsQueryable();
+            return Task<IEnumerable<Actor>>.Factory.StartNew(() => { return Actors; });
         }
 
-        public IQueryable<Actor> GetActorsByQuery(string q)
+        public Task<IEnumerable<Actor>> GetActorsByQueryAsync(string q)
         {
             List<Actor> res = new List<Actor>();
 
@@ -88,12 +88,12 @@ namespace UnitTests
                 }
             }
 
-            return res.AsQueryable();
+            return Task<IEnumerable<Actor>>.Factory.StartNew(() => { return res; });
         }
 
-        public IQueryable<string> GetGenres()
+        public Task<IEnumerable<string>> GetGenresAsync()
         {
-            return Genres.AsQueryable<string>();
+            return Task<IEnumerable<string>>.Factory.StartNew(() => { return Genres; });
         }
 
         public Task<Movie> GetMovieAsync(string movieId)
@@ -111,12 +111,12 @@ namespace UnitTests
             throw new ArgumentException("NotFound");
         }
 
-        public IQueryable<Movie> GetMovies()
+        public Task<IEnumerable<Movie>> GetMoviesAsync()
         {
-            return Movies.AsQueryable();
+            return Task<IEnumerable<Movie>>.Factory.StartNew(() => { return Movies; });
         }
 
-        public IQueryable<Movie> GetMoviesByQuery(string q, string genre, int year = 0, double rating = 0.0, bool topRated = false, string actorId = "")
+        public Task<IEnumerable<Movie>> GetMoviesByQueryAsync(string q, string genre, int year = 0, double rating = 0.0, bool topRated = false, string actorId = "")
         {
             List<Movie> res = new List<Movie>();
 
@@ -195,18 +195,20 @@ namespace UnitTests
 
             else
             {
-                return Movies.AsQueryable();
+                return Task<IEnumerable<Movie>>.Factory.StartNew(() => { return Movies; });
             }
 
-            return res.AsQueryable();
+            return Task<IEnumerable<Movie>>.Factory.StartNew(() => { return res; });
         }
 
-        public List<string> GetFeaturedMovieList()
+        public Task<List<string>> GetFeaturedMovieListAsync()
         {
-            return new List<string> { "tt0133093", "tt0120737", "tt0167260", "tt0167261", "tt0372784", "tt0172495", "tt0317705" };
+            List<string> res = new List<string> { "tt0133093", "tt0120737", "tt0167260", "tt0167261", "tt0372784", "tt0172495", "tt0317705" };
+
+            return Task<List<string>>.Factory.StartNew(() => { return res; });
         }
 
-        public HealthzSuccessDetails GetHealthz()
+        public Task<HealthzSuccessDetails> GetHealthzAsync()
         {
             HealthzSuccessDetails d = new HealthzSuccessDetails();
 
@@ -214,7 +216,12 @@ namespace UnitTests
             d.Movies = 100;
             d.Genres = 19;
 
-            return d;
+            return Task<HealthzSuccessDetails>.Factory.StartNew(() => { return d; });
+        }
+
+        public void Reconnect(string cosmosUrl, string cosmosKey, string cosmosDatabase, string cosmosCollection)
+        {
+            // do nothing
         }
     }
 

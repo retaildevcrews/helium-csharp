@@ -1,7 +1,5 @@
-using Microsoft.Azure.Documents.Client;
+using Microsoft.Azure.Cosmos;
 using System;
-using System.Linq;
-
 
 namespace Helium.DataAccessLayer
 {
@@ -10,11 +8,13 @@ namespace Helium.DataAccessLayer
     /// </summary>
     public partial class DAL : IDAL
     {
-        // CosmosDB options
-        private readonly FeedOptions feedOptions = new FeedOptions { EnableCrossPartitionQuery = true, MaxItemCount = 2000 };
+        // CosmosDB query request options
+        private readonly QueryRequestOptions queryRequestOptions = new QueryRequestOptions { MaxItemCount = 2000 };
 
-        private readonly Uri collectionLink = null;
-        private readonly DocumentClient client = null;
+        // default protocol is tcp, default connection mode is direct
+        private readonly CosmosClientOptions cosmosClientOptions = new CosmosClientOptions { RequestTimeout = TimeSpan.FromSeconds(60), MaxRetryAttemptsOnRateLimitedRequests = 9, MaxRetryWaitTimeOnRateLimitedRequests = TimeSpan.FromSeconds(60) };
+        private CosmosClient client = null;
+        private Container container = null;
 
         /// <summary>
         /// Data Access Layer Constructor
@@ -25,28 +25,10 @@ namespace Helium.DataAccessLayer
         /// <param name="cosmosCollection">CosmosDB Collection</param>
         public DAL(string cosmosUrl, string cosmosKey, string cosmosDatabase, string cosmosCollection)
         {
-            // create and open the CosmosDB client
-            // this does not run any queries, so the connection still needs to be tested
+            // create the CosmosDB client and container
+            client = new CosmosClient(cosmosUrl, cosmosKey, cosmosClientOptions);
 
-            ConnectionPolicy cp = new ConnectionPolicy
-            {
-                ConnectionProtocol = Protocol.Tcp,
-                ConnectionMode = ConnectionMode.Direct,
-                MaxConnectionLimit = 100,
-                RequestTimeout = TimeSpan.FromSeconds(60),
-                RetryOptions = new RetryOptions
-                {
-                    MaxRetryAttemptsOnThrottledRequests = 10,
-                    MaxRetryWaitTimeInSeconds = 45
-                }
-            };
-
-            client = new DocumentClient(new Uri(cosmosUrl), cosmosKey, cp);
-
-            client.OpenAsync();
-
-            // create the collection link
-            collectionLink = UriFactory.CreateDocumentCollectionUri(cosmosDatabase, cosmosCollection);
+            container = client.GetContainer(cosmosDatabase, cosmosCollection);
         }
 
         /// <summary>
@@ -54,9 +36,16 @@ namespace Helium.DataAccessLayer
         /// </summary>
         /// <param name="sql">the select statement to execute</param>
         /// <returns>results of the query</returns>
-        public IQueryable<dynamic> QueryWorker(string sql)
+        public FeedIterator<dynamic> QueryWorker(string sql)
         {
-            return client.CreateDocumentQuery<dynamic>(collectionLink, sql, feedOptions);
+            return container.GetItemQueryIterator<dynamic>(sql, requestOptions: queryRequestOptions);
+        }
+
+        public void Reconnect(string cosmosUrl, string cosmosKey, string cosmosDatabase, string cosmosCollection)
+        {
+            var c = new CosmosClient(cosmosUrl, cosmosKey, cosmosClientOptions);
+            client = c;
+            container = client.GetContainer(cosmosDatabase, cosmosCollection);
         }
 
         /// <summary>

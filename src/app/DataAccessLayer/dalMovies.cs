@@ -1,6 +1,5 @@
 using Helium.Model;
-using Microsoft.Azure.Documents;
-using Microsoft.Azure.Documents.Client;
+using Microsoft.Azure.Cosmos;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -28,20 +27,18 @@ namespace Helium.DataAccessLayer
             // get the partition key for the movie ID
             // note: if the key cannot be determined from the ID, ReadDocumentAsync cannot be used.
             // GetPartitionKey will throw an ArgumentException if the movieId isn't valid
-            RequestOptions requestOptions = new RequestOptions { PartitionKey = new PartitionKey(GetPartitionKey(movieId)) };
-
             // get a movie by ID
-            return await client.ReadDocumentAsync<Movie>(collectionLink.ToString() + "/docs/" + movieId, requestOptions);
+            return await container.ReadItemAsync<Movie>(movieId, new PartitionKey(GetPartitionKey(movieId)));
         }
 
         /// <summary>
         /// Get all movies
         /// </summary>
         /// <returns>List of all Movies</returns>
-        public IQueryable<Movie> GetMovies()
+        public async Task<IEnumerable<Movie>> GetMoviesAsync()
         {
             // get all movies
-            return GetMoviesByQuery(string.Empty);
+            return await GetMoviesByQueryAsync(string.Empty);
         }
 
         /// <summary>
@@ -54,7 +51,7 @@ namespace Helium.DataAccessLayer
         /// <param name="toprated">get top rated movies</param>
         /// <param name="actorId">get movies by actorId</param>
         /// <returns>List of Movies or an empty list</returns>
-        public IQueryable<Movie> GetMoviesByQuery(string q, string genre = "", int year = 0, double rating = 0, bool toprated = false, string actorId = "")
+        public async Task<IEnumerable<Movie>> GetMoviesByQueryAsync(string q, string genre = "", int year = 0, double rating = 0, bool toprated = false, string actorId = "")
         {
             string sql = movieSelect;
             string orderby = movieOrderBy;
@@ -104,7 +101,7 @@ namespace Helium.DataAccessLayer
             if (!string.IsNullOrEmpty(genre))
             {
                 // convert to lower and escape embedded '
-                genre = GetGenre(genre);
+                genre = await GetGenreAsync(genre);
 
                 if (string.IsNullOrEmpty(genre))
                 {
@@ -118,26 +115,30 @@ namespace Helium.DataAccessLayer
 
             sql += orderby;
 
-            return QueryMovieWorker(sql);
+            return await QueryMovieWorkerAsync(sql);
         }
 
         /// <summary>
         /// Get the featured movie list from Cosmos
         /// </summary>
         /// <returns>List</returns>
-        public List<string> GetFeaturedMovieList()
+        public async Task<List<string>> GetFeaturedMovieListAsync()
         {
             List<string> list = new List<string>();
 
             string sql = "select m.movieId, m.weight from m where m.type = 'Featured' order by m.weight desc";
 
-            var res = client.CreateDocumentQuery<dynamic>(collectionLink, sql, feedOptions).ToList<dynamic>();
+            var query = container.GetItemQueryIterator<FeaturedMovie>(sql, requestOptions: queryRequestOptions);
 
-            foreach (var f in res)
+            while (query.HasMoreResults)
             {
-                for (int i = 0; i < f.weight; i++)
+                foreach (var doc in await query.ReadNextAsync())
                 {
-                    list.Add(f.movieId);
+                    // apply weighting
+                    for (int i = 0; i < doc.weight; i++)
+                    {
+                        list.Add(doc.movieId);
+                    }
                 }
             }
 
@@ -155,10 +156,21 @@ namespace Helium.DataAccessLayer
         /// </summary>
         /// <param name="sql">select statement to execute</param>
         /// <returns>List of Movies or empty list</returns>
-        public IQueryable<Movie> QueryMovieWorker(string sql)
+        public async Task<IEnumerable<Movie>> QueryMovieWorkerAsync(string sql)
         {
             // run query
-            return client.CreateDocumentQuery<Movie>(collectionLink, sql, feedOptions);
+            var query = container.GetItemQueryIterator<Movie>(sql, requestOptions: queryRequestOptions);
+
+            List<Movie> results = new List<Movie>();
+
+            while (query.HasMoreResults)
+            {
+                foreach (var doc in await query.ReadNextAsync())
+                {
+                    results.Add(doc);
+                }
+            }
+            return results;
         }
     }
 }

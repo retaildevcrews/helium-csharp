@@ -1,5 +1,5 @@
 # Docker
-# Build and push an image to Azure Container Registry
+# Build and push images to Azure Container Registry
 # https://docs.microsoft.com/azure/devops/pipelines/languages/docker
 
 # run on all branches
@@ -8,16 +8,6 @@ trigger:
   branches:
     include:
     - '*'
-  paths:
-    include:
-    - src/*
-
-# run on a PR to master
-# ignore documentation updates
-pr:
-  branches:
-    include:
-    - master
   paths:
     include:
     - src/*
@@ -31,20 +21,23 @@ variables:
   # You can change this name to use an existing ACR service connection
   dockerRegistryServiceConnection: 'helium-acr'
 
-  imageRepository: 'helium-csharp'
-  containerRegistry: '$(dockerRegistryServiceConnection)'
-  dockerfilePath: '$(Build.SourcesDirectory)/src/Dockerfile'
+  appRepository: 'helium-csharp'
+  appDockerFile: '$(Build.SourcesDirectory)/src/Dockerfile'
+
+  integrationTestRepository: 'helium-integration-test'
+  integrationTestDockerFile: '$(Build.SourcesDirectory)/src/Dockerfile-Integration-Test'
+
   tag: '$(Build.BuildId)'
   
   # Agent VM image name
   vmImageName: 'ubuntu-latest'
 
-# UnitTest job runs on each check in
-# Build job only runs on master branch
+# Unit Test job runs on each check in
+# Publish ACR jobs only runs on master branch
 
 stages:
 - stage: Build
-  displayName: Build and push container
+  displayName: Build and push containers
   jobs:
   - job: Build
     displayName: Build and test app
@@ -73,11 +66,23 @@ stages:
 
     - task: Docker@2
       condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
-      displayName: Build and push to container registry
+      displayName: Build and push app to container registry
       inputs:
         command: buildAndPush
-        repository: $(imageRepository)
-        dockerfile: $(dockerfilePath)
+        repository: $(appRepository)
+        dockerfile: $(appDockerFile)
+        containerRegistry: $(dockerRegistryServiceConnection)
+        tags: |
+          $(tag)
+          latest
+
+    - task: Docker@2
+      condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
+      displayName: Build and push integration-test to container registry
+      inputs:
+        command: buildAndPush
+        repository: $(integrationTestRepository)
+        dockerfile: $(integrationTestDockerFile)
         containerRegistry: $(dockerRegistryServiceConnection)
         tags: |
           $(tag)

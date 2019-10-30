@@ -3,6 +3,7 @@ using Helium.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace UnitTests
@@ -18,9 +19,9 @@ namespace UnitTests
         }
 
         [Fact]
-        public async void GetFeaturedMovie()
+        public async Task GetFeaturedMovie()
         {
-            var list = new MockDal().GetFeaturedMovieList();
+            var list = await new MockDal().GetFeaturedMovieListAsync();
 
             Assert.NotNull(list);
             Assert.Equal(7, list.Count);

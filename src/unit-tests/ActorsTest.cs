@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace UnitTests
@@ -20,9 +21,9 @@ namespace UnitTests
         }
 
         [Fact]
-        public void GetAllActors()
+        public async Task GetAllActors()
         {
-            OkObjectResult ok = c.GetActors(string.Empty) as OkObjectResult;
+            OkObjectResult ok = await c.GetActorsAsync(string.Empty) as OkObjectResult;
 
             Assert.NotNull(ok);
 
@@ -31,13 +32,12 @@ namespace UnitTests
             Assert.NotNull(ie);
 
             Assert.Equal(AssertValues.ActorsCount, ie.ToList<Actor>().Count);
-
         }
 
         [Fact]
-        public void GetActorsBySearch()
+        public async Task GetActorsBySearch()
         {
-            OkObjectResult ok = c.GetActors(AssertValues.ActorSearchString) as OkObjectResult;
+            OkObjectResult ok = await c.GetActorsAsync(AssertValues.ActorSearchString) as OkObjectResult;
 
             Assert.NotNull(ok);
 
@@ -46,11 +46,10 @@ namespace UnitTests
             Assert.NotNull(ie);
 
             Assert.Equal(AssertValues.ActorsSearchCount, ie.ToList<Actor>().Count);
-
         }
 
         [Fact]
-        public async void GetActorByIdPass()
+        public async Task GetActorByIdPass()
         {
             // do not use c.GetActorByIdAsync().Result
             // due to thread syncronization issues with build clients, it is not reliable
@@ -66,7 +65,7 @@ namespace UnitTests
         }
 
         [Fact]
-        public async void GetActorByIdFail()
+        public async Task GetActorByIdFail()
         {
             // this will fail GetPartitionKey
             NotFoundResult nf = await c.GetActorByIdAsync(AssertValues.BadId) as NotFoundResult;

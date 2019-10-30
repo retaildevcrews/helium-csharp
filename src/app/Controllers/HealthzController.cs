@@ -1,9 +1,10 @@
 using Helium.DataAccessLayer;
 using Helium.Model;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.Documents;
+using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Threading.Tasks;
 
 namespace Helium.Controllers
 {
@@ -40,7 +41,7 @@ namespace Helium.Controllers
         [Produces("application/json")]
         [ProducesResponseType(typeof(HealthzSuccess), 200)]
         [ProducesResponseType(typeof(HealthzError), 503)]
-        public IActionResult Healthz()
+        public async Task<IActionResult> HealthzAsync()
         {
             // healthcheck counts the document types
 
@@ -50,7 +51,7 @@ namespace Helium.Controllers
 
                 logger.LogInformation("Healthz");
 
-                HealthzSuccessDetails s = dal.GetHealthz();
+                HealthzSuccessDetails s = await dal.GetHealthzAsync();
 
                 res.details.cosmosDb.details = s;
 
@@ -58,17 +59,38 @@ namespace Helium.Controllers
                 return Ok(res);
             }
 
-            catch (DocumentClientException dce)
+            catch (CosmosException ce)
             {
                 // log and return 503
-                logger.LogError("DocumentClientException:Healthz:{0}:{1}:{2}:{3}\r\n{4}", dce.StatusCode, dce.Error, dce.ActivityId, dce.Message, dce);
+                logger.LogError("CosmosException:Healthz:{0}:{1}:{2}:{3}\r\n{4}", ce.StatusCode, ce.ActivityId, ce.Message, ce.ToString());
 
                 HealthzError e = new HealthzError();
-                e.details.cosmosDb.details.Error = dce.Message;
+                e.details.cosmosDb.details.Error = ce.Message;
 
                 return new ObjectResult(e)
                 {
                     StatusCode = (int)System.Net.HttpStatusCode.ServiceUnavailable
+                };
+            }
+
+            catch (System.AggregateException age)
+            {
+                var root = age.GetBaseException();
+
+                if (root == null)
+                {
+                    root = age;
+                }
+
+                HealthzError e = new HealthzError();
+                e.details.cosmosDb.details.Error = root.Message;
+
+                // log and return 500
+                logger.LogError($"AggregateException|Healthz|{root.GetType()}|{root.Message}|{root.Source}|{root.TargetSite}");
+
+                return new ObjectResult(e)
+                {
+                    StatusCode = (int)System.Net.HttpStatusCode.InternalServerError
                 };
             }
 

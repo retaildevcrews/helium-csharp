@@ -21,17 +21,4 @@
     <Compile Include="..\shared\Version.cs"><Link>shared/Version.cs</Link></Compile>
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="actorid.json"><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></None>
-    <None Update="all.json"><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></None>
-    <None Update="dotnet.json"><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></None>
-    <None Update="featured.json"><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></None>
-    <None Update="genres.json"><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></None>
-    <None Update="integration-test.json"><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></None>
-    <None Update="java.json"><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></None>
-    <None Update="rating.json"><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></None>
-    <None Update="search.json"><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></None>
-    <None Update="year.json"><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></None>
-  </ItemGroup>
-
 </Project>

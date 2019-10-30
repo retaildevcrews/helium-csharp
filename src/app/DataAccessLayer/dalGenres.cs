@@ -1,5 +1,6 @@
-using Microsoft.Azure.Documents;
-using System.Linq;
+using Microsoft.Azure.Cosmos;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Helium.DataAccessLayer
 {
@@ -14,12 +15,22 @@ namespace Helium.DataAccessLayer
         /// Read the genres from CosmosDB
         /// </summary>
         /// <returns>List of strings</returns>
-        public IQueryable<string> GetGenres()
+        public async Task<IEnumerable<string>> GetGenresAsync()
         {
             // get all genres as a list of strings
             // the "select value" converts m.genre to a string instead of a document
+            var query = container.GetItemQueryIterator<string>(new QueryDefinition(genresSelect), requestOptions: queryRequestOptions);
 
-            return client.CreateDocumentQuery<string>(collectionLink, new SqlQuerySpec(genresSelect), feedOptions);
+            List<string> results = new List<string>();
+
+            while (query.HasMoreResults)
+            {
+                foreach (var doc in await query.ReadNextAsync())
+                {
+                    results.Add(doc);
+                }
+            }
+            return results;
         }
 
         /// <summary>
@@ -27,15 +38,25 @@ namespace Helium.DataAccessLayer
         /// </summary>
         /// <param name="key"></param>
         /// <returns>string.Empty or the Genre</returns>
-        public string GetGenre(string key)
+        public async Task<string> GetGenreAsync(string key)
         {
             string sql = string.Format("select value m.genre from m where m.type = 'Genre' and m.id = '{0}'", key.Trim().ToLower());
 
-            var q = client.CreateDocumentQuery<string>(collectionLink, new SqlQuerySpec(sql), feedOptions).ToList<string>();
+            var query = container.GetItemQueryIterator<string>(new QueryDefinition(sql), requestOptions: queryRequestOptions);
 
-            if (q != null && q.Count > 0)
+            List<string> results = new List<string>();
+
+            while (query.HasMoreResults)
             {
-                return q[0];
+                foreach (var doc in await query.ReadNextAsync())
+                {
+                    results.Add(doc);
+                }
+            }
+
+            if (results != null && results.Count > 0)
+            {
+                return results[0];
             }
 
             return string.Empty;

@@ -1,8 +1,9 @@
 ﻿using Helium.DataAccessLayer;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.Documents;
+using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Threading.Tasks;
 
 namespace Helium.Controllers
 {
@@ -33,20 +34,38 @@ namespace Helium.Controllers
         [HttpGet]
         [Produces("application/json")]
         [ProducesResponseType(typeof(string[]), 200)]
-        public IActionResult GetGenres()
+        public async Task<IActionResult> GetGenresAsync()
         {
             // get list of genres as list of string
             logger.LogInformation("GetGenres");
 
             try
             {
-                return Ok(dal.GetGenres());
+                return Ok(await dal.GetGenresAsync());
             }
 
-            catch (DocumentClientException dce)
+            catch (CosmosException ce)
             {
                 // log and return 500
-                logger.LogError("DocumentClientException:GetGenres:{0}:{1}:{2}:{3}\r\n{4}", dce.StatusCode, dce.Error, dce.ActivityId, dce.Message, dce);
+                logger.LogError("CosmosException:GetGenres:{0}:{1}:{2}:{3}\r\n{4}", ce.StatusCode, ce.ActivityId, ce.Message, ce.ToString());
+
+                return new ObjectResult(Constants.GenresControllerException)
+                {
+                    StatusCode = (int)System.Net.HttpStatusCode.InternalServerError
+                };
+            }
+
+            catch (System.AggregateException age)
+            {
+                var root = age.GetBaseException();
+
+                if (root == null)
+                {
+                    root = age;
+                }
+
+                // log and return 500
+                logger.LogError($"AggregateException|GetGenres|{root.GetType()}|{root.Message}|{root.Source}|{root.TargetSite}");
 
                 return new ObjectResult(Constants.GenresControllerException)
                 {

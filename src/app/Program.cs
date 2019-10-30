@@ -59,10 +59,12 @@ namespace Helium
                 dal = CreateDal();
 
                 // validate the CosmosDB connection / collection
-                dal.GetHealthz();
+                await dal.GetHealthzAsync();
 
                 // build the host
                 host = BuildHost(kvUrl);
+
+                dal = host.Services.GetService<IDAL>() as DAL;
 
                 // run the web app
                 RunWebApp();
@@ -113,6 +115,7 @@ namespace Helium
 
             // make sure sleep isn't too long
             Constants.MainLoopSleepMs = Constants.MainLoopSleepMs > 5000 ? 5000 : Constants.MainLoopSleepMs;
+
             // run until cancelled
             while (!cancel)
             {
@@ -154,42 +157,40 @@ namespace Helium
         /// <returns></returns>
         private static DateTime ReloadDal()
         {
-            // reload config from Key Vault
-            config.Reload();
-
-            // only reload dal if key changed
-            string newCosmosKey = config.GetValue<string>(Constants.CosmosKey);
-
-            if (newCosmosKey != cosmosKey)
+            try
             {
-                // create a new data access layer
-                DAL d = CreateDal();
+                // reload config from Key Vault
+                config.Reload();
 
-                // don't reset if it failed
-                if (d != null)
+                // only reload dal if key changed
+                string newCosmosKey = config.GetValue<string>(Constants.CosmosKey);
+
+                if (newCosmosKey != cosmosKey)
                 {
-                    try
-                    {
-                        // run a test query
-                        d.GetHealthz();
+                    // create a new data access layer
+                    IDAL d = CreateDal();
 
-                        logger.LogInformation("DAL reloaded");
-                        Console.WriteLine("DAL Reload: Cosmos key rotated from {0}... to {1}...", cosmosKey.Substring(0, 5), newCosmosKey.Substring(0, 5));
+                    // run a test query
+                    d.GetHealthzAsync().GetAwaiter().GetResult();
 
-                        dal = d;
-                        cosmosKey = newCosmosKey;
-                    }
-                    catch //(Exception ex)
-                    {
-                        Console.WriteLine("DAL Reload: New Cosmos key not ready");
-                        //logger.LogError(Constants.DALReloadError);
-                        //logger.LogError(ex.ToString());
-                    }
+                    logger.LogInformation("DAL reloaded");
+                    Console.WriteLine("DAL Reload: Cosmos key rotated from {0}... to {1}...", cosmosKey.Substring(0, 5), newCosmosKey.Substring(0, 5));
+
+                    cosmosKey = newCosmosKey;
+
+                    d = host.Services.GetService<IDAL>();
+
+                    d.Reconnect(config.GetValue<string>(Constants.CosmosUrl),
+                        config.GetValue<string>(Constants.CosmosKey),
+                        config.GetValue<string>(Constants.CosmosDatabase),
+                        config.GetValue<string>(Constants.CosmosCollection));
                 }
-                else
-                {
-                    logger.LogError(Constants.DALReloadError);
-                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"DAL Reload: {ex.Message}");
+
+                logger.LogError(ex, Constants.DALReloadError);
             }
 
             // set next check time

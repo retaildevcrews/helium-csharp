@@ -1,4 +1,5 @@
 using Helium.Model;
+using System.Threading.Tasks;
 
 namespace Helium.DataAccessLayer
 {
@@ -9,15 +10,14 @@ namespace Helium.DataAccessLayer
     {
         const string healthzSelect = "select value count(1) from m where m.type = '{0}'";
 
-        public HealthzSuccessDetails GetHealthz()
+        public async Task<HealthzSuccessDetails> GetHealthzAsync()
         {
-
             HealthzSuccessDetails d = new HealthzSuccessDetails();
 
             // get count of documents for each type
-            d.Actors = GetCount("Actor");
-            d.Movies = GetCount("Movie");
-            d.Genres = GetCount("Genre");
+            d.Actors = await GetCountAsync("Actor");
+            d.Movies = await GetCountAsync("Movie");
+            d.Genres = await GetCountAsync("Genre");
 
             return d;
         }
@@ -27,15 +27,18 @@ namespace Helium.DataAccessLayer
         /// </summary>
         /// <param name="type">the type to count</param>
         /// <returns>string - count of documents of type</returns>
-        private long GetCount(string type)
+        private async Task<long> GetCountAsync(string type)
         {
             string sql = string.Format(healthzSelect, type);
 
             var query = QueryWorker(sql);
 
-            foreach (var doc in query)
+            while (query.HasMoreResults)
             {
-                return doc;
+                foreach (var doc in await query.ReadNextAsync())
+                {
+                    return doc;
+                }
             }
 
             return -1;

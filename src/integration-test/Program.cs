@@ -41,13 +41,14 @@ namespace HeliumIntegrationTest
             IWebHost host = null;
 
             // setup ctl c handler
-            bool cancel = false;
+            CancellationTokenSource ctCancel = new CancellationTokenSource();
 
             Console.CancelKeyPress += delegate (object sender, ConsoleCancelEventArgs e)
             {
-                Console.WriteLine("Ctl-C Pressed - Starting shutdown ...");
                 e.Cancel = true;
-                cancel = true;
+                ctCancel.Cancel();
+
+                Console.WriteLine("Ctl-C Pressed - Starting shutdown ...");
             };
 
             // run as a web server
@@ -70,35 +71,33 @@ namespace HeliumIntegrationTest
 
                 for (int i = 0; i < config.Threads; i++)
                 {
-                    tr = new TaskRunner();
-                    tr.TokenSource = new CancellationTokenSource();
+                    tr = new TaskRunner { TokenSource = ctCancel };
+
                     tr.Task = smoker.RunLoop(i, App.config, tr.TokenSource.Token);
 
                     taskRunners.Add(tr);
                 }
             }
 
+            // run the web server
             if (config.RunWeb)
             {
-                while (!cancel)
+                try
                 {
-                    try
-                    {
-                        Console.WriteLine("Version: {0}", Helium.Version.AssemblyVersion);
+                    Console.WriteLine("Version: {0}", Helium.Version.AssemblyVersion);
 
-                        host.Run();
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine("Web Server Exception\n{0}", ex);
-                    }
+                    host.Run();
+                    Console.WriteLine("Web server shutdown");
                 }
-
-                Console.WriteLine("Web server shutdown");
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Web Server Exception\n{0}", ex);
+                }
 
                 return;
             }
 
+            // run the task loop
             if (config.RunLoop && taskRunners.Count > 0)
             {
                 // Wait for all tasks to complete
@@ -109,10 +108,8 @@ namespace HeliumIntegrationTest
                     tasks.Add(trun.Task);
                 }
 
-                // wait for the run loop to complete or ctrl c
+                // wait for ctrl c
                 Task.WaitAll(tasks.ToArray());
-
-                Console.WriteLine("tasks Completed");
             }
         }
 
@@ -156,7 +153,7 @@ namespace HeliumIntegrationTest
             // add default files
             if (config.FileList.Count == 0)
             {
-                config.FileList.Add(defaultInputFile);
+                config.FileList.Add(TestFileExists(defaultInputFile));
             }
         }
 
@@ -215,9 +212,9 @@ namespace HeliumIntegrationTest
                         {
                             while (i + 1 < args.Length && !args[i + 1].StartsWith("-"))
                             {
-                                string file = args[i + 1].Trim();
+                                string file = TestFileExists(args[i + 1]);
 
-                                if (System.IO.File.Exists(file))
+                                if (!string.IsNullOrEmpty(file) && System.IO.File.Exists(file))
                                 {
                                     config.FileList.Add(file);
                                 }
@@ -311,7 +308,7 @@ namespace HeliumIntegrationTest
 
                 foreach (string f in files)
                 {
-                    string file = f.Trim('\'', '\"', ' ');
+                    string file = TestFileExists(f.Trim('\'', '\"', ' '));
 
                     if (System.IO.File.Exists(file))
                     {
@@ -352,6 +349,36 @@ namespace HeliumIntegrationTest
                     Environment.Exit(-1);
                 }
             }
+        }
+
+        private static string TestFileExists(string name)
+        {
+            string file = name.Trim();
+
+            if (!string.IsNullOrEmpty(file))
+            {
+                if (file.Contains("TestFiles"))
+                {
+                    if (!System.IO.File.Exists(file))
+                    {
+                        file = file.Replace("TestFiles/", string.Empty);
+                    }
+                }
+                else
+                {
+                    if (!System.IO.File.Exists(file))
+                    {
+                        file = "TestFiles/" + file;
+                    }
+                }
+            }
+
+            if (System.IO.File.Exists(file))
+            {
+                return file;
+            }
+
+            return string.Empty;
         }
 
         // display the usage text

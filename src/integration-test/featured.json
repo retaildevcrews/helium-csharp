@@ -1,3 +1,0 @@
-[
-  {"Url":"/api/featured/movie","Validation":{"Code":200,"ContentType":"application/json","Contains":[{"Value":"id\":"},{"Value": "movieId\":"}]}},
-]

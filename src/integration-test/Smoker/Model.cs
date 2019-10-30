@@ -42,7 +42,10 @@ namespace Smoker
         public List<Contain> Contains = new List<Contain>();
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public Json Json;
+        public JsonArray JsonArray;
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public List<JsonProperty> JsonObject;
     }
 
     public class Contain
@@ -51,7 +54,13 @@ namespace Smoker
         public bool IsCaseSensitive = true;
     }
 
-    public class Json
+    public class JsonProperty
+    {
+        public string Field;
+        public object Value;
+    }
+
+    public class JsonArray
     {
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public int? MinLength;

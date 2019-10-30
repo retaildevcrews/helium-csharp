@@ -1,0 +1,6 @@
+[
+  {"Url":"/index.html","SortOrder":1,"Validation":{"ContentType":"text/html"}},
+  {"Url":"/swagger/helium/swagger.json","Validation":{"Code":200,"ContentType":"application/json","JsonObject":[{"Field":"swagger","Value":"2.0"},{"Field":"info","Value":null},{"Field":"paths","Value":null},{"Field":"definitions","Value":null}]}},
+  {"Url": "/robots.txt", "Validation": {"ContentType": "text/plain","MinLength": 48,"MaxLength": 48,"Contains": [{"Value": "User-agent: *"},{"Value": "Disallow: /"}]}},
+  {"Url": "/robots1234.txt","Validation": {"ContentType": "text/plain","MinLength": 48,"MaxLength": 48,"Contains": [{"Value": "User-agent: *"},{"Value": "Disallow: /"}]}},
+]

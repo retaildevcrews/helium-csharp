@@ -25,12 +25,13 @@
         // if port is changed, also update value in the Dockerfiles
         public static readonly string Port = "4120";
 
-        public static readonly int RotateKeyCheckSeconds = 60;
+        public static readonly int RotateKeyCheckSeconds = 30;
         public static int MainLoopSleepMs = 1000;
 
         public static readonly string ActorsControllerException = "ActorsControllerException";
         public static readonly string GenresControllerException = "GenresControllerException";
         public static readonly string HealthzControllerException = "HealthzControllerException";
         public static readonly string MoviesControllerException = "MoviesControllerException";
+        public static readonly string FeaturedControllerException = "FeaturedControllerException";
     }
 }

@@ -1,9 +1,10 @@
 ﻿using Helium.DataAccessLayer;
 using Helium.Model;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.Documents;
+using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Threading.Tasks;
 
 namespace Helium.Controllers
 {
@@ -42,7 +43,7 @@ namespace Helium.Controllers
         [HttpGet]
         [Produces("application/json")]
         [ProducesResponseType(typeof(Movie[]), 200)]
-        public IActionResult GetMovies([FromQuery]string q = "", [FromQuery] string genre = "", [FromQuery] int year = 0, [FromQuery] double rating = 0, [FromQuery] bool topRated = false, [FromQuery] string actorId = "")
+        public async Task<IActionResult> GetMoviesAsync([FromQuery]string q = "", [FromQuery] string genre = "", [FromQuery] int year = 0, [FromQuery] double rating = 0, [FromQuery] bool topRated = false, [FromQuery] string actorId = "")
         {
             string method = string.IsNullOrEmpty(q) ? "GetMovies" : string.Format("SearchMovies {0}", q);
 
@@ -50,13 +51,31 @@ namespace Helium.Controllers
 
             try
             {
-                return Ok(dal.GetMoviesByQuery(q, genre, year, rating, topRated, actorId));
+                return Ok(await dal.GetMoviesByQueryAsync(q, genre, year, rating, topRated, actorId));
             }
 
-            catch (DocumentClientException dce)
+            catch (CosmosException ce)
             {
                 // log and return 500
-                logger.LogError("DocumentClientException:" + method + ":{0}:{1}:{2}:{3}\r\n{4}", dce.StatusCode, dce.Error, dce.ActivityId, dce.Message, dce);
+                logger.LogError("CosmosException:" + method + ":{0}:{1}:{2}:{3}\r\n{4}", ce.StatusCode, ce.ActivityId, ce.Message, ce.ToString());
+
+                return new ObjectResult(Constants.MoviesControllerException)
+                {
+                    StatusCode = (int)System.Net.HttpStatusCode.InternalServerError
+                };
+            }
+
+            catch (System.AggregateException age)
+            {
+                var root = age.GetBaseException();
+
+                if (root == null)
+                {
+                    root = age;
+                }
+
+                // log and return 500
+                logger.LogError($"AggregateException|{method}|{root.GetType()}|{root.Message}|{root.Source}|{root.TargetSite}");
 
                 return new ObjectResult(Constants.MoviesControllerException)
                 {
@@ -106,10 +125,10 @@ namespace Helium.Controllers
                 return NotFound();
             }
 
-            catch (DocumentClientException dce)
+            catch (CosmosException ce)
             {
                 // CosmosDB API will throw an exception on an movieId not found
-                if (dce.StatusCode == System.Net.HttpStatusCode.NotFound)
+                if (ce.StatusCode == System.Net.HttpStatusCode.NotFound)
                 {
                     logger.LogInformation("NotFound:GetMovieByIdAsync:{0}", movieId);
 
@@ -119,13 +138,31 @@ namespace Helium.Controllers
                 else
                 {
                     // log and return 500
-                    logger.LogError("DocumentClientException:MovieByIdAsync:{0}:{1}:{2}:{3}\r\n{4}", dce.StatusCode, dce.Error, dce.ActivityId, dce.Message, dce);
+                    logger.LogError("CosmosException:MovieByIdAsync:{0}:{1}:{2}:{3}\r\n{4}", ce.StatusCode, ce.ActivityId, ce.Message, ce.ToString());
 
                     return new ObjectResult(Constants.MoviesControllerException)
                     {
                         StatusCode = (int)System.Net.HttpStatusCode.InternalServerError
                     };
                 }
+            }
+
+            catch (System.AggregateException age)
+            {
+                var root = age.GetBaseException();
+
+                if (root == null)
+                {
+                    root = age;
+                }
+
+                // log and return 500
+                logger.LogError($"AggregateException|MovieByIdAsync|{root.GetType()}|{root.Message}|{root.Source}|{root.TargetSite}");
+
+                return new ObjectResult(Constants.MoviesControllerException)
+                {
+                    StatusCode = (int)System.Net.HttpStatusCode.InternalServerError
+                };
             }
 
             catch (Exception e)

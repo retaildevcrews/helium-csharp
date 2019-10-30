@@ -1,10 +1,11 @@
 ﻿using Helium.DataAccessLayer;
 using Helium.Model;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.Documents;
+using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Helium.Controllers
 {
@@ -39,7 +40,7 @@ namespace Helium.Controllers
         [Produces("application/json")]
         [ProducesResponseType(typeof(Movie), 200)]
         [ProducesResponseType(typeof(void), 404)]
-        public async System.Threading.Tasks.Task<IActionResult> GetFeaturedMovieAsync()
+        public async Task<IActionResult> GetFeaturedMovieAsync()
         {
             logger.LogInformation("GetFeaturedMovieAsync");
 
@@ -48,7 +49,7 @@ namespace Helium.Controllers
                 // get a random movie from the featured movie list
                 if (featuredMovies == null || featuredMovies.Count == 0)
                 {
-                    featuredMovies = dal.GetFeaturedMovieList();
+                    featuredMovies = await dal.GetFeaturedMovieListAsync();
                 }
 
                 if (featuredMovies != null && featuredMovies.Count > 0)
@@ -72,10 +73,10 @@ namespace Helium.Controllers
                 return NotFound();
             }
 
-            catch (DocumentClientException dce)
+            catch (CosmosException ce)
             {
                 // CosmosDB API will throw an exception on an movieId not found
-                if (dce.StatusCode == System.Net.HttpStatusCode.NotFound)
+                if (ce.StatusCode == System.Net.HttpStatusCode.NotFound)
                 {
                     logger.LogInformation("NotFound:GetFeaturedMovieAsync");
 
@@ -85,13 +86,31 @@ namespace Helium.Controllers
                 else
                 {
                     // log and return 500
-                    logger.LogError("DocumentClientException:GetFeaturedMovieAsync:{0}:{1}:{2}:{3}\r\n{4}", dce.StatusCode, dce.Error, dce.ActivityId, dce.Message, dce);
+                    logger.LogError("CosmosException:GetFeaturedMovieAsync:{0}:{1}:{2}:{3}\r\n{4}", ce.StatusCode, ce.ActivityId, ce.Message, ce.ToString());
 
-                    return new ObjectResult(Constants.MoviesControllerException)
+                    return new ObjectResult(Constants.FeaturedControllerException)
                     {
                         StatusCode = (int)System.Net.HttpStatusCode.InternalServerError
                     };
                 }
+            }
+
+            catch (System.AggregateException age)
+            {
+                var root = age.GetBaseException();
+
+                if (root == null)
+                {
+                    root = age;
+                }
+
+                // log and return 500
+                logger.LogError($"AggregateException|GetFeaturedMovieAsync|{root.GetType()}|{root.Message}|{root.Source}|{root.TargetSite}");
+
+                return new ObjectResult(Constants.FeaturedControllerException)
+                {
+                    StatusCode = (int)System.Net.HttpStatusCode.InternalServerError
+                };
             }
 
             catch (Exception e)
@@ -99,7 +118,7 @@ namespace Helium.Controllers
                 // log and return 500
                 logger.LogError("Exception:GetFeaturedMovieAsync:{0}\r\n{1}", e.Message, e);
 
-                return new ObjectResult(Constants.MoviesControllerException)
+                return new ObjectResult(Constants.FeaturedControllerException)
                 {
                     StatusCode = (int)System.Net.HttpStatusCode.InternalServerError
                 };

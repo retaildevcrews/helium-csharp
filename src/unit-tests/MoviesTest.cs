@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace UnitTests
@@ -20,10 +21,10 @@ namespace UnitTests
         }
 
         [Fact]
-        public void GetAllMovies()
+        public async Task GetAllMovies()
         {
 
-            OkObjectResult ok = c.GetMovies(string.Empty) as OkObjectResult;
+            OkObjectResult ok = await c.GetMoviesAsync(string.Empty) as OkObjectResult;
 
             Assert.NotNull(ok);
 
@@ -35,10 +36,10 @@ namespace UnitTests
         }
 
         [Fact]
-        public void GetMoviesBySearch()
+        public async Task GetMoviesBySearch()
         {
 
-            OkObjectResult ok = c.GetMovies(q: AssertValues.MoviesSearchString) as OkObjectResult;
+            OkObjectResult ok = await c.GetMoviesAsync(q: AssertValues.MoviesSearchString) as OkObjectResult;
 
             Assert.NotNull(ok);
 
@@ -50,10 +51,10 @@ namespace UnitTests
         }
 
         [Fact]
-        public void GetMoviesByYear()
+        public async Task GetMoviesByYear()
         {
 
-            OkObjectResult ok = c.GetMovies(year: 2000) as OkObjectResult;
+            OkObjectResult ok = await c.GetMoviesAsync(year: 2000) as OkObjectResult;
 
             Assert.NotNull(ok);
 
@@ -65,10 +66,10 @@ namespace UnitTests
         }
 
         [Fact]
-        public void GetMoviesByRating()
+        public async Task GetMoviesByRating()
         {
 
-            OkObjectResult ok = c.GetMovies(rating: 8.9) as OkObjectResult;
+            OkObjectResult ok = await c.GetMoviesAsync(rating: 8.9) as OkObjectResult;
 
             Assert.NotNull(ok);
 
@@ -80,10 +81,10 @@ namespace UnitTests
         }
 
         [Fact]
-        public void GetMoviesByTopRated()
+        public async Task GetMoviesByTopRated()
         {
 
-            OkObjectResult ok = c.GetMovies(topRated: true) as OkObjectResult;
+            OkObjectResult ok = await c.GetMoviesAsync(topRated: true) as OkObjectResult;
 
             Assert.NotNull(ok);
 
@@ -95,10 +96,10 @@ namespace UnitTests
         }
 
         [Fact]
-        public void GetMoviesByGenre()
+        public async Task GetMoviesByGenre()
         {
 
-            OkObjectResult ok = c.GetMovies(genre: "Action") as OkObjectResult;
+            OkObjectResult ok = await c.GetMoviesAsync(genre: "Action") as OkObjectResult;
 
             Assert.NotNull(ok);
 
@@ -110,10 +111,10 @@ namespace UnitTests
         }
 
         [Fact]
-        public void GetMoviesByActorId()
+        public async Task GetMoviesByActorId()
         {
 
-            OkObjectResult ok = c.GetMovies(actorId: AssertValues.ActorById) as OkObjectResult;
+            OkObjectResult ok = await c.GetMoviesAsync(actorId: AssertValues.ActorById) as OkObjectResult;
 
             Assert.NotNull(ok);
 
@@ -127,7 +128,7 @@ namespace UnitTests
         }
 
         [Fact]
-        public async void GetMovieByIdPass()
+        public async Task GetMovieByIdPass()
         {
             // do not use c.GetMovieByIdAsync().Result
             // due to thread syncronization issues with build clients, it is not reliable
@@ -145,7 +146,7 @@ namespace UnitTests
         }
 
         [Fact]
-        public async void GetMovieByIdFail()
+        public async Task GetMovieByIdFail()
         {
             // this will fail GetPartitionKey
             NotFoundResult nf = await c.GetMovieByIdAsync(AssertValues.BadId) as NotFoundResult;
@@ -161,9 +162,9 @@ namespace UnitTests
         }
 
         [Fact]
-        public async void GetFeaturedMovie()
+        public async Task GetFeaturedMovie()
         {
-            var list = new MockDal().GetFeaturedMovieList();
+            var list = await new MockDal().GetFeaturedMovieListAsync();
 
             Assert.NotNull(list);
             Assert.Equal(7, list.Count);

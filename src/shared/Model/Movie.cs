@@ -46,4 +46,10 @@ namespace Helium.Model
         [JsonProperty(Order = 99, NullValueHandling = NullValueHandling.Ignore)]
         public List<string> Characters;
     }
+
+    public class FeaturedMovie
+    {
+        public string movieId;
+        public int weight = 1;
+    }
 }

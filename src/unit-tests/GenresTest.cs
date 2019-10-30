@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace UnitTests
@@ -19,10 +20,10 @@ namespace UnitTests
         }
 
         [Fact]
-        public void GetGenres()
+        public async Task GetGenres()
         {
 
-            OkObjectResult ok = c.GetGenres() as OkObjectResult;
+            OkObjectResult ok = await c.GetGenresAsync() as OkObjectResult;
 
             Assert.NotNull(ok);
 
@@ -31,7 +32,6 @@ namespace UnitTests
             Assert.NotNull(ie);
 
             Assert.Equal(AssertValues.GenresCount, ie.ToList().Count);
-
         }
     }
 }

@@ -1,11 +1,11 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Runtime.Serialization.Json;
-using System.Text;
+using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -17,14 +17,13 @@ namespace Smoker
         private readonly List<Request> requestList;
         private readonly string baseUrl;
 
-        private readonly HttpClient client = new HttpClient();
+        private readonly HttpClient client = new HttpClient(new HttpClientHandler { AllowAutoRedirect = false });
 
         public Test(List<string> fileList, string baseUrl)
         {
             this.baseUrl = baseUrl;
             List<Request> list;
             List<Request> fullList = new List<Request>();
-
             requestList = new List<Request>();
 
             foreach (string inputFile in fileList)
@@ -62,7 +61,7 @@ namespace Smoker
             string res = string.Empty;
 
             // send the first request as a warm up
-            await Warmup(requestList[0].Url);
+            //await Warmup(requestList[0].Url);
 
             // send each request
             foreach (Request r in requestList)
@@ -82,12 +81,13 @@ namespace Smoker
                             Console.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}", DateTime.Now.ToString("MM/dd hh:mm:ss"), (int)resp.StatusCode, (int)DateTime.Now.Subtract(dt).TotalMilliseconds, resp.Content.Headers.ContentLength, r.Url);
 
                             // validate the response
-                            if (r.Validation != null)
+                            if (resp.StatusCode == System.Net.HttpStatusCode.OK && r.Validation != null)
                             {
                                 res = ValidateContentType(r, resp);
                                 res += ValidateContentLength(r, resp);
                                 res += ValidateContains(r, body);
-                                res += ValidateJson(r, body);
+                                res += ValidateJsonArray(r, body);
+                                res += ValidateJsonObject(r, body);
 
                                 if (!string.IsNullOrEmpty(res))
                                 {
@@ -139,12 +139,12 @@ namespace Smoker
                                 res += string.Format("{0}\t{1}\t{2}\t{3}\t{4}\r\n", DateTime.Now.ToString("MM/dd hh:mm:ss"), (int)resp.StatusCode, (int)DateTime.Now.Subtract(dt).TotalMilliseconds, resp.Content.Headers.ContentLength, r.Url);
 
                                 // validate the response
-                                if (r.Validation != null)
+                                if (resp.StatusCode == System.Net.HttpStatusCode.OK && r.Validation != null)
                                 {
                                     res += ValidateContentType(r, resp);
                                     res += ValidateContentLength(r, resp);
                                     res += ValidateContains(r, body);
-                                    res += ValidateJson(r, body);
+                                    res += ValidateJsonArray(r, body);
                                 }
                             }
                         }
@@ -215,12 +215,13 @@ namespace Smoker
                                 res = string.Empty;
 
                                 // validate the response
-                                if (r.Validation != null)
+                                if (resp.StatusCode == System.Net.HttpStatusCode.OK && r.Validation != null)
                                 {
+                                    res = ValidateStatusCode(r, resp);
                                     res = ValidateContentType(r, resp);
                                     res += ValidateContentLength(r, resp);
                                     res += ValidateContains(r, body);
-                                    res += ValidateJson(r, body);
+                                    res += ValidateJsonArray(r, body);
                                 }
                                 // datetime is redundant for web app
                                 if (config.RunWeb)
@@ -305,6 +306,20 @@ namespace Smoker
             }
         }
 
+        // validate the status code
+        public string ValidateStatusCode(Request r, HttpResponseMessage resp)
+        {
+            string res = string.Empty;
+
+            if ((int)resp.StatusCode == r.Validation.Code)
+            {
+                res += string.Format($"\tValidation Failed: StatusCode: {(int)resp.StatusCode} Expected: {r.Validation.Code}\r\n");
+            }
+
+            return res;
+        }
+
+
         // validate the content type header if specified in the test
         public string ValidateContentType(Request r, HttpResponseMessage resp)
         {
@@ -368,30 +383,86 @@ namespace Smoker
             return res;
         }
 
-        // run json validation rules
-        public string ValidateJson(Request r, string body)
+        // run json array validation rules
+        public string ValidateJsonArray(Request r, string body)
         {
             string res = string.Empty;
 
-            if (r.Validation.Json != null)
+            if (r.Validation.JsonArray != null)
             {
-                if (r.Validation.Json.MinLength > 0 || r.Validation.Json.MaxLength > 0)
+                if (r.Validation.JsonArray.MinLength > 0 || r.Validation.JsonArray.MaxLength > 0)
                 {
-                    // deserialize the json
-                    var serializer = new DataContractJsonSerializer(typeof(List<dynamic>));
-                    var resList = serializer.ReadObject(new MemoryStream(Encoding.UTF8.GetBytes(body))) as List<dynamic>;
-
-                    // validate min length
-                    if (r.Validation.Json.MinLength > 0 && r.Validation.Json.MinLength > resList.Count)
+                    try
                     {
-                        res += string.Format("\tValidation Failed: MinJsonCount: {0}\r\n", resList.Count);
+                        // deserialize the json
+                        var resList = JsonConvert.DeserializeObject<List<dynamic>>(body) as List<dynamic>;
+
+                        // validate min length
+                        if (r.Validation.JsonArray.MinLength > 0 && r.Validation.JsonArray.MinLength > resList.Count)
+                        {
+                            res += string.Format("\tValidation Failed: MinJsonCount: {0}\r\n", resList.Count);
+                        }
+
+                        // validate max length
+                        if (r.Validation.JsonArray.MaxLength > 0 && r.Validation.JsonArray.MaxLength < resList.Count)
+                        {
+                            res += string.Format("\tValidation Failed: MaxJsonCount: {0}\r\n", resList.Count);
+                        }
+                    }
+                    catch (SerializationException se)
+                    {
+                        res += string.Format($"Exception|{se.Source}|{se.TargetSite}|{se.Message}");
                     }
 
-                    // validate max length
-                    if (r.Validation.Json.MaxLength > 0 && r.Validation.Json.MaxLength < resList.Count)
+                    catch (Exception ex)
                     {
-                        res += string.Format("\tValidation Failed: MaxJsonCount: {0}\r\n", resList.Count);
+                        res += string.Format($"Exception|{ex.Source}|{ex.TargetSite}|{ex.Message}");
                     }
+                }
+            }
+
+            return res;
+        }
+
+        // run json object validation rules
+        public string ValidateJsonObject(Request r, string body)
+        {
+            string res = string.Empty;
+
+            if (r.Validation.JsonObject != null && r.Validation.JsonObject.Count > 0)
+            {
+                try
+                {
+                    // deserialize the json into an IDictionary
+                    IDictionary<string, object> dict = JsonConvert.DeserializeObject<ExpandoObject>(body);
+
+                    foreach (var f in r.Validation.JsonObject)
+                    {
+                        if (!string.IsNullOrEmpty(f.Field) && dict.ContainsKey(f.Field))
+                        {
+                            // null values check for the existance of the field in the payload
+                            // used when values are not known
+                            if (f.Value != null && !dict[f.Field].Equals(f.Value))
+                            {
+                                res += string.Format($"\tValidation Failed: {f.Field}: {f.Value} : Expected: {dict[f.Field]}\n");
+                            }
+                        }
+                        else
+                        {
+                            res += string.Format($"\tValidation Failed: Field Not Found: {f.Field}\n");
+                        }
+                    }
+
+
+                }
+                catch (SerializationException se)
+                {
+                    res += string.Format($"Exception|{se.Source}|{se.TargetSite}|{se.Message}");
+                }
+
+                catch (Exception ex)
+                {
+                    res += string.Format($"Exception|{ex.Source}|{ex.TargetSite}|{ex.Message}");
                 }
             }
 
@@ -402,7 +473,7 @@ namespace Smoker
         public List<Request> ReadJson(string file)
         {
             // check for file exists
-            if (!File.Exists(file))
+            if (string.IsNullOrEmpty(file) || !File.Exists(file))
             {
                 Console.WriteLine("File Not Found: {0}", file);
                 return null;
