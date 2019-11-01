@@ -13,8 +13,8 @@ namespace Helium.Controllers
     [Route("api/[controller]")]
     public class GenresController : Controller
     {
-        private readonly ILogger logger;
-        private readonly IDAL dal;
+        private readonly ILogger _logger;
+        private readonly IDAL _dal;
 
         /// <summary>
         ///  Constructor
@@ -23,8 +23,8 @@ namespace Helium.Controllers
         /// <param name="dal">data access layer instance</param>
         public GenresController(ILogger<GenresController> logger, IDAL dal)
         {
-            this.logger = logger;
-            this.dal = dal;
+            _logger = logger;
+            _dal = dal;
         }
 
         /// <summary>
@@ -37,17 +37,17 @@ namespace Helium.Controllers
         public async Task<IActionResult> GetGenresAsync()
         {
             // get list of genres as list of string
-            logger.LogInformation("GetGenres");
+            _logger.LogInformation("GetGenres");
 
             try
             {
-                return Ok(await dal.GetGenresAsync());
+                return Ok(await _dal.GetGenresAsync());
             }
 
             catch (CosmosException ce)
             {
                 // log and return 500
-                logger.LogError("CosmosException:GetGenres:{0}:{1}:{2}:{3}\r\n{4}", ce.StatusCode, ce.ActivityId, ce.Message, ce.ToString());
+                _logger.LogError($"CosmosException:GetGenres:{ce.StatusCode}:{ce.ActivityId}:{ce.Message}\n{ce}");
 
                 return new ObjectResult(Constants.GenresControllerException)
                 {
@@ -65,7 +65,7 @@ namespace Helium.Controllers
                 }
 
                 // log and return 500
-                logger.LogError($"AggregateException|GetGenres|{root.GetType()}|{root.Message}|{root.Source}|{root.TargetSite}");
+                _logger.LogError($"AggregateException|GetGenres|{root.GetType()}|{root.Message}|{root.Source}|{root.TargetSite}");
 
                 return new ObjectResult(Constants.GenresControllerException)
                 {
@@ -76,7 +76,7 @@ namespace Helium.Controllers
             catch (Exception ex)
             {
                 // log and return 500
-                logger.LogError("Exception:GetGenres\r\n{0}", ex);
+                _logger.LogError($"Exception:GetGenres\n{ex}");
 
                 return new ObjectResult(Constants.GenresControllerException)
                 {

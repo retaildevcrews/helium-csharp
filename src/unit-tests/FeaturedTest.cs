@@ -10,12 +10,12 @@ namespace UnitTests
 {
     public class FeaturedTest
     {
-        private readonly Mock<ILogger<FeaturedController>> logger = new Mock<ILogger<FeaturedController>>();
-        private readonly FeaturedController c;
+        private readonly Mock<ILogger<FeaturedController>> _logger = new Mock<ILogger<FeaturedController>>();
+        private readonly FeaturedController _controller;
 
         public FeaturedTest()
         {
-            c = new FeaturedController(logger.Object, TestApp.MockDal);
+            _controller = new FeaturedController(_logger.Object, TestApp.MockDal);
         }
 
         [Fact]
@@ -26,7 +26,7 @@ namespace UnitTests
             Assert.NotNull(list);
             Assert.Equal(7, list.Count);
 
-            var res = await c.GetFeaturedMovieAsync();
+            var res = await _controller.GetFeaturedMovieAsync();
 
             OkObjectResult ok = res as OkObjectResult;
 

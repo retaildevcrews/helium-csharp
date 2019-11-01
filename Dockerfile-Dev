@@ -1,5 +1,16 @@
-### Build a developer version of the container
-FROM mcr.microsoft.com/dotnet/core/sdk:2.2
+### to build the base image so it's cached
+#docker build --target helium-dev-base -t helium-dev-base -f Dockerfile-Dev .
+
+### to build the full image
+#docker build -t helium-dev -f Dockerfile-Dev .
+
+### run the image interactively mounting your .azure directory into the container
+#docker run -it --rm -p 4120:4120 -v ~/.azure:/root/.azure helium-dev
+
+
+
+### Build the developer base image
+FROM mcr.microsoft.com/dotnet/core/sdk:2.2 as helium-dev-base
 
 ### Optional: Set Proxy Variables
 # ENV http_proxy {value}
@@ -9,15 +20,6 @@ FROM mcr.microsoft.com/dotnet/core/sdk:2.2
 # ENV no_proxy {value}
 # ENV NO_PROXY {value}
 
-RUN mkdir -p /root/.azure
-
-### copy the source and unit tests
-COPY . /src
-
-### if port is changed, also update value in Constants.cs
-EXPOSE 4120
-WORKDIR /src/app
-
 ### install azure cli
 RUN apt-get update && \
     apt-get install -y apt-transport-https ca-certificates curl software-properties-common libssl-dev git wget nano lsb-release jq && \
@@ -26,3 +28,16 @@ RUN apt-get update && \
     echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ ${CLI_REPO} main" > /etc/apt/sources.list.d/azure-cli.list && \
     apt-get update && \
     apt-get install -y azure-cli
+
+RUN mkdir -p /root/.azure
+
+### build the app image
+FROM helium-dev-base
+
+### if port is changed, also update value in Constants.cs
+EXPOSE 4120
+
+### copy the source and unit tests
+COPY src /src
+
+WORKDIR /src/app

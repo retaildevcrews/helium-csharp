@@ -16,10 +16,10 @@ namespace Helium.Controllers
     [Route("api/[controller]")]
     public class FeaturedController : Controller
     {
-        private readonly ILogger logger;
-        private readonly IDAL dal;
-        private readonly Random rand = new Random(DateTime.Now.Millisecond);
-        private List<string> featuredMovies;
+        private readonly ILogger _logger;
+        private readonly IDAL _dal;
+        private readonly Random _rand = new Random(DateTime.Now.Millisecond);
+        private List<string> _featuredMovies;
 
         /// <summary>
         ///  Constructor
@@ -28,8 +28,8 @@ namespace Helium.Controllers
         /// <param name="dal">data access layer instance</param>
         public FeaturedController(ILogger<FeaturedController> logger, IDAL dal)
         {
-            this.logger = logger;
-            this.dal = dal;
+            _logger = logger;
+            _dal = dal;
         }
 
         /// <summary>
@@ -42,21 +42,21 @@ namespace Helium.Controllers
         [ProducesResponseType(typeof(void), 404)]
         public async Task<IActionResult> GetFeaturedMovieAsync()
         {
-            logger.LogInformation("GetFeaturedMovieAsync");
+            _logger.LogInformation("GetFeaturedMovieAsync");
 
             try
             {
                 // get a random movie from the featured movie list
-                if (featuredMovies == null || featuredMovies.Count == 0)
+                if (_featuredMovies == null || _featuredMovies.Count == 0)
                 {
-                    featuredMovies = await dal.GetFeaturedMovieListAsync();
+                    _featuredMovies = await _dal.GetFeaturedMovieListAsync();
                 }
 
-                if (featuredMovies != null && featuredMovies.Count > 0)
+                if (_featuredMovies != null && _featuredMovies.Count > 0)
                 {
                     // get random featured movie by movieId
                     // CosmosDB API will throw an exception on a bad movieId
-                    Movie m = await dal.GetMovieAsync(featuredMovies[rand.Next(0, featuredMovies.Count - 1)]);
+                    Movie m = await _dal.GetMovieAsync(_featuredMovies[_rand.Next(0, _featuredMovies.Count - 1)]);
 
                     return Ok(m);
                 }
@@ -67,7 +67,7 @@ namespace Helium.Controllers
             // movieId isn't well formed
             catch (ArgumentException)
             {
-                logger.LogInformation("NotFound:GetFeaturedMovieAsync");
+                _logger.LogInformation("NotFound:GetFeaturedMovieAsync");
 
                 // return a 404
                 return NotFound();
@@ -78,7 +78,7 @@ namespace Helium.Controllers
                 // CosmosDB API will throw an exception on an movieId not found
                 if (ce.StatusCode == System.Net.HttpStatusCode.NotFound)
                 {
-                    logger.LogInformation("NotFound:GetFeaturedMovieAsync");
+                    _logger.LogInformation("NotFound:GetFeaturedMovieAsync");
 
                     // return a 404
                     return NotFound();
@@ -86,7 +86,7 @@ namespace Helium.Controllers
                 else
                 {
                     // log and return 500
-                    logger.LogError("CosmosException:GetFeaturedMovieAsync:{0}:{1}:{2}:{3}\r\n{4}", ce.StatusCode, ce.ActivityId, ce.Message, ce.ToString());
+                    _logger.LogError($"CosmosException:GetFeaturedMovieAsync:{ce.StatusCode}:{ce.ActivityId}:{ce.Message}\n{ce}");
 
                     return new ObjectResult(Constants.FeaturedControllerException)
                     {
@@ -105,7 +105,7 @@ namespace Helium.Controllers
                 }
 
                 // log and return 500
-                logger.LogError($"AggregateException|GetFeaturedMovieAsync|{root.GetType()}|{root.Message}|{root.Source}|{root.TargetSite}");
+                _logger.LogError($"AggregateException|GetFeaturedMovieAsync|{root.GetType()}|{root.Message}|{root.Source}|{root.TargetSite}");
 
                 return new ObjectResult(Constants.FeaturedControllerException)
                 {
@@ -116,7 +116,7 @@ namespace Helium.Controllers
             catch (Exception e)
             {
                 // log and return 500
-                logger.LogError("Exception:GetFeaturedMovieAsync:{0}\r\n{1}", e.Message, e);
+                _logger.LogError($"Exception:GetFeaturedMovieAsync:{e.Message}\n{e}");
 
                 return new ObjectResult(Constants.FeaturedControllerException)
                 {

@@ -11,7 +11,7 @@ namespace Helium.DataAccessLayer
     public partial class DAL
     {
         // select template for Actors
-        const string actorSelect = "select m.id, m.partitionKey, m.actorId, m.type, m.name, m.birthYear, m.deathYear, m.profession, m.textSearch, m.movies from m where m.type = 'Actor' ";
+        const string _actorSelect = "select m.id, m.partitionKey, m.actorId, m.type, m.name, m.birthYear, m.deathYear, m.profession, m.textSearch, m.movies from m where m.type = 'Actor' ";
 
         /// <summary>
         /// Retrieve a single actor from CosmosDB by actorId
@@ -28,7 +28,7 @@ namespace Helium.DataAccessLayer
             // note: if the key cannot be determined from the ID, ReadDocumentAsync cannot be used.
             // GetPartitionKey will throw an ArgumentException if the actorId isn't valid
             // get an actor by ID
-            return await container.ReadItemAsync<Actor>(actorId, new PartitionKey(GetPartitionKey(actorId)));
+            return await _cosmosDetails.Container.ReadItemAsync<Actor>(actorId, new PartitionKey(GetPartitionKey(actorId)));
         }
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace Helium.DataAccessLayer
         /// <returns>a list of Actors or an empty list</returns>
         public async Task<IEnumerable<Actor>> GetActorsByQueryAsync(string q)
         {
-            string sql = actorSelect;
+            string sql = _actorSelect;
 
             if (!string.IsNullOrEmpty(q))
             {
@@ -61,7 +61,7 @@ namespace Helium.DataAccessLayer
                 if (!string.IsNullOrEmpty(q))
                 {
                     // get actors by a "like" search on name
-                    sql += string.Format(" and contains(m.textSearch, '{0}') ", q);
+                    sql += string.Format($" and contains(m.textSearch, '{q}') ");
                 }
             }
 
@@ -78,7 +78,7 @@ namespace Helium.DataAccessLayer
         public async Task<IEnumerable<Actor>> QueryActorWorkerAsync(string sql)
         {
             // run query
-            var query = container.GetItemQueryIterator<Actor>(sql, requestOptions: queryRequestOptions);
+            var query = _cosmosDetails.Container.GetItemQueryIterator<Actor>(sql, requestOptions: _cosmosDetails.QueryRequestOptions);
 
             List<Actor> results = new List<Actor>();
 

@@ -2,6 +2,7 @@ using Helium.DataAccessLayer;
 using Helium.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
@@ -14,18 +15,21 @@ namespace Helium.Controllers
     [Route("[controller]")]
     public class HealthzController : Controller
     {
-        private readonly ILogger logger;
-        private readonly IDAL dal;
+        private readonly ILogger _logger;
+        private readonly IDAL _dal;
+        private readonly IConfiguration _config;
 
         /// <summary>
         ///  Constructor
         /// </summary>
         /// <param name="logger">log instance</param>
         /// <param name="dal">data access layer instance</param>
-        public HealthzController(ILogger<HealthzController> logger, IDAL dal)
+        /// <param name="config">IConfiguration</param>
+        public HealthzController(ILogger<HealthzController> logger, IDAL dal, IConfiguration config)
         {
-            this.logger = logger;
-            this.dal = dal;
+            _logger = logger;
+            _dal = dal;
+            _config = config;
         }
 
         /// <summary>
@@ -49,9 +53,11 @@ namespace Helium.Controllers
             {
                 HealthzSuccess res = new HealthzSuccess();
 
-                logger.LogInformation("Healthz");
+                _logger.LogInformation("Healthz");
 
-                HealthzSuccessDetails s = await dal.GetHealthzAsync();
+                HealthzSuccessDetails s = await _dal.GetHealthzAsync();
+
+                s.CosmosKey = _config.GetValue<string>(Constants.CosmosKey).PadRight(20).Substring(0, 5).Trim() + "...";
 
                 res.details.cosmosDb.details = s;
 
@@ -62,7 +68,7 @@ namespace Helium.Controllers
             catch (CosmosException ce)
             {
                 // log and return 503
-                logger.LogError("CosmosException:Healthz:{0}:{1}:{2}:{3}\r\n{4}", ce.StatusCode, ce.ActivityId, ce.Message, ce.ToString());
+                _logger.LogError($"CosmosException:Healthz:{ce.StatusCode}:{ce.ActivityId}:{ce.Message}\n{ce}");
 
                 HealthzError e = new HealthzError();
                 e.details.cosmosDb.details.Error = ce.Message;
@@ -86,7 +92,7 @@ namespace Helium.Controllers
                 e.details.cosmosDb.details.Error = root.Message;
 
                 // log and return 500
-                logger.LogError($"AggregateException|Healthz|{root.GetType()}|{root.Message}|{root.Source}|{root.TargetSite}");
+                _logger.LogError($"AggregateException|Healthz|{root.GetType()}|{root.Message}|{root.Source}|{root.TargetSite}");
 
                 return new ObjectResult(e)
                 {
@@ -97,7 +103,7 @@ namespace Helium.Controllers
             catch (Exception ex)
             {
                 // log and return 500
-                logger.LogError("Exception:Healthz\r\n{0}", ex);
+                _logger.LogError($"Exception:Healthz\n{ex}");
 
                 HealthzError e = new HealthzError();
                 e.details.cosmosDb.details.Error = ex.Message;

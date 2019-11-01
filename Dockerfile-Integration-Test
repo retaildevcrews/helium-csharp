@@ -10,7 +10,7 @@ FROM mcr.microsoft.com/dotnet/core/sdk:2.2 AS build
 # ENV NO_PROXY {value}
 
 # Copy the source
-COPY . /src
+COPY src /src
 
 WORKDIR /src/integration-test
  

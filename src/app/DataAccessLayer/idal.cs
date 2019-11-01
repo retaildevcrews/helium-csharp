@@ -17,6 +17,6 @@ namespace Helium.DataAccessLayer
         Task<IEnumerable<Model.Movie>> GetMoviesByQueryAsync(string q, string genre = "", int year = 0, double rating = 0, bool toprated = false, string actorId = "");
         Task<List<string>> GetFeaturedMovieListAsync();
         Task<Helium.Model.HealthzSuccessDetails> GetHealthzAsync();
-        void Reconnect(string cosmosUrl, string cosmosKey, string cosmosDatabase, string cosmosCollection);
+        Task Reconnect(string cosmosUrl, string cosmosKey, string cosmosDatabase, string cosmosCollection, bool force = false);
     }
 }

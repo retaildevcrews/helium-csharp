@@ -5,7 +5,7 @@ namespace Helium
     public static class VersionMiddlewareExtensions
     {
         // response that returns the current version
-        static byte[] responseBytes = null;
+        static byte[] _responseBytes = null;
 
         /// <summary>
         /// Middleware extension method to handle /version request
@@ -20,14 +20,14 @@ namespace Helium
                 // matches /version
                 if (context.Request.Path.Value.ToLower() == "/version")
                 {
-                    if (responseBytes == null)
+                    if (_responseBytes == null)
                     {
-                        responseBytes = System.Text.Encoding.UTF8.GetBytes(Version.AssemblyVersion);
+                        _responseBytes = System.Text.Encoding.UTF8.GetBytes(Version.AssemblyVersion);
                     }
 
                     // return the content
                     context.Response.ContentType = "text/plain";
-                    await context.Response.Body.WriteAsync(responseBytes, 0, responseBytes.Length);
+                    await context.Response.Body.WriteAsync(_responseBytes, 0, _responseBytes.Length);
                 }
                 else
                 {

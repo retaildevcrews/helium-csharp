@@ -11,19 +11,19 @@ namespace UnitTests
 {
     public class GenresTest
     {
-        private readonly Mock<ILogger<GenresController>> logger = new Mock<ILogger<GenresController>>();
-        private readonly GenresController c;
+        private readonly Mock<ILogger<GenresController>> _logger = new Mock<ILogger<GenresController>>();
+        private readonly GenresController _controller;
 
         public GenresTest()
         {
-            c = new GenresController(logger.Object, TestApp.MockDal);
+            _controller = new GenresController(_logger.Object, TestApp.MockDal);
         }
 
         [Fact]
         public async Task GetGenres()
         {
 
-            OkObjectResult ok = await c.GetGenresAsync() as OkObjectResult;
+            OkObjectResult ok = await _controller.GetGenresAsync() as OkObjectResult;
 
             Assert.NotNull(ok);
 

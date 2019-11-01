@@ -10,7 +10,7 @@ FROM mcr.microsoft.com/dotnet/core/sdk:2.2 AS build
 # ENV NO_PROXY {value}
 
 ### copy the source and unit tests code 
-COPY . /src
+COPY src /src
 
 ### Run the unit tests
 WORKDIR /src/unit-tests

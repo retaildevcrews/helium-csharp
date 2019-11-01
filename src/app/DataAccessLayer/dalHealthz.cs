@@ -8,7 +8,7 @@ namespace Helium.DataAccessLayer
     /// </summary>
     public partial class DAL
     {
-        const string healthzSelect = "select value count(1) from m where m.type = '{0}'";
+        const string _healthzSelect = "select value count(1) from m where m.type = '{0}'";
 
         public async Task<HealthzSuccessDetails> GetHealthzAsync()
         {
@@ -29,7 +29,7 @@ namespace Helium.DataAccessLayer
         /// <returns>string - count of documents of type</returns>
         private async Task<long> GetCountAsync(string type)
         {
-            string sql = string.Format(healthzSelect, type);
+            string sql = string.Format(_healthzSelect, type);
 
             var query = QueryWorker(sql);
 

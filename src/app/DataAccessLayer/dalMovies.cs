@@ -12,8 +12,8 @@ namespace Helium.DataAccessLayer
     public partial class DAL
     {
         // select template for movies
-        const string movieSelect = "select m.id, m.partitionKey, m.movieId, m.type, m.textSearch, m.title, m.year, m.runtime, m.rating, m.votes, m.totalScore, m.genres, m.roles from m where m.type = 'Movie' ";
-        const string movieOrderBy = " order by m.title";
+        const string _movieSelect = "select m.id, m.partitionKey, m.movieId, m.type, m.textSearch, m.title, m.year, m.runtime, m.rating, m.votes, m.totalScore, m.genres, m.roles from m where m.type = 'Movie' ";
+        const string _movieOrderBy = " order by m.title";
 
         /// <summary>
         /// Get a single movie by movieId
@@ -28,7 +28,7 @@ namespace Helium.DataAccessLayer
             // note: if the key cannot be determined from the ID, ReadDocumentAsync cannot be used.
             // GetPartitionKey will throw an ArgumentException if the movieId isn't valid
             // get a movie by ID
-            return await container.ReadItemAsync<Movie>(movieId, new PartitionKey(GetPartitionKey(movieId)));
+            return await _cosmosDetails.Container.ReadItemAsync<Movie>(movieId, new PartitionKey(GetPartitionKey(movieId)));
         }
 
         /// <summary>
@@ -53,8 +53,8 @@ namespace Helium.DataAccessLayer
         /// <returns>List of Movies or an empty list</returns>
         public async Task<IEnumerable<Movie>> GetMoviesByQueryAsync(string q, string genre = "", int year = 0, double rating = 0, bool toprated = false, string actorId = "")
         {
-            string sql = movieSelect;
-            string orderby = movieOrderBy;
+            string sql = _movieSelect;
+            string orderby = _movieOrderBy;
 
             if (!string.IsNullOrEmpty(q))
             {
@@ -64,18 +64,18 @@ namespace Helium.DataAccessLayer
                 if (!string.IsNullOrEmpty(q))
                 {
                     // get movies by a "like" search on title
-                    sql += string.Format(" and contains(m.textSearch, '{0}') ", q);
+                    sql += string.Format($" and contains(m.textSearch, '{q}') ");
                 }
             }
 
             if (year > 0)
             {
-                sql += string.Format(" and m.year = {0} ", year);
+                sql += string.Format($" and m.year = {year} ");
             }
 
             if (rating > 0)
             {
-                sql += string.Format(" and m.rating >= {0} ", rating);
+                sql += string.Format($" and m.rating >= {rating} ");
             }
 
             if (toprated)
@@ -110,7 +110,7 @@ namespace Helium.DataAccessLayer
                 }
 
                 // get movies by genre
-                sql += string.Format(" and array_contains(m.genres, '{0}') ", genre);
+                sql += string.Format($" and array_contains(m.genres, '{genre}') ");
             }
 
             sql += orderby;
@@ -128,7 +128,7 @@ namespace Helium.DataAccessLayer
 
             string sql = "select m.movieId, m.weight from m where m.type = 'Featured' order by m.weight desc";
 
-            var query = container.GetItemQueryIterator<FeaturedMovie>(sql, requestOptions: queryRequestOptions);
+            var query = _cosmosDetails.Container.GetItemQueryIterator<FeaturedMovie>(sql, requestOptions: _cosmosDetails.QueryRequestOptions);
 
             while (query.HasMoreResults)
             {
@@ -159,7 +159,7 @@ namespace Helium.DataAccessLayer
         public async Task<IEnumerable<Movie>> QueryMovieWorkerAsync(string sql)
         {
             // run query
-            var query = container.GetItemQueryIterator<Movie>(sql, requestOptions: queryRequestOptions);
+            var query = _cosmosDetails.Container.GetItemQueryIterator<Movie>(sql, requestOptions: _cosmosDetails.QueryRequestOptions);
 
             List<Movie> results = new List<Movie>();
 

@@ -14,17 +14,17 @@ namespace Smoker
     // integration test for testing Helium (or any REST API)
     public class Test
     {
-        private readonly List<Request> requestList;
-        private readonly string baseUrl;
+        private readonly List<Request> _requestList;
+        private readonly string _baseUrl;
 
-        private readonly HttpClient client = new HttpClient(new HttpClientHandler { AllowAutoRedirect = false });
+        private readonly HttpClient _client = new HttpClient(new HttpClientHandler { AllowAutoRedirect = false });
 
         public Test(List<string> fileList, string baseUrl)
         {
-            this.baseUrl = baseUrl;
+            this._baseUrl = baseUrl;
             List<Request> list;
             List<Request> fullList = new List<Request>();
-            requestList = new List<Request>();
+            _requestList = new List<Request>();
 
             foreach (string inputFile in fileList)
             {
@@ -43,13 +43,13 @@ namespace Smoker
                 throw new FileLoadException("Unable to read input files");
             }
 
-            requestList = fullList.OrderBy(x => x.SortOrder).ThenBy(x => x.Index).ToList();
+            _requestList = fullList.OrderBy(x => x.SortOrder).ThenBy(x => x.Index).ToList();
         }
 
         public Test()
         {
             // set timeout to 30 seconds
-            client.Timeout = new TimeSpan(0, 0, 30);
+            _client.Timeout = new TimeSpan(0, 0, 30);
         }
 
         public async Task<bool> Run()
@@ -64,7 +64,7 @@ namespace Smoker
             //await Warmup(requestList[0].Url);
 
             // send each request
-            foreach (Request r in requestList)
+            foreach (Request r in _requestList)
             {
                 try
                 {
@@ -74,11 +74,11 @@ namespace Smoker
                         dt = DateTime.Now;
 
                         // process the response
-                        using (HttpResponseMessage resp = await client.SendAsync(req))
+                        using (HttpResponseMessage resp = await _client.SendAsync(req))
                         {
                             body = await resp.Content.ReadAsStringAsync();
 
-                            Console.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}", DateTime.Now.ToString("MM/dd hh:mm:ss"), (int)resp.StatusCode, (int)DateTime.Now.Subtract(dt).TotalMilliseconds, resp.Content.Headers.ContentLength, r.Url);
+                            Console.WriteLine($"{DateTime.Now.ToString("MM/dd hh:mm:ss")}\t{(int)resp.StatusCode}\t{(int)DateTime.Now.Subtract(dt).TotalMilliseconds}\t{resp.Content.Headers.ContentLength}\t{r.Url}");
 
                             // validate the response
                             if (resp.StatusCode == System.Net.HttpStatusCode.OK && r.Validation != null)
@@ -101,7 +101,7 @@ namespace Smoker
                 catch (Exception ex)
                 {
                     // ignore any error and keep processing
-                    Console.WriteLine("{0}\tException: {1}", DateTime.Now.ToString("MM/dd hh:mm:ss"), ex.Message);
+                    Console.WriteLine($"{DateTime.Now.ToString("MM/dd hh:mm:ss")}\tException: {ex.Message}");
                     isError = true;
                 }
             }
@@ -114,13 +114,13 @@ namespace Smoker
             DateTime dt;
             HttpRequestMessage req;
             string body;
-            string res = string.Format("Version: {0}\n\n", Helium.Version.AssemblyVersion);
+            string res = string.Format($"Version: {Helium.Version.AssemblyVersion}\n\n");
 
             // send the first request as a warm up
-            await Warmup(requestList[0].Url);
+            await Warmup(_requestList[0].Url);
 
             // send each request
-            foreach (Request r in requestList)
+            foreach (Request r in _requestList)
             {
                 if (r.IsBaseTest)
                 {
@@ -132,11 +132,11 @@ namespace Smoker
                             dt = DateTime.Now;
 
                             // process the response
-                            using (HttpResponseMessage resp = await client.SendAsync(req))
+                            using (HttpResponseMessage resp = await _client.SendAsync(req))
                             {
                                 body = await resp.Content.ReadAsStringAsync();
 
-                                res += string.Format("{0}\t{1}\t{2}\t{3}\t{4}\r\n", DateTime.Now.ToString("MM/dd hh:mm:ss"), (int)resp.StatusCode, (int)DateTime.Now.Subtract(dt).TotalMilliseconds, resp.Content.Headers.ContentLength, r.Url);
+                                res += string.Format($"{DateTime.Now.ToString("MM/dd hh:mm:ss")}\t{(int)resp.StatusCode}\t{(int)DateTime.Now.Subtract(dt).TotalMilliseconds}\t{resp.Content.Headers.ContentLength}\t{r.Url}");
 
                                 // validate the response
                                 if (resp.StatusCode == System.Net.HttpStatusCode.OK && r.Validation != null)
@@ -152,7 +152,7 @@ namespace Smoker
                     catch (Exception ex)
                     {
                         // ignore any error and keep processing
-                        Console.WriteLine("{0}\tException: {1}", DateTime.Now.ToString("MM/dd hh:mm:ss"), ex.Message);
+                        Console.WriteLine($"{ex.Message}\tException: {1}", DateTime.Now.ToString("MM/dd hh:mm:ss"));
                     }
                 }
             }
@@ -179,7 +179,7 @@ namespace Smoker
             }
 
             // send the first request as a warm up
-            await Warmup(requestList[0].Url);
+            await Warmup(_requestList[0].Url);
 
             // loop forever
             while (true)
@@ -187,7 +187,7 @@ namespace Smoker
                 i = 0;
 
                 // send each request
-                while (i < requestList.Count)
+                while (i < _requestList.Count)
                 {
                     if (ct.IsCancellationRequested)
                     {
@@ -196,10 +196,10 @@ namespace Smoker
 
                     if (config.Random)
                     {
-                        i = rand.Next(0, requestList.Count - 1);
+                        i = rand.Next(0, _requestList.Count - 1);
                     }
 
-                    r = requestList[i];
+                    r = _requestList[i];
 
                     try
                     {
@@ -209,7 +209,7 @@ namespace Smoker
                             dt = DateTime.Now;
 
                             // process the response
-                            using (HttpResponseMessage resp = await client.SendAsync(req))
+                            using (HttpResponseMessage resp = await _client.SendAsync(req))
                             {
                                 body = await resp.Content.ReadAsStringAsync();
                                 res = string.Empty;
@@ -223,23 +223,25 @@ namespace Smoker
                                     res += ValidateContains(r, body);
                                     res += ValidateJsonArray(r, body);
                                 }
-                                // datetime is redundant for web app
-                                if (config.RunWeb)
-                                {
-                                    // only log 4XX and 5XX status codes
-                                    if ((int)resp.StatusCode > 399 || !string.IsNullOrEmpty(res) || config.Verbose)
-                                    {
-                                        Console.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}", id, (int)resp.StatusCode, (int)DateTime.Now.Subtract(dt).TotalMilliseconds, resp.Content.Headers.ContentLength, r.Url);
-                                    }
-                                }
-                                else
-                                {
-                                    Console.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}\t{5}", id, DateTime.Now.ToString("MM/dd hh:mm:ss"), (int)resp.StatusCode, (int)DateTime.Now.Subtract(dt).TotalMilliseconds, resp.Content.Headers.ContentLength, r.Url);
-                                }
 
-                                if (!string.IsNullOrEmpty(res))
+                                // only log 4XX and 5XX status codes
+                                if (config.Verbose || (int)resp.StatusCode > 399 || !string.IsNullOrEmpty(res))
                                 {
-                                    Console.Write(res);
+                                    if (config.RunWeb)
+                                    {
+                                        // datetime is redundant for web app
+                                        Console.WriteLine($"{id}\t{(int)resp.StatusCode}\t{(int)DateTime.Now.Subtract(dt).TotalMilliseconds}\t{resp.Content.Headers.ContentLength}\t{r.Url}");
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine($"{id}\t{DateTime.Now.ToString("MM/dd hh:mm:ss")}\t{(int)resp.StatusCode}\t{(int)DateTime.Now.Subtract(dt).TotalMilliseconds}\t{resp.Content.Headers.ContentLength}\t{r.Url}");
+                                    }
+
+                                    if (!string.IsNullOrEmpty(res))
+                                    {
+                                        // res has a LF appended, so don't use writeline
+                                        Console.Write(res);
+                                    }
                                 }
                             }
                         }
@@ -255,12 +257,12 @@ namespace Smoker
                             message = tce.InnerException.Message;
                         }
 
-                        Console.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}\tSmokerException\t{5}", id, 500, (int)DateTime.Now.Subtract(dt).TotalMilliseconds, 0, r.Url, message);
+                        Console.WriteLine($"{id}\t500\t{(int)DateTime.Now.Subtract(dt).TotalMilliseconds}\t0\t{r.Url}\tSmokerException\t{message}");
                     }
                     catch (Exception ex)
                     {
                         // ignore any error and keep processing
-                        Console.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}\tSmokerException\t{5}\n{6}", id, 500, (int)DateTime.Now.Subtract(dt).TotalMilliseconds, 0, r.Url, ex.Message, ex);
+                        Console.WriteLine($"{id}\t500\t{(int)DateTime.Now.Subtract(dt).TotalMilliseconds}\t0\t{r.Url}\tSmokerException\t{ex.Message}\n{ex}");
                     }
 
                     // increment the index
@@ -293,7 +295,7 @@ namespace Smoker
             {
                 using (var req = new HttpRequestMessage(new HttpMethod("GET"), MakeUrl(path)))
                 {
-                    using (var resp = await client.SendAsync(req))
+                    using (var resp = await _client.SendAsync(req))
                     {
                         string body = await resp.Content.ReadAsStringAsync();
                     }
@@ -302,7 +304,7 @@ namespace Smoker
 
             catch (Exception ex)
             {
-                Console.WriteLine("Warmup Failed: {0}", ex.Message);
+                Console.WriteLine($"Warmup Failed: {ex.Message}");
             }
         }
 
@@ -313,7 +315,7 @@ namespace Smoker
 
             if ((int)resp.StatusCode == r.Validation.Code)
             {
-                res += string.Format($"\tValidation Failed: StatusCode: {(int)resp.StatusCode} Expected: {r.Validation.Code}\r\n");
+                res += string.Format($"\tValidation Failed: StatusCode: {(int)resp.StatusCode} Expected: {r.Validation.Code}\n");
             }
 
             return res;
@@ -329,7 +331,7 @@ namespace Smoker
             {
                 if (!resp.Content.Headers.ContentType.ToString().StartsWith(r.Validation.ContentType))
                 {
-                    res += string.Format("\tValidation Failed: ContentType: {0}\r\n", resp.Content.Headers.ContentType);
+                    res += string.Format($"\tValidation Failed: ContentType: {resp.Content.Headers.ContentType}\n");
                 }
             }
 
@@ -346,7 +348,7 @@ namespace Smoker
             {
                 if (resp.Content.Headers.ContentLength < r.Validation.MinLength)
                 {
-                    res = string.Format("\tValidation Failed: MinContentLength: {0}\r\n", resp.Content.Headers.ContentLength);
+                    res = string.Format($"\tValidation Failed: MinContentLength: {resp.Content.Headers.ContentLength}\n");
                 }
             }
 
@@ -355,7 +357,7 @@ namespace Smoker
             {
                 if (resp.Content.Headers.ContentLength > r.Validation.MaxLength)
                 {
-                    res += string.Format("\tValidation Failed: MaxContentLength: {0}\r\n", resp.Content.Headers.ContentLength);
+                    res += string.Format($"\tValidation Failed: MaxContentLength: {resp.Content.Headers.ContentLength}\n");
                 }
             }
 
@@ -375,7 +377,7 @@ namespace Smoker
                     // compare values
                     if (!body.Contains(c.Value, c.IsCaseSensitive ? StringComparison.InvariantCultureIgnoreCase : StringComparison.InvariantCulture))
                     {
-                        res += string.Format("\tValidation Failed: Contains: {0}\r\n", c.Value.PadRight(40).Substring(0, 40).Trim());
+                        res += string.Format($"\tValidation Failed: Contains: {c.Value.PadRight(40).Substring(0, 40).Trim()}\n");
                     }
                 }
             }
@@ -400,13 +402,13 @@ namespace Smoker
                         // validate min length
                         if (r.Validation.JsonArray.MinLength > 0 && r.Validation.JsonArray.MinLength > resList.Count)
                         {
-                            res += string.Format("\tValidation Failed: MinJsonCount: {0}\r\n", resList.Count);
+                            res += string.Format($"\tValidation Failed: MinJsonCount: {resList.Count}\n");
                         }
 
                         // validate max length
                         if (r.Validation.JsonArray.MaxLength > 0 && r.Validation.JsonArray.MaxLength < resList.Count)
                         {
-                            res += string.Format("\tValidation Failed: MaxJsonCount: {0}\r\n", resList.Count);
+                            res += string.Format($"\tValidation Failed: MaxJsonCount: {resList.Count}\n");
                         }
                     }
                     catch (SerializationException se)
@@ -475,7 +477,7 @@ namespace Smoker
             // check for file exists
             if (string.IsNullOrEmpty(file) || !File.Exists(file))
             {
-                Console.WriteLine("File Not Found: {0}", file);
+                Console.WriteLine($"File Not Found: {file}");
                 return null;
             }
 
@@ -485,7 +487,7 @@ namespace Smoker
             // check for empty file
             if (string.IsNullOrEmpty(json))
             {
-                Console.WriteLine("Unable to read file {0}", file);
+                Console.WriteLine($"Unable to read file {file}");
                 return null;
             }
 
@@ -522,7 +524,7 @@ namespace Smoker
         // build the URL from the base url and path in the test file
         private string MakeUrl(string path)
         {
-            string url = baseUrl;
+            string url = _baseUrl;
 
             // avoid // in the URL
             if (url.EndsWith("/") && path.StartsWith("/"))

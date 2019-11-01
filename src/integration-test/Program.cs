@@ -9,13 +9,13 @@ namespace HeliumIntegrationTest
 {
     public class App
     {
-        static readonly string defaultInputFile = "integration-test.json";
-        static readonly string fileNotFoundError = "File not found: {0}";
-        static readonly string sleepParameterError = "Invalid sleep (millisecond) parameter: {0}\r\n";
-        static readonly string threadsParameterError = "Invalid number of concurrent threads parameter: {0}\r\n";
-        public static readonly Config config = new Config();
-        public static readonly List<TaskRunner> taskRunners = new List<TaskRunner>();
-        public static Smoker.Test smoker;
+        static readonly string _defaultInputFile = "integration-test.json";
+        static readonly string _fileNotFoundError = "File not found: {0}";
+        static readonly string _sleepParameterError = "Invalid sleep (millisecond) parameter: {0}\n";
+        static readonly string _threadsParameterError = "Invalid number of concurrent threads parameter: {0}\n";
+        public static readonly Config _config = new Config();
+        public static readonly List<TaskRunner> _taskRunners = new List<TaskRunner>();
+        public static Smoker.Test _smoker;
 
         public static void Main(string[] args)
         {
@@ -25,12 +25,12 @@ namespace HeliumIntegrationTest
 
             ValidateParameters();
 
-            smoker = new Smoker.Test(config.FileList, config.Host);
+            _smoker = new Smoker.Test(_config.FileList, _config.Host);
 
             // run one test iteration
-            if (!config.RunLoop && !config.RunWeb)
+            if (!_config.RunLoop && !_config.RunWeb)
             {
-                if (!smoker.Run().Result)
+                if (!_smoker.Run().Result)
                 {
                     Environment.Exit(-1);
                 }
@@ -49,10 +49,16 @@ namespace HeliumIntegrationTest
                 ctCancel.Cancel();
 
                 Console.WriteLine("Ctl-C Pressed - Starting shutdown ...");
+
+                // give threads a chance to shutdown
+                Thread.Sleep(500);
+
+                // end the app
+                Environment.Exit(0);
             };
 
             // run as a web server
-            if (config.RunWeb)
+            if (_config.RunWeb)
             {
                 // use the default web host builder + startup
                 IWebHostBuilder builder = WebHost.CreateDefaultBuilder(args)
@@ -65,45 +71,45 @@ namespace HeliumIntegrationTest
             }
 
             // run tests in config.RunLoop
-            if (config.RunLoop)
+            if (_config.RunLoop)
             {
                 TaskRunner tr;
 
-                for (int i = 0; i < config.Threads; i++)
+                for (int i = 0; i < _config.Threads; i++)
                 {
                     tr = new TaskRunner { TokenSource = ctCancel };
 
-                    tr.Task = smoker.RunLoop(i, App.config, tr.TokenSource.Token);
+                    tr.Task = _smoker.RunLoop(i, App._config, tr.TokenSource.Token);
 
-                    taskRunners.Add(tr);
+                    _taskRunners.Add(tr);
                 }
             }
 
             // run the web server
-            if (config.RunWeb)
+            if (_config.RunWeb)
             {
                 try
                 {
-                    Console.WriteLine("Version: {0}", Helium.Version.AssemblyVersion);
+                    Console.WriteLine($"Version: {Helium.Version.AssemblyVersion}");
 
                     host.Run();
                     Console.WriteLine("Web server shutdown");
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Web Server Exception\n{0}", ex);
+                    Console.WriteLine($"Web Server Exception\n{ex}");
                 }
 
                 return;
             }
 
             // run the task loop
-            if (config.RunLoop && taskRunners.Count > 0)
+            if (_config.RunLoop && _taskRunners.Count > 0)
             {
                 // Wait for all tasks to complete
                 List<Task> tasks = new List<Task>();
 
-                foreach (var trun in taskRunners)
+                foreach (var trun in _taskRunners)
                 {
                     tasks.Add(trun.Task);
                 }
@@ -116,44 +122,44 @@ namespace HeliumIntegrationTest
         private static void ValidateParameters()
         {
             // make it easier to pass host
-            if (!config.Host.ToLower().StartsWith("http"))
+            if (!_config.Host.ToLower().StartsWith("http"))
             {
-                if (config.Host.ToLower().StartsWith("localhost"))
+                if (_config.Host.ToLower().StartsWith("localhost"))
                 {
-                    config.Host = "http://" + config.Host;
+                    _config.Host = "http://" + _config.Host;
                 }
                 else
                 {
-                    config.Host = string.Format("https://{0}.azurewebsites.net", config.Host);
+                    _config.Host = string.Format($"https://{_config.Host}.azurewebsites.net");
                 }
             }
 
-            if (config.SleepMs < 0)
+            if (_config.SleepMs < 0)
             {
-                config.SleepMs = 0;
+                _config.SleepMs = 0;
             }
 
-            if (config.Threads > 0)
+            if (_config.Threads > 0)
             {
                 // set config.RunLoop to true
-                config.RunLoop = true;
+                _config.RunLoop = true;
             }
 
-            if (config.Threads < 0)
+            if (_config.Threads < 0)
             {
-                config.Threads = 0;
+                _config.Threads = 0;
             }
 
             // let's not get too crazy
-            if (config.Threads > 10)
+            if (_config.Threads > 10)
             {
-                config.Threads = 10;
+                _config.Threads = 10;
             }
 
             // add default files
-            if (config.FileList.Count == 0)
+            if (_config.FileList.Count == 0)
             {
-                config.FileList.Add(TestFileExists(defaultInputFile));
+                _config.FileList.Add(TestFileExists(_defaultInputFile));
             }
         }
 
@@ -176,7 +182,7 @@ namespace HeliumIntegrationTest
                 {
                     if (!args[i].StartsWith("-"))
                     {
-                        Console.WriteLine("\nInvalid argument: {0}\n", args[i]);
+                        Console.WriteLine($"\nInvalid argument: {args[i]}\n");
                         Usage();
                         Environment.Exit(-1);
                     }
@@ -184,17 +190,17 @@ namespace HeliumIntegrationTest
                     // handle web (-w)
                     if (args[i] == "-w")
                     {
-                        config.RunWeb = true;
+                        _config.RunWeb = true;
                     }
 
                     else if (args[i] == "-r")
                     {
-                        config.Random = true;
+                        _config.Random = true;
                     }
 
                     else if (args[i] == "-v")
                     {
-                        config.Verbose = true;
+                        _config.Verbose = true;
                     }
 
                     // process all other args in pairs
@@ -203,7 +209,7 @@ namespace HeliumIntegrationTest
                         // handle host (-h http://localhost:4120/)
                         if (args[i] == "-h")
                         {
-                            config.Host = args[i + 1].Trim();
+                            _config.Host = args[i + 1].Trim();
                             i++;
                         }
 
@@ -216,17 +222,17 @@ namespace HeliumIntegrationTest
 
                                 if (!string.IsNullOrEmpty(file) && System.IO.File.Exists(file))
                                 {
-                                    config.FileList.Add(file);
+                                    _config.FileList.Add(file);
                                 }
                                 else
                                 {
-                                    Console.WriteLine(fileNotFoundError, file);
+                                    Console.WriteLine(_fileNotFoundError, file);
                                 }
 
                                 i++;
                             }
 
-                            if (config.FileList.Count == 0)
+                            if (_config.FileList.Count == 0)
                             {
                                 // exit if no files found
                                 Console.WriteLine("No files found");
@@ -238,14 +244,14 @@ namespace HeliumIntegrationTest
                         // handle sleep (-s config.SleepMs)
                         else if (args[i] == "-s")
                         {
-                            if (int.TryParse(args[i + 1], out config.SleepMs))
+                            if (int.TryParse(args[i + 1], out _config.SleepMs))
                             {
                                 i++;
                             }
                             else
                             {
                                 // exit on error
-                                Console.WriteLine(sleepParameterError, args[i + 1]);
+                                Console.WriteLine(_sleepParameterError, args[i + 1]);
                                 Usage();
                                 Environment.Exit(-1);
                             }
@@ -254,14 +260,14 @@ namespace HeliumIntegrationTest
                         // handle config.Threads (-t config.Threads)
                         else if (args[i] == "-t")
                         {
-                            if (int.TryParse(args[i + 1], out config.Threads))
+                            if (int.TryParse(args[i + 1], out _config.Threads))
                             {
                                 i++;
                             }
                             else
                             {
                                 // exit on error
-                                Console.WriteLine(threadsParameterError, args[i + 1]);
+                                Console.WriteLine(_threadsParameterError, args[i + 1]);
                                 Usage();
                                 Environment.Exit(-1);
                             }
@@ -280,25 +286,25 @@ namespace HeliumIntegrationTest
             string env = Environment.GetEnvironmentVariable("RUNWEB");
             if (!string.IsNullOrEmpty(env))
             {
-                bool.TryParse(env, out config.RunWeb);
+                bool.TryParse(env, out _config.RunWeb);
             }
 
             env = Environment.GetEnvironmentVariable("RANDOM");
             if (!string.IsNullOrEmpty(env))
             {
-                bool.TryParse(env, out config.Random);
+                bool.TryParse(env, out _config.Random);
             }
 
             env = Environment.GetEnvironmentVariable("VERBOSE");
             if (!string.IsNullOrEmpty(env))
             {
-                bool.TryParse(env, out config.Verbose);
+                bool.TryParse(env, out _config.Verbose);
             }
 
             env = Environment.GetEnvironmentVariable("HOST");
             if (!string.IsNullOrEmpty(env))
             {
-                config.Host = env;
+                _config.Host = env;
             }
 
             env = Environment.GetEnvironmentVariable("FILES");
@@ -312,15 +318,15 @@ namespace HeliumIntegrationTest
 
                     if (System.IO.File.Exists(file))
                     {
-                        config.FileList.Add(file);
+                        _config.FileList.Add(file);
                     }
                     else
                     {
-                        Console.WriteLine(fileNotFoundError, file);
+                        Console.WriteLine(_fileNotFoundError, file);
                     }
                 }
 
-                if (config.FileList.Count == 0)
+                if (_config.FileList.Count == 0)
                 {
                     // exit if no files found
                     Console.WriteLine("No files found");
@@ -331,10 +337,10 @@ namespace HeliumIntegrationTest
             env = Environment.GetEnvironmentVariable("SLEEP");
             if (!string.IsNullOrEmpty(env))
             {
-                if (!int.TryParse(env, out config.SleepMs))
+                if (!int.TryParse(env, out _config.SleepMs))
                 {
                     // exit on error
-                    Console.WriteLine(sleepParameterError, env);
+                    Console.WriteLine(_sleepParameterError, env);
                     Environment.Exit(-1);
                 }
             }
@@ -342,10 +348,10 @@ namespace HeliumIntegrationTest
             env = Environment.GetEnvironmentVariable("THREADS");
             if (!string.IsNullOrEmpty(env))
             {
-                if (!int.TryParse(env, out config.Threads))
+                if (!int.TryParse(env, out _config.Threads))
                 {
                     // exit on error
-                    Console.WriteLine(threadsParameterError, env);
+                    Console.WriteLine(_threadsParameterError, env);
                     Environment.Exit(-1);
                 }
             }

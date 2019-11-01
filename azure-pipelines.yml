@@ -22,10 +22,10 @@ variables:
   dockerRegistryServiceConnection: 'helium-acr'
 
   appRepository: 'helium-csharp'
-  appDockerFile: '$(Build.SourcesDirectory)/src/Dockerfile'
+  appDockerFile: '$(Build.SourcesDirectory)/Dockerfile'
 
   integrationTestRepository: 'helium-integration-test'
-  integrationTestDockerFile: '$(Build.SourcesDirectory)/src/Dockerfile-Integration-Test'
+  integrationTestDockerFile: '$(Build.SourcesDirectory)/Dockerfile-Integration-Test'
 
   tag: '$(Build.BuildId)'
   
@@ -47,14 +47,11 @@ stages:
 
     steps:
     - script: |
-         cd src
-
          docker build -t helium --target build .
          docker create --name helium helium
          docker cp helium:./src/unit-tests/TestResults .
          docker rm helium
 
-         cd ..
       displayName: Run unit tests
 
     - task: PublishTestResults@2

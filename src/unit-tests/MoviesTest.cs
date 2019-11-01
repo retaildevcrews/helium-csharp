@@ -12,19 +12,19 @@ namespace UnitTests
 {
     public class MoviesTest
     {
-        private readonly Mock<ILogger<MoviesController>> logger = new Mock<ILogger<MoviesController>>();
-        private readonly MoviesController c;
+        private readonly Mock<ILogger<MoviesController>> _logger = new Mock<ILogger<MoviesController>>();
+        private readonly MoviesController _controller;
 
         public MoviesTest()
         {
-            c = new MoviesController(logger.Object, TestApp.MockDal);
+            _controller = new MoviesController(_logger.Object, TestApp.MockDal);
         }
 
         [Fact]
         public async Task GetAllMovies()
         {
 
-            OkObjectResult ok = await c.GetMoviesAsync(string.Empty) as OkObjectResult;
+            OkObjectResult ok = await _controller.GetMoviesAsync(string.Empty) as OkObjectResult;
 
             Assert.NotNull(ok);
 
@@ -39,7 +39,7 @@ namespace UnitTests
         public async Task GetMoviesBySearch()
         {
 
-            OkObjectResult ok = await c.GetMoviesAsync(q: AssertValues.MoviesSearchString) as OkObjectResult;
+            OkObjectResult ok = await _controller.GetMoviesAsync(q: AssertValues.MoviesSearchString) as OkObjectResult;
 
             Assert.NotNull(ok);
 
@@ -54,7 +54,7 @@ namespace UnitTests
         public async Task GetMoviesByYear()
         {
 
-            OkObjectResult ok = await c.GetMoviesAsync(year: 2000) as OkObjectResult;
+            OkObjectResult ok = await _controller.GetMoviesAsync(year: 2000) as OkObjectResult;
 
             Assert.NotNull(ok);
 
@@ -69,7 +69,7 @@ namespace UnitTests
         public async Task GetMoviesByRating()
         {
 
-            OkObjectResult ok = await c.GetMoviesAsync(rating: 8.9) as OkObjectResult;
+            OkObjectResult ok = await _controller.GetMoviesAsync(rating: 8.9) as OkObjectResult;
 
             Assert.NotNull(ok);
 
@@ -84,7 +84,7 @@ namespace UnitTests
         public async Task GetMoviesByTopRated()
         {
 
-            OkObjectResult ok = await c.GetMoviesAsync(topRated: true) as OkObjectResult;
+            OkObjectResult ok = await _controller.GetMoviesAsync(topRated: true) as OkObjectResult;
 
             Assert.NotNull(ok);
 
@@ -99,7 +99,7 @@ namespace UnitTests
         public async Task GetMoviesByGenre()
         {
 
-            OkObjectResult ok = await c.GetMoviesAsync(genre: "Action") as OkObjectResult;
+            OkObjectResult ok = await _controller.GetMoviesAsync(genre: "Action") as OkObjectResult;
 
             Assert.NotNull(ok);
 
@@ -114,7 +114,7 @@ namespace UnitTests
         public async Task GetMoviesByActorId()
         {
 
-            OkObjectResult ok = await c.GetMoviesAsync(actorId: AssertValues.ActorById) as OkObjectResult;
+            OkObjectResult ok = await _controller.GetMoviesAsync(actorId: AssertValues.ActorById) as OkObjectResult;
 
             Assert.NotNull(ok);
 
@@ -132,7 +132,7 @@ namespace UnitTests
         {
             // do not use c.GetMovieByIdAsync().Result
             // due to thread syncronization issues with build clients, it is not reliable
-            var res = await c.GetMovieByIdAsync(AssertValues.MovieById);
+            var res = await _controller.GetMovieByIdAsync(AssertValues.MovieById);
 
             OkObjectResult ok = res as OkObjectResult;
 
@@ -149,13 +149,13 @@ namespace UnitTests
         public async Task GetMovieByIdFail()
         {
             // this will fail GetPartitionKey
-            NotFoundResult nf = await c.GetMovieByIdAsync(AssertValues.BadId) as NotFoundResult;
+            NotFoundResult nf = await _controller.GetMovieByIdAsync(AssertValues.BadId) as NotFoundResult;
 
             Assert.NotNull(nf);
             Assert.Equal((int)System.Net.HttpStatusCode.NotFound, nf.StatusCode);
 
             // this will fail search
-            nf = await c.GetMovieByIdAsync(AssertValues.MovieById + "000") as NotFoundResult;
+            nf = await _controller.GetMovieByIdAsync(AssertValues.MovieById + "000") as NotFoundResult;
 
             Assert.NotNull(nf);
             Assert.Equal((int)System.Net.HttpStatusCode.NotFound, nf.StatusCode);
@@ -169,7 +169,7 @@ namespace UnitTests
             Assert.NotNull(list);
             Assert.Equal(7, list.Count);
 
-            var res = await c.GetMovieByIdAsync(list[0]);
+            var res = await _controller.GetMovieByIdAsync(list[0]);
 
             OkObjectResult ok = res as OkObjectResult;
 

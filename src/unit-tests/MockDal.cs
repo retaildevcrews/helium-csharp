@@ -219,9 +219,10 @@ namespace UnitTests
             return Task<HealthzSuccessDetails>.Factory.StartNew(() => { return d; });
         }
 
-        public void Reconnect(string cosmosUrl, string cosmosKey, string cosmosDatabase, string cosmosCollection)
+        public Task Reconnect(string cosmosUrl, string cosmosKey, string cosmosDatabase, string cosmosCollection, bool force = false)
         {
             // do nothing
+            return null;
         }
     }
 

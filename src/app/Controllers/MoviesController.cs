@@ -15,9 +15,9 @@ namespace Helium.Controllers
     [Route("api/[controller]")]
     public class MoviesController : Controller
     {
-        private readonly ILogger logger;
-        private readonly IDAL dal;
-        private readonly Random rand = new Random(DateTime.Now.Millisecond);
+        private readonly ILogger _logger;
+        private readonly IDAL _dal;
+        private readonly Random _rand = new Random(DateTime.Now.Millisecond);
 
         /// <summary>
         ///  Constructor
@@ -26,8 +26,8 @@ namespace Helium.Controllers
         /// <param name="dal">data access layer instance</param>
         public MoviesController(ILogger<MoviesController> logger, IDAL dal)
         {
-            this.logger = logger;
-            this.dal = dal;
+            _logger = logger;
+            _dal = dal;
         }
 
         /// <summary>
@@ -45,19 +45,19 @@ namespace Helium.Controllers
         [ProducesResponseType(typeof(Movie[]), 200)]
         public async Task<IActionResult> GetMoviesAsync([FromQuery]string q = "", [FromQuery] string genre = "", [FromQuery] int year = 0, [FromQuery] double rating = 0, [FromQuery] bool topRated = false, [FromQuery] string actorId = "")
         {
-            string method = string.IsNullOrEmpty(q) ? "GetMovies" : string.Format("SearchMovies {0}", q);
+            string method = string.IsNullOrEmpty(q) ? "GetMovies" : string.Format($"SearchMovies {q}");
 
-            logger.LogInformation(method);
+            _logger.LogInformation(method);
 
             try
             {
-                return Ok(await dal.GetMoviesByQueryAsync(q, genre, year, rating, topRated, actorId));
+                return Ok(await _dal.GetMoviesByQueryAsync(q, genre, year, rating, topRated, actorId));
             }
 
             catch (CosmosException ce)
             {
                 // log and return 500
-                logger.LogError("CosmosException:" + method + ":{0}:{1}:{2}:{3}\r\n{4}", ce.StatusCode, ce.ActivityId, ce.Message, ce.ToString());
+                _logger.LogError($"CosmosException:{method}:{ce.StatusCode}:{ce.ActivityId}:{ce.Message}\n{ce}");
 
                 return new ObjectResult(Constants.MoviesControllerException)
                 {
@@ -75,7 +75,7 @@ namespace Helium.Controllers
                 }
 
                 // log and return 500
-                logger.LogError($"AggregateException|{method}|{root.GetType()}|{root.Message}|{root.Source}|{root.TargetSite}");
+                _logger.LogError($"AggregateException|{method}|{root.GetType()}|{root.Message}|{root.Source}|{root.TargetSite}");
 
                 return new ObjectResult(Constants.MoviesControllerException)
                 {
@@ -85,7 +85,7 @@ namespace Helium.Controllers
 
             catch (Exception ex)
             {
-                logger.LogError(method + "\r\n{0}", ex);
+                _logger.LogError($"{method}\n{ex}");
 
                 return new ObjectResult(Constants.MoviesControllerException)
                 {
@@ -105,13 +105,13 @@ namespace Helium.Controllers
         [ProducesResponseType(typeof(void), 404)]
         public async System.Threading.Tasks.Task<IActionResult> GetMovieByIdAsync(string movieId)
         {
-            logger.LogInformation("GetMovieByIdAsync {0}", movieId);
+            _logger.LogInformation($"GetMovieByIdAsync {movieId}");
 
             try
             {
                 // get movie by movieId
                 // CosmosDB API will throw an exception on a bad movieId
-                Movie m = await dal.GetMovieAsync(movieId);
+                Movie m = await _dal.GetMovieAsync(movieId);
 
                 return Ok(m);
             }
@@ -119,7 +119,7 @@ namespace Helium.Controllers
             // movieId isn't well formed
             catch (ArgumentException)
             {
-                logger.LogInformation("NotFound:GetMovieByIdAsync:{0}", movieId);
+                _logger.LogInformation($"NotFound:GetMovieByIdAsync:{movieId}");
 
                 // return a 404
                 return NotFound();
@@ -130,7 +130,7 @@ namespace Helium.Controllers
                 // CosmosDB API will throw an exception on an movieId not found
                 if (ce.StatusCode == System.Net.HttpStatusCode.NotFound)
                 {
-                    logger.LogInformation("NotFound:GetMovieByIdAsync:{0}", movieId);
+                    _logger.LogInformation($"NotFound:GetMovieByIdAsync:{movieId}");
 
                     // return a 404
                     return NotFound();
@@ -138,7 +138,7 @@ namespace Helium.Controllers
                 else
                 {
                     // log and return 500
-                    logger.LogError("CosmosException:MovieByIdAsync:{0}:{1}:{2}:{3}\r\n{4}", ce.StatusCode, ce.ActivityId, ce.Message, ce.ToString());
+                    _logger.LogError($"CosmosException:MovieByIdAsync:{ce.StatusCode}:{ce.ActivityId}:{ce.Message}\n{ce}");
 
                     return new ObjectResult(Constants.MoviesControllerException)
                     {
@@ -157,7 +157,7 @@ namespace Helium.Controllers
                 }
 
                 // log and return 500
-                logger.LogError($"AggregateException|MovieByIdAsync|{root.GetType()}|{root.Message}|{root.Source}|{root.TargetSite}");
+                _logger.LogError($"AggregateException|MovieByIdAsync|{root.GetType()}|{root.Message}|{root.Source}|{root.TargetSite}");
 
                 return new ObjectResult(Constants.MoviesControllerException)
                 {
@@ -168,7 +168,7 @@ namespace Helium.Controllers
             catch (Exception e)
             {
                 // log and return 500
-                logger.LogError("Exception:GetActorByIdAsync:{0}\r\n{1}", e.Message, e);
+                _logger.LogError($"Exception:GetActorByIdAsync:{e.Message}\n{e}");
 
                 return new ObjectResult(Constants.MoviesControllerException)
                 {

@@ -73,7 +73,7 @@ namespace Helium
             }
 
             // write the results to the console
-            Console.WriteLine("{0}\t{1}\t{2}", context.Response.StatusCode, (int)DateTime.Now.Subtract(dtStart).TotalMilliseconds, context.Request.Path);
+            Console.WriteLine($"{context.Response.StatusCode}\t{(int)DateTime.Now.Subtract(dtStart).TotalMilliseconds}\t{context.Request.Path}");
         }
     }
 }

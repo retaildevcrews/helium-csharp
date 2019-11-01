@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration.AzureKeyVault;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,19 +18,16 @@ namespace Helium
     public class App
     {
         // application configuration
-        private static IConfigurationRoot config;
+        private static IConfigurationRoot _config;
 
         // ILogger instance
-        private static ILogger<App> logger;
+        private static ILogger<App> _logger;
 
         // web host
-        private static IWebHost host;
+        private static IWebHost _host;
 
-        // data access layer
-        private static DAL dal;
-
-        // CosmosDB key
-        private static string cosmosKey;
+        // secret manager
+        private static readonly HeliumSecretManager _secretManager = new HeliumSecretManager();
 
         /// <summary>
         /// Main entry point
@@ -52,34 +50,32 @@ namespace Helium
                     Environment.Exit(-1);
                 }
 
+                // add the key change handler
+                _secretManager.KeyVaultSecretChanged += KeyVaultSecretChangedHandler;
+
                 // build the config first so Key Vault secrets are available to dependent services
-                config = await BuildConfig(kvUrl);
-
-                // Create data access layer
-                dal = CreateDal();
-
-                // validate the CosmosDB connection / collection
-                await dal.GetHealthzAsync();
+                _config = await BuildConfig(kvUrl);
 
                 // build the host
-                host = BuildHost(kvUrl);
+                _host = BuildHost(kvUrl);
 
-                dal = host.Services.GetService<IDAL>() as DAL;
+                // log startup messages
+                LogStartup();
 
-                // run the web app
-                RunWebApp();
+                // run the web server
+                _host.Run();
             }
 
             catch (Exception ex)
             {
                 // end app on error
-                if (logger != null)
+                if (_logger != null)
                 {
-                    logger.LogError("Exception: {0}", ex);
+                    _logger.LogError($"Exception: {ex}");
                 }
                 else
                 {
-                    Console.WriteLine("Error in Main()\r\n{0}", ex);
+                    Console.WriteLine($"Error in Main()\n{ex}");
                 }
 
                 Environment.Exit(-1);
@@ -87,48 +83,38 @@ namespace Helium
         }
 
         /// <summary>
-        /// Loop until ctl c is pressed
-        /// Check for Cosmos key rotation
+        /// Gets fired when a key vault secret changes
         /// </summary>
-        static void RunWebApp()
+        /// <param name="sender"></param>
+        /// <param name="e">Key Name that changed</param>
+        static void KeyVaultSecretChangedHandler(Object sender, HeliumSecretManager.KeyVaultSecretChangedEventArgs e)
         {
-            // setup ctl c handler
-            bool cancel = false;
-            Console.CancelKeyPress += delegate (object sender, ConsoleCancelEventArgs e)
+            // list of cosmos key vault secrets to watch for changes
+            List<string> cosmosKeyNames = new List<string> { Constants.CosmosCollection, Constants.CosmosDatabase, Constants.CosmosKey, Constants.CosmosUrl };
+
+            // reload the DAL if the Cosmos info changed
+            if (cosmosKeyNames.Contains(e.KeyName))
             {
-                Console.WriteLine("Ctl-C Pressed - Starting shutdown ...");
-                e.Cancel = true;
-                cancel = true;
-            };
-
-            // log startup messages
-            LogStartup();
-
-            // run the web server in the background
-            host.RunAsync();
-
-            // get the current CosmosDB key for comparison
-            cosmosKey = config.GetValue<string>(Constants.CosmosKey);
-
-            // setup next key rotation check time
-            DateTime nextCheck = DateTime.Now.AddSeconds(Constants.RotateKeyCheckSeconds);
-
-            // make sure sleep isn't too long
-            Constants.MainLoopSleepMs = Constants.MainLoopSleepMs > 5000 ? 5000 : Constants.MainLoopSleepMs;
-
-            // run until cancelled
-            while (!cancel)
-            {
-                // if time to check for key rotation
-                if (nextCheck <= DateTime.Now)
+                try
                 {
-                    nextCheck = ReloadDal();
+                    // reload config
+                    _config.Reload();
+
+                    // reconnect to Cosmos with the new key
+                    _host.Services.GetService<IDAL>().Reconnect(_config.GetValue<string>(Constants.CosmosUrl),
+                        _config.GetValue<string>(Constants.CosmosKey),
+                        _config.GetValue<string>(Constants.CosmosDatabase),
+                        _config.GetValue<string>(Constants.CosmosCollection));
+
+                    _logger.LogInformation("DAL.Reconnect");
+
+                    string val = e.KeyName == Constants.CosmosKey ? _config.GetValue<string>(e.KeyName).Substring(0, 5) + "..." : _config.GetValue<string>(e.KeyName);
+
+                    Console.WriteLine($"DAL.Reconnect: {e.KeyName} = {val}");
                 }
-
-                // sleep
-                if (!cancel)
+                catch (Exception ex)
                 {
-                    System.Threading.Thread.Sleep(Constants.MainLoopSleepMs);
+                    Console.WriteLine($"DAL.Reconnect Exception: Original values still in use\n{ex}");
                 }
             }
         }
@@ -139,62 +125,20 @@ namespace Helium
         private static void LogStartup()
         {
             // get the logger service
-            logger = host.Services.GetRequiredService<ILogger<App>>();
+            _logger = _host.Services.GetRequiredService<ILogger<App>>();
 
-            // log a not using app insights warning
-            if (string.IsNullOrEmpty(config.GetValue<string>(Constants.AppInsightsKey)))
+            if (_logger != null)
             {
-                logger.LogWarning("App Insights Key not set");
-            }
-
-            logger.LogInformation("Web Server Started");
-            Console.WriteLine("Version: {0}", Version.AssemblyVersion);
-        }
-
-        /// <summary>
-        /// Reload the data access layer if the Cosmos key changed
-        /// </summary>
-        /// <returns></returns>
-        private static DateTime ReloadDal()
-        {
-            try
-            {
-                // reload config from Key Vault
-                config.Reload();
-
-                // only reload dal if key changed
-                string newCosmosKey = config.GetValue<string>(Constants.CosmosKey);
-
-                if (newCosmosKey != cosmosKey)
+                // log a not using app insights warning
+                if (string.IsNullOrEmpty(_config.GetValue<string>(Constants.AppInsightsKey)))
                 {
-                    // create a new data access layer
-                    IDAL d = CreateDal();
-
-                    // run a test query
-                    d.GetHealthzAsync().GetAwaiter().GetResult();
-
-                    logger.LogInformation("DAL reloaded");
-                    Console.WriteLine("DAL Reload: Cosmos key rotated from {0}... to {1}...", cosmosKey.Substring(0, 5), newCosmosKey.Substring(0, 5));
-
-                    cosmosKey = newCosmosKey;
-
-                    d = host.Services.GetService<IDAL>();
-
-                    d.Reconnect(config.GetValue<string>(Constants.CosmosUrl),
-                        config.GetValue<string>(Constants.CosmosKey),
-                        config.GetValue<string>(Constants.CosmosDatabase),
-                        config.GetValue<string>(Constants.CosmosCollection));
+                    _logger.LogWarning("App Insights Key not set");
                 }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"DAL Reload: {ex.Message}");
 
-                logger.LogError(ex, Constants.DALReloadError);
+                _logger.LogInformation("Web Server Started");
             }
 
-            // set next check time
-            return DateTime.Now.AddSeconds(Constants.RotateKeyCheckSeconds);
+            Console.WriteLine($"Version: {Version.AssemblyVersion}");
         }
 
         /// <summary>
@@ -211,13 +155,46 @@ namespace Helium
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: false);
 
+            try
+            {
+                // use Azure Key Vault
+                cfgBuilder.AddAzureKeyVault(new AzureKeyVaultConfigurationOptions
+                {
+                    Client = await GetKeyVaultClient(kvUrl),
+                    Manager = _secretManager,
+                    ReloadInterval = TimeSpan.FromSeconds(Constants.KeyVaultChangeCheckSeconds),
+                    Vault = kvUrl
+                });
+
+                // build the config
+                return cfgBuilder.Build();
+            }
+            catch (Exception ex)
+            {
+                // log and fail
+
+                Console.WriteLine($"KeyVault:Exception: {ex.Message}\n{ex}");
+                Environment.Exit(-1);
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Get a valid key vault client
+        /// AKS takes time to spin up the first pod identity, so
+        ///   we retry for up to 90 seconds
+        /// </summary>
+        /// <param name="kvUrl">URL of the key vault</param>
+        /// <returns></returns>
+        static async Task<KeyVaultClient> GetKeyVaultClient(string kvUrl)
+        {
             // retry Managed Identity for 90 seconds
+            //   AKS has to spin up an MI pod which can take a while the first time on the pod
             DateTime timeout = DateTime.Now.AddSeconds(90.0);
 
             while (true)
             {
-                // AKS has to spin up an MI pod which can take a while
-
                 try
                 {
                     // use Managed Identity (MSI) for secure access to Key Vault
@@ -226,11 +203,8 @@ namespace Helium
                     // read a key to make sure the connection is valid 
                     await keyVaultClient.GetSecretAsync(kvUrl, Constants.CosmosUrl);
 
-                    // use Azure Key Vault
-                    cfgBuilder.AddAzureKeyVault(kvUrl, keyVaultClient, new DefaultKeyVaultSecretManager());
-
-                    // build the config
-                    return cfgBuilder.Build();
+                    // return the client
+                    return keyVaultClient;
                 }
                 catch (Exception ex)
                 {
@@ -238,14 +212,14 @@ namespace Helium
                     {
                         // log and retry
 
-                        Console.WriteLine("KeyVault:Retry: {0}", ex.Message);
+                        Console.WriteLine($"KeyVault:Retry: {ex.Message}");
                         Thread.Sleep(500);
                     }
                     else
                     {
                         // log and fail
 
-                        Console.WriteLine("KeyVault:Exception: {0}\r\n{1}", ex.Message, ex);
+                        Console.WriteLine($"KeyVault:Exception: {ex.Message}\n{ex}");
                         Environment.Exit(-1);
                     }
                 }
@@ -265,7 +239,7 @@ namespace Helium
                 .UseStartup<Startup>();
 
             // use the configuration built from Key Vault
-            builder.UseConfiguration(config);
+            builder.UseConfiguration(_config);
 
             // setup the listen port
             UseUrls(builder);
@@ -284,43 +258,7 @@ namespace Helium
         static void UseUrls(IWebHostBuilder builder)
         {
             // listen on the default port
-            builder.UseUrls(string.Format("http://*:{0}/", Constants.Port));
-        }
-
-        /// <summary>
-        /// Create the data access layer from the Key Vault config values
-        /// </summary>
-        /// <returns></returns>
-        static DAL CreateDal()
-        {
-            // get the variables from Key Vault / dotnet secrets
-            string cosmosUrl = config.GetValue<string>(Constants.CosmosUrl);
-            string cosmosKey = config.GetValue<string>(Constants.CosmosKey);
-            string cosmosDatabase = config.GetValue<string>(Constants.CosmosDatabase);
-            string cosmosCollection = config.GetValue<string>(Constants.CosmosCollection);
-
-            // validate required parameters
-            if (string.IsNullOrEmpty(cosmosUrl))
-            {
-                throw new ArgumentException(string.Format("CosmosUrl not set correctly {0}", cosmosUrl));
-            }
-
-            if (string.IsNullOrEmpty(cosmosKey))
-            {
-                throw new ArgumentException(string.Format("CosmosKey not set correctly {0}", cosmosKey));
-            }
-
-            if (string.IsNullOrEmpty(cosmosDatabase))
-            {
-                throw new ArgumentException(string.Format("CosmosDatabase not set correctly {0}", cosmosDatabase));
-            }
-
-            if (string.IsNullOrEmpty(cosmosCollection))
-            {
-                throw new ArgumentException(string.Format("CosmosCollection not set correctly {0}", cosmosCollection));
-            }
-
-            return new DAL(cosmosUrl, cosmosKey, cosmosDatabase, cosmosCollection);
+            builder.UseUrls(string.Format($"http://*:{Constants.Port}/"));
         }
 
         /// <summary>
@@ -332,7 +270,11 @@ namespace Helium
             // add the data access layer as a singleton
             builder.ConfigureServices(services =>
             {
-                services.AddSingleton<IDAL>(dal);
+                services.AddSingleton<IDAL>(new DAL(
+                    _config.GetValue<string>(Constants.CosmosUrl),
+                    _config.GetValue<string>(Constants.CosmosKey),
+                    _config.GetValue<string>(Constants.CosmosDatabase),
+                    _config.GetValue<string>(Constants.CosmosCollection)));
             });
         }
 

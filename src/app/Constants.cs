@@ -13,20 +13,17 @@
 
         public static readonly string KeyVaultName = "KeyVaultName";
 
-        public static readonly string CosmosUrl = "CosmosUrl";
-        public static readonly string CosmosKey = "CosmosKey";
-        public static readonly string CosmosDatabase = "CosmosDatabase";
         public static readonly string CosmosCollection = "CosmosCollection";
+        public static readonly string CosmosDatabase = "CosmosDatabase";
+        public static readonly string CosmosKey = "CosmosKey";
+        public static readonly string CosmosUrl = "CosmosUrl";
 
         public static readonly string AppInsightsKey = "AppInsightsKey";
-
-        public static readonly string DALReloadError = "DAL reload failed";
 
         // if port is changed, also update value in the Dockerfiles
         public static readonly string Port = "4120";
 
-        public static readonly int RotateKeyCheckSeconds = 30;
-        public static int MainLoopSleepMs = 1000;
+        public static readonly int KeyVaultChangeCheckSeconds = 30;
 
         public static readonly string ActorsControllerException = "ActorsControllerException";
         public static readonly string GenresControllerException = "GenresControllerException";
