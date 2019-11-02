@@ -57,7 +57,10 @@ namespace Helium.Controllers
 
                 HealthzSuccessDetails s = await _dal.GetHealthzAsync();
 
-                s.CosmosKey = _config.GetValue<string>(Constants.CosmosKey).PadRight(20).Substring(0, 5).Trim() + "...";
+                if (_config != null)
+                {
+                    s.CosmosKey = _config.GetValue<string>(Constants.CosmosKey).PadRight(5).Substring(0, 5).Trim() + "...";
+                }
 
                 res.details.cosmosDb.details = s;
 

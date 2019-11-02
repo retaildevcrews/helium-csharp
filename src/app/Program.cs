@@ -1,4 +1,5 @@
 ﻿using Helium.DataAccessLayer;
+using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Azure.KeyVault;
@@ -109,6 +110,17 @@ namespace Helium
                     _logger.LogInformation("DAL.Reconnect");
 
                     string val = e.KeyName == Constants.CosmosKey ? _config.GetValue<string>(e.KeyName).Substring(0, 5) + "..." : _config.GetValue<string>(e.KeyName);
+
+                    // Send a NewKeyLoadedMetric to App Insights
+                    if (e.KeyName == Constants.CosmosKey && !string.IsNullOrEmpty(_config.GetValue<string>(Constants.AppInsightsKey)))
+                    {
+                        var telemetryClient = _host.Services.GetService<TelemetryClient>();
+
+                        if (telemetryClient != null)
+                        {
+                            telemetryClient.TrackMetric(Constants.NewKeyLoadedMetric, 1);
+                        }
+                    }
 
                     Console.WriteLine($"DAL.Reconnect: {e.KeyName} = {val}");
                 }

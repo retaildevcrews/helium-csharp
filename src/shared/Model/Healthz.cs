@@ -48,7 +48,7 @@
         public long Genres;
         public readonly string Instance;
         public readonly string Version = Helium.Version.AssemblyVersion;
-        public string CosmosKey;
+        public string CosmosKey = string.Empty;
 
         public HealthzSuccessDetails()
         {

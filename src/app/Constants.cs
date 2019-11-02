@@ -19,6 +19,7 @@
         public static readonly string CosmosUrl = "CosmosUrl";
 
         public static readonly string AppInsightsKey = "AppInsightsKey";
+        public static readonly string NewKeyLoadedMetric = "newKeyLoaded";
 
         // if port is changed, also update value in the Dockerfiles
         public static readonly string Port = "4120";
