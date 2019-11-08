@@ -1,0 +1,14 @@
+[
+  {"Url":"/api/movies?q=ring","Validation":{"JsonArray":{"MinLength":100,"MaxLength":100}}},
+  {"Url":"/api/movies?q=ring&pageSize=1000","Validation":{"JsonArray":{"MinLength":322,"MaxLength":322}}},
+  {"Url":"/api/movies?q=matrix","Validation":{"JsonArray":{"MinLength":1,"MaxLength":1}}},
+  {"Url":"/api/movies?q=terminator","Validation":{"JsonArray":{"MinLength":2,"MaxLength":2}}},
+  {"Url":"/api/movies?q=furious","Validation":{"JsonArray":{"MinLength":13,"MaxLength":13}}},
+  {"Url":"/api/movies?q=longest","Validation":{"JsonArray":{"MinLength":13,"MaxLength":13}}},
+  {"Url":"/api/actors?q=nicole","Validation":{"JsonArray":{"MinLength":100,"MaxLength":100}}},
+  {"Url":"/api/actors?q=nicole&pageSize=1000","Validation":{"JsonArray":{"MinLength":335,"MaxLength":335}}},
+  {"Url":"/api/actors?q=keanu","Validation":{"JsonArray":{"MinLength":4,"MaxLength":4}}},
+  {"Url":"/api/actors?q=stallone","Validation":{"JsonArray":{"MinLength":6,"MaxLength":6}}},
+  {"Url":"/api/actors?q=statham","Validation":{"JsonArray":{"MinLength":1,"MaxLength":1}}},
+  {"Url":"/api/actors?q=eastwood","Validation":{"JsonArray":{"MinLength":17,"MaxLength":17}}},
+]

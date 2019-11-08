@@ -32,18 +32,20 @@ namespace Helium.Controllers
 
         /// <summary>
         /// </summary>
-        /// <remarks>Returns a json array of all Movie objects</remarks>
+        /// <remarks>Returns a JSON array of Movie objects</remarks>
         /// <param name="q">(optional) The term used to search by movie title (rings)</param>
         /// <param name="genre">(optional) Movies of a genre (Action)</param>
         /// <param name="year">(optional) Get movies by year (2005)</param>
         /// <param name="rating">(optional) Get movies with a rating >= rating (8.5)</param>
         /// <param name="topRated">(optional) Get top rated movies (true)</param>
         /// <param name="actorId">(optional) Get movies by Actor Id (nm0000704)</param>
-        /// <response code="200">json array of Movie objects or empty array if not found</response>
+        /// <param name="pageNumber">1 based page index</param>
+        /// <param name="pageSize">page size (1000 max)</param>
+        /// <response code="200">JSON array of Movie objects or empty array if not found</response>
         [HttpGet]
         [Produces("application/json")]
         [ProducesResponseType(typeof(Movie[]), 200)]
-        public async Task<IActionResult> GetMoviesAsync([FromQuery]string q = "", [FromQuery] string genre = "", [FromQuery] int year = 0, [FromQuery] double rating = 0, [FromQuery] bool topRated = false, [FromQuery] string actorId = "")
+        public async Task<IActionResult> GetMoviesAsync([FromQuery]string q = "", [FromQuery] string genre = "", [FromQuery] int year = 0, [FromQuery] double rating = 0, [FromQuery] bool topRated = false, [FromQuery] string actorId = "", [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = Constants.DefaultPageSize)
         {
             string method = string.IsNullOrEmpty(q) ? "GetMovies" : string.Format($"SearchMovies {q}");
 
@@ -51,7 +53,23 @@ namespace Helium.Controllers
 
             try
             {
-                return Ok(await _dal.GetMoviesByQueryAsync(q, genre, year, rating, topRated, actorId));
+                if (pageSize < 1)
+                {
+                    pageSize = Constants.DefaultPageSize;
+                }
+                else if (pageSize > Constants.MaxPageSize)
+                {
+                    pageSize = Constants.MaxPageSize;
+                }
+
+                pageNumber--;
+
+                if (pageNumber < 0)
+                {
+                    pageNumber = 0;
+                }
+
+                return Ok(await _dal.GetMoviesByQueryAsync(q, genre, year, rating, topRated, actorId, pageNumber * pageSize, pageSize));
             }
 
             catch (CosmosException ce)

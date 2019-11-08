@@ -30,7 +30,7 @@ namespace Helium.Controllers
         /// <summary>
         /// </summary>
         /// <remarks>Returns a JSON string array of Genre</remarks>
-        /// <response code="200">json array of strings or empty array if not found</response>
+        /// <response code="200">JSON array of strings or empty array if not found</response>
         [HttpGet]
         [Produces("application/json")]
         [ProducesResponseType(typeof(string[]), 200)]

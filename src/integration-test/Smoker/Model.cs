@@ -62,9 +62,13 @@ namespace Smoker
 
     public class JsonArray
     {
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public int? MinLength;
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public int? MaxLength;
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
+        public int MinCount;
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
+        public int MaxCount;
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
+        public int Count;
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
+        public bool CountIsZero;
     }
 }

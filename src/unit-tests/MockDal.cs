@@ -69,12 +69,12 @@ namespace UnitTests
             throw new ArgumentException("NotFound");
         }
 
-        public Task<IEnumerable<Actor>> GetActorsAsync()
+        public Task<IEnumerable<Actor>> GetActorsAsync(int offset = 0, int limit = 0)
         {
             return Task<IEnumerable<Actor>>.Factory.StartNew(() => { return Actors; });
         }
 
-        public Task<IEnumerable<Actor>> GetActorsByQueryAsync(string q)
+        public Task<IEnumerable<Actor>> GetActorsByQueryAsync(string q, int offset = 0, int limit = 0)
         {
             List<Actor> res = new List<Actor>();
 
@@ -111,12 +111,12 @@ namespace UnitTests
             throw new ArgumentException("NotFound");
         }
 
-        public Task<IEnumerable<Movie>> GetMoviesAsync()
+        public Task<IEnumerable<Movie>> GetMoviesAsync(int offset = 0, int limit = 0)
         {
             return Task<IEnumerable<Movie>>.Factory.StartNew(() => { return Movies; });
         }
 
-        public Task<IEnumerable<Movie>> GetMoviesByQueryAsync(string q, string genre, int year = 0, double rating = 0.0, bool topRated = false, string actorId = "")
+        public Task<IEnumerable<Movie>> GetMoviesByQueryAsync(string q, string genre, int year = 0, double rating = 0.0, bool topRated = false, string actorId = "", int offset = 0, int limit = 0)
         {
             List<Movie> res = new List<Movie>();
 

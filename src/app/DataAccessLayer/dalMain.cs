@@ -150,7 +150,7 @@ namespace Helium.DataAccessLayer
         public string CosmosCollection;
 
         // CosmosDB query request options
-        public readonly QueryRequestOptions QueryRequestOptions = new QueryRequestOptions { MaxItemCount = 2000 };
+        public readonly QueryRequestOptions QueryRequestOptions = new QueryRequestOptions { MaxItemCount = 600 };
 
         // default protocol is tcp, default connection mode is direct
         public readonly CosmosClientOptions CosmosClientOptions = new CosmosClientOptions { RequestTimeout = TimeSpan.FromSeconds(60), MaxRetryAttemptsOnRateLimitedRequests = 9, MaxRetryWaitTimeOnRateLimitedRequests = TimeSpan.FromSeconds(60) };

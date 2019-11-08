@@ -11,16 +11,19 @@ namespace Helium.DataAccessLayer
     /// </summary>
     public partial class DAL
     {
-        // select template for movies
+        // select template for Movies
         const string _movieSelect = "select m.id, m.partitionKey, m.movieId, m.type, m.textSearch, m.title, m.year, m.runtime, m.rating, m.votes, m.totalScore, m.genres, m.roles from m where m.type = 'Movie' ";
         const string _movieOrderBy = " order by m.title";
+        const string _movieOffset = " offset {0} limit {1}";
 
         /// <summary>
-        /// Get a single movie by movieId
+        /// Retrieve a single Movie from CosmosDB by movieId
         /// 
-        /// CosmosDB throws an exception if movieId not found
+        /// Uses the CosmosDB single document read API which is 1 RU if less than 1K doc size
+        /// 
+        /// Throws an exception if not found
         /// </summary>
-        /// <param name="movieId">movie ID to retrieve</param>
+        /// <param name="movieId">Movie ID</param>
         /// <returns>Movie object</returns>
         public async Task<Movie> GetMovieAsync(string movieId)
         {
@@ -32,17 +35,19 @@ namespace Helium.DataAccessLayer
         }
 
         /// <summary>
-        /// Get all movies
+        /// Get all Movies from CosmosDB
         /// </summary>
-        /// <returns>List of all Movies</returns>
-        public async Task<IEnumerable<Movie>> GetMoviesAsync()
+        /// <param name="offset">zero based offset for paging</param>
+        /// <param name="limit">number of documents for paging</param>
+        /// <returns>List of Movies</returns>
+        public async Task<IEnumerable<Movie>> GetMoviesAsync(int offset = 0, int limit = 0)
         {
             // get all movies
-            return await GetMoviesByQueryAsync(string.Empty);
+            return await GetMoviesByQueryAsync(string.Empty, offset: offset, limit: limit);
         }
 
         /// <summary>
-        /// Get a list of movies by searching the title
+        /// Get a list of Movies by search and/or filter terms
         /// </summary>
         /// <param name="q">search term</param>
         /// <param name="genre">get movies by genre</param>
@@ -50,11 +55,24 @@ namespace Helium.DataAccessLayer
         /// <param name="rating">get movies rated >= rating</param>
         /// <param name="toprated">get top rated movies</param>
         /// <param name="actorId">get movies by actorId</param>
+        /// <param name="offset">zero based offset for paging</param>
+        /// <param name="limit">number of documents for paging</param>
         /// <returns>List of Movies or an empty list</returns>
-        public async Task<IEnumerable<Movie>> GetMoviesByQueryAsync(string q, string genre = "", int year = 0, double rating = 0, bool toprated = false, string actorId = "")
+        public async Task<IEnumerable<Movie>> GetMoviesByQueryAsync(string q, string genre = "", int year = 0, double rating = 0, bool toprated = false, string actorId = "", int offset = 0, int limit = Constants.DefaultPageSize)
         {
             string sql = _movieSelect;
             string orderby = _movieOrderBy;
+
+            if (limit < 1)
+            {
+                limit = Constants.DefaultPageSize;
+            }
+            else if (limit > Constants.MaxPageSize)
+            {
+                limit = Constants.MaxPageSize;
+            }
+
+            string offsetLimit = string.Format(_movieOffset, offset, limit);
 
             if (!string.IsNullOrEmpty(q))
             {
@@ -82,6 +100,7 @@ namespace Helium.DataAccessLayer
             {
                 sql = "select top 10 " + sql.Substring(7);
                 orderby = " order by m.rating desc";
+                offsetLimit = string.Empty;
             }
 
             if (!string.IsNullOrEmpty(actorId))
@@ -113,7 +132,7 @@ namespace Helium.DataAccessLayer
                 sql += string.Format($" and array_contains(m.genres, '{genre}') ");
             }
 
-            sql += orderby;
+            sql += orderby + offsetLimit;
 
             return await QueryMovieWorkerAsync(sql);
         }

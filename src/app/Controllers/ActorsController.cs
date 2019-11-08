@@ -33,27 +33,37 @@ namespace Helium.Controllers
         /// </summary>
         /// <remarks>Returns a JSON array of Actor objects</remarks>
         /// <param name="q">(optional) The term used to search Actor name</param>
-        /// <response code="200">json array of Actor objects or empty array if not found</response>
+        /// <param name="pageNumber">1 based page index</param>
+        /// <param name="pageSize">page size (1000 max)</param>
+        /// <response code="200">JSON array of Actor objects or empty array if not found</response>
         [HttpGet]
         [Produces("application/json")]
         [ProducesResponseType(typeof(Actor[]), 200)]
-        public async Task<IActionResult> GetActorsAsync([FromQuery] string q)
+        public async Task<IActionResult> GetActorsAsync([FromQuery] string q, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = Constants.DefaultPageSize)
         {
-            // check the query string
-            if (q == null)
-            {
-                q = string.Empty;
-            }
-
-            q = q.Trim();
-
             string method = string.IsNullOrEmpty(q) ? "GetActorsAsync" : string.Format($"SearchActors:{q}");
 
-            _logger.LogInformation(method, q);
+            _logger.LogInformation(method);
 
             try
             {
-                return Ok(await _dal.GetActorsByQueryAsync(q));
+                if (pageSize < 1)
+                {
+                    pageSize = Constants.DefaultPageSize;
+                }
+                else if (pageSize > Constants.MaxPageSize)
+                {
+                    pageSize = Constants.MaxPageSize;
+                }
+
+                pageNumber--;
+
+                if (pageNumber < 0)
+                {
+                    pageNumber = 0;
+                }
+
+                return Ok(await _dal.GetActorsByQueryAsync(q, pageNumber * pageSize, pageSize));
             }
 
             catch (CosmosException ce)
@@ -98,7 +108,7 @@ namespace Helium.Controllers
 
         /// <summary>
         /// </summary>
-        /// <remarks>Returns a single Actor object by actorId</remarks>
+        /// <remarks>Returns a single JSON Actor by actorId</remarks>
         /// <param name="actorId">The actorId</param>
         /// <response code="404">actorId not found</response>
         [HttpGet("{actorId}")]

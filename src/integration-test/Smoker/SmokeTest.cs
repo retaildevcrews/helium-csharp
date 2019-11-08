@@ -136,7 +136,7 @@ namespace Smoker
                             {
                                 body = await resp.Content.ReadAsStringAsync();
 
-                                res += string.Format($"{DateTime.Now.ToString("MM/dd hh:mm:ss")}\t{(int)resp.StatusCode}\t{(int)DateTime.Now.Subtract(dt).TotalMilliseconds}\t{resp.Content.Headers.ContentLength}\t{r.Url}");
+                                res += string.Format($"{DateTime.Now.ToString("MM/dd hh:mm:ss")}\t{(int)resp.StatusCode}\t{(int)DateTime.Now.Subtract(dt).TotalMilliseconds}\t{resp.Content.Headers.ContentLength}\t{r.Url}\n");
 
                                 // validate the response
                                 if (resp.StatusCode == System.Net.HttpStatusCode.OK && r.Validation != null)
@@ -321,7 +321,6 @@ namespace Smoker
             return res;
         }
 
-
         // validate the content type header if specified in the test
         public string ValidateContentType(Request r, HttpResponseMessage resp)
         {
@@ -392,34 +391,43 @@ namespace Smoker
 
             if (r.Validation.JsonArray != null)
             {
-                if (r.Validation.JsonArray.MinLength > 0 || r.Validation.JsonArray.MaxLength > 0)
+                try
                 {
-                    try
-                    {
-                        // deserialize the json
-                        var resList = JsonConvert.DeserializeObject<List<dynamic>>(body) as List<dynamic>;
+                    // deserialize the json
+                    var resList = JsonConvert.DeserializeObject<List<dynamic>>(body) as List<dynamic>;
 
-                        // validate min length
-                        if (r.Validation.JsonArray.MinLength > 0 && r.Validation.JsonArray.MinLength > resList.Count)
-                        {
-                            res += string.Format($"\tValidation Failed: MinJsonCount: {resList.Count}\n");
-                        }
-
-                        // validate max length
-                        if (r.Validation.JsonArray.MaxLength > 0 && r.Validation.JsonArray.MaxLength < resList.Count)
-                        {
-                            res += string.Format($"\tValidation Failed: MaxJsonCount: {resList.Count}\n");
-                        }
-                    }
-                    catch (SerializationException se)
+                    // validate count
+                    if (r.Validation.JsonArray.Count > 0 && r.Validation.JsonArray.Count != resList.Count)
                     {
-                        res += string.Format($"Exception|{se.Source}|{se.TargetSite}|{se.Message}");
+                        res += string.Format($"\tValidation Failed: JsonCount: {r.Validation.JsonArray.Count}  Actual: {resList.Count}\n");
                     }
 
-                    catch (Exception ex)
+                    // validate count is zero
+                    if (r.Validation.JsonArray.CountIsZero && 0 != resList.Count)
                     {
-                        res += string.Format($"Exception|{ex.Source}|{ex.TargetSite}|{ex.Message}");
+                        res += string.Format($"\tValidation Failed: JsonCountIsZero: Actual: {resList.Count}\n");
                     }
+
+                    // validate min count
+                    if (r.Validation.JsonArray.MinCount > 0 && r.Validation.JsonArray.MinCount > resList.Count)
+                    {
+                        res += string.Format($"\tValidation Failed: MinJsonCount: {r.Validation.JsonArray.MinCount}  Actual: {resList.Count}\n");
+                    }
+
+                    // validate max count
+                    if (r.Validation.JsonArray.MaxCount > 0 && r.Validation.JsonArray.MaxCount < resList.Count)
+                    {
+                        res += string.Format($"\tValidation Failed: MaxJsonCount: {r.Validation.JsonArray.MaxCount}  Actual: {resList.Count}\n");
+                    }
+                }
+                catch (SerializationException se)
+                {
+                    res += string.Format($"Exception|{se.Source}|{se.TargetSite}|{se.Message}");
+                }
+
+                catch (Exception ex)
+                {
+                    res += string.Format($"Exception|{ex.Source}|{ex.TargetSite}|{ex.Message}");
                 }
             }
 

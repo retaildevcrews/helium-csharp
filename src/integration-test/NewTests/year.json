@@ -1,0 +1,21 @@
+[
+  {"Url":"/api/movies?year=2010&genre=action","Validation":{"JsonArray":{"MinLength":100,"MaxLength":100}}},
+  {"Url":"/api/movies?year=2011&genre=action","Validation":{"JsonArray":{"MinLength":100,"MaxLength":100}}},
+  {"Url":"/api/movies?year=2012&genre=action","Validation":{"JsonArray":{"MinLength":100,"MaxLength":100}}},
+  {"Url":"/api/movies?year=2013&genre=action","Validation":{"JsonArray":{"MinLength":100,"MaxLength":100}}},
+  {"Url":"/api/movies?year=2014&genre=action","Validation":{"JsonArray":{"MinLength":100,"MaxLength":100}}},
+  {"Url":"/api/movies?year=2015&genre=action","Validation":{"JsonArray":{"MinLength":100,"MaxLength":100}}},
+  {"Url":"/api/movies?year=2016&genre=action","Validation":{"JsonArray":{"MinLength":100,"MaxLength":100}}},
+  {"Url":"/api/movies?year=2017&genre=action","Validation":{"JsonArray":{"MinLength":100,"MaxLength":100}}},
+  {"Url":"/api/movies?year=2019&genre=action","Validation":{"JsonArray":{"MinLength":100,"MaxLength":100}}},
+
+  {"Url":"/api/movies?year=2010&genre=action&pageSize=1000","Validation":{"JsonArray":{"MinLength":594,"MaxLength":594}}},
+  {"Url":"/api/movies?year=2011&genre=action&pageSize=1000","Validation":{"JsonArray":{"MinLength":595,"MaxLength":595}}},
+  {"Url":"/api/movies?year=2012&genre=action&pageSize=1000","Validation":{"JsonArray":{"MinLength":608,"MaxLength":608}}},
+  {"Url":"/api/movies?year=2013&genre=action&pageSize=1000","Validation":{"JsonArray":{"MinLength":599,"MaxLength":599}}},
+  {"Url":"/api/movies?year=2014&genre=action&pageSize=1000","Validation":{"JsonArray":{"MinLength":698,"MaxLength":698}}},
+  {"Url":"/api/movies?year=2015&genre=action&pageSize=1000","Validation":{"JsonArray":{"MinLength":704,"MaxLength":704}}},
+  {"Url":"/api/movies?year=2016&genre=action&pageSize=1000","Validation":{"JsonArray":{"MinLength":762,"MaxLength":762}}},
+  {"Url":"/api/movies?year=2017&genre=action&pageSize=1000","Validation":{"JsonArray":{"MinLength":768,"MaxLength":768}}},
+  {"Url":"/api/movies?year=2019&genre=action&pageSize=1000","Validation":{"JsonArray":{"MinLength":356,"MaxLength":356}}},
+]

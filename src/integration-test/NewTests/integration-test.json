@@ -1,0 +1,14 @@
+[
+  {"Url":"/healthz","Validation":{"Contains":[{"Value":"\"movies\":70982"},{"Value":"\"actors\":229356"},{"Value":"\"genres\":26"}]}},
+  {"Url":"/api/genres","Validation":{"Code":200,"ContentType":"application/json","JsonArray":{"MinLength":26,"MaxLength":26}}},
+  {"Url":"/api/featured/movie","Validation":{"Code":200,"ContentType":"application/json","JsonObject":[{"Field":"type","Value":"Movie"},{"Field":"id","Value":null},{"Field":"movieId","Value":null},{"Field":"title","Value":null},{"Field":"year","Value":null}]}},
+  {"Url":"/api/actors/nm0000173","Validation":{"Code":200,"ContentType":"application/json","JsonObject":[{"Field":"type","Value":"Actor"},{"Field":"id","Value":"nm0000173"},{"Field":"actorId","Value":"nm0000173"},{"Field":"name","Value":"Nicole Kidman"},{"Field":"birthYear","Value":1967}]}},
+  {"Url":"/api/movies/tt0133093","Validation":{"Code":200,"ContentType":"application/json","JsonObject":[{"Field":"type","Value":"Movie"},{"Field":"id","Value":"tt0133093"},{"Field":"movieId","Value":"tt0133093"},{"Field":"title","Value":"The Matrix"},{"Field":"year","Value":1999}]}},
+  
+  {"Url":"/api/actors?q=keanu","Validation":{"Code":200,"ContentType":"application/json","JsonArray":{"MinLength":4,"MaxLength":4}}},
+  {"Url":"/api/movies?q=matrix","Validation":{"Code":200,"ContentType":"application/json","JsonArray":{"MinLength":1,"MaxLength":1}}},
+  {"Url":"/api/movies?actorid=nm0000206","Validation":{"Code":200,"ContentType":"application/json","JsonArray":{"MinLength":22,"MaxLength":22}}},
+  {"Url":"/api/movies?genre=action&year=2019","Validation":{"Code":200,"ContentType":"application/json","JsonArray":{"MinLength":100,"MaxLength":100}}},
+  {"Url":"/api/movies?toprated=true","Validation":{"Code":200,"ContentType":"application/json","JsonArray":{"MinLength":10,"MaxLength":10}}},
+  {"Url":"/api/movies?year=2019&genre=comedy","Validation":{"Code":200,"ContentType":"application/json","JsonArray":{"MinLength":100,"MaxLength":100}}},
+]
