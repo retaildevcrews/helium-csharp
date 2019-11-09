@@ -57,6 +57,14 @@ namespace Helium
                 // log startup messages
                 LogStartup();
 
+                // TODO - uncomment for testing
+                //var kvc = _host.Services.GetService<IKeyVaultConnection>();
+                //while (true)
+                //{
+                //    await kvc.Client.SetSecretAsync(kvc.Uri, "Test1", DateTime.Now.ToString());
+                //    await Task.Delay(10000);
+                //}
+
                 // run the web server
                 _host.Run();
             }
@@ -88,10 +96,12 @@ namespace Helium
             List<string> cosmosKeyNames = new List<string> { Constants.CosmosCollection, Constants.CosmosDatabase, Constants.CosmosKey, Constants.CosmosUrl };
 
             // get the IConfigurationRoot from DI
-            var cfg = _host.Services.GetRequiredService<IConfiguration>() as IConfigurationRoot;
+            // TODO - why doesn't this work?
+            //cfg = _host.Services.GetRequiredService<IConfiguration>() as IConfigurationRoot;
+            IConfigurationRoot cfg = _host.Services.GetService<IConfigurationRoot>();
 
-            // reload config
-            cfg.Reload();
+            // reload config - no need to call reload
+            //cfg.Reload();
 
             Console.Write($"{DateTime.Now.ToString("hh:mm:ss")}  ");
 
@@ -153,7 +163,7 @@ namespace Helium
             if (_logger != null)
             {
                 // get the IConfigurationRoot from DI
-                var cfg = _host.Services.GetRequiredService<IConfiguration>() as IConfigurationRoot;
+                var cfg = _host.Services.GetService<IConfigurationRoot>();
 
                 // log a not using app insights warning
                 if (string.IsNullOrEmpty(cfg.GetValue<string>(Constants.AppInsightsKey)))
@@ -176,15 +186,14 @@ namespace Helium
         /// <returns>Root Configuration</returns>
         static IConfigurationRoot BuildConfig(AzureKeyVaultConfigurationOptions kvOptions)
         {
-            // standard config builder
-            var cfgBuilder = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", optional: false);
-
             try
             {
-                // use Azure Key Vault
-                cfgBuilder.AddAzureKeyVault(kvOptions);
+                // standard config builder
+                var cfgBuilder = new ConfigurationBuilder()
+                    //.SetBasePath(Directory.GetCurrentDirectory())
+                    //.AddJsonFile("appsettings.json", optional: false);
+                    // use Azure Key Vault
+                    .AddAzureKeyVault(kvOptions);
 
                 // build the config
                 return cfgBuilder.Build();
@@ -281,6 +290,10 @@ namespace Helium
 
                     // add the KeyVaultConnection via DI
                     services.AddKeyVaultConnection(kvOptions.Client, kvUrl);
+
+                    // add IConfigurationRoot
+                    // TODO - why do we have to add this?
+                    services.AddSingleton<IConfigurationRoot>(config);
                 });
 
             // build the host
