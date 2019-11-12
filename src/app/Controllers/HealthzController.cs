@@ -17,19 +17,16 @@ namespace Helium.Controllers
     {
         private readonly ILogger _logger;
         private readonly IDAL _dal;
-        private readonly IConfiguration _config;
 
         /// <summary>
         ///  Constructor
         /// </summary>
         /// <param name="logger">log instance</param>
         /// <param name="dal">data access layer instance</param>
-        /// <param name="config">IConfiguration</param>
-        public HealthzController(ILogger<HealthzController> logger, IDAL dal, IConfiguration config)
+        public HealthzController(ILogger<HealthzController> logger, IDAL dal)
         {
             _logger = logger;
             _dal = dal;
-            _config = config;
         }
 
         /// <summary>
@@ -57,9 +54,9 @@ namespace Helium.Controllers
 
                 HealthzSuccessDetails s = await _dal.GetHealthzAsync();
 
-                if (_config != null)
+                if (App.config != null)
                 {
-                    s.CosmosKey = _config.GetValue<string>(Constants.CosmosKey).PadRight(5).Substring(0, 5).Trim() + "...";
+                    s.CosmosKey = App.config.GetValue<string>(Constants.CosmosKey).PadRight(5).Substring(0, 5).Trim() + "...";
                 }
 
                 res.details.cosmosDb.details = s;

@@ -10,8 +10,8 @@ using Microsoft.Extensions.Configuration.AzureKeyVault;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Helium
@@ -24,8 +24,8 @@ namespace Helium
         // web host
         private static IWebHost _host;
 
-        // secret manager
-        private static readonly EventingKeyVaultSecretManager _secretManager = new EventingKeyVaultSecretManager();
+        // Key Vault configuration
+        public static IConfigurationRoot config = null;
 
         /// <summary>
         /// Main entry point
@@ -48,8 +48,8 @@ namespace Helium
                     Environment.Exit(-1);
                 }
 
-                // add the key change handler
-                _secretManager.KeyVaultSecretChanged += KeyVaultSecretChangedHandler;
+                // setup ctl c handler
+                CancellationTokenSource ctCancel = SetupCtlCHandler();
 
                 // build the host
                 _host = await BuildHost(kvUrl);
@@ -57,16 +57,11 @@ namespace Helium
                 // log startup messages
                 LogStartup();
 
-                // TODO - uncomment for testing
-                //var kvc = _host.Services.GetService<IKeyVaultConnection>();
-                //while (true)
-                //{
-                //    await kvc.Client.SetSecretAsync(kvc.Uri, "Test1", DateTime.Now.ToString());
-                //    await Task.Delay(10000);
-                //}
+                // start the webserver
+                var w = _host.RunAsync();
 
-                // run the web server
-                _host.Run();
+                // this doesn't return except on ctl-c
+                await RunKeyRotationCheck(ctCancel);
             }
 
             catch (Exception ex)
@@ -86,70 +81,89 @@ namespace Helium
         }
 
         /// <summary>
-        /// Gets fired when a key vault secret changes
+        /// Check for Cosmos key rotation
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e">Key Name that changed</param>
-        static void KeyVaultSecretChangedHandler(Object sender, KeyVaultSecretChangedEventArgs e)
+        /// <param name="ctCancel">CancellationTokenSource</param>
+        /// <returns>Only returns when ctl-c is pressed and cancellation token is cancelled</returns>
+        static async Task RunKeyRotationCheck(CancellationTokenSource ctCancel)
         {
-            // list of cosmos key vault secrets to watch for changes
-            List<string> cosmosKeyNames = new List<string> { Constants.CosmosCollection, Constants.CosmosDatabase, Constants.CosmosKey, Constants.CosmosUrl };
+            string key = config[Constants.CosmosKey];
+            Console.WriteLine($"Cosmos Key: {key.Substring(0, 5)} ...");
 
-            // get the IConfigurationRoot from DI
-            // TODO - why doesn't this work?
-            //cfg = _host.Services.GetRequiredService<IConfiguration>() as IConfigurationRoot;
-            IConfigurationRoot cfg = _host.Services.GetService<IConfigurationRoot>();
-
-            // reload config - no need to call reload
-            //cfg.Reload();
-
-            Console.Write($"{DateTime.Now.ToString("hh:mm:ss")}  ");
-
-            foreach (string key in e.KeysChanged)
+            // reload Key Vault values
+            while (!ctCancel.IsCancellationRequested)
             {
-                Console.Write($"{key} ");
-            }
-            Console.WriteLine();
-
-            foreach (string key in e.KeysChanged)
-            {
-                // reload the DAL if the Cosmos info changed
-                if (cosmosKeyNames.Contains(key))
+                try
                 {
-                    try
+                    await Task.Delay(Constants.KeyVaultChangeCheckSeconds * 1000, ctCancel.Token);
+
+                    if (!ctCancel.IsCancellationRequested)
                     {
-                        // reconnect to Cosmos with the new key
-                        _host.Services.GetService<IDAL>().Reconnect(cfg.GetValue<string>(Constants.CosmosUrl),
-                            cfg.GetValue<string>(Constants.CosmosKey),
-                            cfg.GetValue<string>(Constants.CosmosDatabase),
-                            cfg.GetValue<string>(Constants.CosmosCollection));
+                        // reload the config from Key Vault
+                        config.Reload();
 
-                        _logger.LogInformation("DAL.Reconnect");
-
-                        // Send a NewKeyLoadedMetric to App Insights
-                        if (!string.IsNullOrEmpty(cfg.GetValue<string>(Constants.AppInsightsKey)))
+                        // if the key changed
+                        if (!ctCancel.IsCancellationRequested)
                         {
-                            var telemetryClient = _host.Services.GetService<TelemetryClient>();
+                            // reconnect the DAL
+                            var dal = _host.Services.GetService<IDAL>();
 
-                            if (telemetryClient != null)
+                            if (dal != null)
                             {
-                                telemetryClient.TrackMetric(Constants.NewKeyLoadedMetric, 1);
+                                // this will only reconnect if the variables changed
+                                await dal.Reconnect(config[Constants.CosmosUrl], config[Constants.CosmosKey], config[Constants.CosmosDatabase], config[Constants.CosmosCollection]);
+
+                                if (key != config[Constants.CosmosKey])
+                                {
+                                    key = config[Constants.CosmosKey];
+                                    Console.WriteLine($"Cosmos Key Rotated: {key.Substring(0, 5)} ...");
+
+                                    // send a NewKeyLoadedMetric to App Insights
+                                    if (!string.IsNullOrEmpty(config[Constants.AppInsightsKey]))
+                                    {
+                                        var telemetryClient = _host.Services.GetService<TelemetryClient>();
+
+                                        if (telemetryClient != null)
+                                        {
+                                            telemetryClient.TrackMetric(Constants.NewKeyLoadedMetric, 1);
+                                        }
+                                    }
+                                }
                             }
                         }
-
-                        // only show the first 5 characters of the Cosmos key
-                        string val = key == Constants.CosmosKey ? cfg.GetValue<string>(key).Substring(0, 5) + "..." : cfg.GetValue<string>(key);
-
-                        Console.WriteLine($"DAL.Reconnect: {key} = {val}");
-
-                        return;
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"DAL.Reconnect Exception: Original values still in use\n{ex}");
                     }
                 }
+                catch (Exception ex)
+                {
+                    // continue running with existing key
+                    Console.WriteLine($"Cosmos Key Rotate Exception: {config[Constants.CosmosKey].Substring(0, 5)}\n{ex}");
+                }
             }
+        }
+
+        /// <summary>
+        /// Creates a CancellationTokenSource that cancels on ctl-c pressed
+        /// </summary>
+        /// <returns>CancellationTokenSource</returns>
+        private static CancellationTokenSource SetupCtlCHandler()
+        {
+            CancellationTokenSource ctCancel = new CancellationTokenSource();
+
+            Console.CancelKeyPress += delegate (object sender, ConsoleCancelEventArgs e)
+            {
+                e.Cancel = true;
+                ctCancel.Cancel();
+
+                Console.WriteLine("Ctl-C Pressed - Starting shutdown ...");
+
+                // give threads a chance to shutdown
+                Thread.Sleep(500);
+
+                // end the app
+                Environment.Exit(0);
+            };
+
+            return ctCancel;
         }
 
         /// <summary>
@@ -182,18 +196,19 @@ namespace Helium
         /// 
         /// Uses Key Vault via Managed Identity (MSI)
         /// </summary>
-        /// <param name="kvOptions">AzureKeyVaultConfigurationOptions</param>
+        /// <param name="kvClient">Key Vault Client</param>
+        /// <param name="kvUrl">Key Vault URL</param>
         /// <returns>Root Configuration</returns>
-        static IConfigurationRoot BuildConfig(AzureKeyVaultConfigurationOptions kvOptions)
+        static IConfigurationRoot BuildConfig(KeyVaultClient kvClient, string kvUrl)
         {
             try
             {
                 // standard config builder
                 var cfgBuilder = new ConfigurationBuilder()
-                    //.SetBasePath(Directory.GetCurrentDirectory())
-                    //.AddJsonFile("appsettings.json", optional: false);
+                    .SetBasePath(Directory.GetCurrentDirectory())
+                    .AddJsonFile("appsettings.json", optional: false)
                     // use Azure Key Vault
-                    .AddAzureKeyVault(kvOptions);
+                    .AddAzureKeyVault(kvUrl, kvClient, new DefaultKeyVaultSecretManager());
 
                 // build the config
                 return cfgBuilder.Build();
@@ -262,17 +277,12 @@ namespace Helium
         /// <returns>Web Host ready to run</returns>
         static async Task<IWebHost> BuildHost(string kvUrl)
         {
-            AzureKeyVaultConfigurationOptions kvOptions = new AzureKeyVaultConfigurationOptions
-            {
-                Client = await GetKeyVaultClient(kvUrl),
-                Manager = _secretManager,
-                ReloadInterval = TimeSpan.FromSeconds(Constants.KeyVaultChangeCheckSeconds),
-                Vault = kvUrl
-            };
+            // create the Key Vault Client
+            var kvClient = await GetKeyVaultClient(kvUrl);
 
             // build the config
             // we need the key vault values for the DAL
-            var config = BuildConfig(kvOptions);
+            config = BuildConfig(kvClient, kvUrl);
 
             // configure the web host builder
             IWebHostBuilder builder = WebHost.CreateDefaultBuilder()
@@ -289,10 +299,9 @@ namespace Helium
                         config.GetValue<string>(Constants.CosmosCollection));
 
                     // add the KeyVaultConnection via DI
-                    services.AddKeyVaultConnection(kvOptions.Client, kvUrl);
+                    services.AddKeyVaultConnection(kvClient, kvUrl);
 
                     // add IConfigurationRoot
-                    // TODO - why do we have to add this?
                     services.AddSingleton<IConfigurationRoot>(config);
                 });
 

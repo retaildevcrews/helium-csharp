@@ -14,7 +14,7 @@ namespace UnitTests
 
         public HealthzTest()
         {
-            _controller = new HealthzController(_logger.Object, TestApp.MockDal, null);
+            _controller = new HealthzController(_logger.Object, TestApp.MockDal);
         }
 
         [Fact]

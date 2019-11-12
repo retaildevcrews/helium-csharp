@@ -1,0 +1,11 @@
+[
+  {"Url":"/api/movies?toprated=true","Validation":{"Code":200,"ContentType":"application/json","JsonArray":{"Count":10}}},
+  {"Url":"/api/movies?year=1999&toprated=true","Validation":{"Code":200,"ContentType":"application/json","JsonArray":{"Count":1}}},
+  {"Url":"/api/movies?year=2001&toprated=true","Validation":{"Code":200,"ContentType":"application/json","JsonArray":{"Count":10}}},
+  {"Url":"/api/movies?genre=action&toprated=true","Validation":{"Code":200,"ContentType":"application/json","JsonArray":{"Count":10}}},
+  {"Url":"/api/movies?rating=8.0","Validation":{"Code":200,"ContentType":"application/json","JsonArray":{"Count":86}}},
+  {"Url":"/api/movies?rating=8.5","Validation":{"Code":200,"ContentType":"application/json","JsonArray":{"Count":13}}},
+  {"Url":"/api/movies?rating=8.8","Validation":{"Code":200,"ContentType":"application/json","JsonArray":{"Count":4}}},
+  {"Url":"/api/movies?rating=8.9","Validation":{"Code":200,"ContentType":"application/json","JsonArray":{"Count":2}}},
+  {"Url":"/api/movies?rating=9.5","Validation":{"Code":200,"ContentType":"application/json","JsonArray":{"CountIsZero":true}}},
+]
