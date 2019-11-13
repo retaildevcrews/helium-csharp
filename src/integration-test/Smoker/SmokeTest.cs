@@ -164,6 +164,7 @@ namespace Smoker
         public async Task RunLoop(int id, HeliumIntegrationTest.Config config, CancellationToken ct)
         {
             DateTime dt = DateTime.Now;
+            DateTime dtMax = DateTime.MaxValue;
             HttpRequestMessage req;
             string body;
             string res;
@@ -173,16 +174,19 @@ namespace Smoker
 
             Random rand = new Random(DateTime.Now.Millisecond);
 
+            // only run for duration (seconds)
+            if (config.Duration > 0)
+            {
+                dtMax = DateTime.Now.AddSeconds(config.Duration);
+            }
+
             if (ct.IsCancellationRequested)
             {
                 return;
             }
 
-            // send the first request as a warm up
-            await Warmup(_requestList[0].Url);
-
-            // loop forever
-            while (true)
+            // loop for duration or forever
+            while (DateTime.Now < dtMax)
             {
                 i = 0;
 

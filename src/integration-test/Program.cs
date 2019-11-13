@@ -156,6 +156,11 @@ namespace HeliumIntegrationTest
                 _config.Threads = 10;
             }
 
+            if (_config.Duration < 0)
+            {
+                _config.Duration = 0;
+            }
+
             // add default files
             if (_config.FileList.Count == 0)
             {
@@ -261,6 +266,22 @@ namespace HeliumIntegrationTest
                         else if (args[i] == "-t")
                         {
                             if (int.TryParse(args[i + 1], out _config.Threads))
+                            {
+                                i++;
+                            }
+                            else
+                            {
+                                // exit on error
+                                Console.WriteLine(_threadsParameterError, args[i + 1]);
+                                Usage();
+                                Environment.Exit(-1);
+                            }
+                        }
+
+                        // handle duration (-d config.Duration (seconds))
+                        else if (args[i] == "-d")
+                        {
+                            if (int.TryParse(args[i + 1], out _config.Duration))
                             {
                                 i++;
                             }
@@ -396,6 +417,7 @@ namespace HeliumIntegrationTest
             Console.WriteLine("\tLoop Mode Parameters");
             Console.WriteLine("\t\t-s number of milliseconds to sleep between requests");
             Console.WriteLine("\t\t-t number of concurrent threads (max 10)");
+            Console.WriteLine("\t\t-d duration in seconds");
             Console.WriteLine("\t\t-w run as web server (listens on port 4122)");
             Console.WriteLine("\t\t-r randomize requests");
         }
