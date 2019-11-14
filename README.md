@@ -176,7 +176,7 @@ export He_Cosmos_RO_Key=$(az cosmosdb keys list -n $He_Name -g $He_Cosmos_RG --q
 export He_Cosmos_RW_Key=$(az cosmosdb keys list -n $He_Name -g $He_Cosmos_RG --query primaryMasterKey -o tsv)
 
 # run the IMDb Import
-docker run -it --rm fourco/imdb-import $He_Name $He_Cosmos_RW_Key $He_Cosmos_DB $He_Cosmos_Col
+docker run -it --rm fourco/imdb-import 100Movies $He_Name $He_Cosmos_RW_Key $He_Cosmos_DB $He_Cosmos_Col
 
 # Optional: Run ./saveenv.sh to save latest variables
 

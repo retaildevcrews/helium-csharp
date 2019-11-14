@@ -10,8 +10,9 @@ namespace HeliumIntegrationTest
     public class App
     {
         static readonly string _defaultInputFile = "integration-test.json";
+        static readonly string _durationParameterError = "Invalid duration (seconds) parameter: {0}\n";
         static readonly string _fileNotFoundError = "File not found: {0}";
-        static readonly string _sleepParameterError = "Invalid sleep (millisecond) parameter: {0}\n";
+        static readonly string _sleepParameterError = "Invalid sleep (milliseconds) parameter: {0}\n";
         static readonly string _threadsParameterError = "Invalid number of concurrent threads parameter: {0}\n";
         public static readonly Config _config = new Config();
         public static readonly List<TaskRunner> _taskRunners = new List<TaskRunner>();
@@ -288,7 +289,7 @@ namespace HeliumIntegrationTest
                             else
                             {
                                 // exit on error
-                                Console.WriteLine(_threadsParameterError, args[i + 1]);
+                                Console.WriteLine(_durationParameterError, args[i + 1]);
                                 Usage();
                                 Environment.Exit(-1);
                             }

@@ -191,7 +191,7 @@ namespace Smoker
                 i = 0;
 
                 // send each request
-                while (i < _requestList.Count)
+                while (i < _requestList.Count && DateTime.Now < dtMax)
                 {
                     if (ct.IsCancellationRequested)
                     {
