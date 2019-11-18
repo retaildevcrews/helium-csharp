@@ -1,7 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 
-namespace HeliumIntegrationTest
+namespace Helium
 {
     public class TaskRunner
     {

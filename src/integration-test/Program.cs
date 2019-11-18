@@ -2,10 +2,11 @@
 using Microsoft.AspNetCore.Hosting;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace HeliumIntegrationTest
+namespace Helium
 {
     public class App
     {
@@ -14,9 +15,12 @@ namespace HeliumIntegrationTest
         static readonly string _fileNotFoundError = "File not found: {0}";
         static readonly string _sleepParameterError = "Invalid sleep (milliseconds) parameter: {0}\n";
         static readonly string _threadsParameterError = "Invalid number of concurrent threads parameter: {0}\n";
+        static readonly string _maxAgeParameterError = "Invalid maximum metrics age parameter: {0}\n";
         public static readonly Config _config = new Config();
         public static readonly List<TaskRunner> _taskRunners = new List<TaskRunner>();
+        public static readonly DateTime StartTime = DateTime.UtcNow;
         public static Smoker.Test _smoker;
+        public static readonly Metrics Metrics = new Metrics();
 
         public static void Main(string[] args)
         {
@@ -122,6 +126,14 @@ namespace HeliumIntegrationTest
 
         private static void ValidateParameters()
         {
+            // invalid parameter
+            if (Metrics.MaxAge < 0)
+            {
+                Console.Write(_maxAgeParameterError, Metrics.MaxAge);
+                Usage();
+                Environment.Exit(-1);
+            }
+
             // make it easier to pass host
             if (!_config.Host.ToLower().StartsWith("http"))
             {
@@ -155,6 +167,12 @@ namespace HeliumIntegrationTest
             if (_config.Threads > 10)
             {
                 _config.Threads = 10;
+            }
+
+            // limit metrics to 12 hours as it's stored in memory
+            if (Metrics.MaxAge > 12 * 60 * 60)
+            {
+                Metrics.MaxAge = 12 * 60 * 60;
             }
 
             if (_config.Duration < 0)
@@ -294,6 +312,22 @@ namespace HeliumIntegrationTest
                                 Environment.Exit(-1);
                             }
                         }
+
+                        // handle duration (--maxage Metrics.MaxAge (minutes))
+                        else if (args[i] == "--maxage")
+                        {
+                            if (int.TryParse(args[i + 1], out Metrics.MaxAge))
+                            {
+                                i++;
+                            }
+                            else
+                            {
+                                // exit on error
+                                Console.WriteLine(_maxAgeParameterError, args[i + 1]);
+                                Usage();
+                                Environment.Exit(-1);
+                            }
+                        }
                     }
 
                     i++;
@@ -305,7 +339,13 @@ namespace HeliumIntegrationTest
         {
             // Get environment variables
 
-            string env = Environment.GetEnvironmentVariable("RUNWEB");
+            string env = Environment.GetEnvironmentVariable("RUNLOOP");
+            if (!string.IsNullOrEmpty(env))
+            {
+                bool.TryParse(env, out _config.RunLoop);
+            }
+
+            env = Environment.GetEnvironmentVariable("RUNWEB");
             if (!string.IsNullOrEmpty(env))
             {
                 bool.TryParse(env, out _config.RunWeb);
@@ -374,6 +414,17 @@ namespace HeliumIntegrationTest
                 {
                     // exit on error
                     Console.WriteLine(_threadsParameterError, env);
+                    Environment.Exit(-1);
+                }
+            }
+
+            env = Environment.GetEnvironmentVariable("MAXMETRICSAGE");
+            if (!string.IsNullOrEmpty(env))
+            {
+                if (!int.TryParse(env, out Metrics.MaxAge))
+                {
+                    // exit on error
+                    Console.WriteLine(_maxAgeParameterError, env);
                     Environment.Exit(-1);
                 }
             }

@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Helium;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
@@ -71,14 +72,14 @@ namespace Smoker
                     // create the request
                     using (req = new HttpRequestMessage(new HttpMethod(r.Verb), MakeUrl(r.Url)))
                     {
-                        dt = DateTime.Now;
+                        dt = DateTime.UtcNow;
 
                         // process the response
                         using (HttpResponseMessage resp = await _client.SendAsync(req))
                         {
                             body = await resp.Content.ReadAsStringAsync();
 
-                            Console.WriteLine($"{DateTime.Now.ToString("MM/dd hh:mm:ss")}\t{(int)resp.StatusCode}\t{(int)DateTime.Now.Subtract(dt).TotalMilliseconds}\t{resp.Content.Headers.ContentLength}\t{r.Url}");
+                            Console.WriteLine($"{DateTime.UtcNow.ToString("MM/dd hh:mm:ss")}\t{(int)resp.StatusCode}\t{(int)DateTime.UtcNow.Subtract(dt).TotalMilliseconds}\t{resp.Content.Headers.ContentLength}\t{r.Url}");
 
                             // validate the response
                             if (resp.StatusCode == System.Net.HttpStatusCode.OK && r.Validation != null)
@@ -101,7 +102,7 @@ namespace Smoker
                 catch (Exception ex)
                 {
                     // ignore any error and keep processing
-                    Console.WriteLine($"{DateTime.Now.ToString("MM/dd hh:mm:ss")}\tException: {ex.Message}");
+                    Console.WriteLine($"{DateTime.UtcNow.ToString("MM/dd hh:mm:ss")}\tException: {ex.Message}");
                     isError = true;
                 }
             }
@@ -116,44 +117,45 @@ namespace Smoker
             string body;
             string res = string.Format($"Version: {Helium.Version.AssemblyVersion}\n\n");
 
-            // send the first request as a warm up
-            await Warmup(_requestList[0].Url);
+            var reqList = ReadJson("TestFiles/baseline.json");
+
+            if (reqList == null || reqList.Count == 0)
+            {
+                return "Unable to read baseline.json";
+            }
 
             // send each request
-            foreach (Request r in _requestList)
+            foreach (Request r in reqList)
             {
-                if (r.IsBaseTest)
+                try
                 {
-                    try
+                    // create the request
+                    using (req = new HttpRequestMessage(new HttpMethod(r.Verb), MakeUrl(r.Url)))
                     {
-                        // create the request
-                        using (req = new HttpRequestMessage(new HttpMethod(r.Verb), MakeUrl(r.Url)))
+                        dt = DateTime.UtcNow;
+
+                        // process the response
+                        using (HttpResponseMessage resp = await _client.SendAsync(req))
                         {
-                            dt = DateTime.Now;
+                            body = await resp.Content.ReadAsStringAsync();
 
-                            // process the response
-                            using (HttpResponseMessage resp = await _client.SendAsync(req))
+                            res += string.Format($"{DateTime.UtcNow.ToString("MM/dd hh:mm:ss")}\t{(int)resp.StatusCode}\t{(int)DateTime.UtcNow.Subtract(dt).TotalMilliseconds}\t{resp.Content.Headers.ContentLength}\t{r.Url}\n");
+
+                            // validate the response
+                            if (resp.StatusCode == System.Net.HttpStatusCode.OK && r.Validation != null)
                             {
-                                body = await resp.Content.ReadAsStringAsync();
-
-                                res += string.Format($"{DateTime.Now.ToString("MM/dd hh:mm:ss")}\t{(int)resp.StatusCode}\t{(int)DateTime.Now.Subtract(dt).TotalMilliseconds}\t{resp.Content.Headers.ContentLength}\t{r.Url}\n");
-
-                                // validate the response
-                                if (resp.StatusCode == System.Net.HttpStatusCode.OK && r.Validation != null)
-                                {
-                                    res += ValidateContentType(r, resp);
-                                    res += ValidateContentLength(r, resp);
-                                    res += ValidateContains(r, body);
-                                    res += ValidateJsonArray(r, body);
-                                }
+                                res += ValidateContentType(r, resp);
+                                res += ValidateContentLength(r, resp);
+                                res += ValidateContains(r, body);
+                                res += ValidateJsonArray(r, body);
                             }
                         }
                     }
-                    catch (Exception ex)
-                    {
-                        // ignore any error and keep processing
-                        Console.WriteLine($"{ex.Message}\tException: {1}", DateTime.Now.ToString("MM/dd hh:mm:ss"));
-                    }
+                }
+                catch (Exception ex)
+                {
+                    // ignore any error and keep processing
+                    Console.WriteLine($"{ex.Message}\tException: {1}", DateTime.UtcNow.ToString("MM/dd hh:mm:ss"));
                 }
             }
 
@@ -161,9 +163,10 @@ namespace Smoker
         }
 
         // run the tests
-        public async Task RunLoop(int id, HeliumIntegrationTest.Config config, CancellationToken ct)
+        public async Task RunLoop(int id, Helium.Config config, CancellationToken ct)
         {
-            DateTime dt = DateTime.Now;
+            DateTime dt = DateTime.UtcNow;
+            DateTime nextPrune = DateTime.UtcNow.AddMinutes(1);
             DateTime dtMax = DateTime.MaxValue;
             HttpRequestMessage req;
             string body;
@@ -172,12 +175,12 @@ namespace Smoker
             int i = 0;
             Request r;
 
-            Random rand = new Random(DateTime.Now.Millisecond);
+            Random rand = new Random(DateTime.UtcNow.Millisecond);
 
             // only run for duration (seconds)
             if (config.Duration > 0)
             {
-                dtMax = DateTime.Now.AddSeconds(config.Duration);
+                dtMax = DateTime.UtcNow.AddSeconds(config.Duration);
             }
 
             if (ct.IsCancellationRequested)
@@ -186,12 +189,12 @@ namespace Smoker
             }
 
             // loop for duration or forever
-            while (DateTime.Now < dtMax)
+            while (DateTime.UtcNow < dtMax)
             {
                 i = 0;
 
                 // send each request
-                while (i < _requestList.Count && DateTime.Now < dtMax)
+                while (i < _requestList.Count && DateTime.UtcNow < dtMax)
                 {
                     if (ct.IsCancellationRequested)
                     {
@@ -210,7 +213,7 @@ namespace Smoker
                         // create the request
                         using (req = new HttpRequestMessage(new HttpMethod(r.Verb), MakeUrl(r.Url)))
                         {
-                            dt = DateTime.Now;
+                            dt = DateTime.UtcNow;
 
                             // process the response
                             using (HttpResponseMessage resp = await _client.SendAsync(req))
@@ -228,17 +231,19 @@ namespace Smoker
                                     res += ValidateJsonArray(r, body);
                                 }
 
+                                int duration = (int)DateTime.UtcNow.Subtract(dt).TotalMilliseconds;
+
                                 // only log 4XX and 5XX status codes
                                 if (config.Verbose || (int)resp.StatusCode > 399 || !string.IsNullOrEmpty(res))
                                 {
                                     if (config.RunWeb)
                                     {
                                         // datetime is redundant for web app
-                                        Console.WriteLine($"{id}\t{(int)resp.StatusCode}\t{(int)DateTime.Now.Subtract(dt).TotalMilliseconds}\t{resp.Content.Headers.ContentLength}\t{r.Url}");
+                                        Console.WriteLine($"{id}\t{(int)resp.StatusCode}\t{duration}\t{resp.Content.Headers.ContentLength}\t{r.Url}");
                                     }
                                     else
                                     {
-                                        Console.WriteLine($"{id}\t{DateTime.Now.ToString("MM/dd hh:mm:ss")}\t{(int)resp.StatusCode}\t{(int)DateTime.Now.Subtract(dt).TotalMilliseconds}\t{resp.Content.Headers.ContentLength}\t{r.Url}");
+                                        Console.WriteLine($"{id}\t{DateTime.UtcNow.ToString("MM/dd hh:mm:ss")}\t{duration}\t{resp.Content.Headers.ContentLength}\t{r.Url}");
                                     }
 
                                     if (!string.IsNullOrEmpty(res))
@@ -247,6 +252,8 @@ namespace Smoker
                                         Console.Write(res);
                                     }
                                 }
+
+                                App.Metrics.Add((int)resp.StatusCode, duration);
                             }
                         }
                     }
@@ -261,12 +268,12 @@ namespace Smoker
                             message = tce.InnerException.Message;
                         }
 
-                        Console.WriteLine($"{id}\t500\t{(int)DateTime.Now.Subtract(dt).TotalMilliseconds}\t0\t{r.Url}\tSmokerException\t{message}");
+                        Console.WriteLine($"{id}\t500\t{(int)DateTime.UtcNow.Subtract(dt).TotalMilliseconds}\t0\t{r.Url}\tSmokerException\t{message}");
                     }
                     catch (Exception ex)
                     {
                         // ignore any error and keep processing
-                        Console.WriteLine($"{id}\t500\t{(int)DateTime.Now.Subtract(dt).TotalMilliseconds}\t0\t{r.Url}\tSmokerException\t{ex.Message}\n{ex}");
+                        Console.WriteLine($"{id}\t500\t{(int)DateTime.UtcNow.Subtract(dt).TotalMilliseconds}\t0\t{r.Url}\tSmokerException\t{ex.Message}\n{ex}");
                     }
 
                     // increment the index
@@ -286,6 +293,12 @@ namespace Smoker
                     if (ct.IsCancellationRequested)
                     {
                         return;
+                    }
+
+                    if (DateTime.UtcNow > nextPrune)
+                    {
+                        App.Metrics.Prune();
+                        nextPrune = DateTime.UtcNow.AddMinutes(1);
                     }
                 }
             }
@@ -317,9 +330,10 @@ namespace Smoker
         {
             string res = string.Empty;
 
-            if ((int)resp.StatusCode == r.Validation.Code)
+            if ((int)resp.StatusCode != r.Validation.Code)
             {
                 res += string.Format($"\tValidation Failed: StatusCode: {(int)resp.StatusCode} Expected: {r.Validation.Code}\n");
+                App.Metrics.Add(0, 0);
             }
 
             return res;
@@ -335,6 +349,7 @@ namespace Smoker
                 if (!resp.Content.Headers.ContentType.ToString().StartsWith(r.Validation.ContentType))
                 {
                     res += string.Format($"\tValidation Failed: ContentType: {resp.Content.Headers.ContentType}\n");
+                    App.Metrics.Add(0, 0);
                 }
             }
 
@@ -352,6 +367,7 @@ namespace Smoker
                 if (resp.Content.Headers.ContentLength < r.Validation.MinLength)
                 {
                     res = string.Format($"\tValidation Failed: MinContentLength: {resp.Content.Headers.ContentLength}\n");
+                    App.Metrics.Add(0, 0);
                 }
             }
 
@@ -361,6 +377,7 @@ namespace Smoker
                 if (resp.Content.Headers.ContentLength > r.Validation.MaxLength)
                 {
                     res += string.Format($"\tValidation Failed: MaxContentLength: {resp.Content.Headers.ContentLength}\n");
+                    App.Metrics.Add(0, 0);
                 }
             }
 
@@ -381,6 +398,7 @@ namespace Smoker
                     if (!body.Contains(c.Value, c.IsCaseSensitive ? StringComparison.InvariantCultureIgnoreCase : StringComparison.InvariantCulture))
                     {
                         res += string.Format($"\tValidation Failed: Contains: {c.Value.PadRight(40).Substring(0, 40).Trim()}\n");
+                        App.Metrics.Add(0, 0);
                     }
                 }
             }
@@ -404,24 +422,28 @@ namespace Smoker
                     if (r.Validation.JsonArray.Count > 0 && r.Validation.JsonArray.Count != resList.Count)
                     {
                         res += string.Format($"\tValidation Failed: JsonCount: {r.Validation.JsonArray.Count}  Actual: {resList.Count}\n");
+                        App.Metrics.Add(0, 0);
                     }
 
                     // validate count is zero
                     if (r.Validation.JsonArray.CountIsZero && 0 != resList.Count)
                     {
                         res += string.Format($"\tValidation Failed: JsonCountIsZero: Actual: {resList.Count}\n");
+                        App.Metrics.Add(0, 0);
                     }
 
                     // validate min count
                     if (r.Validation.JsonArray.MinCount > 0 && r.Validation.JsonArray.MinCount > resList.Count)
                     {
                         res += string.Format($"\tValidation Failed: MinJsonCount: {r.Validation.JsonArray.MinCount}  Actual: {resList.Count}\n");
+                        App.Metrics.Add(0, 0);
                     }
 
                     // validate max count
                     if (r.Validation.JsonArray.MaxCount > 0 && r.Validation.JsonArray.MaxCount < resList.Count)
                     {
                         res += string.Format($"\tValidation Failed: MaxJsonCount: {r.Validation.JsonArray.MaxCount}  Actual: {resList.Count}\n");
+                        App.Metrics.Add(0, 0);
                     }
                 }
                 catch (SerializationException se)

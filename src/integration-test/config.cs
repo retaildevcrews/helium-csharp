@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace HeliumIntegrationTest
+namespace Helium
 {
     public class Config
     {

@@ -3,7 +3,6 @@
   {"Url":"/api/actors","Validation":{"Code":200,"ContentType":"application/json","JsonArray":{"Count":100}}},
   {"Url":"/api/genres","Validation":{"Code":200,"ContentType":"application/json","JsonArray":{"Count":21}}},
   {"Url":"/api/movies","Validation":{"Code":200,"ContentType":"application/json","JsonArray":{"Count":100}}},
-  {"Url":"/api/movies?pageSize=10","Validation":{"Code":200,"ContentType":"application/json","JsonArray":{"Count":10}}},
   {"Url":"/api/featured/movie","Validation":{"Code":200,"ContentType":"application/json","JsonObject":[{"Field":"type","Value":"Movie"},{"Field":"id","Value":null},{"Field":"movieId","Value":null},{"Field":"title","Value":null},{"Field":"year","Value":null}]}},
   {"Url":"/api/actors/nm0000173","Validation":{"Code":200,"ContentType":"application/json","JsonObject":[{"Field":"type","Value":"Actor"},{"Field":"id","Value":"nm0000173"},{"Field":"actorId","Value":"nm0000173"},{"Field":"name","Value":"Nicole Kidman"},{"Field":"birthYear","Value":1967}]}},
   {"Url":"/api/movies/tt0133093","Validation":{"Code":200,"ContentType":"application/json","JsonObject":[{"Field":"type","Value":"Movie"},{"Field":"id","Value":"tt0133093"},{"Field":"movieId","Value":"tt0133093"},{"Field":"title","Value":"The Matrix"},{"Field":"year","Value":1999}]}},
