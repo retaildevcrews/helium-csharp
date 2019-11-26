@@ -68,12 +68,12 @@ namespace Helium.Controllers
 
             catch (CosmosException ce)
             {
-                // log and return 500
+                // log and return Cosmos status code
                 _logger.LogError($"CosmosException:{method}:{ce.StatusCode}:{ce.ActivityId}:{ce.Message}\n{ce}");
 
                 return new ObjectResult(Constants.ActorsControllerException)
                 {
-                    StatusCode = (int)System.Net.HttpStatusCode.InternalServerError
+                    StatusCode = (int)ce.StatusCode
                 };
             }
 
@@ -146,12 +146,12 @@ namespace Helium.Controllers
                 }
                 else
                 {
-                    // log and return 500
+                    // log and return Cosmos status code
                     _logger.LogError($"CosmosException:GetActorByIdAsync:{ce.StatusCode}:{ce.ActivityId}:{ce.Message}\n{ce}");
 
                     return new ObjectResult(Constants.ActorsControllerException)
                     {
-                        StatusCode = (int)System.Net.HttpStatusCode.InternalServerError
+                        StatusCode = (int)ce.StatusCode
                     };
                 }
             }

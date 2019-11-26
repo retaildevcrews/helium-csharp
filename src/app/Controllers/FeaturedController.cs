@@ -85,12 +85,12 @@ namespace Helium.Controllers
                 }
                 else
                 {
-                    // log and return 500
+                    // log and return Cosmos status code
                     _logger.LogError($"CosmosException:GetFeaturedMovieAsync:{ce.StatusCode}:{ce.ActivityId}:{ce.Message}\n{ce}");
 
                     return new ObjectResult(Constants.FeaturedControllerException)
                     {
-                        StatusCode = (int)System.Net.HttpStatusCode.InternalServerError
+                        StatusCode = (int)ce.StatusCode
                     };
                 }
             }
