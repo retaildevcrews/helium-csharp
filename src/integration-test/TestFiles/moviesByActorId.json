@@ -1,7 +1,0 @@
-[
-  {"Url":"/api/movies?actorid=nm0000206","Validation":{"Code":200,"ContentType":"application/json","JsonArray":{"Count":45}}},
-  {"Url":"/api/movies?actorid=nm0000173","Validation":{"Code":200,"ContentType":"application/json","JsonArray":{"Count":49}}},
-  {"Url":"/api/movies?actorid=nm0000704","Validation":{"Code":200,"ContentType":"application/json","JsonArray":{"Count":37}}},
-  {"Url":"/api/movies?actorid=nm0005212","Validation":{"Code":200,"ContentType":"application/json","JsonArray":{"Count":6}}},
-  {"Url":"/api/movies?actorid=nm0000128","Validation":{"Code":200,"ContentType":"application/json","JsonArray":{"Count":10}}},
-]

@@ -6,28 +6,28 @@ namespace Helium.Model
     public class ActorBase
     {
         [JsonProperty(Order = 2)]
-        public string ActorId;
+        public string ActorId { get; set; }
         [JsonProperty(Order = 10)]
-        public string Name;
+        public string Name { get; set; }
         [JsonProperty(Order = 11)]
-        public int BirthYear;
+        public int BirthYear { get; set; }
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore, Order = 12)]
-        public int DeathYear;
+        public int DeathYear { get; set; }
     }
 
     public class Actor : ActorBase
     {
         [JsonProperty(Order = 1)]
-        public string Id;
+        public string Id { get; set; }
         [JsonProperty(Order = 3)]
-        public string PartitionKey;
+        public string PartitionKey { get; set; }
         [JsonProperty(Order = 96)]
-        public List<string> Profession;
+        public List<string> Profession { get; set; }
         [JsonProperty(Order = 97)]
-        public string Type;
+        public string Type { get; set; }
         [JsonProperty(Order = 98)]
-        public string TextSearch;
+        public string TextSearch { get; set; }
         [JsonProperty(Order = 99, NullValueHandling = NullValueHandling.Ignore)]
-        public List<MovieBase> Movies;
+        public List<MovieBase> Movies { get; set; }
     }
 }

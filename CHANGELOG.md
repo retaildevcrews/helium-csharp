@@ -1,5 +1,9 @@
 # Change Log
 
+## Nov 22, 2019
+
+- Created a separate repo for the application
+
 ## Oct 24, 2019
 
 - added retry for AKS pod identity (it takes ~ 30 seconds to spin up the first time in the cluster)
@@ -14,7 +18,6 @@
 
 ## Oct 10, 2019
 
-- Added ability to deploy Integration Test to App Service as a container
 - Enhanced exception logging to include CosmosDB information where available
 - Simplified dockerfile
 
@@ -39,8 +42,6 @@
   - if ReloadDal() fails, an error is logged and the old DAL is used until the next check
 - renamed class IDal to DAL for clarity
 - added asserts to check /partitionKey in unit tests
-- added architecture diagram
-- added webhook setup command to readme
 
 ## Sept 5, 2019
 

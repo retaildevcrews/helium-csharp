@@ -24,10 +24,11 @@ namespace UnitTests
 
         public MockDal()
         {
-            string path = "../data/";
+            string path = "data/";
 
             if (!File.Exists(path + "actors.json"))
             {
+                // support running from VS without copying data
                 path = "../../../" + path;
             }
 

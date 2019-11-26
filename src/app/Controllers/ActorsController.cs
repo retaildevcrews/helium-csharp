@@ -41,7 +41,7 @@ namespace Helium.Controllers
         [ProducesResponseType(typeof(Actor[]), 200)]
         public async Task<IActionResult> GetActorsAsync([FromQuery] string q, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = Constants.DefaultPageSize)
         {
-            string method = string.IsNullOrEmpty(q) ? "GetActorsAsync" : string.Format($"SearchActors:{q}");
+            string method = GetMethod(q, pageNumber, pageSize);
 
             _logger.LogInformation(method);
 
@@ -185,5 +185,37 @@ namespace Helium.Controllers
                 };
             }
         }
+
+        /// <summary>
+        /// Add parameters to the method name if specified in the query string
+        /// </summary>
+        /// <param name="q"></param>
+        /// <param name="pageNumber"></param>
+        /// <param name="pageSize"></param>
+        /// <returns></returns>
+        private string GetMethod(string q, int pageNumber, int pageSize)
+        {
+            string method = "GetActorsAsync";
+
+            if (HttpContext != null && HttpContext.Request != null && HttpContext.Request.Query != null)
+            {
+                // add the query parameters to the method name if exists
+                if (HttpContext.Request.Query.ContainsKey("q"))
+                {
+                    method = string.Format($"{method}:q:{q}");
+                }
+                if (HttpContext.Request.Query.ContainsKey("pageNumber"))
+                {
+                    method = string.Format($"{method}:pageNumber:{pageNumber}");
+                }
+                if (HttpContext.Request.Query.ContainsKey("pageSize"))
+                {
+                    method = string.Format($"{method}:pageSize:{pageSize}");
+                }
+            }
+
+            return method;
+        }
+
     }
 }

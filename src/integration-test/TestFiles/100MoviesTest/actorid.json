@@ -1,7 +1,0 @@
-[
-  {"Url":"/api/movies?actorid=nm0000206","Validation":{"Code":200,"ContentType":"application/json","Json":{"MinLength":1,"MaxLength":1}}},
-  {"Url":"/api/movies?actorid=nm0000173","Validation":{"Code":200,"ContentType":"application/json","Json":{"MinLength":1,"MaxLength":1}}},
-  {"Url":"/api/movies?actorid=nm0000704","Validation":{"Code":200,"ContentType":"application/json","Json":{"MinLength":3,"MaxLength":3}}},
-  {"Url":"/api/movies?actorid=nm0005212","Validation":{"Code":200,"ContentType":"application/json","Json":{"MinLength":3,"MaxLength":3}}},
-  {"Url":"/api/movies?actorid=nm0000128","Validation":{"Code":200,"ContentType":"application/json","Json":{"MinLength":3,"MaxLength":3}}},
-]

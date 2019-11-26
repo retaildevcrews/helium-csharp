@@ -1,6 +1,0 @@
-[
-  {"Url":"/","Validation":{"Code":302}},
-  {"Url":"/en-us","Validation":{"ContentType":"text/html","Contains":[{"Value":"<title>Microsoft - Official Home Page</title>"},{"Value":"<head data-info=\"{"}]}},
-  {"Url": "/robots.txt", "Validation": {"ContentType": "text/plain","MinLength": 200,"Contains": [{"Value": "User-agent: *"},{"Value": "Disallow: /en-us/windows/si/matrix.html"}]}},
-  {"Url": "/favicon.ico","Validation": {"ContentType":"image/x-icon"}},
-]

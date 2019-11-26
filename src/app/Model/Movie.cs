@@ -6,50 +6,50 @@ namespace Helium.Model
     public class MovieBase
     {
         [JsonProperty(Order = 2)]
-        public string MovieId;
+        public string MovieId { get; set; }
         [JsonProperty(Order = 5)]
-        public string Type;
+        public string Type { get; set; }
         [JsonProperty(Order = 6)]
-        public string Title;
+        public string Title { get; set; }
         [JsonProperty(Order = 8)]
-        public int Year;
+        public int Year { get; set; }
         [JsonProperty(Order = 9)]
-        public int Runtime;
+        public int Runtime { get; set; }
         [JsonProperty(Order = 30, NullValueHandling = NullValueHandling.Ignore)]
-        public List<string> Genres;
+        public List<string> Genres { get; set; }
     }
 
     public class Movie : MovieBase
     {
         [JsonProperty(Order = 1)]
-        public string Id;
+        public string Id { get; set; }
         [JsonProperty(Order = 3)]
-        public string PartitionKey;
+        public string PartitionKey { get; set; }
         [JsonProperty(Order = 21)]
-        public double Rating;
+        public double Rating { get; set; }
         [JsonProperty(Order = 22)]
-        public long Votes;
+        public long Votes { get; set; }
         [JsonProperty(Order = 23)]
-        public long TotalScore;
+        public long TotalScore { get; set; }
         [JsonProperty(Order = 7)]
-        public string TextSearch;
+        public string TextSearch { get; set; }
         [JsonProperty(Order = 99, NullValueHandling = NullValueHandling.Ignore)]
-        public List<Role> Roles;
+        public List<Role> Roles { get; set; }
     }
 
     public class Role : ActorBase
     {
         [JsonProperty(Order = 1)]
-        public int Order;
+        public int Order { get; set; }
         [JsonProperty(Order = 98)]
-        public string Category;
+        public string Category { get; set; }
         [JsonProperty(Order = 99, NullValueHandling = NullValueHandling.Ignore)]
-        public List<string> Characters;
+        public List<string> Characters { get; set; }
     }
 
     public class FeaturedMovie
     {
-        public string movieId;
-        public int weight = 1;
+        public string movieId { get; set; }
+        public int weight { get; set; } = 1;
     }
 }

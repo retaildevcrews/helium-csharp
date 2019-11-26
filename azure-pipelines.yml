@@ -24,20 +24,17 @@ variables:
   appRepository: 'helium-csharp'
   appDockerFile: '$(Build.SourcesDirectory)/Dockerfile'
 
-  integrationTestRepository: 'helium-integration-test'
-  integrationTestDockerFile: '$(Build.SourcesDirectory)/Dockerfile-Integration-Test'
-
   tag: '$(Build.BuildId)'
   
   # Agent VM image name
   vmImageName: 'ubuntu-latest'
 
 # Unit Test job runs on each check in
-# Publish ACR jobs only runs on master branch
+# Publish ACR job only runs on master branch
 
 stages:
 - stage: Build
-  displayName: Build and push containers
+  displayName: Build and push container
   jobs:
   - job: Build
     displayName: Build and test app
@@ -68,18 +65,6 @@ stages:
         command: buildAndPush
         repository: $(appRepository)
         dockerfile: $(appDockerFile)
-        containerRegistry: $(dockerRegistryServiceConnection)
-        tags: |
-          $(tag)
-          latest
-
-    - task: Docker@2
-      condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
-      displayName: Build and push integration-test to container registry
-      inputs:
-        command: buildAndPush
-        repository: $(integrationTestRepository)
-        dockerfile: $(integrationTestDockerFile)
         containerRegistry: $(dockerRegistryServiceConnection)
         tags: |
           $(tag)

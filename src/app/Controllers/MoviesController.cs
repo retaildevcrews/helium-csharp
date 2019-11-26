@@ -47,7 +47,7 @@ namespace Helium.Controllers
         [ProducesResponseType(typeof(Movie[]), 200)]
         public async Task<IActionResult> GetMoviesAsync([FromQuery]string q = "", [FromQuery] string genre = "", [FromQuery] int year = 0, [FromQuery] double rating = 0, [FromQuery] bool topRated = false, [FromQuery] string actorId = "", [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = Constants.DefaultPageSize)
         {
-            string method = string.IsNullOrEmpty(q) ? "GetMovies" : string.Format($"SearchMovies {q}");
+            string method = GetMethod(q, genre, year, rating, topRated, actorId, pageNumber, pageSize);
 
             _logger.LogInformation(method);
 
@@ -193,6 +193,69 @@ namespace Helium.Controllers
                     StatusCode = (int)System.Net.HttpStatusCode.InternalServerError
                 };
             }
+        }
+
+        /// <summary>
+        /// Add parameters to the method name if specified in the query string
+        /// </summary>
+        /// <param name="q"></param>
+        /// <param name="genre"></param>
+        /// <param name="year"></param>
+        /// <param name="rating"></param>
+        /// <param name="topRated"></param>
+        /// <param name="actorId"></param>
+        /// <param name="pageNumber"></param>
+        /// <param name="pageSize"></param>
+        /// <returns></returns>
+        private string GetMethod(string q, string genre, int year, double rating, bool topRated, string actorId, int pageNumber, int pageSize)
+        {
+            string method = "GetMovies";
+
+            if (HttpContext != null && HttpContext.Request != null && HttpContext.Request.Query != null)
+            {
+                // add the query parameters to the method name if exists
+                if (HttpContext.Request.Query.ContainsKey("q"))
+                {
+                    method = string.Format($"{method}:q:{q}");
+                }
+
+                if (HttpContext.Request.Query.ContainsKey("genre"))
+                {
+                    method = string.Format($"{method}:genre:{genre}");
+                }
+
+                if (HttpContext.Request.Query.ContainsKey("year"))
+                {
+                    method = string.Format($"{method}:year:{year}");
+                }
+
+                if (HttpContext.Request.Query.ContainsKey("rating"))
+                {
+                    method = string.Format($"{method}:rating:{rating}");
+                }
+
+                if (HttpContext.Request.Query.ContainsKey("topRated") && topRated)
+                {
+                    method = string.Format($"{method}:topRated:true");
+                }
+
+                if (HttpContext.Request.Query.ContainsKey("actorId"))
+                {
+                    method = string.Format($"{method}:actorId:{actorId}");
+                }
+
+                if (HttpContext.Request.Query.ContainsKey("pageNumber"))
+                {
+                    method = string.Format($"{method}:pageNumber:{pageNumber}");
+                }
+
+                if (HttpContext.Request.Query.ContainsKey("pageSize"))
+                {
+                    method = string.Format($"{method}:pageSize:{pageSize}");
+                }
+            }
+
+            return method;
         }
     }
 }

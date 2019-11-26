@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Swashbuckle.AspNetCore.Swagger;
+using Microsoft.Extensions.Hosting;
+using Microsoft.OpenApi.Models;
 
 namespace Helium
 {
@@ -30,8 +30,7 @@ namespace Helium
         /// <param name="services">The services in the web host</param>
         public void ConfigureServices(IServiceCollection services)
         {
-            // add MVC 2.2
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddControllers();
 
             // configure Swagger
             services.ConfigureSwaggerGen(options =>
@@ -42,7 +41,7 @@ namespace Helium
             // Register the Swagger generator, defining one or more Swagger documents
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc(Constants.SwaggerName, new Info { Title = Constants.SwaggerTitle, Version = Constants.SwaggerVersion });
+                c.SwaggerDoc(Constants.SwaggerName, new OpenApiInfo { Title = Constants.SwaggerTitle, Version = Constants.SwaggerVersion });
             });
 
             // add App Insights if key set
@@ -59,7 +58,7 @@ namespace Helium
         /// </summary>
         /// <param name="app"></param>
         /// <param name="env"></param>
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             // differences based on dev or prod
             if (env.IsDevelopment())
@@ -71,6 +70,8 @@ namespace Helium
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+
+            app.UseRouting();
 
             // log 4xx and 5xx results to console
             app.UseLogger(new LoggerOptions { Log2xx = false, Log3xx = false });
@@ -85,8 +86,10 @@ namespace Helium
                 c.RoutePrefix = string.Empty;
             });
 
-            // handle api and healthz
-            app.UseMvc();
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
 
             // use the robots middleware to handle /robots*.txt requests
             app.UseRobots();

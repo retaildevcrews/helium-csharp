@@ -10,7 +10,7 @@
 
 
 ### Build the developer base image
-FROM mcr.microsoft.com/dotnet/core/sdk:2.2 as helium-dev-base
+FROM mcr.microsoft.com/dotnet/core/sdk:3.0 as helium-dev-base
 
 ### Optional: Set Proxy Variables
 # ENV http_proxy {value}
