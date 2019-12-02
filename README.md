@@ -2,7 +2,7 @@
 
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 
-This sample is an ASP.NET Core WebAPI application designed to "fork and code" with the following features:
+This is an ASP.NET Core WebAPI reference application designed to "fork and code" with the following features:
 
 - Securely build, deploy and run an App Service (Web App for Containers) application
 - Securely build, deploy and run an Azure Kubernetes Service application
@@ -98,7 +98,7 @@ docker rm helium-dev
 
 Setup CI-CD with Azure DevOps
 
-- The [pipeline file](azure-pipelines.yml) contains the build definition for this sample
+- The [pipeline file](azure-pipelines.yml) contains the build definition for this app
 - You will need to setup a "Container Registry Service Connection" in Azure DevOps before importing the build pipeline
 - The pipeline defines "helium" as the name of the service connection
 - You can change this to an existing service connection or create a new service connection called helium
@@ -131,16 +131,6 @@ Adding a pipeline
 - Click on Create your first Pipeline
 - Select the repo that your code was forked to
 - Click run
-
-## Key concepts
-
-- Securely build, deploy and run an App Service (Web App for Containers) application
-- Securely build, deploy and run an Azure Kubernetes Service application
-- Use Managed Identity to securely access resources
-- Securely store secrets in Key Vault
-- Securely build and deploy the Docker container from Container Registry or Azure DevOps
-- Connect to and query CosmosDB
-- Automatically send telemetry and logs to Azure Monitor
 
 ## Contributing
 
