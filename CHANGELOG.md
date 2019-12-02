@@ -1,8 +1,9 @@
 # Change Log
 
-## Nov 22, 2019
+## Nov 27, 2019
 
 - Created a separate repo for the application
+- Upgraded to dotnet core 3.0
 
 ## Oct 24, 2019
 
