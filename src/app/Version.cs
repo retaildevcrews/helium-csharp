@@ -7,23 +7,23 @@ namespace Helium
     /// </summary>
     public class Version
     {
-        static string version = string.Empty;
+        static string _version = string.Empty;
 
         public static string AssemblyVersion
         {
             get
             {
-                if (string.IsNullOrEmpty(version))
+                if (string.IsNullOrEmpty(_version))
                 {
                     string file = System.Reflection.Assembly.GetExecutingAssembly().Location;
                     DateTime dt = System.IO.File.GetCreationTime(file);
 
                     var aVer = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
 
-                    version = string.Format("{0}.{1}.{2}", aVer.Major, aVer.Minor, dt.ToString("MMdd.HHmm"));
+                    _version = string.Format($"{aVer.Major}.{aVer.Minor}.{dt.ToString("MMdd.HHmm")}");
                 }
 
-                return version;
+                return _version;
             }
         }
     }

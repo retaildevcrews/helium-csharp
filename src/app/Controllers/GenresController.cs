@@ -1,8 +1,9 @@
 ﻿using Helium.DataAccessLayer;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.Documents;
+using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Threading.Tasks;
 
 namespace Helium.Controllers
 {
@@ -12,8 +13,8 @@ namespace Helium.Controllers
     [Route("api/[controller]")]
     public class GenresController : Controller
     {
-        private readonly ILogger logger;
-        private readonly IDAL dal;
+        private readonly ILogger _logger;
+        private readonly IDAL _dal;
 
         /// <summary>
         ///  Constructor
@@ -22,45 +23,64 @@ namespace Helium.Controllers
         /// <param name="dal">data access layer instance</param>
         public GenresController(ILogger<GenresController> logger, IDAL dal)
         {
-            this.logger = logger;
-            this.dal = dal;
+            _logger = logger;
+            _dal = dal;
         }
 
         /// <summary>
         /// </summary>
         /// <remarks>Returns a JSON string array of Genre</remarks>
-        /// <response code="200">json array of strings or empty array if not found</response>
+        /// <response code="200">JSON array of strings or empty array if not found</response>
         [HttpGet]
         [Produces("application/json")]
-        public IActionResult GetGenres()
+        [ProducesResponseType(typeof(string[]), 200)]
+        public async Task<IActionResult> GetGenresAsync()
         {
             // get list of genres as list of string
-            logger.LogInformation("GetGenres");
+            _logger.LogInformation("GetGenres");
 
             try
             {
-                return Ok(dal.GetGenres());
+                return Ok(await _dal.GetGenresAsync());
             }
 
-            catch (DocumentClientException dce)
+            catch (CosmosException ce)
             {
-                // log and return 500
-                logger.LogError("DocumentClientException:GetGenres:{0}:{1}:{2}:{3}\r\n{4}", dce.StatusCode, dce.Error, dce.ActivityId, dce.Message, dce);
+                // log and return Cosmos status code
+                _logger.LogError($"CosmosException:GetGenres:{ce.StatusCode}:{ce.ActivityId}:{ce.Message}\n{ce}");
 
                 return new ObjectResult(Constants.GenresControllerException)
                 {
-                    StatusCode = Constants.ServerError
+                    StatusCode = (int)ce.StatusCode
+                };
+            }
+
+            catch (System.AggregateException age)
+            {
+                var root = age.GetBaseException();
+
+                if (root == null)
+                {
+                    root = age;
+                }
+
+                // log and return 500
+                _logger.LogError($"AggregateException|GetGenres|{root.GetType()}|{root.Message}|{root.Source}|{root.TargetSite}");
+
+                return new ObjectResult(Constants.GenresControllerException)
+                {
+                    StatusCode = (int)System.Net.HttpStatusCode.InternalServerError
                 };
             }
 
             catch (Exception ex)
             {
                 // log and return 500
-                logger.LogError("Exception:GetGenres\r\n{0}", ex);
+                _logger.LogError($"Exception:GetGenres\n{ex}");
 
                 return new ObjectResult(Constants.GenresControllerException)
                 {
-                    StatusCode = Constants.ServerError
+                    StatusCode = (int)System.Net.HttpStatusCode.InternalServerError
                 };
             }
         }

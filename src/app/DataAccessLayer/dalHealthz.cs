@@ -1,3 +1,6 @@
+using Helium.Model;
+using System.Threading.Tasks;
+
 namespace Helium.DataAccessLayer
 {
     /// <summary>
@@ -5,15 +8,18 @@ namespace Helium.DataAccessLayer
     /// </summary>
     public partial class DAL
     {
-        public string GetHealthz()
-        {
-            // build the payload
-            string res = GetCount("Movie") + "\r\n";
-            res += GetCount("Actor") + "\r\n";
-            res += GetCount("Genre") + "\r\n";
-            res += "Instance: " + System.Environment.GetEnvironmentVariable("WEBSITE_ROLE_INSTANCE_ID") + "\r\n";
+        const string _healthzSelect = "select value count(1) from m where m.type = '{0}'";
 
-            return res;
+        public async Task<HealthzSuccessDetails> GetHealthzAsync()
+        {
+            HealthzSuccessDetails d = new HealthzSuccessDetails();
+
+            // get count of documents for each type
+            d.Actors = await GetCountAsync("Actor");
+            d.Movies = await GetCountAsync("Movie");
+            d.Genres = await GetCountAsync("Genre");
+
+            return d;
         }
 
         /// <summary>
@@ -21,18 +27,21 @@ namespace Helium.DataAccessLayer
         /// </summary>
         /// <param name="type">the type to count</param>
         /// <returns>string - count of documents of type</returns>
-        private string GetCount(string type)
+        private async Task<long> GetCountAsync(string type)
         {
-            string sql = string.Format("select value count(1) from m where m.type = '{0}'", type);
+            string sql = string.Format(_healthzSelect, type);
 
             var query = QueryWorker(sql);
 
-            foreach (var doc in query)
+            while (query.HasMoreResults)
             {
-                return string.Format("{0}s: {1}", type, doc);
+                foreach (var doc in await query.ReadNextAsync())
+                {
+                    return doc;
+                }
             }
 
-            return string.Empty;
+            return -1;
         }
     }
 }

@@ -1,8 +1,11 @@
 using Helium.DataAccessLayer;
+using Helium.Model;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.Documents;
+using Microsoft.Azure.Cosmos;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Threading.Tasks;
 
 namespace Helium.Controllers
 {
@@ -12,8 +15,8 @@ namespace Helium.Controllers
     [Route("[controller]")]
     public class HealthzController : Controller
     {
-        private readonly ILogger logger;
-        private readonly IDAL dal;
+        private readonly ILogger _logger;
+        private readonly IDAL _dal;
 
         /// <summary>
         ///  Constructor
@@ -22,58 +25,92 @@ namespace Helium.Controllers
         /// <param name="dal">data access layer instance</param>
         public HealthzController(ILogger<HealthzController> logger, IDAL dal)
         {
-            this.logger = logger;
-            this.dal = dal;
+            _logger = logger;
+            _dal = dal;
         }
 
         /// <summary>
         /// The health check end point
         /// </summary>
         /// <remarks>
-        /// Returns a count of the Actors, Genres and Movies as text/plain
-        /// 
-        ///     Expected Response:
-        /// 
-        ///     Movies: 100\r\nActors: 531\r\nGenres: 19
+        /// Returns a HealthzSuccess or HealthzError as application/json
         /// </remarks>
-        /// <returns>200 OK or 500 Error</returns>
-        /// <response code="200">returns a count of the Actors, Genres and Movies as text/plain</response>
-        /// <response code="500">failed due to unexpected results</response>
+        /// <returns>200 OK or 503 Error</returns>
+        /// <response code="200">Returns a HealthzSuccess as application/json</response>
+        /// <response code="503">Returns a HealthzError as application/json due to unexpected results</response>
         [HttpGet]
-        [Produces("text/plain")]
-        [ProducesResponseType(typeof(string), 200)]
-        [ProducesResponseType(typeof(void), 500)]
-        public IActionResult Healthz()
+        [Produces("application/json")]
+        [ProducesResponseType(typeof(HealthzSuccess), 200)]
+        [ProducesResponseType(typeof(HealthzError), 503)]
+        public async Task<IActionResult> HealthzAsync()
         {
             // healthcheck counts the document types
 
             try
             {
-                logger.LogInformation("Healthz");
+                HealthzSuccess res = new HealthzSuccess();
+
+                _logger.LogInformation("Healthz");
+
+                HealthzSuccessDetails s = await _dal.GetHealthzAsync();
+
+                if (App.config != null)
+                {
+                    s.CosmosKey = App.config.GetValue<string>(Constants.CosmosKey).PadRight(5).Substring(0, 5).Trim() + "...";
+                }
+
+                res.details.cosmosDb.details = s;
 
                 // return 200 OK with payload
-                return Ok(dal.GetHealthz());
+                return Ok(res);
             }
 
-            catch (DocumentClientException dce)
+            catch (CosmosException ce)
             {
-                // log and return 500
-                logger.LogError("DocumentClientException:Healthz:{0}:{1}:{2}:{3}\r\n{4}", dce.StatusCode, dce.Error, dce.ActivityId, dce.Message, dce);
+                // log and return 503
+                _logger.LogError($"CosmosException:Healthz:{ce.StatusCode}:{ce.ActivityId}:{ce.Message}\n{ce}");
 
-                return new ObjectResult("HealthzControllerException")
+                HealthzError e = new HealthzError();
+                e.details.cosmosDb.details.Error = ce.Message;
+
+                return new ObjectResult(e)
                 {
-                    StatusCode = Constants.ServerError
+                    StatusCode = (int)System.Net.HttpStatusCode.ServiceUnavailable
+                };
+            }
+
+            catch (System.AggregateException age)
+            {
+                var root = age.GetBaseException();
+
+                if (root == null)
+                {
+                    root = age;
+                }
+
+                HealthzError e = new HealthzError();
+                e.details.cosmosDb.details.Error = root.Message;
+
+                // log and return 500
+                _logger.LogError($"AggregateException|Healthz|{root.GetType()}|{root.Message}|{root.Source}|{root.TargetSite}");
+
+                return new ObjectResult(e)
+                {
+                    StatusCode = (int)System.Net.HttpStatusCode.InternalServerError
                 };
             }
 
             catch (Exception ex)
             {
                 // log and return 500
-                logger.LogError("Exception:Healthz\r\n{0}", ex);
+                _logger.LogError($"Exception:Healthz\n{ex}");
 
-                return new ObjectResult("HealthzControllerException")
+                HealthzError e = new HealthzError();
+                e.details.cosmosDb.details.Error = ex.Message;
+
+                return new ObjectResult(e)
                 {
-                    StatusCode = Constants.ServerError
+                    StatusCode = (int)System.Net.HttpStatusCode.ServiceUnavailable
                 };
             }
         }

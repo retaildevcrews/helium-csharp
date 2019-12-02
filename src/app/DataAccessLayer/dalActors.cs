@@ -1,7 +1,7 @@
 using Helium.Model;
-using Microsoft.Azure.Documents;
-using Microsoft.Azure.Documents.Client;
-using System.Linq;
+using Microsoft.Azure.Cosmos;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Helium.DataAccessLayer
 {
@@ -11,10 +11,12 @@ namespace Helium.DataAccessLayer
     public partial class DAL
     {
         // select template for Actors
-        const string actorSelect = "select m.id, m.partitionKey, m.actorId, m.type, m.name, m.birthYear, m.deathYear, m.profession, m.textSearch, m.movies from m ";
+        const string _actorSelect = "select m.id, m.partitionKey, m.actorId, m.type, m.name, m.birthYear, m.deathYear, m.profession, m.textSearch, m.movies from m where m.type = 'Actor' ";
+        const string _actorOrderBy = " order by m.name";
+        const string _actorOffset = " offset {0} limit {1}";
 
         /// <summary>
-        /// Retrieve a single actor from CosmosDB by actorId
+        /// Retrieve a single Actor from CosmosDB by actorId
         /// 
         /// Uses the CosmosDB single document read API which is 1 RU if less than 1K doc size
         /// 
@@ -27,60 +29,85 @@ namespace Helium.DataAccessLayer
             // get the partition key for the actor ID
             // note: if the key cannot be determined from the ID, ReadDocumentAsync cannot be used.
             // GetPartitionKey will throw an ArgumentException if the actorId isn't valid
-            RequestOptions requestOptions = new RequestOptions { PartitionKey = new PartitionKey(GetPartitionKey(actorId)) };
-
             // get an actor by ID
-            return await client.ReadDocumentAsync<Actor>(collectionLink.ToString() + "/docs/" + actorId, requestOptions);
+            return await _cosmosDetails.Container.ReadItemAsync<Actor>(actorId, new PartitionKey(GetPartitionKey(actorId)));
         }
 
         /// <summary>
         /// Get all Actors from CosmosDB
         /// </summary>
+        /// <param name="offset">zero based offset for paging</param>
+        /// <param name="limit">number of documents for paging</param>
         /// <returns>List of Actors</returns>
-        public IQueryable<Actor> GetActors()
+        public async Task<IEnumerable<Actor>> GetActorsAsync(int offset = 0, int limit = 0)
         {
             // get all actors
-            return GetActorsByQuery(string.Empty);
+            return await GetActorsByQueryAsync(string.Empty, offset, limit);
         }
 
         /// <summary>
-        /// Get Actors by search string
+        /// Get a list of Actors by search string
         /// 
         /// The search is a "contains" search on actor name
         /// If q is empty, all actors are returned
         /// </summary>
         /// <param name="q">search term</param>
-        /// <returns>a list of Actors or an empty list</returns>
-        public IQueryable<Actor> GetActorsByQuery(string q)
+        /// <param name="offset">zero based offset for paging</param>
+        /// <param name="limit">number of documents for paging</param>
+        /// <returns>List of Actors or an empty list</returns>
+        public async Task<IEnumerable<Actor>> GetActorsByQueryAsync(string q, int offset = 0, int limit = Constants.DefaultPageSize)
         {
-            if (q == null)
+            string sql = _actorSelect;
+            string orderby = _actorOrderBy;
+
+            if (limit < 1)
             {
-                q = string.Empty;
+                limit = Constants.DefaultPageSize;
+            }
+            else if (limit > Constants.MaxPageSize)
+            {
+                limit = Constants.MaxPageSize;
             }
 
-            // convert to lower and escape embedded '
-            q = q.Trim().ToLower().Replace("'", "''");
-
-            string sql = actorSelect + "where m.type = 'Actor' order by m.actorId";
+            string offsetLimit = string.Format(_actorOffset, offset, limit);
 
             if (!string.IsNullOrEmpty(q))
             {
-                // get actors by a "like" search on name
-                sql = string.Format("{0} where contains(m.textSearch, '{1}')", actorSelect, q);
+                // convert to lower and escape embedded '
+                q = q.Trim().ToLower().Replace("'", "''");
+
+                if (!string.IsNullOrEmpty(q))
+                {
+                    // get actors by a "like" search on name
+                    sql += string.Format($" and contains(m.textSearch, '{q}') ");
+                }
             }
 
-            return QueryActorWorker(sql);
+            sql += orderby + offsetLimit;
+
+            return await QueryActorWorkerAsync(sql);
         }
 
         /// <summary>
-        /// Actor Worker Query
+        /// Actor worker query
         /// </summary>
         /// <param name="sql">select statement to execute</param>
-        /// <returns>List of Actors</returns>
-        public IQueryable<Actor> QueryActorWorker(string sql)
+        /// <returns>List of Actors or empty list</returns>
+        public async Task<IEnumerable<Actor>> QueryActorWorkerAsync(string sql)
         {
             // run query
-            return client.CreateDocumentQuery<Actor>(collectionLink, sql, feedOptions);
+            var query = _cosmosDetails.Container.GetItemQueryIterator<Actor>(sql, requestOptions: _cosmosDetails.QueryRequestOptions);
+
+            List<Actor> results = new List<Actor>();
+
+            while (query.HasMoreResults)
+            {
+                foreach (var doc in await query.ReadNextAsync())
+                {
+                    results.Add(doc);
+                }
+            }
+            return results;
         }
     }
 }

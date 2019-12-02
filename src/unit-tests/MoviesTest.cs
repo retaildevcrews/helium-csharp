@@ -1,4 +1,3 @@
-using Helium;
 using Helium.Controllers;
 using Helium.Model;
 using Microsoft.AspNetCore.Mvc;
@@ -6,25 +5,26 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace UnitTests
 {
     public class MoviesTest
     {
-        private readonly Mock<ILogger<MoviesController>> logger = new Mock<ILogger<MoviesController>>();
-        private readonly MoviesController c;
+        private readonly Mock<ILogger<MoviesController>> _logger = new Mock<ILogger<MoviesController>>();
+        private readonly MoviesController _controller;
 
         public MoviesTest()
         {
-            c = new MoviesController(logger.Object, TestApp.MockDal);
+            _controller = new MoviesController(_logger.Object, TestApp.MockDal);
         }
 
         [Fact]
-        public void GetAllMovies()
+        public async Task GetAllMovies()
         {
 
-            OkObjectResult ok = c.GetMovies(string.Empty) as OkObjectResult;
+            OkObjectResult ok = await _controller.GetMoviesAsync(string.Empty) as OkObjectResult;
 
             Assert.NotNull(ok);
 
@@ -36,10 +36,10 @@ namespace UnitTests
         }
 
         [Fact]
-        public void GetMoviesBySearch()
+        public async Task GetMoviesBySearch()
         {
 
-            OkObjectResult ok = c.GetMovies(AssertValues.MoviesSearchString) as OkObjectResult;
+            OkObjectResult ok = await _controller.GetMoviesAsync(q: AssertValues.MoviesSearchString) as OkObjectResult;
 
             Assert.NotNull(ok);
 
@@ -51,11 +51,88 @@ namespace UnitTests
         }
 
         [Fact]
-        public async void GetMovieByIdPass()
+        public async Task GetMoviesByYear()
+        {
+
+            OkObjectResult ok = await _controller.GetMoviesAsync(year: 2000) as OkObjectResult;
+
+            Assert.NotNull(ok);
+
+            var ie = ok.Value as IEnumerable<Movie>;
+
+            Assert.NotNull(ie);
+
+            Assert.Equal(9, ie.ToList<Movie>().Count);
+        }
+
+        [Fact]
+        public async Task GetMoviesByRating()
+        {
+
+            OkObjectResult ok = await _controller.GetMoviesAsync(rating: 8.9) as OkObjectResult;
+
+            Assert.NotNull(ok);
+
+            var ie = ok.Value as IEnumerable<Movie>;
+
+            Assert.NotNull(ie);
+
+            Assert.Equal(2, ie.ToList<Movie>().Count);
+        }
+
+        [Fact]
+        public async Task GetMoviesByTopRated()
+        {
+
+            OkObjectResult ok = await _controller.GetMoviesAsync(topRated: true) as OkObjectResult;
+
+            Assert.NotNull(ok);
+
+            var ie = ok.Value as IEnumerable<Movie>;
+
+            Assert.NotNull(ie);
+
+            Assert.Equal(4, ie.ToList<Movie>().Count);
+        }
+
+        [Fact]
+        public async Task GetMoviesByGenre()
+        {
+
+            OkObjectResult ok = await _controller.GetMoviesAsync(genre: "Action") as OkObjectResult;
+
+            Assert.NotNull(ok);
+
+            var ie = ok.Value as IEnumerable<Movie>;
+
+            Assert.NotNull(ie);
+
+            Assert.Equal(19, ie.ToList<Movie>().Count);
+        }
+
+        [Fact]
+        public async Task GetMoviesByActorId()
+        {
+
+            OkObjectResult ok = await _controller.GetMoviesAsync(actorId: AssertValues.ActorById) as OkObjectResult;
+
+            Assert.NotNull(ok);
+
+            var ie = ok.Value as IEnumerable<Movie>;
+
+            Assert.NotNull(ie);
+
+            //Assert.Equal(1, ie.ToList<Movie>().Count);
+
+            Assert.Single(ie.ToList<Movie>());
+        }
+
+        [Fact]
+        public async Task GetMovieByIdPass()
         {
             // do not use c.GetMovieByIdAsync().Result
             // due to thread syncronization issues with build clients, it is not reliable
-            var res = await c.GetMovieByIdAsync(AssertValues.MovieById);
+            var res = await _controller.GetMovieByIdAsync(AssertValues.MovieById);
 
             OkObjectResult ok = res as OkObjectResult;
 
@@ -69,19 +146,40 @@ namespace UnitTests
         }
 
         [Fact]
-        public async void GetMovieByIdFail()
+        public async Task GetMovieByIdFail()
         {
             // this will fail GetPartitionKey
-            NotFoundResult nf = await c.GetMovieByIdAsync(AssertValues.BadId) as NotFoundResult;
+            NotFoundResult nf = await _controller.GetMovieByIdAsync(AssertValues.BadId) as NotFoundResult;
 
             Assert.NotNull(nf);
-            Assert.Equal(Constants.NotFound, nf.StatusCode);
+            Assert.Equal((int)System.Net.HttpStatusCode.NotFound, nf.StatusCode);
 
             // this will fail search
-            nf = await c.GetMovieByIdAsync(AssertValues.MovieById + "000") as NotFoundResult;
+            nf = await _controller.GetMovieByIdAsync(AssertValues.MovieById + "000") as NotFoundResult;
 
             Assert.NotNull(nf);
-            Assert.Equal(Constants.NotFound, nf.StatusCode);
+            Assert.Equal((int)System.Net.HttpStatusCode.NotFound, nf.StatusCode);
+        }
+
+        [Fact]
+        public async Task GetFeaturedMovie()
+        {
+            var list = await new MockDal().GetFeaturedMovieListAsync();
+
+            Assert.NotNull(list);
+            Assert.Equal(7, list.Count);
+
+            var res = await _controller.GetMovieByIdAsync(list[0]);
+
+            OkObjectResult ok = res as OkObjectResult;
+
+            Assert.NotNull(ok);
+
+            Movie mov = ok.Value as Movie;
+
+            Assert.NotNull(mov);
+            Assert.Equal(Helium.DataAccessLayer.DAL.GetPartitionKey(mov.MovieId), mov.PartitionKey);
+            Assert.Equal(list[0], mov.MovieId);
         }
     }
 }

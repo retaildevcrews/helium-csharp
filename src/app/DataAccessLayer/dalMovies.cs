@@ -1,6 +1,6 @@
 using Helium.Model;
-using Microsoft.Azure.Documents;
-using Microsoft.Azure.Documents.Client;
+using Microsoft.Azure.Cosmos;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -11,61 +11,163 @@ namespace Helium.DataAccessLayer
     /// </summary>
     public partial class DAL
     {
-        // select template for movies
-        const string movieSelect = "select m.id, m.partitionKey, m.movieId, m.type, m.textSearch, m.title, m.year, m.runtime, m.rating, m.votes, m.totalScore, m.genres, m.roles from m ";
+        // select template for Movies
+        const string _movieSelect = "select m.id, m.partitionKey, m.movieId, m.type, m.textSearch, m.title, m.year, m.runtime, m.rating, m.votes, m.totalScore, m.genres, m.roles from m where m.type = 'Movie' ";
+        const string _movieOrderBy = " order by m.title";
+        const string _movieOffset = " offset {0} limit {1}";
 
         /// <summary>
-        /// Get a single movie by movieId
+        /// Retrieve a single Movie from CosmosDB by movieId
         /// 
-        /// CosmosDB throws an exception if movieId not found
+        /// Uses the CosmosDB single document read API which is 1 RU if less than 1K doc size
+        /// 
+        /// Throws an exception if not found
         /// </summary>
-        /// <param name="movieId">movie ID to retrieve</param>
+        /// <param name="movieId">Movie ID</param>
         /// <returns>Movie object</returns>
         public async Task<Movie> GetMovieAsync(string movieId)
         {
             // get the partition key for the movie ID
             // note: if the key cannot be determined from the ID, ReadDocumentAsync cannot be used.
             // GetPartitionKey will throw an ArgumentException if the movieId isn't valid
-            RequestOptions requestOptions = new RequestOptions { PartitionKey = new PartitionKey(GetPartitionKey(movieId)) };
-
             // get a movie by ID
-            return await client.ReadDocumentAsync<Movie>(collectionLink.ToString() + "/docs/" + movieId, requestOptions);
+            return await _cosmosDetails.Container.ReadItemAsync<Movie>(movieId, new PartitionKey(GetPartitionKey(movieId)));
         }
 
         /// <summary>
-        /// Get all movies
+        /// Get all Movies from CosmosDB
         /// </summary>
-        /// <returns>List of all Movies</returns>
-        public IQueryable<Movie> GetMovies()
+        /// <param name="offset">zero based offset for paging</param>
+        /// <param name="limit">number of documents for paging</param>
+        /// <returns>List of Movies</returns>
+        public async Task<IEnumerable<Movie>> GetMoviesAsync(int offset = 0, int limit = 0)
         {
             // get all movies
-            return GetMoviesByQuery(string.Empty);
+            return await GetMoviesByQueryAsync(string.Empty, offset: offset, limit: limit);
         }
 
         /// <summary>
-        /// Get a list of movies by searching the title
+        /// Get a list of Movies by search and/or filter terms
         /// </summary>
         /// <param name="q">search term</param>
+        /// <param name="genre">get movies by genre</param>
+        /// <param name="year">get movies by year</param>
+        /// <param name="rating">get movies rated >= rating</param>
+        /// <param name="toprated">get top rated movies</param>
+        /// <param name="actorId">get movies by actorId</param>
+        /// <param name="offset">zero based offset for paging</param>
+        /// <param name="limit">number of documents for paging</param>
         /// <returns>List of Movies or an empty list</returns>
-        public IQueryable<Movie> GetMoviesByQuery(string q)
+        public async Task<IEnumerable<Movie>> GetMoviesByQueryAsync(string q, string genre = "", int year = 0, double rating = 0, bool toprated = false, string actorId = "", int offset = 0, int limit = Constants.DefaultPageSize)
         {
-            if (q == null)
+            string sql = _movieSelect;
+            string orderby = _movieOrderBy;
+
+            if (limit < 1)
             {
-                q = string.Empty;
+                limit = Constants.DefaultPageSize;
+            }
+            else if (limit > Constants.MaxPageSize)
+            {
+                limit = Constants.MaxPageSize;
             }
 
-            // convert to lower and escape embedded '
-            q = q.Trim().ToLower().Replace("'", "''");
-
-            string sql = movieSelect + "where m.type = 'Movie' order by m.movieId";
+            string offsetLimit = string.Format(_movieOffset, offset, limit);
 
             if (!string.IsNullOrEmpty(q))
             {
-                // get movies by a "like" search on title
-                sql = string.Format("{0} where contains(m.textSearch, '{1}') order by m.movieId", movieSelect, q);
+                // convert to lower and escape embedded '
+                q = q.Trim().ToLower().Replace("'", "''");
+
+                if (!string.IsNullOrEmpty(q))
+                {
+                    // get movies by a "like" search on title
+                    sql += string.Format($" and contains(m.textSearch, '{q}') ");
+                }
             }
 
-            return QueryMovieWorker(sql);
+            if (year > 0)
+            {
+                sql += string.Format($" and m.year = {year} ");
+            }
+
+            if (rating > 0)
+            {
+                sql += string.Format($" and m.rating >= {rating} ");
+            }
+
+            if (toprated)
+            {
+                sql = "select top 10 " + sql.Substring(7);
+                orderby = " order by m.rating desc";
+                offsetLimit = string.Empty;
+            }
+
+            if (!string.IsNullOrEmpty(actorId))
+            {
+                // convert to lower and escape embedded '
+                actorId = actorId.Trim().ToLower().Replace("'", "''");
+
+                if (!string.IsNullOrEmpty(actorId))
+                {
+                    // get movies for an actor
+                    sql += " and array_contains(m.roles, { actorId: '";
+                    sql += actorId;
+                    sql += "' }, true) ";
+                }
+            }
+
+            if (!string.IsNullOrEmpty(genre))
+            {
+                // convert to lower and escape embedded '
+                genre = await GetGenreAsync(genre);
+
+                if (string.IsNullOrEmpty(genre))
+                {
+                    // genre doesn't exist
+                    return new List<Movie>().AsQueryable<Movie>();
+                }
+
+                // get movies by genre
+                sql += string.Format($" and array_contains(m.genres, '{genre}') ");
+            }
+
+            sql += orderby + offsetLimit;
+
+            return await QueryMovieWorkerAsync(sql);
+        }
+
+        /// <summary>
+        /// Get the featured movie list from Cosmos
+        /// </summary>
+        /// <returns>List</returns>
+        public async Task<List<string>> GetFeaturedMovieListAsync()
+        {
+            List<string> list = new List<string>();
+
+            string sql = "select m.movieId, m.weight from m where m.type = 'Featured' order by m.weight desc";
+
+            var query = _cosmosDetails.Container.GetItemQueryIterator<FeaturedMovie>(sql, requestOptions: _cosmosDetails.QueryRequestOptions);
+
+            while (query.HasMoreResults)
+            {
+                foreach (var doc in await query.ReadNextAsync())
+                {
+                    // apply weighting
+                    for (int i = 0; i < doc.weight; i++)
+                    {
+                        list.Add(doc.movieId);
+                    }
+                }
+            }
+
+            // default to The Matrix
+            if (list.Count == 0)
+            {
+                list.Add("tt0133093");
+            }
+
+            return list;
         }
 
         /// <summary>
@@ -73,10 +175,21 @@ namespace Helium.DataAccessLayer
         /// </summary>
         /// <param name="sql">select statement to execute</param>
         /// <returns>List of Movies or empty list</returns>
-        public IQueryable<Movie> QueryMovieWorker(string sql)
+        public async Task<IEnumerable<Movie>> QueryMovieWorkerAsync(string sql)
         {
             // run query
-            return client.CreateDocumentQuery<Movie>(collectionLink, sql, feedOptions);
+            var query = _cosmosDetails.Container.GetItemQueryIterator<Movie>(sql, requestOptions: _cosmosDetails.QueryRequestOptions);
+
+            List<Movie> results = new List<Movie>();
+
+            while (query.HasMoreResults)
+            {
+                foreach (var doc in await query.ReadNextAsync())
+                {
+                    results.Add(doc);
+                }
+            }
+            return results;
         }
     }
 }

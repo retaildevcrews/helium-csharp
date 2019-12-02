@@ -1,7 +1,6 @@
-using Microsoft.Azure.Documents.Client;
+using Microsoft.Azure.Cosmos;
 using System;
-using System.Linq;
-
+using System.Threading.Tasks;
 
 namespace Helium.DataAccessLayer
 {
@@ -10,11 +9,7 @@ namespace Helium.DataAccessLayer
     /// </summary>
     public partial class DAL : IDAL
     {
-        // CosmosDB options
-        private readonly FeedOptions feedOptions = new FeedOptions { EnableCrossPartitionQuery = true, MaxItemCount = 2000 };
-
-        private readonly Uri collectionLink = null;
-        private readonly DocumentClient client = null;
+        private CosmosDetails _cosmosDetails = null;
 
         /// <summary>
         /// Data Access Layer Constructor
@@ -25,28 +20,17 @@ namespace Helium.DataAccessLayer
         /// <param name="cosmosCollection">CosmosDB Collection</param>
         public DAL(string cosmosUrl, string cosmosKey, string cosmosDatabase, string cosmosCollection)
         {
-            // create and open the CosmosDB client
-            // this does not run any queries, so the connection still needs to be tested
-
-            ConnectionPolicy cp = new ConnectionPolicy
+            _cosmosDetails = new CosmosDetails
             {
-                ConnectionProtocol = Protocol.Tcp,
-                ConnectionMode = ConnectionMode.Direct,
-                MaxConnectionLimit = 100,
-                RequestTimeout = TimeSpan.FromSeconds(60),
-                RetryOptions = new RetryOptions
-                {
-                    MaxRetryAttemptsOnThrottledRequests = 10,
-                    MaxRetryWaitTimeInSeconds = 45
-                }
+                CosmosCollection = cosmosCollection,
+                CosmosDatabase = cosmosDatabase,
+                CosmosKey = cosmosKey,
+                CosmosUrl = cosmosUrl
             };
 
-            client = new DocumentClient(new Uri(cosmosUrl), cosmosKey, cp);
-
-            client.OpenAsync();
-
-            // create the collection link
-            collectionLink = UriFactory.CreateDocumentCollectionUri(cosmosDatabase, cosmosCollection);
+            // create the CosmosDB client and container
+            _cosmosDetails.Client = OpenAndTestCosmosClient(cosmosUrl, cosmosKey, cosmosDatabase, cosmosCollection).GetAwaiter().GetResult();
+            _cosmosDetails.Container = _cosmosDetails.Client.GetContainer(cosmosDatabase, cosmosCollection);
         }
 
         /// <summary>
@@ -54,9 +38,82 @@ namespace Helium.DataAccessLayer
         /// </summary>
         /// <param name="sql">the select statement to execute</param>
         /// <returns>results of the query</returns>
-        public IQueryable<dynamic> QueryWorker(string sql)
+        public FeedIterator<dynamic> QueryWorker(string sql)
         {
-            return client.CreateDocumentQuery<dynamic>(collectionLink, sql, feedOptions);
+            return _cosmosDetails.Container.GetItemQueryIterator<dynamic>(sql, requestOptions: _cosmosDetails.QueryRequestOptions);
+        }
+
+        /// <summary>
+        /// Recreate the Cosmos Client / Container (after a key rotation)
+        /// </summary>
+        /// <param name="cosmosUrl">Cosmos URL</param>
+        /// <param name="cosmosKey">Cosmos Key</param>
+        /// <param name="cosmosDatabase">Cosmos Database</param>
+        /// <param name="cosmosCollection">Cosmos Collection</param>
+        /// <param name="force">force reconnection even if no params changed</param>
+        /// <returns>Task</returns>
+        public async Task Reconnect(string cosmosUrl, string cosmosKey, string cosmosDatabase, string cosmosCollection, bool force = false)
+        {
+            if (force ||
+                _cosmosDetails.CosmosCollection != cosmosCollection ||
+                _cosmosDetails.CosmosDatabase != cosmosDatabase ||
+                _cosmosDetails.CosmosKey != cosmosKey ||
+                _cosmosDetails.CosmosUrl != cosmosUrl)
+            {
+                CosmosDetails d = new CosmosDetails
+                {
+                    CosmosCollection = cosmosCollection,
+                    CosmosDatabase = cosmosDatabase,
+                    CosmosKey = cosmosKey,
+                    CosmosUrl = cosmosUrl
+                };
+
+                // open and test a new client / container
+                d.Client = await OpenAndTestCosmosClient(cosmosUrl, cosmosKey, cosmosDatabase, cosmosCollection);
+                d.Container = d.Client.GetContainer(cosmosDatabase, cosmosCollection);
+
+                // set the current CosmosDetail
+                _cosmosDetails = d;
+            }
+        }
+
+        /// <summary>
+        /// Open and test the Cosmos Client / Container / Query
+        /// </summary>
+        /// <param name="cosmosUrl">Cosmos URL</param>
+        /// <param name="cosmosKey">Cosmos Key</param>
+        /// <param name="cosmosDatabase">Cosmos Database</param>
+        /// <param name="cosmosCollection">Cosmos Collection</param>
+        /// <returns>An open and validated CosmosClient</returns>
+        private async Task<CosmosClient> OpenAndTestCosmosClient(string cosmosUrl, string cosmosKey, string cosmosDatabase, string cosmosCollection)
+        {
+            // validate required parameters
+            if (string.IsNullOrEmpty(cosmosUrl))
+            {
+                throw new ArgumentException(string.Format($"CosmosUrl not set correctly {cosmosUrl}"));
+            }
+
+            if (string.IsNullOrEmpty(cosmosKey))
+            {
+                throw new ArgumentException(string.Format($"CosmosKey not set correctly {cosmosKey}"));
+            }
+
+            if (string.IsNullOrEmpty(cosmosDatabase))
+            {
+                throw new ArgumentException(string.Format($"CosmosDatabase not set correctly {cosmosDatabase}"));
+            }
+
+            if (string.IsNullOrEmpty(cosmosCollection))
+            {
+                throw new ArgumentException(string.Format($"CosmosCollection not set correctly {cosmosCollection}"));
+            }
+
+            // open and test a new client / container
+            var c = new CosmosClient(cosmosUrl, cosmosKey, _cosmosDetails.CosmosClientOptions);
+            var con = c.GetContainer(cosmosDatabase, cosmosCollection);
+            await con.ReadItemAsync<dynamic>("action", new PartitionKey("0"));
+
+            return c;
         }
 
         /// <summary>
@@ -80,5 +137,22 @@ namespace Helium.DataAccessLayer
 
             throw new ArgumentException("GetPartitionKey");
         }
+    }
+
+    internal class CosmosDetails
+    {
+        public CosmosClient Client = null;
+        public Container Container = null;
+
+        public string CosmosUrl;
+        public string CosmosKey;
+        public string CosmosDatabase;
+        public string CosmosCollection;
+
+        // CosmosDB query request options
+        public readonly QueryRequestOptions QueryRequestOptions = new QueryRequestOptions { MaxItemCount = 600 };
+
+        // default protocol is tcp, default connection mode is direct
+        public readonly CosmosClientOptions CosmosClientOptions = new CosmosClientOptions { RequestTimeout = TimeSpan.FromSeconds(60), MaxRetryAttemptsOnRateLimitedRequests = 9, MaxRetryWaitTimeOnRateLimitedRequests = TimeSpan.FromSeconds(60) };
     }
 }

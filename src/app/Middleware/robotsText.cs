@@ -5,7 +5,7 @@ namespace Helium
     public static class RobotsMiddlewareExtensions
     {
         // response that prevents all indexing
-        static readonly byte[] responseBytes = System.Text.Encoding.UTF8.GetBytes("# Prevent indexing\r\nUser-agent: *\r\nDisallow: /\r\n");
+        static readonly byte[] _responseBytes = System.Text.Encoding.UTF8.GetBytes("# Prevent indexing\r\nUser-agent: *\r\nDisallow: /\r\n");
 
         /// <summary>
         /// Middleware extension method to handle /robots*.txt request
@@ -29,7 +29,7 @@ namespace Helium
                 {
                     // return the content
                     context.Response.ContentType = "text/plain";
-                    await context.Response.Body.WriteAsync(responseBytes, 0, responseBytes.Length);
+                    await context.Response.Body.WriteAsync(_responseBytes, 0, _responseBytes.Length);
                 }
                 else
                 {
