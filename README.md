@@ -1,22 +1,22 @@
-# Build a Docker containerized ASP.NET Core application using App Service / AKS, CosmosDB, Managed Identity and Key Vault
+# Build a Docker containerized ASP.NET Core web application using Managed Identity, Key Vault, and Cosmos DB that is designed to be deployed to Azure App Service or AKS.
 
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 
-This is an ASP.NET Core WebAPI reference application designed to "fork and code" with the following features:
+This is an ASP.NET Core Web API reference application designed to "fork and code" with the following features:
 
 - Securely build, deploy and run an App Service (Web App for Containers) application
 - Securely build, deploy and run an Azure Kubernetes Service application
 - Use Managed Identity to securely access resources
 - Securely store secrets in Key Vault
 - Securely build and deploy the Docker container from Container Registry or Azure DevOps
-- Connect to and query CosmosDB
+- Connect to and query Cosmos DB
 - Automatically send telemetry and logs to Azure Monitor
 - Instructions for setting up Key Vault, ACR, Azure Monitor and CosmosDB are in the Helium [readme](https://github.com/retaildevcrews/helium)
 
 ## Prerequisites
 
 - Docker CLI ([download](https://docs.docker.com/install/))
-- .NET Core SDK 2.2 ([download](https://dotnet.microsoft.com/download))
+- .NET Core SDK 3.0 ([download](https://dotnet.microsoft.com/download))
 - Azure CLI 2.0.72+ ([download](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest))
 - Visual Studio Code (optional) ([download](https://code.visualstudio.com/download))
 
