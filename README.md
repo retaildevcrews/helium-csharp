@@ -1,17 +1,17 @@
-# Build a Docker containerized ASP.NET Core web application using Managed Identity, Key Vault, and Cosmos DB that is designed to be deployed to Azure App Service or AKS.
+# Build a Docker containerized ASP.NET Core web application using Managed Identity, Key Vault, and Cosmos DB that is designed to be deployed to Azure App Service or Azure Kubernetes Service (AKS)
 
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 
 This is an ASP.NET Core Web API reference application designed to "fork and code" with the following features:
 
-- Securely build, deploy and run an App Service (Web App for Containers) application
-- Securely build, deploy and run an Azure Kubernetes Service application
+- Securely build, deploy and run an Azure App Service (Web App for Containers) application
+- Securely build, deploy and run an Azure Kubernetes Service (AKS) application
 - Use Managed Identity to securely access resources
 - Securely store secrets in Key Vault
-- Securely build and deploy the Docker container from Container Registry or Azure DevOps
+- Securely build and deploy the Docker container from Azure Container Registry (ACR) or Azure DevOps
 - Connect to and query Cosmos DB
 - Automatically send telemetry and logs to Azure Monitor
-- Instructions for setting up Key Vault, ACR, Azure Monitor and CosmosDB are in the Helium [readme](https://github.com/retaildevcrews/helium)
+- Instructions for setting up Key Vault, ACR, Azure Monitor and Cosmos DB are in the Helium [readme](https://github.com/retaildevcrews/helium)
 
 ## Prerequisites
 
@@ -42,7 +42,7 @@ docker build -t helium-csharp -f Dockerfile .
 
 Run the application locally
 
-- The application requires Key Vault and CosmosDB to be setup per the Helium [readme](https://github.com/retaildevcrews/helium)
+- The application requires Key Vault and Cosmos DB to be setup per the Helium [readme](https://github.com/retaildevcrews/helium)
 
 ```bash
 

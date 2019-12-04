@@ -1,5 +1,9 @@
 # Change Log
 
+## Dec 5, 2019
+
+- updated md docs
+
 ## Nov 27, 2019
 
 - Created a separate repo for the application
