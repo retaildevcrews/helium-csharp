@@ -1,22 +1,22 @@
-# Build a Docker containerized ASP.NET Core application using App Service / AKS, CosmosDB, Managed Identity and Key Vault
+# Build a Docker containerized ASP.NET Core web application using Managed Identity, Key Vault, and Cosmos DB that is designed to be deployed to Azure App Service or Azure Kubernetes Service (AKS)
 
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 
-This sample is an ASP.NET Core WebAPI application designed to "fork and code" with the following features:
+This is an ASP.NET Core Web API reference application designed to "fork and code" with the following features:
 
-- Securely build, deploy and run an App Service (Web App for Containers) application
-- Securely build, deploy and run an Azure Kubernetes Service application
+- Securely build, deploy and run an Azure App Service (Web App for Containers) application
+- Securely build, deploy and run an Azure Kubernetes Service (AKS) application
 - Use Managed Identity to securely access resources
 - Securely store secrets in Key Vault
-- Securely build and deploy the Docker container from Container Registry or Azure DevOps
-- Connect to and query CosmosDB
+- Securely build and deploy the Docker container from Azure Container Registry (ACR) or Azure DevOps
+- Connect to and query Cosmos DB
 - Automatically send telemetry and logs to Azure Monitor
-- Instructions for setting up Key Vault, ACR, Azure Monitor and CosmosDB are in the Helium [readme](https://github.com/retaildevcrews/helium)
+- Instructions for setting up Key Vault, ACR, Azure Monitor and Cosmos DB are in the Helium [readme](https://github.com/retaildevcrews/helium)
 
 ## Prerequisites
 
 - Docker CLI ([download](https://docs.docker.com/install/))
-- .NET Core SDK 2.2 ([download](https://dotnet.microsoft.com/download))
+- .NET Core SDK 3.0 ([download](https://dotnet.microsoft.com/download))
 - Azure CLI 2.0.72+ ([download](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest))
 - Visual Studio Code (optional) ([download](https://code.visualstudio.com/download))
 
@@ -42,7 +42,7 @@ docker build -t helium-csharp -f Dockerfile .
 
 Run the application locally
 
-- The application requires Key Vault and CosmosDB to be setup per the Helium [readme](https://github.com/retaildevcrews/helium)
+- The application requires Key Vault and Cosmos DB to be setup per the Helium [readme](https://github.com/retaildevcrews/helium)
 
 ```bash
 
@@ -98,7 +98,7 @@ docker rm helium-dev
 
 Setup CI-CD with Azure DevOps
 
-- The [pipeline file](azure-pipelines.yml) contains the build definition for this sample
+- The [pipeline file](azure-pipelines.yml) contains the build definition for this app
 - You will need to setup a "Container Registry Service Connection" in Azure DevOps before importing the build pipeline
 - The pipeline defines "helium" as the name of the service connection
 - You can change this to an existing service connection or create a new service connection called helium
@@ -131,16 +131,6 @@ Adding a pipeline
 - Click on Create your first Pipeline
 - Select the repo that your code was forked to
 - Click run
-
-## Key concepts
-
-- Securely build, deploy and run an App Service (Web App for Containers) application
-- Securely build, deploy and run an Azure Kubernetes Service application
-- Use Managed Identity to securely access resources
-- Securely store secrets in Key Vault
-- Securely build and deploy the Docker container from Container Registry or Azure DevOps
-- Connect to and query CosmosDB
-- Automatically send telemetry and logs to Azure Monitor
 
 ## Contributing
 
