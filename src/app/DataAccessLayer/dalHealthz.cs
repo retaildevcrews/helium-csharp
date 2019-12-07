@@ -8,19 +8,9 @@ namespace Helium.DataAccessLayer
     /// </summary>
     public partial class DAL
     {
+        // TODO - should be able to delete this file
+
         const string _healthzSelect = "select value count(1) from m where m.type = '{0}'";
-
-        public async Task<HealthzSuccessDetails> GetHealthzAsync()
-        {
-            HealthzSuccessDetails d = new HealthzSuccessDetails();
-
-            // get count of documents for each type
-            d.Actors = await GetCountAsync("Actor");
-            d.Movies = await GetCountAsync("Movie");
-            d.Genres = await GetCountAsync("Genre");
-
-            return d;
-        }
 
         /// <summary>
         /// Query CosmosDB for the count of a type (Movie, Actor, Genre)

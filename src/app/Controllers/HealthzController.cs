@@ -5,6 +5,9 @@ using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Helium.Controllers
@@ -29,6 +32,138 @@ namespace Helium.Controllers
             _dal = dal;
         }
 
+        private async Task<HealthzResult> GetGenresAsync()
+        {
+            var result = new HealthzResult();
+
+            Stopwatch sw = new Stopwatch();
+
+            sw.Start();
+            (await _dal.GetGenresAsync()).ToList<string>();
+            sw.Stop();
+            result.Uri = "/api/genres";
+            result.StatusCode = HealthzStatusCode.Up;
+            result.TotalMilliseconds = sw.ElapsedMilliseconds;
+
+            if (sw.ElapsedMilliseconds > 200)
+            {
+                result.StatusCode = HealthzStatusCode.Warn;
+                result.Message = "Request exceeded expected duration";
+            }
+
+            return result;
+        }
+
+        private async Task<HealthzResult> GetMovieByIdAsync(string movieId)
+        {
+            var result = new HealthzResult();
+
+            Stopwatch sw = new Stopwatch();
+
+            sw.Start();
+            await _dal.GetMovieAsync(movieId);
+            sw.Stop();
+            result.Uri = string.Format($"/api/movies/{movieId}");
+            result.StatusCode = HealthzStatusCode.Up;
+            result.TotalMilliseconds = sw.ElapsedMilliseconds;
+
+            if (sw.ElapsedMilliseconds > 100)
+            {
+                result.StatusCode = HealthzStatusCode.Warn;
+                result.Message = "Request exceeded expected duration";
+            }
+
+            return result;
+        }
+
+        private async Task<HealthzResult> SearchMoviesAsync(string query)
+        {
+            var result = new HealthzResult();
+
+            Stopwatch sw = new Stopwatch();
+
+            sw.Start();
+            (await _dal.GetMoviesByQueryAsync(query)).ToList<Movie>();
+            sw.Stop();
+            result.Uri = string.Format($"/api/movies?q={query}");
+            result.StatusCode = HealthzStatusCode.Up;
+            result.TotalMilliseconds = sw.ElapsedMilliseconds;
+
+            if (sw.ElapsedMilliseconds > 100)
+            {
+                result.StatusCode = HealthzStatusCode.Warn;
+                result.Message = "Request exceeded expected duration";
+            }
+
+            return result;
+        }
+
+        private async Task<HealthzResult> GetTopRatedMoviesAsync()
+        {
+            var result = new HealthzResult();
+
+            Stopwatch sw = new Stopwatch();
+
+            sw.Start();
+            (await _dal.GetMoviesByQueryAsync(string.Empty, toprated: true)).ToList<Movie>();
+            sw.Stop();
+            result.Uri = string.Format($"/api/movies?toprated=true");
+            result.StatusCode = HealthzStatusCode.Up;
+            result.TotalMilliseconds = sw.ElapsedMilliseconds;
+
+            if (sw.ElapsedMilliseconds > 100)
+            {
+                result.StatusCode = HealthzStatusCode.Warn;
+                result.Message = "Request exceeded expected duration";
+            }
+
+            return result;
+        }
+
+        private async Task<HealthzResult> GetActorByIdAsync(string actorId)
+        {
+            var result = new HealthzResult();
+
+            Stopwatch sw = new Stopwatch();
+
+            sw.Start();
+            await _dal.GetActorAsync(actorId);
+            sw.Stop();
+            result.Uri = string.Format($"/api/actors/{actorId}");
+            result.StatusCode = HealthzStatusCode.Up;
+            result.TotalMilliseconds = sw.ElapsedMilliseconds;
+
+            if (sw.ElapsedMilliseconds > 100)
+            {
+                result.StatusCode = HealthzStatusCode.Warn;
+                result.Message = "Request exceeded expected duration";
+            }
+
+            return result;
+        }
+
+        private async Task<HealthzResult> SearchActorsAsync(string query)
+        {
+            var result = new HealthzResult();
+
+            Stopwatch sw = new Stopwatch();
+
+            sw.Start();
+            (await _dal.GetActorsByQueryAsync(query)).ToList<Actor>();
+            sw.Stop();
+            result.Uri = string.Format($"/api/actors?q={query}");
+            result.StatusCode = HealthzStatusCode.Up;
+            result.TotalMilliseconds = sw.ElapsedMilliseconds;
+
+            if (sw.ElapsedMilliseconds > 100)
+            {
+                result.StatusCode = HealthzStatusCode.Warn;
+                result.Message = "Request exceeded expected duration";
+            }
+
+            return result;
+        }
+
         /// <summary>
         /// The health check end point
         /// </summary>
@@ -40,29 +175,27 @@ namespace Helium.Controllers
         /// <response code="503">Returns a HealthzError as application/json due to unexpected results</response>
         [HttpGet]
         [Produces("application/json")]
-        [ProducesResponseType(typeof(HealthzSuccess), 200)]
-        [ProducesResponseType(typeof(HealthzError), 503)]
+        [ProducesResponseType(typeof(HealthzStatus), 200)]
+        [ProducesResponseType(typeof(HealthzStatus), 503)]
         public async Task<IActionResult> HealthzAsync()
         {
-            // healthcheck counts the document types
+            HealthzStatus stat = new HealthzStatus();
 
             try
             {
-                HealthzSuccess res = new HealthzSuccess();
-
-                _logger.LogInformation("Healthz");
-
-                HealthzSuccessDetails s = await _dal.GetHealthzAsync();
-
                 if (App.config != null)
                 {
-                    s.CosmosKey = App.config.GetValue<string>(Constants.CosmosKey).PadRight(5).Substring(0, 5).Trim() + "...";
+                    stat.CosmosKey = App.config.GetValue<string>(Constants.CosmosKey).PadRight(5).Substring(0, 5).Trim() + "...";
                 }
 
-                res.details.cosmosDb.details = s;
+                stat.Results.Add(await GetGenresAsync());
+                stat.Results.Add(await GetActorByIdAsync("nm0000173"));
+                stat.Results.Add(await GetMovieByIdAsync("tt0133093"));
+                stat.Results.Add(await SearchMoviesAsync("ring"));
+                stat.Results.Add(await SearchActorsAsync("nicole"));
+                stat.Results.Add(await GetTopRatedMoviesAsync());
 
-                // return 200 OK with payload
-                return Ok(res);
+                return Ok(stat);
             }
 
             catch (CosmosException ce)
@@ -70,10 +203,9 @@ namespace Helium.Controllers
                 // log and return 503
                 _logger.LogError($"CosmosException:Healthz:{ce.StatusCode}:{ce.ActivityId}:{ce.Message}\n{ce}");
 
-                HealthzError e = new HealthzError();
-                e.details.cosmosDb.details.Error = ce.Message;
+                stat.Message = ce.Message;
 
-                return new ObjectResult(e)
+                return new ObjectResult(stat)
                 {
                     StatusCode = (int)System.Net.HttpStatusCode.ServiceUnavailable
                 };
@@ -88,13 +220,12 @@ namespace Helium.Controllers
                     root = age;
                 }
 
-                HealthzError e = new HealthzError();
-                e.details.cosmosDb.details.Error = root.Message;
+                stat.Message = root.Message;
 
                 // log and return 500
                 _logger.LogError($"AggregateException|Healthz|{root.GetType()}|{root.Message}|{root.Source}|{root.TargetSite}");
 
-                return new ObjectResult(e)
+                return new ObjectResult(stat)
                 {
                     StatusCode = (int)System.Net.HttpStatusCode.InternalServerError
                 };
@@ -105,10 +236,9 @@ namespace Helium.Controllers
                 // log and return 500
                 _logger.LogError($"Exception:Healthz\n{ex}");
 
-                HealthzError e = new HealthzError();
-                e.details.cosmosDb.details.Error = ex.Message;
+                stat.Message = ex.Message;
 
-                return new ObjectResult(e)
+                return new ObjectResult(stat)
                 {
                     StatusCode = (int)System.Net.HttpStatusCode.ServiceUnavailable
                 };

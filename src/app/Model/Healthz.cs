@@ -1,65 +1,80 @@
-﻿namespace Helium.Model
+﻿using System.Collections.Generic;
+
+namespace Helium.Model
 {
-    public class HealthzSuccess
+    public class HealthzStatusCode
     {
-        public string status { get; set; } = "UP";
-        public SuccessDetails details { get; set; } = new SuccessDetails();
+        public const string Up = "UP";
+        public const string Down = "DOWN";
+        public const string Warn = "WARN";
     }
 
-    public class HealthzError
+    public class HealthzStatus
     {
-        public string status { get; set; } = "DOWN";
-        public ErrorDetails details { get; set; } = new ErrorDetails();
-    }
+        public string StatusCode
+        {
+            get
+            {
+                if (!string.IsNullOrEmpty(Message))
+                {
+                    return HealthzStatusCode.Down;
+                }
 
-    public class SuccessDetails
-    {
-        public CosmosDbSuccess cosmosDb { get; set; } = new CosmosDbSuccess();
-    }
+                string code = HealthzStatusCode.Up;
 
-    public class ErrorDetails
-    {
-        public CosmosDbError cosmosDb { get; set; } = new CosmosDbError();
-    }
+                foreach (var r in Results)
+                {
+                    if (r.StatusCode == HealthzStatusCode.Down)
+                    {
+                        return HealthzStatusCode.Down;
+                    }
 
-    public class CosmosDbSuccess
-    {
-        public string status { get; set; } = "UP";
-        public HealthzSuccessDetails details { get; set; } = new HealthzSuccessDetails();
-    }
+                    if (r.StatusCode == HealthzStatusCode.Warn)
+                    {
+                        code = HealthzStatusCode.Warn;
+                    }
+                }
 
-    public class CosmosDbError
-    {
-        public string status { get; set; } = "DOWN";
-        public HealthzErrorDetail details { get; set; } = new HealthzErrorDetail();
-    }
+                return code;
+            }
+        }
+        public string Message { get; set; }
 
-    public class HealthzErrorDetail
-    {
-        public int Status { get; set; } = 503;
-        public string Error { get; set; } = string.Empty;
-    }
+        public long TotalMilliseconds
+        {
+            get
+            {
+                long res = 0;
 
-    public class HealthzSuccessDetails
-    {
-        public int Status { get; set; } = 200;
-        public long Actors { get; set; }
-        public long Movies { get; set; }
-        public long Genres { get; set; }
-        public string Instance { get; }
-        public string Version { get {return Helium.Version.AssemblyVersion;} }
+                foreach (var r in Results)
+                {
+                    res += r.TotalMilliseconds;
+                }
+
+                return res;
+            }
+        }
+
+        public string Instance { get; } = "unknown";
+        public string Version { get { return Helium.Version.AssemblyVersion; } }
         public string CosmosKey { get; set; } = string.Empty;
 
-        public HealthzSuccessDetails()
+        public List<HealthzResult> Results { get; } = new List<HealthzResult>();
+
+        public HealthzStatus()
         {
-            if (string.IsNullOrEmpty(System.Environment.GetEnvironmentVariable("WEBSITE_ROLE_INSTANCE_ID")))
-            {
-                Instance = "unknown";
-            }
-            else
+            if (!string.IsNullOrEmpty(System.Environment.GetEnvironmentVariable("WEBSITE_ROLE_INSTANCE_ID")))
             {
                 Instance = System.Environment.GetEnvironmentVariable("WEBSITE_ROLE_INSTANCE_ID");
             }
         }
+    }
+
+    public class HealthzResult
+    {
+        public string Uri { get; set; }
+        public string StatusCode { get; set; }
+        public long TotalMilliseconds { get; set; }
+        public string Message { get; set; }
     }
 }
