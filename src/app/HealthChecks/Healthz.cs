@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System;
-using System.Collections.Generic;
 
 namespace Helium.Model
 {

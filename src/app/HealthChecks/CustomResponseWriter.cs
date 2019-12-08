@@ -1,22 +1,8 @@
-using Helium.DataAccessLayer;
-using Helium.Model;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.Cosmos;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Threading;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Globalization;
+using System.Threading.Tasks;
 
 namespace Helium
 {
