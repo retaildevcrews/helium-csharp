@@ -94,17 +94,18 @@ namespace Helium
             // add the Cosmos DB health check
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapHealthChecks("/healthz", new HealthCheckOptions()
+                // return plain text - Healthy, Degraded, Unhealthy
+                endpoints.MapHealthChecks("/healthz", new HealthCheckOptions());
+
+                // use json response writer
+                endpoints.MapHealthChecks("/healthz/json", new HealthCheckOptions()
                 {
-                    // use custom response writer
                     ResponseWriter = CosmosHealthCheck.JsonResponseWriter
                 });
 
-                endpoints.MapHealthChecks("/healthz/live", new HealthCheckOptions());
-
+                // use IETF response writer
                 endpoints.MapHealthChecks("/healthz/ietf", new HealthCheckOptions()
                 {
-                    // use IETF response writer
                     ResponseWriter = CosmosHealthCheck.IetfResponseWriter
                 });
             });
