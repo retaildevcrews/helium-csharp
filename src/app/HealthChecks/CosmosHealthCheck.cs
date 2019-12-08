@@ -21,9 +21,9 @@ namespace Helium
     public class CosmosHealthCheck : IHealthCheck
     {
         public static readonly string Description = "Cosmos DB Health Check";
-        public static readonly string Key = "HealthzStatus";
 
         // TODO - /healthz doesn't appear in swagger
+
         private readonly ILogger _logger;
         private readonly IDAL _dal;
 
@@ -53,33 +53,42 @@ namespace Helium
         /// <returns></returns>
         public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
         {
-            // status object
-            HealthzStatus stat = new HealthzStatus();
-
             // dictionary
-            var data = new Dictionary<string, object>()
-            {
-                { Key, stat }
-            };
+            var data = new Dictionary<string, object>();
 
             try
             {
                 if (App.config != null)
                 {
                     // get the current Cosmos key
-                    stat.CosmosKey = App.config.GetValue<string>(Constants.CosmosKey).PadRight(5).Substring(0, 5).Trim() + "...";
+                    data.Add("CosmosKey", App.config.GetValue<string>(Constants.CosmosKey).PadRight(5).Substring(0, 5).Trim() + "...");
                 }
 
-                // Run each individual health check
-                stat.Results.Add(await GetGenresAsync());
-                stat.Results.Add(await GetActorByIdAsync("nm0000173"));
-                stat.Results.Add(await GetMovieByIdAsync("tt0133093"));
-                stat.Results.Add(await SearchMoviesAsync("ring"));
-                stat.Results.Add(await SearchActorsAsync("nicole"));
-                stat.Results.Add(await GetTopRatedMoviesAsync());
+                data.Add("Instance", System.Environment.GetEnvironmentVariable("WEBSITE_ROLE_INSTANCE_ID") ?? "unknown");
+                data.Add("Version", Helium.Version.AssemblyVersion);
 
-                // TODO - return stat.status - need to convert to enum first
-                return new HealthCheckResult(HealthStatus.Healthy, Description, data: data);
+                // Run each individual health check
+                data.Add("GetGenresAsync", await GetGenresAsync());
+                data.Add("GetActorByIdAsync", await GetActorByIdAsync("nm0000173"));
+                data.Add("GetMovieByIdAsync", await GetMovieByIdAsync("tt0133093"));
+                data.Add("SearchMoviesAsync", await SearchMoviesAsync("ring"));
+                data.Add("SearchActorsAsync", await SearchActorsAsync("nicole"));
+                data.Add("GetTopRatedMoviesAsync", await GetTopRatedMoviesAsync());
+
+                HealthStatus status = HealthStatus.Healthy;
+
+                foreach(var d in data.Values)
+                {
+                    if (status != HealthStatus.Unhealthy)
+                    {
+                        if (d is HealthzResult h && h.StatusCode != HealthStatus.Healthy)
+                        {
+                            status = h.StatusCode;
+                        }
+                    }
+                }
+
+                return new HealthCheckResult(status, Description, data: data);
             }
 
             catch (CosmosException ce)
@@ -87,7 +96,7 @@ namespace Helium
                 // log and return Unhealthy
                 _logger.LogError($"CosmosException:Healthz:{ce.StatusCode}:{ce.ActivityId}:{ce.Message}\n{ce}");
 
-                stat.Message = ce.Message;
+                data.Add("CosmosException", ce.Message);
 
                 return new HealthCheckResult(HealthStatus.Unhealthy, Description, ce, data);
             }
@@ -96,7 +105,7 @@ namespace Helium
             {
                 var root = age.GetBaseException() ?? age;
 
-                stat.Message = root.Message;
+                data.Add("AggregateException", root.Message);
 
                 // log and return unhealthy
                 _logger.LogError($"AggregateException|Healthz|{root.GetType()}|{root.Message}|{root.Source}|{root.TargetSite}");
@@ -109,7 +118,7 @@ namespace Helium
                 // log and return unhealthy
                 _logger.LogError($"Exception:Healthz\n{ex}");
 
-                stat.Message = ex.Message;
+                data.Add("Exception", ex.Message);
 
                 return new HealthCheckResult(HealthStatus.Unhealthy, Description, ex, data);
             }
@@ -129,12 +138,12 @@ namespace Helium
             (await _dal.GetGenresAsync()).ToList<string>();
             sw.Stop();
             result.Uri = "/api/genres";
-            result.StatusCode = HealthzStatusCode.Healthy;
+            result.StatusCode = HealthStatus.Healthy;
             result.TotalMilliseconds = sw.ElapsedMilliseconds;
 
             if (sw.ElapsedMilliseconds > 200)
             {
-                result.StatusCode = HealthzStatusCode.Degraded;
+                result.StatusCode = HealthStatus.Degraded;
                 result.Message = "Request exceeded expected duration";
             }
 
@@ -155,12 +164,12 @@ namespace Helium
             await _dal.GetMovieAsync(movieId);
             sw.Stop();
             result.Uri = string.Format($"/api/movies/{movieId}");
-            result.StatusCode = HealthzStatusCode.Healthy;
+            result.StatusCode = HealthStatus.Healthy;
             result.TotalMilliseconds = sw.ElapsedMilliseconds;
 
             if (sw.ElapsedMilliseconds > 100)
             {
-                result.StatusCode = HealthzStatusCode.Degraded;
+                result.StatusCode = HealthStatus.Degraded;
                 result.Message = "Request exceeded expected duration";
             }
 
@@ -181,12 +190,12 @@ namespace Helium
             (await _dal.GetMoviesByQueryAsync(query)).ToList<Movie>();
             sw.Stop();
             result.Uri = string.Format($"/api/movies?q={query}");
-            result.StatusCode = HealthzStatusCode.Healthy;
+            result.StatusCode = HealthStatus.Healthy;
             result.TotalMilliseconds = sw.ElapsedMilliseconds;
 
             if (sw.ElapsedMilliseconds > 100)
             {
-                result.StatusCode = HealthzStatusCode.Degraded;
+                result.StatusCode = HealthStatus.Degraded;
                 result.Message = "Request exceeded expected duration";
             }
 
@@ -207,12 +216,12 @@ namespace Helium
             (await _dal.GetMoviesByQueryAsync(string.Empty, toprated: true)).ToList<Movie>();
             sw.Stop();
             result.Uri = string.Format($"/api/movies?toprated=true");
-            result.StatusCode = HealthzStatusCode.Healthy;
+            result.StatusCode = HealthStatus.Healthy;
             result.TotalMilliseconds = sw.ElapsedMilliseconds;
 
             if (sw.ElapsedMilliseconds > 100)
             {
-                result.StatusCode = HealthzStatusCode.Degraded;
+                result.StatusCode = HealthStatus.Degraded;
                 result.Message = "Request exceeded expected duration";
             }
 
@@ -233,12 +242,12 @@ namespace Helium
             await _dal.GetActorAsync(actorId);
             sw.Stop();
             result.Uri = string.Format($"/api/actors/{actorId}");
-            result.StatusCode = HealthzStatusCode.Healthy;
+            result.StatusCode = HealthStatus.Healthy;
             result.TotalMilliseconds = sw.ElapsedMilliseconds;
 
             if (sw.ElapsedMilliseconds > 100)
             {
-                result.StatusCode = HealthzStatusCode.Degraded;
+                result.StatusCode = HealthStatus.Degraded;
                 result.Message = "Request exceeded expected duration";
             }
 
@@ -259,12 +268,12 @@ namespace Helium
             (await _dal.GetActorsByQueryAsync(query)).ToList<Actor>();
             sw.Stop();
             result.Uri = string.Format($"/api/actors?q={query}");
-            result.StatusCode = HealthzStatusCode.Healthy;
+            result.StatusCode = HealthStatus.Healthy;
             result.TotalMilliseconds = sw.ElapsedMilliseconds;
 
             if (sw.ElapsedMilliseconds > 100)
             {
-                result.StatusCode = HealthzStatusCode.Degraded;
+                result.StatusCode = HealthStatus.Degraded;
                 result.Message = "Request exceeded expected duration";
             }
 
@@ -279,14 +288,14 @@ namespace Helium
         /// <returns></returns>
         public static Task CustomResponseWriter(HttpContext httpContext, HealthReport healthReport)
         {
+            // TODO - convert to use system.json with camel casing
+
+            // TODO - statusCode is an int - convert to healthy, degraded, unhealthy
+
             httpContext.Response.ContentType = "application/json";
 
-            // TODO - convert to use system.json with camel casing
             // write the json
-            return httpContext.Response.WriteAsync(
-                JsonConvert.SerializeObject(
-                    healthReport?.Entries?[Constants.CosmosHealthCheck].Data?[Key], 
-                    jsonSettings));
+            return httpContext.Response.WriteAsync(JsonConvert.SerializeObject(healthReport, jsonSettings));
         }
     }
 }
