@@ -20,34 +20,57 @@ namespace Helium
 {
     public class CosmosHealthCheck : IHealthCheck
     {
+        public static readonly string Description = "Cosmos DB Health Check";
+        public static readonly string Key = "HealthzStatus";
+
+        // TODO - /healthz doesn't appear in swagger
         private readonly ILogger _logger;
         private readonly IDAL _dal;
 
+        // ignore nulls in json
+        private static readonly JsonSerializerSettings jsonSettings = new JsonSerializerSettings
+        {
+            NullValueHandling = NullValueHandling.Ignore
+        };
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="logger">ILogger</param>
+        /// <param name="dal">IDAL</param>
         public CosmosHealthCheck(ILogger<CosmosHealthCheck> logger, IDAL dal)
         {
+            // save to member vars
             _logger = logger;
             _dal = dal;
         }
 
-        public string Name => "CosmosHealthCheck";
-        public string Description => "Cosmos DB Health Check";
-
+        /// <summary>
+        /// Run the health check (IHealthCheck)
+        /// </summary>
+        /// <param name="context">HealthCheckContext</param>
+        /// <param name="cancellationToken">CancellationToken</param>
+        /// <returns></returns>
         public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
         {
+            // status object
             HealthzStatus stat = new HealthzStatus();
 
+            // dictionary
             var data = new Dictionary<string, object>()
             {
-                { "HealthzStatus", stat }
+                { Key, stat }
             };
 
             try
             {
                 if (App.config != null)
                 {
+                    // get the current Cosmos key
                     stat.CosmosKey = App.config.GetValue<string>(Constants.CosmosKey).PadRight(5).Substring(0, 5).Trim() + "...";
                 }
 
+                // Run each individual health check
                 stat.Results.Add(await GetGenresAsync());
                 stat.Results.Add(await GetActorByIdAsync("nm0000173"));
                 stat.Results.Add(await GetMovieByIdAsync("tt0133093"));
@@ -55,12 +78,13 @@ namespace Helium
                 stat.Results.Add(await SearchActorsAsync("nicole"));
                 stat.Results.Add(await GetTopRatedMoviesAsync());
 
+                // TODO - return stat.status - need to convert to enum first
                 return new HealthCheckResult(HealthStatus.Healthy, Description, data: data);
             }
 
             catch (CosmosException ce)
             {
-                // log and return 503
+                // log and return Unhealthy
                 _logger.LogError($"CosmosException:Healthz:{ce.StatusCode}:{ce.ActivityId}:{ce.Message}\n{ce}");
 
                 stat.Message = ce.Message;
@@ -70,24 +94,19 @@ namespace Helium
 
             catch (System.AggregateException age)
             {
-                var root = age.GetBaseException();
-
-                if (root == null)
-                {
-                    root = age;
-                }
+                var root = age.GetBaseException() ?? age;
 
                 stat.Message = root.Message;
 
-                // log and return 500
+                // log and return unhealthy
                 _logger.LogError($"AggregateException|Healthz|{root.GetType()}|{root.Message}|{root.Source}|{root.TargetSite}");
 
-                return new HealthCheckResult(HealthStatus.Unhealthy, Description, age, data);
+                return new HealthCheckResult(HealthStatus.Unhealthy, Description, root, data);
             }
 
             catch (Exception ex)
             {
-                // log and return 500
+                // log and return unhealthy
                 _logger.LogError($"Exception:Healthz\n{ex}");
 
                 stat.Message = ex.Message;
@@ -96,6 +115,10 @@ namespace Helium
             }
         }
 
+        /// <summary>
+        /// Run the Get Genres Healthcheck
+        /// </summary>
+        /// <returns>HealthzResult</returns>
         private async Task<HealthzResult> GetGenresAsync()
         {
             var result = new HealthzResult();
@@ -118,6 +141,10 @@ namespace Helium
             return result;
         }
 
+        /// <summary>
+        /// Run the Get Movie by Id Healthcheck
+        /// </summary>
+        /// <returns>HealthzResult</returns>
         private async Task<HealthzResult> GetMovieByIdAsync(string movieId)
         {
             var result = new HealthzResult();
@@ -140,6 +167,10 @@ namespace Helium
             return result;
         }
 
+        /// <summary>
+        /// Run the Search Movies Healthcheck
+        /// </summary>
+        /// <returns>HealthzResult</returns>
         private async Task<HealthzResult> SearchMoviesAsync(string query)
         {
             var result = new HealthzResult();
@@ -162,6 +193,10 @@ namespace Helium
             return result;
         }
 
+        /// <summary>
+        /// Run the Get Top Rated Movies Healthcheck
+        /// </summary>
+        /// <returns>HealthzResult</returns>
         private async Task<HealthzResult> GetTopRatedMoviesAsync()
         {
             var result = new HealthzResult();
@@ -184,6 +219,10 @@ namespace Helium
             return result;
         }
 
+        /// <summary>
+        /// Run the Get Actor By Id Healthcheck
+        /// </summary>
+        /// <returns>HealthzResult</returns>
         private async Task<HealthzResult> GetActorByIdAsync(string actorId)
         {
             var result = new HealthzResult();
@@ -206,6 +245,10 @@ namespace Helium
             return result;
         }
 
+        /// <summary>
+        /// Run the Search Actors Healthcheck
+        /// </summary>
+        /// <returns>HealthzResult</returns>
         private async Task<HealthzResult> SearchActorsAsync(string query)
         {
             var result = new HealthzResult();
@@ -228,35 +271,21 @@ namespace Helium
             return result;
         }
 
-        public static Task CustomResponseWriter(HttpContext httpContext, HealthReport result)
+        /// <summary>
+        /// Write the health check results as json
+        /// </summary>
+        /// <param name="httpContext">HttpContext</param>
+        /// <param name="healthReport">HealthReport</param>
+        /// <returns></returns>
+        public static Task CustomResponseWriter(HttpContext httpContext, HealthReport healthReport)
         {
             httpContext.Response.ContentType = "application/json";
 
-            var hz = result.Entries["CosmosDB"].Data["HealthzStatus"] as Helium.Model.HealthzStatus;
-
-            JsonSerializerSettings ser = new JsonSerializerSettings
-            {
-                NullValueHandling = NullValueHandling.Ignore
-            };
-
-            string json = JsonConvert.SerializeObject(hz, Formatting.Indented, ser);
-
-            return httpContext.Response.WriteAsync(json);
-        }
-    }
-
-    public static class CosmosHealthCheckBuilderExtensions
-    {
-        public static IHealthChecksBuilder AddCosmosHealthCheck(
-            this IHealthChecksBuilder builder,
-            string name,
-            HealthStatus? failureStatus = null,
-            IEnumerable<string> tags = null)
-        {
-            // Register a check of type Cosmos
-            builder.AddCheck<CosmosHealthCheck>(name, failureStatus ?? HealthStatus.Degraded, tags);
-
-            return builder;
+            // write the json
+            return httpContext.Response.WriteAsync(
+                JsonConvert.SerializeObject(
+                    healthReport?.Entries?[Constants.CosmosHealthCheck].Data?[Key], 
+                    jsonSettings));
         }
     }
 }

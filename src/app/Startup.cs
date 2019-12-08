@@ -41,7 +41,7 @@ namespace Helium
             services.AddControllers().AddJsonOptions(options => options.JsonSerializerOptions.IgnoreNullValues = true);
 
             // add healthcheck service
-            services.AddHealthChecks().AddCosmosHealthCheck("CosmosDB");
+            services.AddHealthChecks().AddCosmosHealthCheck(Constants.CosmosHealthCheck);
 
             // configure Swagger
             services.ConfigureSwaggerGen(options =>
