@@ -22,7 +22,7 @@ namespace Helium
             Dictionary<string, object> res = new Dictionary<string, object>();
             Dictionary<string, object> checks = new Dictionary<string, object>();
 
-            res.Add("status", ConvertToIetfStatus(healthReport.Status));
+            res.Add("status", ToIetfStatus(healthReport.Status));
 
             foreach (var e in healthReport.Entries.Values)
             {
@@ -32,7 +32,7 @@ namespace Helium
                     {
                         IetfCheck ietf = new IetfCheck()
                         {
-                            Status = ConvertToIetfStatus(r.Status),
+                            Status = ToIetfStatus(r.Status),
                             ComponentType = "CosmosDB",
                             ObservedValue = Math.Round(r.Duration.TotalMilliseconds, 2),
                             ObservedUnit = "ms",
@@ -62,14 +62,13 @@ namespace Helium
         /// </summary>
         /// <param name="status">HealthStatus (dotnet)</param>
         /// <returns>string</returns>
-        public static string ConvertToIetfStatus(HealthStatus status)
+        public static string ToIetfStatus(HealthStatus status)
         {
             return status switch
             {
-                HealthStatus.Unhealthy => "down",
-                HealthStatus.Degraded => "warn",
                 HealthStatus.Healthy => "up",
-                _ => string.Empty,
+                HealthStatus.Degraded => "warn",
+                _ => "down"
             };
         }
     }
