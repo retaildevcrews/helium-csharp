@@ -64,6 +64,10 @@ namespace Helium
         /// <param name="env"></param>
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            // log 4xx and 5xx results to console
+            // this should be first as it "wraps" all requests
+            app.UseLogger(new LoggerOptions { Log2xx = false, Log3xx = false });
+
             // differences based on dev or prod
             if (env.IsDevelopment())
             {
@@ -78,22 +82,10 @@ namespace Helium
             // use routing
             app.UseRouting();
 
-            // log 4xx and 5xx results to console
-            app.UseLogger(new LoggerOptions { Log2xx = false, Log3xx = false });
-
-            // Enable middleware to serve generated Swagger as a JSON endpoint.
-            app.UseSwagger();
-
-            // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.), specifying the Swagger JSON endpoint.
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint(Constants.SwaggerPath, Constants.SwaggerTitle);
-                c.RoutePrefix = string.Empty;
-            });
-
-            // add the Cosmos DB health check
+            // add the end points
             app.UseEndpoints(endpoints =>
             {
+                // Cosmos DB health checks
                 // return plain text - Healthy, Degraded, Unhealthy
                 endpoints.MapHealthChecks("/healthz", new HealthCheckOptions());
 
@@ -108,12 +100,19 @@ namespace Helium
                 {
                     ResponseWriter = CosmosHealthCheck.IetfResponseWriter
                 });
+
+                // add the controllers
+                endpoints.MapControllers();
             });
 
-            // add the controllers
-            app.UseEndpoints(endpoints =>
+            // Enable middleware to serve generated Swagger as a JSON endpoint.
+            app.UseSwagger();
+
+            // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.), specifying the Swagger JSON endpoint.
+            app.UseSwaggerUI(c =>
             {
-                endpoints.MapControllers();
+                c.SwaggerEndpoint(Constants.SwaggerPath, Constants.SwaggerTitle);
+                c.RoutePrefix = string.Empty;
             });
 
             // use the robots middleware to handle /robots*.txt requests
