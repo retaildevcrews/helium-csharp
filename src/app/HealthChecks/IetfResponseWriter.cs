@@ -16,7 +16,7 @@ namespace Helium
         /// </summary>
         /// <param name="httpContext">HttpContext</param>
         /// <param name="healthReport">HealthReport</param>
-        /// <returns></returns>
+        /// <returns>Task</returns>
         public static Task IetfResponseWriter(HttpContext httpContext, HealthReport healthReport)
         {
             Dictionary<string, object> res = new Dictionary<string, object>();
@@ -24,10 +24,13 @@ namespace Helium
 
             res.Add("status", ToIetfStatus(healthReport.Status));
 
+            // add all the entries
             foreach (var e in healthReport.Entries.Values)
             {
+                // add all the data elements
                 foreach (var d in e.Data)
                 {
+                    // transform HealthzCheck into IetfCheck
                     if (d.Value is HealthzCheck r)
                     {
                         IetfCheck ietf = new IetfCheck()
@@ -41,15 +44,18 @@ namespace Helium
                             Message = r.Message
                         };
 
+                        // add to checks dictionary
                         checks.Add(d.Key, ietf);
                     }
                     else
                     {
+                        // add to the main dictionary
                         res.Add(d.Key, d.Value);
                     }
                 }
             }
 
+            // add the checks to the dictionary
             res.Add("checks", checks);
 
             // write the json
