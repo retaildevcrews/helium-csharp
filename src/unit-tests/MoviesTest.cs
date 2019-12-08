@@ -62,7 +62,7 @@ namespace UnitTests
 
             Assert.NotNull(ie);
 
-            Assert.Equal(9, ie.ToList<Movie>().Count);
+            Assert.Equal(47, ie.ToList<Movie>().Count);
         }
 
         [Fact]
@@ -77,7 +77,7 @@ namespace UnitTests
 
             Assert.NotNull(ie);
 
-            Assert.Equal(2, ie.ToList<Movie>().Count);
+            Assert.Equal(3, ie.ToList<Movie>().Count);
         }
 
         [Fact]
@@ -92,7 +92,7 @@ namespace UnitTests
 
             Assert.NotNull(ie);
 
-            Assert.Equal(4, ie.ToList<Movie>().Count);
+            Assert.Equal(6, ie.ToList<Movie>().Count);
         }
 
         [Fact]
@@ -107,7 +107,7 @@ namespace UnitTests
 
             Assert.NotNull(ie);
 
-            Assert.Equal(19, ie.ToList<Movie>().Count);
+            Assert.Equal(380, ie.ToList<Movie>().Count);
         }
 
         [Fact]
@@ -122,9 +122,7 @@ namespace UnitTests
 
             Assert.NotNull(ie);
 
-            //Assert.Equal(1, ie.ToList<Movie>().Count);
-
-            Assert.Single(ie.ToList<Movie>());
+            Assert.Equal(49, ie.ToList<Movie>().Count);
         }
 
         [Fact]
