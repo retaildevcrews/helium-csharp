@@ -281,6 +281,7 @@ namespace Helium
         {
             httpContext.Response.ContentType = "application/json";
 
+            // TODO - convert to use system.json with camel casing
             // write the json
             return httpContext.Response.WriteAsync(
                 JsonConvert.SerializeObject(
