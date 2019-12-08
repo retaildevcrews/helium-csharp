@@ -14,9 +14,9 @@ namespace Helium
         /// Get Genres Healthcheck
         /// </summary>
         /// <returns>HealthzResult</returns>
-        private async Task<HealthzResult> GetGenresAsync()
+        private async Task<HealthzCheck> GetGenresAsync()
         {
-            var result = new HealthzResult();
+            var result = new HealthzCheck();
 
             Stopwatch sw = new Stopwatch();
 
@@ -40,9 +40,9 @@ namespace Helium
         /// Get Movie by Id Healthcheck
         /// </summary>
         /// <returns>HealthzResult</returns>
-        private async Task<HealthzResult> GetMovieByIdAsync(string movieId)
+        private async Task<HealthzCheck> GetMovieByIdAsync(string movieId)
         {
-            var result = new HealthzResult();
+            var result = new HealthzCheck();
 
             Stopwatch sw = new Stopwatch();
 
@@ -66,9 +66,9 @@ namespace Helium
         /// Search Movies Healthcheck
         /// </summary>
         /// <returns>HealthzResult</returns>
-        private async Task<HealthzResult> SearchMoviesAsync(string query)
+        private async Task<HealthzCheck> SearchMoviesAsync(string query)
         {
-            var result = new HealthzResult();
+            var result = new HealthzCheck();
 
             Stopwatch sw = new Stopwatch();
 
@@ -92,9 +92,9 @@ namespace Helium
         /// Get Top Rated Movies Healthcheck
         /// </summary>
         /// <returns>HealthzResult</returns>
-        private async Task<HealthzResult> GetTopRatedMoviesAsync()
+        private async Task<HealthzCheck> GetTopRatedMoviesAsync()
         {
-            var result = new HealthzResult();
+            var result = new HealthzCheck();
 
             Stopwatch sw = new Stopwatch();
 
@@ -118,9 +118,9 @@ namespace Helium
         /// Get Actor By Id Healthcheck
         /// </summary>
         /// <returns>HealthzResult</returns>
-        private async Task<HealthzResult> GetActorByIdAsync(string actorId)
+        private async Task<HealthzCheck> GetActorByIdAsync(string actorId)
         {
-            var result = new HealthzResult();
+            var result = new HealthzCheck();
 
             Stopwatch sw = new Stopwatch();
 
@@ -144,9 +144,9 @@ namespace Helium
         /// Search Actors Healthcheck
         /// </summary>
         /// <returns>HealthzResult</returns>
-        private async Task<HealthzResult> SearchActorsAsync(string query)
+        private async Task<HealthzCheck> SearchActorsAsync(string query)
         {
-            var result = new HealthzResult();
+            var result = new HealthzCheck();
 
             Stopwatch sw = new Stopwatch();
 

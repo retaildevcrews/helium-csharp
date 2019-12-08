@@ -97,7 +97,15 @@ namespace Helium
                 endpoints.MapHealthChecks("/healthz", new HealthCheckOptions()
                 {
                     // use custom response writer
-                    ResponseWriter = CosmosHealthCheck.CustomResponseWriter
+                    ResponseWriter = CosmosHealthCheck.JsonResponseWriter
+                });
+
+                endpoints.MapHealthChecks("/healthz/live", new HealthCheckOptions());
+
+                endpoints.MapHealthChecks("/healthz/ietf", new HealthCheckOptions()
+                {
+                    // use IETF response writer
+                    ResponseWriter = CosmosHealthCheck.IetfResponseWriter
                 });
             });
 

@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -34,6 +35,24 @@ namespace Helium
             // save to member vars
             _logger = logger;
             _dal = dal;
+
+            // setup serialization options
+            if (jsonOptions == null)
+            {
+                // ignore nulls in json
+                jsonOptions = new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                    IgnoreNullValues = true,
+                    DictionaryKeyPolicy = JsonNamingPolicy.CamelCase
+                };
+
+                // serialize enums as strings
+                jsonOptions.Converters.Add(new JsonStringEnumConverter());
+
+                // serialize TimeSpan as 00:00:00.1234567
+                jsonOptions.Converters.Add(new TimeSpanConverter());
+            }
         }
 
         /// <summary>
@@ -61,12 +80,12 @@ namespace Helium
 
 
                 // Run each health check
-                data.Add("GetGenresAsync", await GetGenresAsync());
-                data.Add("GetActorByIdAsync", await GetActorByIdAsync("nm0000173"));
-                data.Add("GetMovieByIdAsync", await GetMovieByIdAsync("tt0133093"));
-                data.Add("SearchMoviesAsync", await SearchMoviesAsync("ring"));
-                data.Add("SearchActorsAsync", await SearchActorsAsync("nicole"));
-                data.Add("GetTopRatedMoviesAsync", await GetTopRatedMoviesAsync());
+                data.Add("getGenresAsync", await GetGenresAsync());
+                data.Add("getActorByIdAsync", await GetActorByIdAsync("nm0000173"));
+                data.Add("getMovieByIdAsync", await GetMovieByIdAsync("tt0133093"));
+                data.Add("searchMoviesAsync", await SearchMoviesAsync("ring"));
+                data.Add("searchActorsAsync", await SearchActorsAsync("nicole"));
+                data.Add("getTopRatedMoviesAsync", await GetTopRatedMoviesAsync());
 
                 HealthStatus status = HealthStatus.Healthy;
 
@@ -75,7 +94,7 @@ namespace Helium
                 {
                     if (status != HealthStatus.Unhealthy)
                     {
-                        if (d is HealthzResult h && h.Status != HealthStatus.Healthy)
+                        if (d is HealthzCheck h && h.Status != HealthStatus.Healthy)
                         {
                             status = h.Status;
                         }
