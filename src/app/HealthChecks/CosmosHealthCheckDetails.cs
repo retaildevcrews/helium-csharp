@@ -15,21 +15,22 @@ namespace Helium
         /// Build the response
         /// </summary>
         /// <param name="uri">string</param>
-        /// <param name="duration">TimeSpan</param>
         /// <param name="targetDurationMs">double (ms)</param>
         /// <returns>HealthzCheck</returns>
-        private HealthzCheck BuildHealthzCheck(string uri, TimeSpan duration, double targetDurationMs)
+        private HealthzCheck BuildHealthzCheck(string uri, double targetDurationMs)
         {
+            stopwatch.Stop();
+
             // create the result
             var result = new HealthzCheck
             {
                 Uri = uri,
                 Status = HealthStatus.Healthy,
-                Duration = duration
+                Duration = stopwatch.Elapsed
             };
 
             // check duration
-            if (duration.TotalMilliseconds > targetDurationMs)
+            if (result.Duration.TotalMilliseconds > targetDurationMs)
             {
                 result.Status = HealthStatus.Degraded;
                 result.Message = "Request exceeded expected duration";
@@ -46,9 +47,8 @@ namespace Helium
         {
             stopwatch.Restart();
             (await _dal.GetGenresAsync()).ToList<string>();
-            stopwatch.Stop();
 
-            return BuildHealthzCheck("/api/genres", stopwatch.Elapsed, 200);
+            return BuildHealthzCheck("/api/genres", 200);
         }
 
         /// <summary>
@@ -57,13 +57,10 @@ namespace Helium
         /// <returns>HealthzCheck</returns>
         private async Task<HealthzCheck> GetMovieByIdAsync(string movieId)
         {
-            Stopwatch sw = new Stopwatch();
-
-            sw.Start();
+            stopwatch.Restart();
             await _dal.GetMovieAsync(movieId);
-            sw.Stop();
 
-            return BuildHealthzCheck($"/api/movies/{movieId}", sw.Elapsed, 200);
+            return BuildHealthzCheck($"/api/movies/{movieId}", 200);
         }
 
         /// <summary>
@@ -74,9 +71,8 @@ namespace Helium
         {
             stopwatch.Restart();
             (await _dal.GetMoviesByQueryAsync(query)).ToList<Movie>();
-            stopwatch.Stop();
 
-            return BuildHealthzCheck($"/api/movies?q={query}", stopwatch.Elapsed, 200);
+            return BuildHealthzCheck($"/api/movies?q={query}", 200);
         }
 
         /// <summary>
@@ -87,9 +83,8 @@ namespace Helium
         {
             stopwatch.Restart();
             (await _dal.GetMoviesByQueryAsync(string.Empty, toprated: true)).ToList<Movie>();
-            stopwatch.Stop();
 
-            return BuildHealthzCheck("/api/movies?toprated=true", stopwatch.Elapsed, 200);
+            return BuildHealthzCheck("/api/movies?toprated=true", 200);
         }
 
         /// <summary>
@@ -100,9 +95,8 @@ namespace Helium
         {
             stopwatch.Restart();
             await _dal.GetActorAsync(actorId);
-            stopwatch.Stop();
 
-            return BuildHealthzCheck($"/api/actors/{actorId}", stopwatch.Elapsed, 200);
+            return BuildHealthzCheck($"/api/actors/{actorId}", 200);
         }
 
         /// <summary>
@@ -113,9 +107,8 @@ namespace Helium
         {
             stopwatch.Restart();
             (await _dal.GetActorsByQueryAsync(query)).ToList<Actor>();
-            stopwatch.Stop();
 
-            return BuildHealthzCheck($"/api/actors?q={query}", stopwatch.Elapsed, 200);
+            return BuildHealthzCheck($"/api/actors?q={query}", 200);
         }
     }
 }
