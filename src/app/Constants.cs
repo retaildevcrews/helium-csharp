@@ -35,6 +35,6 @@
         public const int DefaultPageSize = 100;
         public const int MaxPageSize = 1000;
 
-        public const string CosmosHealthCheck = "CosmosHealthCheck";
+        public const string CosmosHealthCheck = "cosmosHealthCheck";
     }
 }

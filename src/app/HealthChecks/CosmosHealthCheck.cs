@@ -14,7 +14,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Globalization;
 
 namespace Helium
 {
@@ -22,16 +24,12 @@ namespace Helium
     {
         public static readonly string Description = "Cosmos DB Health Check";
 
+        private static JsonSerializerOptions jsonOptions = null;
+
         // TODO - /healthz doesn't appear in swagger
 
         private readonly ILogger _logger;
         private readonly IDAL _dal;
-
-        // ignore nulls in json
-        private static readonly JsonSerializerSettings jsonSettings = new JsonSerializerSettings
-        {
-            NullValueHandling = NullValueHandling.Ignore
-        };
 
         /// <summary>
         /// Constructor
@@ -64,6 +62,7 @@ namespace Helium
                     data.Add("CosmosKey", App.config.GetValue<string>(Constants.CosmosKey).PadRight(5).Substring(0, 5).Trim() + "...");
                 }
 
+                // add instance and version
                 data.Add("Instance", System.Environment.GetEnvironmentVariable("WEBSITE_ROLE_INSTANCE_ID") ?? "unknown");
                 data.Add("Version", Helium.Version.AssemblyVersion);
 
@@ -77,17 +76,19 @@ namespace Helium
 
                 HealthStatus status = HealthStatus.Healthy;
 
+                // overall health is the worst status
                 foreach(var d in data.Values)
                 {
                     if (status != HealthStatus.Unhealthy)
                     {
-                        if (d is HealthzResult h && h.StatusCode != HealthStatus.Healthy)
+                        if (d is HealthzResult h && h.Status != HealthStatus.Healthy)
                         {
-                            status = h.StatusCode;
+                            status = h.Status;
                         }
                     }
                 }
 
+                // return the result
                 return new HealthCheckResult(status, Description, data: data);
             }
 
@@ -138,12 +139,12 @@ namespace Helium
             (await _dal.GetGenresAsync()).ToList<string>();
             sw.Stop();
             result.Uri = "/api/genres";
-            result.StatusCode = HealthStatus.Healthy;
-            result.TotalMilliseconds = sw.ElapsedMilliseconds;
+            result.Status = HealthStatus.Healthy;
+            result.Duration = sw.Elapsed;
 
             if (sw.ElapsedMilliseconds > 200)
             {
-                result.StatusCode = HealthStatus.Degraded;
+                result.Status = HealthStatus.Degraded;
                 result.Message = "Request exceeded expected duration";
             }
 
@@ -164,12 +165,12 @@ namespace Helium
             await _dal.GetMovieAsync(movieId);
             sw.Stop();
             result.Uri = string.Format($"/api/movies/{movieId}");
-            result.StatusCode = HealthStatus.Healthy;
-            result.TotalMilliseconds = sw.ElapsedMilliseconds;
+            result.Status = HealthStatus.Healthy;
+            result.Duration = sw.Elapsed;
 
             if (sw.ElapsedMilliseconds > 100)
             {
-                result.StatusCode = HealthStatus.Degraded;
+                result.Status = HealthStatus.Degraded;
                 result.Message = "Request exceeded expected duration";
             }
 
@@ -190,12 +191,12 @@ namespace Helium
             (await _dal.GetMoviesByQueryAsync(query)).ToList<Movie>();
             sw.Stop();
             result.Uri = string.Format($"/api/movies?q={query}");
-            result.StatusCode = HealthStatus.Healthy;
-            result.TotalMilliseconds = sw.ElapsedMilliseconds;
+            result.Status = HealthStatus.Healthy;
+            result.Duration = sw.Elapsed;
 
             if (sw.ElapsedMilliseconds > 100)
             {
-                result.StatusCode = HealthStatus.Degraded;
+                result.Status = HealthStatus.Degraded;
                 result.Message = "Request exceeded expected duration";
             }
 
@@ -216,12 +217,12 @@ namespace Helium
             (await _dal.GetMoviesByQueryAsync(string.Empty, toprated: true)).ToList<Movie>();
             sw.Stop();
             result.Uri = string.Format($"/api/movies?toprated=true");
-            result.StatusCode = HealthStatus.Healthy;
-            result.TotalMilliseconds = sw.ElapsedMilliseconds;
+            result.Status = HealthStatus.Healthy;
+            result.Duration = sw.Elapsed;
 
             if (sw.ElapsedMilliseconds > 100)
             {
-                result.StatusCode = HealthStatus.Degraded;
+                result.Status = HealthStatus.Degraded;
                 result.Message = "Request exceeded expected duration";
             }
 
@@ -242,12 +243,12 @@ namespace Helium
             await _dal.GetActorAsync(actorId);
             sw.Stop();
             result.Uri = string.Format($"/api/actors/{actorId}");
-            result.StatusCode = HealthStatus.Healthy;
-            result.TotalMilliseconds = sw.ElapsedMilliseconds;
+            result.Status = HealthStatus.Healthy;
+            result.Duration = sw.Elapsed;
 
             if (sw.ElapsedMilliseconds > 100)
             {
-                result.StatusCode = HealthStatus.Degraded;
+                result.Status = HealthStatus.Degraded;
                 result.Message = "Request exceeded expected duration";
             }
 
@@ -268,12 +269,12 @@ namespace Helium
             (await _dal.GetActorsByQueryAsync(query)).ToList<Actor>();
             sw.Stop();
             result.Uri = string.Format($"/api/actors?q={query}");
-            result.StatusCode = HealthStatus.Healthy;
-            result.TotalMilliseconds = sw.ElapsedMilliseconds;
+            result.Status = HealthStatus.Healthy;
+            result.Duration = sw.Elapsed;
 
             if (sw.ElapsedMilliseconds > 100)
             {
-                result.StatusCode = HealthStatus.Degraded;
+                result.Status = HealthStatus.Degraded;
                 result.Message = "Request exceeded expected duration";
             }
 
@@ -288,14 +289,27 @@ namespace Helium
         /// <returns></returns>
         public static Task CustomResponseWriter(HttpContext httpContext, HealthReport healthReport)
         {
-            // TODO - convert to use system.json with camel casing
-
-            // TODO - statusCode is an int - convert to healthy, degraded, unhealthy
-
             httpContext.Response.ContentType = "application/json";
 
+            // setup serialization options
+            if (jsonOptions == null)
+            {
+                // ignore nulls in json
+                jsonOptions = new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                    IgnoreNullValues = true
+                };
+
+                // serialize enums as strings
+                jsonOptions.Converters.Add(new JsonStringEnumConverter());
+
+                // serialize TimeSpan as 00:00:00.1234567
+                jsonOptions.Converters.Add(new TimeSpanConverter());
+            }
+
             // write the json
-            return httpContext.Response.WriteAsync(JsonConvert.SerializeObject(healthReport, jsonSettings));
+            return httpContext.Response.WriteAsync(JsonSerializer.Serialize(healthReport, jsonOptions));
         }
     }
 }
