@@ -14,6 +14,7 @@ namespace Helium
 {
     public partial class CosmosHealthCheck : IHealthCheck
     {
+        public static readonly string Name = "cosmosHealthCheck";
         public static readonly string Description = "Cosmos DB Health Check";
 
         private static JsonSerializerOptions jsonOptions = null;
@@ -58,7 +59,8 @@ namespace Helium
                 data.Add("Instance", System.Environment.GetEnvironmentVariable("WEBSITE_ROLE_INSTANCE_ID") ?? "unknown");
                 data.Add("Version", Helium.Version.AssemblyVersion);
 
-                // Run each individual health check
+
+                // Run each health check
                 data.Add("GetGenresAsync", await GetGenresAsync());
                 data.Add("GetActorByIdAsync", await GetActorByIdAsync("nm0000173"));
                 data.Add("GetMovieByIdAsync", await GetMovieByIdAsync("tt0133093"));
