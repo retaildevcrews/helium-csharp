@@ -41,7 +41,7 @@ namespace Helium
         /// <summary>
         /// Get Genres Healthcheck
         /// </summary>
-        /// <returns>HealthzResult</returns>
+        /// <returns>HealthzCheck</returns>
         private async Task<HealthzCheck> GetGenresAsync()
         {
             stopwatch.Restart();
@@ -54,7 +54,7 @@ namespace Helium
         /// <summary>
         /// Get Movie by Id Healthcheck
         /// </summary>
-        /// <returns>HealthzResult</returns>
+        /// <returns>HealthzCheck</returns>
         private async Task<HealthzCheck> GetMovieByIdAsync(string movieId)
         {
             Stopwatch sw = new Stopwatch();
@@ -69,7 +69,7 @@ namespace Helium
         /// <summary>
         /// Search Movies Healthcheck
         /// </summary>
-        /// <returns>HealthzResult</returns>
+        /// <returns>HealthzCheck</returns>
         private async Task<HealthzCheck> SearchMoviesAsync(string query)
         {
             stopwatch.Restart();
@@ -82,7 +82,7 @@ namespace Helium
         /// <summary>
         /// Get Top Rated Movies Healthcheck
         /// </summary>
-        /// <returns>HealthzResult</returns>
+        /// <returns>HealthzCheck</returns>
         private async Task<HealthzCheck> GetTopRatedMoviesAsync()
         {
             stopwatch.Restart();
@@ -95,7 +95,7 @@ namespace Helium
         /// <summary>
         /// Get Actor By Id Healthcheck
         /// </summary>
-        /// <returns>HealthzResult</returns>
+        /// <returns>HealthzCheck</returns>
         private async Task<HealthzCheck> GetActorByIdAsync(string actorId)
         {
             stopwatch.Restart();
@@ -108,7 +108,7 @@ namespace Helium
         /// <summary>
         /// Search Actors Healthcheck
         /// </summary>
-        /// <returns>HealthzResult</returns>
+        /// <returns>HealthzCheck</returns>
         private async Task<HealthzCheck> SearchActorsAsync(string query)
         {
             stopwatch.Restart();
