@@ -20,8 +20,6 @@ namespace Helium
 
         private static JsonSerializerOptions jsonOptions = null;
 
-        // TODO - /healthz doesn't appear in swagger
-
         private readonly ILogger _logger;
         private readonly IDAL _dal;
 
