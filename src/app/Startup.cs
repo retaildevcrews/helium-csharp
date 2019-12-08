@@ -1,11 +1,17 @@
 ﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Helium
 {
@@ -33,6 +39,9 @@ namespace Helium
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers().AddJsonOptions(options => options.JsonSerializerOptions.IgnoreNullValues = true);
+
+            // add healthcheck service
+            services.AddHealthChecks().AddCosmosHealthCheck("CosmosDB");
 
             // configure Swagger
             services.ConfigureSwaggerGen(options =>
@@ -73,6 +82,7 @@ namespace Helium
                 app.UseHsts();
             }
 
+            // use routing
             app.UseRouting();
 
             // log 4xx and 5xx results to console
@@ -88,6 +98,17 @@ namespace Helium
                 c.RoutePrefix = string.Empty;
             });
 
+            // add the Cosmos DB health check
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapHealthChecks("/healthz", new HealthCheckOptions()
+                {
+                    // use custom response writer
+                    ResponseWriter = CosmosHealthCheck.CustomResponseWriter
+                });
+            });
+
+            // add the controllers
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();

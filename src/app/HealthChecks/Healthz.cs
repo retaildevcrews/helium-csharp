@@ -4,9 +4,10 @@ namespace Helium.Model
 {
     public class HealthzStatusCode
     {
-        public const string Up = "UP";
-        public const string Down = "DOWN";
-        public const string Warn = "WARN";
+        // TODO - convert to use HealthStatus enum
+        public const string Healthy = "Healthy";
+        public const string Unhealthy = "Unhealthy";
+        public const string Degraded = "Degraded";
     }
 
     public class HealthzStatus
@@ -17,21 +18,21 @@ namespace Helium.Model
             {
                 if (!string.IsNullOrEmpty(Message))
                 {
-                    return HealthzStatusCode.Down;
+                    return HealthzStatusCode.Unhealthy;
                 }
 
-                string code = HealthzStatusCode.Up;
+                string code = HealthzStatusCode.Healthy;
 
                 foreach (var r in Results)
                 {
-                    if (r.StatusCode == HealthzStatusCode.Down)
+                    if (r.StatusCode == HealthzStatusCode.Unhealthy)
                     {
-                        return HealthzStatusCode.Down;
+                        return HealthzStatusCode.Unhealthy;
                     }
 
-                    if (r.StatusCode == HealthzStatusCode.Warn)
+                    if (r.StatusCode == HealthzStatusCode.Degraded)
                     {
-                        code = HealthzStatusCode.Warn;
+                        code = HealthzStatusCode.Degraded;
                     }
                 }
 
