@@ -34,7 +34,11 @@ namespace Helium.Model
             ObservedUnit = "ms";
             Time = hzCheck.Time;
             Message = hzCheck.Message;
-            AffectedEndpoints = new List<string> { hzCheck.Endpoint };
+
+            if (!string.IsNullOrEmpty(hzCheck.Endpoint))
+            {
+                AffectedEndpoints = new List<string> { hzCheck.Endpoint };
+            }
         }
 
         /// <summary>

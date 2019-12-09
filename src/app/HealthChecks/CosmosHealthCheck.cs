@@ -90,12 +90,14 @@ namespace Helium
                 // overall health is the worst status
                 foreach (var d in data.Values)
                 {
-                    if (status != HealthStatus.Unhealthy)
+                    if (d is HealthzCheck h && h.Status != HealthStatus.Healthy)
                     {
-                        if (d is HealthzCheck h && h.Status != HealthStatus.Healthy)
-                        {
-                            status = h.Status;
-                        }
+                        status = h.Status;
+                    }
+
+                    if (status == HealthStatus.Unhealthy)
+                    {
+                        break;
                     }
                 }
 
