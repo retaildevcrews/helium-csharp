@@ -9,6 +9,7 @@ namespace Helium.Model
     public class HealthzCheck
     {
         public HealthStatus Status { get; set; }
+        public string ComponentType { get; set; }
         public TimeSpan Duration { get; set; }
         public string Time => DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ");
         public string Endpoint { get; set; }

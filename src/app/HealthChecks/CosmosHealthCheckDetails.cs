@@ -26,7 +26,8 @@ namespace Helium
             {
                 Endpoint = uri,
                 Status = HealthStatus.Healthy,
-                Duration = stopwatch.Elapsed
+                Duration = stopwatch.Elapsed,
+                ComponentType = "CosmosDB"
             };
 
             // check duration

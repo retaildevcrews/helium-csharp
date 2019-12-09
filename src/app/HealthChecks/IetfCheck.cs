@@ -29,7 +29,7 @@ namespace Helium.Model
         public IetfCheck(HealthzCheck hzCheck)
         {
             Status = ToIetfStatus(hzCheck.Status);
-            ComponentType = "CosmosDB";
+            ComponentType = hzCheck.ComponentType;
             ObservedValue = Math.Round(hzCheck.Duration.TotalMilliseconds, 2);
             ObservedUnit = "ms";
             Time = hzCheck.Time;
