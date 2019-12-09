@@ -26,6 +26,6 @@ jobs:
         # Password for Docker registry
         password: ${{ secrets.DOCKER_PAT }}
         # Registry URL
-        registry: hub.docker.com
+        #registry: hub.docker.com
         # Don't skip pull requests
         #include pull requests: # optional
