@@ -11,7 +11,7 @@ namespace Helium.Model
         public HealthStatus Status { get; set; }
         public TimeSpan Duration { get; set; }
         public string Time => DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ");
-        public string Uri { get; set; }
+        public string Endpoint { get; set; }
         public string Message { get; set; }
     }
 }

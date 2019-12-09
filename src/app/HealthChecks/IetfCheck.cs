@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System;
+using System.Collections.Generic;
 
 namespace Helium.Model
 {
@@ -13,7 +14,7 @@ namespace Helium.Model
         public double ObservedValue { get; set; }
         public string ObservedUnit { get; set; }
         public string Time { get; set; }
-        public string Uri { get; set; }
+        public List<string> AffectedEndpoints { get; set; }
         public string Message { get; set; }
 
         /// <summary>
@@ -32,8 +33,8 @@ namespace Helium.Model
             ObservedValue = Math.Round(hzCheck.Duration.TotalMilliseconds, 2);
             ObservedUnit = "ms";
             Time = hzCheck.Time;
-            Uri = hzCheck.Uri;
             Message = hzCheck.Message;
+            AffectedEndpoints = new List<string> { hzCheck.Endpoint };
         }
 
         /// <summary>

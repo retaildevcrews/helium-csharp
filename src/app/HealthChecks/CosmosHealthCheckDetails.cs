@@ -24,7 +24,7 @@ namespace Helium
             // create the result
             var result = new HealthzCheck
             {
-                Uri = uri,
+                Endpoint = uri,
                 Status = HealthStatus.Healthy,
                 Duration = stopwatch.Elapsed
             };
