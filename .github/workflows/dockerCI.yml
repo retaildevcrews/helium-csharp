@@ -16,10 +16,9 @@ jobs:
         export BUILD_NUM=$(date -u +"%y%m%d%H%M")
 
         docker build . --file Dockerfile --tag ${{ secrets.DOCKER_REPO }}/helium-csharp:${BUILD_NUM}
-        
+
         docker tag ${{ secrets.DOCKER_REPO }}/helium-csharp:${BUILD_NUM} ${{ secrets.DOCKER_REPO }}/helium-csharp:stable
 
         docker login -u ${{ secrets.DOCKER_USER }} -p ${{ secrets.DOCKER_PAT }}
 
-        docker push ${{ secrets.DOCKER_REPO }}/helium-csharp:${BUILD_NUM}
-        docker push ${{ secrets.DOCKER_REPO }}/helium-csharp:stable
+        docker push ${{ secrets.DOCKER_REPO }}/helium-csharp
