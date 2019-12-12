@@ -66,12 +66,6 @@ namespace Helium
 
             try
             {
-                if (App.config != null)
-                {
-                    // get the current Cosmos key
-                    data.Add("CosmosKey", App.config.GetValue<string>(Constants.CosmosKey).PadRight(5).Substring(0, 5).Trim() + "...");
-                }
-
                 // add instance and version
                 data.Add("Instance", System.Environment.GetEnvironmentVariable("WEBSITE_ROLE_INSTANCE_ID") ?? "unknown");
                 data.Add("Version", Helium.Version.AssemblyVersion);
