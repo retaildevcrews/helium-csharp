@@ -1,7 +1,6 @@
 using Helium.DataAccessLayer;
 using Helium.Model;
 using Microsoft.Azure.Cosmos;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
 using System;

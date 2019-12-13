@@ -87,6 +87,8 @@ namespace Helium
         /// <returns>Only returns when ctl-c is pressed and cancellation token is cancelled</returns>
         static async Task RunKeyRotationCheck(CancellationTokenSource ctCancel)
         {
+            string key = config[Constants.CosmosKey];
+
             // reload Key Vault values
             while (!ctCancel.IsCancellationRequested)
             {
@@ -130,7 +132,7 @@ namespace Helium
                         }
                     }
                 }
-                catch (Exception ex)
+                catch
                 {
                     // continue running with existing key
                     Console.WriteLine($"Cosmos Key Rotate Exception - using existing connection");
