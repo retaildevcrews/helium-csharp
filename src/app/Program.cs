@@ -88,7 +88,6 @@ namespace Helium
         static async Task RunKeyRotationCheck(CancellationTokenSource ctCancel)
         {
             string key = config[Constants.CosmosKey];
-            Console.WriteLine($"Cosmos Key: {key.Substring(0, 5)} ...");
 
             // reload Key Vault values
             while (!ctCancel.IsCancellationRequested)
@@ -116,7 +115,7 @@ namespace Helium
                                 if (key != config[Constants.CosmosKey])
                                 {
                                     key = config[Constants.CosmosKey];
-                                    Console.WriteLine($"Cosmos Key Rotated: {key.Substring(0, 5)} ...");
+                                    Console.WriteLine("Cosmos Key Rotated");
 
                                     // send a NewKeyLoadedMetric to App Insights
                                     if (!string.IsNullOrEmpty(config[Constants.AppInsightsKey]))
@@ -133,10 +132,10 @@ namespace Helium
                         }
                     }
                 }
-                catch (Exception ex)
+                catch
                 {
                     // continue running with existing key
-                    Console.WriteLine($"Cosmos Key Rotate Exception: {config[Constants.CosmosKey].Substring(0, 5)}\n{ex}");
+                    Console.WriteLine($"Cosmos Key Rotate Exception - using existing connection");
                 }
             }
         }

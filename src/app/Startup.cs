@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -30,7 +31,10 @@ namespace Helium
         /// <param name="services">The services in the web host</param>
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
+            services.AddControllers().AddJsonOptions(options => options.JsonSerializerOptions.IgnoreNullValues = true);
+
+            // add healthcheck service
+            services.AddHealthChecks().AddCosmosHealthCheck(CosmosHealthCheck.Name);
 
             // configure Swagger
             services.ConfigureSwaggerGen(options =>
@@ -60,6 +64,10 @@ namespace Helium
         /// <param name="env"></param>
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            // log 4xx and 5xx results to console
+            // this should be first as it "wraps" all requests
+            app.UseLogger(new LoggerOptions { Log2xx = false, Log3xx = false });
+
             // differences based on dev or prod
             if (env.IsDevelopment())
             {
@@ -71,10 +79,31 @@ namespace Helium
                 app.UseHsts();
             }
 
+            // use routing
             app.UseRouting();
 
-            // log 4xx and 5xx results to console
-            app.UseLogger(new LoggerOptions { Log2xx = false, Log3xx = false });
+            // add the end points
+            app.UseEndpoints(endpoints =>
+            {
+                // Cosmos DB health checks
+                // return plain text - Healthy, Degraded, Unhealthy
+                endpoints.MapHealthChecks("/healthz", new HealthCheckOptions());
+
+                // use json response writer
+                endpoints.MapHealthChecks("/healthz/json", new HealthCheckOptions()
+                {
+                    ResponseWriter = CosmosHealthCheck.JsonResponseWriter
+                });
+
+                // use IETF response writer
+                endpoints.MapHealthChecks("/healthz/ietf", new HealthCheckOptions()
+                {
+                    ResponseWriter = CosmosHealthCheck.IetfResponseWriter
+                });
+
+                // add the controllers
+                endpoints.MapControllers();
+            });
 
             // Enable middleware to serve generated Swagger as a JSON endpoint.
             app.UseSwagger();
@@ -84,11 +113,6 @@ namespace Helium
             {
                 c.SwaggerEndpoint(Constants.SwaggerPath, Constants.SwaggerTitle);
                 c.RoutePrefix = string.Empty;
-            });
-
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
             });
 
             // use the robots middleware to handle /robots*.txt requests

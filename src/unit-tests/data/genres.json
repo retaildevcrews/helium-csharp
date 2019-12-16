@@ -10,6 +10,7 @@
 {"genre":"Family","id":"family","partitionKey":"0","type":"Genre"},
 {"genre":"Fantasy","id":"fantasy","partitionKey":"0","type":"Genre"},
 {"genre":"History","id":"history","partitionKey":"0","type":"Genre"},
+{"genre":"Horror","id":"horror","partitionKey":"0","type":"Genre"},
 {"genre":"Music","id":"music","partitionKey":"0","type":"Genre"},
 {"genre":"Musical","id":"musical","partitionKey":"0","type":"Genre"},
 {"genre":"Mystery","id":"mystery","partitionKey":"0","type":"Genre"},
@@ -17,5 +18,6 @@
 {"genre":"Sci-Fi","id":"sci-fi","partitionKey":"0","type":"Genre"},
 {"genre":"Sport","id":"sport","partitionKey":"0","type":"Genre"},
 {"genre":"Thriller","id":"thriller","partitionKey":"0","type":"Genre"},
-{"genre":"War","id":"war","partitionKey":"0","type":"Genre"}
+{"genre":"War","id":"war","partitionKey":"0","type":"Genre"},
+{"genre":"Western","id":"western","partitionKey":"0","type":"Genre"}
 ]

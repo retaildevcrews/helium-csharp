@@ -209,17 +209,6 @@ namespace UnitTests
             return Task<List<string>>.Factory.StartNew(() => { return res; });
         }
 
-        public Task<HealthzSuccessDetails> GetHealthzAsync()
-        {
-            HealthzSuccessDetails d = new HealthzSuccessDetails();
-
-            d.Actors = 531;
-            d.Movies = 100;
-            d.Genres = 19;
-
-            return Task<HealthzSuccessDetails>.Factory.StartNew(() => { return d; });
-        }
-
         public Task Reconnect(string cosmosUrl, string cosmosKey, string cosmosDatabase, string cosmosCollection, bool force = false)
         {
             // do nothing
