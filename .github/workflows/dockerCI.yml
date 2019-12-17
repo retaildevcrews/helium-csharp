@@ -1,0 +1,62 @@
+name: Docker CI
+
+on:
+  push:
+    branches:
+      - master
+
+    paths:
+      - 'src/**'
+      - 'Dockerfile*'
+
+    tags:
+      - v*
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Login to registry
+      run: |
+        # Login to registry
+
+        # You must add the following secrets to github
+        #    DOCKER_USER  - your dockerhub user name
+        #    DOCKER_PAT   - the personal access token for dockerhub
+        #    DOCKER_REPO  - the docker repository name in the form: organization/repository
+
+        ## login to dockerhub
+        echo "${{ secrets.DOCKER_PAT }}" | docker login -u ${{ secrets.DOCKER_USER }} --password-stdin
+
+    - name: Build Container
+      run: docker build . --file Dockerfile --tag image
+
+    - name: Docker Push
+      run: |
+        # Tag and push the docker image
+
+        IMAGE_ID=${{ secrets.DOCKER_REPO }}
+
+        # Strip git ref prefix from version
+        VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+
+        # Only tag and push when a new tag is created
+        if [[ "${{ github.ref }}" == "refs/tags/"* ]]
+        then
+          # Strip "v" prefix from tag name
+          VERSION=$(echo $VERSION | sed -e 's/^v//')
+  
+          docker tag image $IMAGE_ID:$VERSION
+          docker tag image $IMAGE_ID:stable
+  
+          docker push $IMAGE_ID
+
+          echo "Image pushed"
+        else
+          echo "Image only pushed on tags"
+        fi
