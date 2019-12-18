@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.0</TargetFramework>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <AssemblyVersion>0.4.0.0</AssemblyVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -15,6 +15,7 @@
     <NoWarn>$(NoWarn);1591</NoWarn>
     <RootNamespace>Helium</RootNamespace>
     <AssemblyName>helium</AssemblyName>
+    <FileVersion>0.4.0.0</FileVersion>
   </PropertyGroup> 
 
   <ItemGroup>
