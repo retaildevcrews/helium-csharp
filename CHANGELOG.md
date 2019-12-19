@@ -1,7 +1,7 @@
 # Change Log
 
-## Dec 12, 2019
-
+## v0.4.0
+- Dec 18, 2019
 - converted /healthz to use dotnet HealthCheck
 - added IETF draft render to /healthz/ietf
 
