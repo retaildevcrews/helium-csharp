@@ -325,7 +325,7 @@ namespace Helium
             string kvName = Environment.GetEnvironmentVariable(Constants.KeyVaultName);
 
             // command line arg overrides environment variable
-            if (args.Length > 0 && !args[0].StartsWith("-"))
+            if (args.Length > 0 && !args[0].StartsWith("-", StringComparison.OrdinalIgnoreCase))
             {
                 kvName = args[0].Trim();
             }

@@ -1,4 +1,6 @@
-﻿namespace KeyVault.Extensions
+﻿using System;
+
+namespace KeyVault.Extensions
 {
     /// <summary>
     /// Static helper methods for working with Key Vault
@@ -21,7 +23,7 @@
             }
 
             // build the URL
-            if (!kvUrl.StartsWith("https://"))
+            if (!kvUrl.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
             {
                 kvUrl = "https://" + kvUrl;
             }
