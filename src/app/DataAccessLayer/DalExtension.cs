@@ -12,16 +12,16 @@ namespace Helium.DataAccessLayer
         /// Extension to allow services.AddDal(url, key, db, coll)
         /// </summary>
         /// <param name="services">IServiceCollection</param>
-        /// <param name="cosmosUri">Cosmos Server URL</param>
+        /// <param name="cosmosUrl">Cosmos URL</param>
         /// <param name="cosmosKey">Cosmos Key</param>
         /// <param name="cosmosDatabase">Cosmos Database</param>
         /// <param name="cosmosCollection">Cosmos Collection</param>
         /// <returns></returns>
-        public static IServiceCollection AddDal(this IServiceCollection services, Uri cosmosUri, string cosmosKey, string cosmosDatabase, string cosmosCollection)
+        public static IServiceCollection AddDal(this IServiceCollection services, Uri cosmosUrl, string cosmosKey, string cosmosDatabase, string cosmosCollection)
         {
             // add the data access layer as a singleton
             services.AddSingleton<IDAL>(new DAL(
-                cosmosUri,
+                cosmosUrl,
                 cosmosKey,
                 cosmosDatabase,
                 cosmosCollection));
