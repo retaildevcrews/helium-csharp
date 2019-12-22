@@ -138,7 +138,7 @@ namespace Helium
                         }
                     }
                 }
-                catch (Exception ex)
+                catch
                 {
                     // continue running with existing key
                     Console.WriteLine($"Cosmos Key Rotate Exception - using existing connection");
