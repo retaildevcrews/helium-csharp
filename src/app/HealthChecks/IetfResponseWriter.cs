@@ -1,6 +1,7 @@
 using Helium.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -17,6 +18,9 @@ namespace Helium
         /// <returns>Task</returns>
         public static Task IetfResponseWriter(HttpContext httpContext, HealthReport healthReport)
         {
+            if (httpContext == null) throw new ArgumentNullException(nameof(httpContext));
+            if (healthReport == null) throw new ArgumentNullException(nameof(healthReport));
+
             Dictionary<string, object> result = new Dictionary<string, object>();
             Dictionary<string, object> checks = new Dictionary<string, object>();
 

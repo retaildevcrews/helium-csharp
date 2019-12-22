@@ -52,12 +52,14 @@ namespace Helium
             }
         }
 
+
         /// <summary>
         /// Run the health check (IHealthCheck)
         /// </summary>
         /// <param name="context">HealthCheckContext</param>
         /// <param name="cancellationToken">CancellationToken</param>
         /// <returns></returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types")]
         public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
         {
             // dictionary

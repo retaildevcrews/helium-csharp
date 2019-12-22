@@ -15,5 +15,7 @@ namespace Helium.Model
         public string Time { get; set; } = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ", CultureInfo.InvariantCulture);
         public string Endpoint { get; set; }
         public string Message { get; set; }
+
+        public static string TimeoutMessage = "Request exceeded expected duration";
     }
 }

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using System;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -15,6 +16,8 @@ namespace Helium
         /// <returns></returns>
         public static Task JsonResponseWriter(HttpContext httpContext, HealthReport healthReport)
         {
+            if (httpContext == null) throw new ArgumentNullException(nameof(HttpContext));
+
             // write the json
             httpContext.Response.ContentType = "application/json";
             return httpContext.Response.WriteAsync(JsonSerializer.Serialize(healthReport, jsonOptions));

@@ -10,12 +10,14 @@ namespace Helium
     {
         private readonly Stopwatch stopwatch = new Stopwatch();
 
+
         /// <summary>
         /// Build the response
         /// </summary>
         /// <param name="uri">string</param>
         /// <param name="targetDurationMs">double (ms)</param>
         /// <returns>HealthzCheck</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters")]
         private HealthzCheck BuildHealthzCheck(string uri, double targetDurationMs)
         {
             stopwatch.Stop();
@@ -33,7 +35,7 @@ namespace Helium
             if (result.Duration.TotalMilliseconds > targetDurationMs)
             {
                 result.Status = HealthStatus.Degraded;
-                result.Message = "Request exceeded expected duration";
+                result.Message = HealthzCheck.TimeoutMessage;
             }
 
             return result;
