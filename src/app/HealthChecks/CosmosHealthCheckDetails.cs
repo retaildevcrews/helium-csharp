@@ -50,7 +50,7 @@ namespace Helium
             stopwatch.Restart();
             (await _dal.GetGenresAsync().ConfigureAwait(false)).ToList<string>();
 
-            return BuildHealthzCheck("/api/genres", 200);
+            return BuildHealthzCheck("/api/genres", 400);
         }
 
         /// <summary>
@@ -62,7 +62,7 @@ namespace Helium
             stopwatch.Restart();
             await _dal.GetMovieAsync(movieId).ConfigureAwait(false);
 
-            return BuildHealthzCheck($"/api/movies/{movieId}", 200);
+            return BuildHealthzCheck($"/api/movies/{movieId}", 250);
         }
 
         /// <summary>
@@ -74,7 +74,7 @@ namespace Helium
             stopwatch.Restart();
             (await _dal.GetMoviesByQueryAsync(query).ConfigureAwait(false)).ToList<Movie>();
 
-            return BuildHealthzCheck($"/api/movies?q={query}", 200);
+            return BuildHealthzCheck($"/api/movies?q={query}", 400);
         }
 
         /// <summary>
@@ -86,7 +86,7 @@ namespace Helium
             stopwatch.Restart();
             (await _dal.GetMoviesByQueryAsync(string.Empty, toprated: true).ConfigureAwait(false)).ToList<Movie>();
 
-            return BuildHealthzCheck("/api/movies?toprated=true", 200);
+            return BuildHealthzCheck("/api/movies?toprated=true", 400);
         }
 
         /// <summary>
@@ -98,7 +98,7 @@ namespace Helium
             stopwatch.Restart();
             await _dal.GetActorAsync(actorId).ConfigureAwait(false);
 
-            return BuildHealthzCheck($"/api/actors/{actorId}", 200);
+            return BuildHealthzCheck($"/api/actors/{actorId}", 250);
         }
 
         /// <summary>
@@ -110,7 +110,7 @@ namespace Helium
             stopwatch.Restart();
             (await _dal.GetActorsByQueryAsync(query).ConfigureAwait(false)).ToList<Actor>();
 
-            return BuildHealthzCheck($"/api/actors?q={query}", 200);
+            return BuildHealthzCheck($"/api/actors?q={query}", 400);
         }
     }
 }
