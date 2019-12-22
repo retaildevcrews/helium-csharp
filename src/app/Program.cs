@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace Helium
 {
-    public class App
+    public sealed class App
     {
         // ILogger instance
         private static ILogger<App> _logger;
