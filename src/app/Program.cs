@@ -52,7 +52,7 @@ namespace Helium
                 CancellationTokenSource ctCancel = SetupCtlCHandler();
 
                 // build the host
-                _host = await BuildHost(kvUrl);
+                _host = await BuildHost(kvUrl).ConfigureAwait(false);
 
                 // log startup messages
                 LogStartup();
@@ -61,7 +61,7 @@ namespace Helium
                 var w = _host.RunAsync();
 
                 // this doesn't return except on ctl-c
-                await RunKeyRotationCheck(ctCancel);
+                await RunKeyRotationCheck(ctCancel).ConfigureAwait(false);
             }
 
             catch (Exception ex)
@@ -94,7 +94,7 @@ namespace Helium
             {
                 try
                 {
-                    await Task.Delay(Constants.KeyVaultChangeCheckSeconds * 1000, ctCancel.Token);
+                    await Task.Delay(Constants.KeyVaultChangeCheckSeconds * 1000, ctCancel.Token).ConfigureAwait(false);
 
                     if (!ctCancel.IsCancellationRequested)
                     {
@@ -110,7 +110,7 @@ namespace Helium
                             if (dal != null)
                             {
                                 // this will only reconnect if the variables changed
-                                await dal.Reconnect(config[Constants.CosmosUrl], config[Constants.CosmosKey], config[Constants.CosmosDatabase], config[Constants.CosmosCollection]);
+                                await dal.Reconnect(config[Constants.CosmosUrl], config[Constants.CosmosKey], config[Constants.CosmosDatabase], config[Constants.CosmosCollection]).ConfigureAwait(false);
 
                                 if (key != config[Constants.CosmosKey])
                                 {
@@ -244,7 +244,7 @@ namespace Helium
                     var keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(new AzureServiceTokenProvider().KeyVaultTokenCallback));
 
                     // read a key to make sure the connection is valid 
-                    await keyVaultClient.GetSecretAsync(kvUrl, Constants.CosmosUrl);
+                    await keyVaultClient.GetSecretAsync(kvUrl, Constants.CosmosUrl).ConfigureAwait(false);
 
                     // return the client
                     return keyVaultClient;
@@ -256,7 +256,7 @@ namespace Helium
                         // log and retry
 
                         Console.WriteLine($"KeyVault:Retry: {ex.Message}");
-                        await Task.Delay(1000);
+                        await Task.Delay(1000).ConfigureAwait(false);
                     }
                     else
                     {
@@ -277,7 +277,7 @@ namespace Helium
         static async Task<IWebHost> BuildHost(string kvUrl)
         {
             // create the Key Vault Client
-            var kvClient = await GetKeyVaultClient(kvUrl);
+            var kvClient = await GetKeyVaultClient(kvUrl).ConfigureAwait(false);
 
             // build the config
             // we need the key vault values for the DAL

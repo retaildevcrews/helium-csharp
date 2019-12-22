@@ -68,7 +68,7 @@ namespace Helium.Controllers
                     pageNumber = 0;
                 }
 
-                return Ok(await _dal.GetMoviesByQueryAsync(q, genre, year, rating, topRated, actorId, pageNumber * pageSize, pageSize));
+                return Ok(await _dal.GetMoviesByQueryAsync(q, genre, year, rating, topRated, actorId, pageNumber * pageSize, pageSize).ConfigureAwait(false));
             }
 
             catch (CosmosException ce)
@@ -128,7 +128,7 @@ namespace Helium.Controllers
             {
                 // get movie by movieId
                 // CosmosDB API will throw an exception on a bad movieId
-                Movie m = await _dal.GetMovieAsync(movieId);
+                Movie m = await _dal.GetMovieAsync(movieId).ConfigureAwait(false);
 
                 return Ok(m);
             }
