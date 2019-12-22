@@ -138,7 +138,7 @@ namespace Helium.DataAccessLayer
         public static string GetPartitionKey(string id)
         {
             // validate id
-            if (! string.IsNullOrEmpty(id) &&
+            if (!string.IsNullOrEmpty(id) &&
                 id.Length > 5 &&
                 (id.StartsWith("tt", StringComparison.OrdinalIgnoreCase) || id.StartsWith("nm", StringComparison.OrdinalIgnoreCase)) &&
                 Int32.TryParse(id.Substring(2), out int idInt))
