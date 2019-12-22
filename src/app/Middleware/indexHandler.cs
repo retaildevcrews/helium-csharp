@@ -5,7 +5,7 @@ namespace Helium
 {
     public static class HomePageMiddlewareExtensions
     {
-        static readonly HashSet<string> validPaths = new HashSet<string> { "/", "/index.html", "/index.htm", "/default.html", "/default.htm" };
+        static readonly HashSet<string> validPaths = new HashSet<string> { "/", "/INDEX.HTML", "/INDEX.HTM", "/DEFAULT.HTML", "/DEFAULT.HTM" };
         static readonly byte[] responseBytes = System.Text.Encoding.UTF8.GetBytes("Under construction ...");
 
         /// <summary>
@@ -20,7 +20,7 @@ namespace Helium
             builder.Use(async (context, next) =>
             {
                 // matches / or index.htm[l] or default.htm[l]
-                if (validPaths.Contains(context.Request.Path.Value.ToLower()))
+                if (validPaths.Contains(context.Request.Path.Value.ToUpperInvariant()))
                 {
                     // return the content
                     context.Response.ContentType = "text/html";

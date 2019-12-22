@@ -41,7 +41,7 @@ namespace Helium
         {
             // save for later
             _next = next;
-            _options = options.Value;
+            _options = options?.Value;
         }
 
         public async Task Invoke(HttpContext context)

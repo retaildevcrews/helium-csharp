@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Builder;
+using System;
 
 namespace Helium
 {
@@ -21,11 +22,11 @@ namespace Helium
             builder.Use(async (context, next) =>
             {
                 // convert to lower and remove the leading /
-                string path = context.Request.Path.Value.ToLower().Substring(1);
+                string path = context.Request.Path.Value.Substring(1);
 
                 // matches /robots*.txt (/robots.txt /robots123.txt etc)
                 // does not match /robots/robots.txt
-                if (!path.Contains("/") && path.StartsWith("robots") && path.EndsWith(".txt"))
+                if (!path.Contains("/", StringComparison.OrdinalIgnoreCase) && path.StartsWith("robots", StringComparison.OrdinalIgnoreCase) && path.EndsWith(".txt", StringComparison.OrdinalIgnoreCase))
                 {
                     // return the content
                     context.Response.ContentType = "text/plain";

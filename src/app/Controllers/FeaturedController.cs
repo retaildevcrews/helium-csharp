@@ -40,6 +40,7 @@ namespace Helium.Controllers
         [Produces("application/json")]
         [ProducesResponseType(typeof(Movie), 200)]
         [ProducesResponseType(typeof(void), 404)]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Method logs and handles all exceptions")]
         public async Task<IActionResult> GetFeaturedMovieAsync()
         {
             _logger.LogInformation("GetFeaturedMovieAsync");
