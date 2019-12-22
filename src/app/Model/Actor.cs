@@ -15,6 +15,7 @@ namespace Helium.Model
         public int DeathYear { get; set; }
     }
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2227:Collection properties should be read only", Justification = "breaks json serialization")]
     public class Actor : ActorBase
     {
         [JsonProperty(Order = 1)]
@@ -22,12 +23,12 @@ namespace Helium.Model
         [JsonProperty(Order = 3)]
         public string PartitionKey { get; set; }
         [JsonProperty(Order = 96)]
-        public List<string> Profession { get; }
+        public List<string> Profession { get; set; }
         [JsonProperty(Order = 97)]
         public string Type { get; set; }
         [JsonProperty(Order = 98)]
         public string TextSearch { get; set; }
         [JsonProperty(Order = 99, NullValueHandling = NullValueHandling.Ignore)]
-        public List<MovieBase> Movies { get; }
+        public List<MovieBase> Movies { get; set; }
     }
 }

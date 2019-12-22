@@ -157,9 +157,9 @@ namespace Helium.DataAccessLayer
                 foreach (var doc in await query.ReadNextAsync().ConfigureAwait(false))
                 {
                     // apply weighting
-                    for (int i = 0; i < doc.weight; i++)
+                    for (int i = 0; i < doc.Weight; i++)
                     {
-                        list.Add(doc.movieId);
+                        list.Add(doc.MovieId);
                     }
                 }
             }
