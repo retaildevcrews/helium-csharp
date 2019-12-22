@@ -329,7 +329,7 @@ namespace Helium
                 return string.Empty;
             }
 
-            return KeyVaultHelper.BuildKeyVaultUrl(kvName);
+            return KeyVaultHelper.BuildKeyVaultConnectionString(kvName);
         }
     }
 }

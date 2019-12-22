@@ -10,14 +10,14 @@
         /// </summary>
         /// <param name="name">Key Vault Name</param>
         /// <returns>URL to Key Vault</returns>
-        public static string BuildKeyVaultUrl(string name)
+        public static string BuildKeyVaultConnectionString(string name)
         {
             string kvUrl = name?.Trim();
 
             // name is required
             if (string.IsNullOrEmpty(kvUrl))
             {
-                throw new System.ArgumentNullException("name", "Key Vault name is required");
+                throw new System.ArgumentNullException(nameof(name), "Key Vault name is required");
             }
 
             // build the URL

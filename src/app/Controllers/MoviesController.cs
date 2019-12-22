@@ -17,7 +17,6 @@ namespace Helium.Controllers
     {
         private readonly ILogger _logger;
         private readonly IDAL _dal;
-        private readonly Random _rand = new Random(DateTime.Now.Millisecond);
 
         /// <summary>
         ///  Constructor
