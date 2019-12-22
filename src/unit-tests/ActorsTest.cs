@@ -10,6 +10,7 @@ using Xunit;
 
 namespace UnitTests
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1001:Types that own disposable fields should be disposable")]
     public class ActorsTest
     {
         private readonly Mock<ILogger<ActorsController>> _logger = new Mock<ILogger<ActorsController>>();
@@ -23,7 +24,7 @@ namespace UnitTests
         [Fact]
         public async Task GetAllActors()
         {
-            OkObjectResult ok = await _controller.GetActorsAsync(string.Empty) as OkObjectResult;
+            OkObjectResult ok = await _controller.GetActorsAsync(string.Empty).ConfigureAwait(false) as OkObjectResult;
 
             Assert.NotNull(ok);
 
@@ -37,7 +38,7 @@ namespace UnitTests
         [Fact]
         public async Task GetActorsBySearch()
         {
-            OkObjectResult ok = await _controller.GetActorsAsync(AssertValues.ActorSearchString) as OkObjectResult;
+            OkObjectResult ok = await _controller.GetActorsAsync(AssertValues.ActorSearchString).ConfigureAwait(false) as OkObjectResult;
 
             Assert.NotNull(ok);
 
@@ -53,7 +54,7 @@ namespace UnitTests
         {
             // do not use c.GetActorByIdAsync().Result
             // due to thread syncronization issues with build clients, it is not reliable
-            OkObjectResult ok = await _controller.GetActorByIdAsync(AssertValues.ActorById) as OkObjectResult;
+            OkObjectResult ok = await _controller.GetActorByIdAsync(AssertValues.ActorById).ConfigureAwait(false) as OkObjectResult;
 
             Assert.NotNull(ok);
 
@@ -68,13 +69,13 @@ namespace UnitTests
         public async Task GetActorByIdFail()
         {
             // this will fail GetPartitionKey
-            NotFoundResult nf = await _controller.GetActorByIdAsync(AssertValues.BadId) as NotFoundResult;
+            NotFoundResult nf = await _controller.GetActorByIdAsync(AssertValues.BadId).ConfigureAwait(false) as NotFoundResult;
 
             Assert.NotNull(nf);
             Assert.Equal((int)System.Net.HttpStatusCode.NotFound, nf.StatusCode);
 
             // this will fail search
-            nf = await _controller.GetActorByIdAsync(AssertValues.ActorById + "000") as NotFoundResult;
+            nf = await _controller.GetActorByIdAsync(AssertValues.ActorById + "000").ConfigureAwait(false) as NotFoundResult;
 
             Assert.NotNull(nf);
             Assert.Equal((int)System.Net.HttpStatusCode.NotFound, nf.StatusCode);

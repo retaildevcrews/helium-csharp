@@ -9,6 +9,7 @@ using Xunit;
 
 namespace UnitTests
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1001:Types that own disposable fields should be disposable")]
     public class GenresTest
     {
         private readonly Mock<ILogger<GenresController>> _logger = new Mock<ILogger<GenresController>>();
@@ -23,7 +24,7 @@ namespace UnitTests
         public async Task GetGenres()
         {
 
-            OkObjectResult ok = await _controller.GetGenresAsync() as OkObjectResult;
+            OkObjectResult ok = await _controller.GetGenresAsync().ConfigureAwait(false) as OkObjectResult;
 
             Assert.NotNull(ok);
 
