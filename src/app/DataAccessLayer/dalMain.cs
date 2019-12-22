@@ -111,7 +111,7 @@ namespace Helium.DataAccessLayer
             // open and test a new client / container
             var c = new CosmosClient(cosmosUrl, cosmosKey, _cosmosDetails.CosmosClientOptions);
             var con = c.GetContainer(cosmosDatabase, cosmosCollection);
-            await con.ReadItemAsync<dynamic>("action", new PartitionKey("0").ConfigureAwait(false));
+            await con.ReadItemAsync<dynamic>("action", new PartitionKey("0")).ConfigureAwait(false);
 
             return c;
         }
