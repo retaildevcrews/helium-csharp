@@ -13,6 +13,7 @@ namespace Helium.Controllers
     /// </summary>
     [Produces("application/json")]
     [Route("api/[controller]")]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types")]
     public class MoviesController : Controller
     {
         private readonly ILogger _logger;

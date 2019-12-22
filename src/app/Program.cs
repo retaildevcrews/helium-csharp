@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 
 namespace Helium
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types")]
     public sealed class App
     {
         // ILogger instance
