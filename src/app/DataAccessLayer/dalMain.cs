@@ -12,6 +12,7 @@ namespace Helium.DataAccessLayer
     {
         private CosmosDetails _cosmosDetails = null;
 
+
         /// <summary>
         /// Data Access Layer Constructor
         /// </summary>
@@ -19,6 +20,7 @@ namespace Helium.DataAccessLayer
         /// <param name="cosmosKey">CosmosDB connection key</param>
         /// <param name="cosmosDatabase">CosmosDB Database</param>
         /// <param name="cosmosCollection">CosmosDB Collection</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "objects are used by DI")]
         public DAL(Uri cosmosUrl, string cosmosKey, string cosmosDatabase, string cosmosCollection)
         {
             if (cosmosUrl == null)
