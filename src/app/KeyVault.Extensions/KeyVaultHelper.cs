@@ -28,12 +28,12 @@ namespace KeyVault.Extensions
                 kvUrl = "https://" + kvUrl;
             }
 
-            if (!kvUrl.EndsWith(".vault.azure.net/") && !kvUrl.EndsWith(".vault.azure.net"))
+            if (!kvUrl.EndsWith(".vault.azure.net/", StringComparison.OrdinalIgnoreCase) && !kvUrl.EndsWith(".vault.azure.net", StringComparison.OrdinalIgnoreCase))
             {
                 kvUrl += ".vault.azure.net/";
             }
 
-            if (!kvUrl.EndsWith("/"))
+            if (!kvUrl.EndsWith("/", StringComparison.OrdinalIgnoreCase))
             {
                 kvUrl += "/";
             }

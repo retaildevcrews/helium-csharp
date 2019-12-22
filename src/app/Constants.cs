@@ -3,7 +3,7 @@
     /// <summary>
     /// String constants
     /// </summary>
-    public class Constants
+    public sealed class Constants
     {
         public static readonly string SwaggerVersion = "v " + Version.AssemblyVersion;
         public const string SwaggerName = "helium";
