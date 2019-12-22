@@ -87,7 +87,10 @@ namespace UnitTests
         public Task<IEnumerable<Actor>> GetActorsByQueryAsync(string q, int offset = 0, int limit = 0)
         {
             // string.empty is valid, but null is not
-            if (q == null) throw new ArgumentNullException(nameof(q));
+            if (q == null)
+            {
+                throw new ArgumentNullException(nameof(q));
+            }
 
             List<Actor> res = new List<Actor>();
 
