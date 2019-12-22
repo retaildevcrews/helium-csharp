@@ -65,6 +65,8 @@ namespace Helium.DataAccessLayer
         /// <returns>Task</returns>
         public async Task Reconnect(Uri cosmosUrl, string cosmosKey, string cosmosDatabase, string cosmosCollection, bool force = false)
         {
+            if (cosmosUrl == null) throw new ArgumentNullException(nameof(cosmosUrl));
+
             if (force ||
                 _cosmosDetails.CosmosCollection != cosmosCollection ||
                 _cosmosDetails.CosmosDatabase != cosmosDatabase ||
