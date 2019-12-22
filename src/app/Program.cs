@@ -138,7 +138,7 @@ namespace Helium
                         }
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
                     // continue running with existing key
                     Console.WriteLine($"Cosmos Key Rotate Exception - using existing connection");
@@ -275,15 +275,17 @@ namespace Helium
             }
         }
 
+
         /// <summary>
         /// Build the web host
         /// </summary>
         /// <param name="kvUrl">URL of the Key Vault</param>
         /// <returns>Web Host ready to run</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "object used in DI")]
         static async Task<IWebHost> BuildHost(string kvUrl)
         {
             // create the Key Vault Client
-            using var kvClient = await GetKeyVaultClient(kvUrl).ConfigureAwait(false);
+            var kvClient = await GetKeyVaultClient(kvUrl).ConfigureAwait(false);
 
             // build the config
             // we need the key vault values for the DAL
