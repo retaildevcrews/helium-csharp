@@ -49,14 +49,14 @@ namespace Helium.Controllers
                 // get a random movie from the featured movie list
                 if (_featuredMovies == null || _featuredMovies.Count == 0)
                 {
-                    _featuredMovies = await _dal.GetFeaturedMovieListAsync();
+                    _featuredMovies = await _dal.GetFeaturedMovieListAsync().ConfigureAwait(false);
                 }
 
                 if (_featuredMovies != null && _featuredMovies.Count > 0)
                 {
                     // get random featured movie by movieId
                     // CosmosDB API will throw an exception on a bad movieId
-                    Movie m = await _dal.GetMovieAsync(_featuredMovies[_rand.Next(0, _featuredMovies.Count - 1)]);
+                    Movie m = await _dal.GetMovieAsync(_featuredMovies[_rand.Next(0, _featuredMovies.Count - 1)]).ConfigureAwait(false);
 
                     return Ok(m);
                 }

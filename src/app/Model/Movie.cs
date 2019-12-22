@@ -16,7 +16,7 @@ namespace Helium.Model
         [JsonProperty(Order = 9)]
         public int Runtime { get; set; }
         [JsonProperty(Order = 30, NullValueHandling = NullValueHandling.Ignore)]
-        public List<string> Genres { get; set; }
+        public List<string> Genres { get; }
     }
 
     public class Movie : MovieBase
@@ -34,7 +34,7 @@ namespace Helium.Model
         [JsonProperty(Order = 7)]
         public string TextSearch { get; set; }
         [JsonProperty(Order = 99, NullValueHandling = NullValueHandling.Ignore)]
-        public List<Role> Roles { get; set; }
+        public List<Role> Roles { get; }
     }
 
     public class Role : ActorBase
@@ -44,7 +44,7 @@ namespace Helium.Model
         [JsonProperty(Order = 98)]
         public string Category { get; set; }
         [JsonProperty(Order = 99, NullValueHandling = NullValueHandling.Ignore)]
-        public List<string> Characters { get; set; }
+        public List<string> Characters { get; }
     }
 
     public class FeaturedMovie

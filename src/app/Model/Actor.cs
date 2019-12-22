@@ -22,12 +22,12 @@ namespace Helium.Model
         [JsonProperty(Order = 3)]
         public string PartitionKey { get; set; }
         [JsonProperty(Order = 96)]
-        public List<string> Profession { get; set; }
+        public List<string> Profession { get; }
         [JsonProperty(Order = 97)]
         public string Type { get; set; }
         [JsonProperty(Order = 98)]
         public string TextSearch { get; set; }
         [JsonProperty(Order = 99, NullValueHandling = NullValueHandling.Ignore)]
-        public List<MovieBase> Movies { get; set; }
+        public List<MovieBase> Movies { get; }
     }
 }

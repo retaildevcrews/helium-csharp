@@ -52,7 +52,7 @@ namespace Helium
             // Invoke next handler
             if (_next != null)
             {
-                await _next.Invoke(context);
+                await _next.Invoke(context).ConfigureAwait(false);
             }
 
             if (context.Response.StatusCode < 300)

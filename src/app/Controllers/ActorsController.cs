@@ -63,7 +63,7 @@ namespace Helium.Controllers
                     pageNumber = 0;
                 }
 
-                return Ok(await _dal.GetActorsByQueryAsync(q, pageNumber * pageSize, pageSize));
+                return Ok(await _dal.GetActorsByQueryAsync(q, pageNumber * pageSize, pageSize).ConfigureAwait(false));
             }
 
             catch (CosmosException ce)
@@ -122,7 +122,7 @@ namespace Helium.Controllers
             try
             {
                 // get a single actor
-                return Ok(await _dal.GetActorAsync(actorId));
+                return Ok(await _dal.GetActorAsync(actorId).ConfigureAwait(false));
             }
 
             // actorId isn't well formed

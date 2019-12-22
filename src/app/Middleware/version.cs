@@ -27,12 +27,12 @@ namespace Helium
 
                     // return the content
                     context.Response.ContentType = "text/plain";
-                    await context.Response.Body.WriteAsync(_responseBytes, 0, _responseBytes.Length);
+                    await context.Response.Body.WriteAsync(_responseBytes, 0, _responseBytes.Length).ConfigureAwait(false);
                 }
                 else
                 {
                     // not a match, so call next middleware handler
-                    await next();
+                    await next().ConfigureAwait(false);
                 }
             });
 

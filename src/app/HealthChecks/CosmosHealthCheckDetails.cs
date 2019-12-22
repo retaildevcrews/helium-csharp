@@ -46,7 +46,7 @@ namespace Helium
         private async Task<HealthzCheck> GetGenresAsync()
         {
             stopwatch.Restart();
-            (await _dal.GetGenresAsync()).ToList<string>();
+            (await _dal.GetGenresAsync().ConfigureAwait(false)).ToList<string>();
 
             return BuildHealthzCheck("/api/genres", 200);
         }
@@ -58,7 +58,7 @@ namespace Helium
         private async Task<HealthzCheck> GetMovieByIdAsync(string movieId)
         {
             stopwatch.Restart();
-            await _dal.GetMovieAsync(movieId);
+            await _dal.GetMovieAsync(movieId).ConfigureAwait(false);
 
             return BuildHealthzCheck($"/api/movies/{movieId}", 200);
         }
@@ -70,7 +70,7 @@ namespace Helium
         private async Task<HealthzCheck> SearchMoviesAsync(string query)
         {
             stopwatch.Restart();
-            (await _dal.GetMoviesByQueryAsync(query)).ToList<Movie>();
+            (await _dal.GetMoviesByQueryAsync(query).ConfigureAwait(false)).ToList<Movie>();
 
             return BuildHealthzCheck($"/api/movies?q={query}", 200);
         }
@@ -82,7 +82,7 @@ namespace Helium
         private async Task<HealthzCheck> GetTopRatedMoviesAsync()
         {
             stopwatch.Restart();
-            (await _dal.GetMoviesByQueryAsync(string.Empty, toprated: true)).ToList<Movie>();
+            (await _dal.GetMoviesByQueryAsync(string.Empty, toprated: true).ConfigureAwait(false)).ToList<Movie>();
 
             return BuildHealthzCheck("/api/movies?toprated=true", 200);
         }
@@ -94,7 +94,7 @@ namespace Helium
         private async Task<HealthzCheck> GetActorByIdAsync(string actorId)
         {
             stopwatch.Restart();
-            await _dal.GetActorAsync(actorId);
+            await _dal.GetActorAsync(actorId).ConfigureAwait(false);
 
             return BuildHealthzCheck($"/api/actors/{actorId}", 200);
         }
@@ -106,7 +106,7 @@ namespace Helium
         private async Task<HealthzCheck> SearchActorsAsync(string query)
         {
             stopwatch.Restart();
-            (await _dal.GetActorsByQueryAsync(query)).ToList<Actor>();
+            (await _dal.GetActorsByQueryAsync(query).ConfigureAwait(false)).ToList<Actor>();
 
             return BuildHealthzCheck($"/api/actors?q={query}", 200);
         }

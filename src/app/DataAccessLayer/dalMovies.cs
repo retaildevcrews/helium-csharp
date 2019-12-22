@@ -31,7 +31,7 @@ namespace Helium.DataAccessLayer
             // note: if the key cannot be determined from the ID, ReadDocumentAsync cannot be used.
             // GetPartitionKey will throw an ArgumentException if the movieId isn't valid
             // get a movie by ID
-            return await _cosmosDetails.Container.ReadItemAsync<Movie>(movieId, new PartitionKey(GetPartitionKey(movieId)));
+            return await _cosmosDetails.Container.ReadItemAsync<Movie>(movieId, new PartitionKey(GetPartitionKey(movieId))).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -43,7 +43,7 @@ namespace Helium.DataAccessLayer
         public async Task<IEnumerable<Movie>> GetMoviesAsync(int offset = 0, int limit = 0)
         {
             // get all movies
-            return await GetMoviesByQueryAsync(string.Empty, offset: offset, limit: limit);
+            return await GetMoviesByQueryAsync(string.Empty, offset: offset, limit: limit).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -120,7 +120,7 @@ namespace Helium.DataAccessLayer
             if (!string.IsNullOrEmpty(genre))
             {
                 // convert to lower and escape embedded '
-                genre = await GetGenreAsync(genre);
+                genre = await GetGenreAsync(genre).ConfigureAwait(false);
 
                 if (string.IsNullOrEmpty(genre))
                 {
@@ -134,7 +134,7 @@ namespace Helium.DataAccessLayer
 
             sql += orderby + offsetLimit;
 
-            return await QueryMovieWorkerAsync(sql);
+            return await QueryMovieWorkerAsync(sql).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -151,7 +151,7 @@ namespace Helium.DataAccessLayer
 
             while (query.HasMoreResults)
             {
-                foreach (var doc in await query.ReadNextAsync())
+                foreach (var doc in await query.ReadNextAsync().ConfigureAwait(false))
                 {
                     // apply weighting
                     for (int i = 0; i < doc.weight; i++)
@@ -184,7 +184,7 @@ namespace Helium.DataAccessLayer
 
             while (query.HasMoreResults)
             {
-                foreach (var doc in await query.ReadNextAsync())
+                foreach (var doc in await query.ReadNextAsync().ConfigureAwait(false))
                 {
                     results.Add(doc);
                 }

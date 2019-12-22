@@ -14,22 +14,22 @@ namespace Helium.DataAccessLayer
         /// <summary>
         /// Data Access Layer Constructor
         /// </summary>
-        /// <param name="cosmosUrl">CosmosDB URL</param>
+        /// <param name="cosmosAddress">CosmosDB Address</param>
         /// <param name="cosmosKey">CosmosDB connection key</param>
         /// <param name="cosmosDatabase">CosmosDB Database</param>
         /// <param name="cosmosCollection">CosmosDB Collection</param>
-        public DAL(string cosmosUrl, string cosmosKey, string cosmosDatabase, string cosmosCollection)
+        public DAL(string cosmosAddress, string cosmosKey, string cosmosDatabase, string cosmosCollection)
         {
             _cosmosDetails = new CosmosDetails
             {
                 CosmosCollection = cosmosCollection,
                 CosmosDatabase = cosmosDatabase,
                 CosmosKey = cosmosKey,
-                CosmosUrl = cosmosUrl
+                CosmosUrl = cosmosAddress
             };
 
             // create the CosmosDB client and container
-            _cosmosDetails.Client = OpenAndTestCosmosClient(cosmosUrl, cosmosKey, cosmosDatabase, cosmosCollection).GetAwaiter().GetResult();
+            _cosmosDetails.Client = OpenAndTestCosmosClient(cosmosAddress, cosmosKey, cosmosDatabase, cosmosCollection).GetAwaiter().GetResult();
             _cosmosDetails.Container = _cosmosDetails.Client.GetContainer(cosmosDatabase, cosmosCollection);
         }
 
@@ -46,30 +46,30 @@ namespace Helium.DataAccessLayer
         /// <summary>
         /// Recreate the Cosmos Client / Container (after a key rotation)
         /// </summary>
-        /// <param name="cosmosUrl">Cosmos URL</param>
+        /// <param name="cosmosAddress">Cosmos address</param>
         /// <param name="cosmosKey">Cosmos Key</param>
         /// <param name="cosmosDatabase">Cosmos Database</param>
         /// <param name="cosmosCollection">Cosmos Collection</param>
         /// <param name="force">force reconnection even if no params changed</param>
         /// <returns>Task</returns>
-        public async Task Reconnect(string cosmosUrl, string cosmosKey, string cosmosDatabase, string cosmosCollection, bool force = false)
+        public async Task Reconnect(string cosmosAddress, string cosmosKey, string cosmosDatabase, string cosmosCollection, bool force = false)
         {
             if (force ||
                 _cosmosDetails.CosmosCollection != cosmosCollection ||
                 _cosmosDetails.CosmosDatabase != cosmosDatabase ||
                 _cosmosDetails.CosmosKey != cosmosKey ||
-                _cosmosDetails.CosmosUrl != cosmosUrl)
+                _cosmosDetails.CosmosUrl != cosmosAddress)
             {
                 CosmosDetails d = new CosmosDetails
                 {
                     CosmosCollection = cosmosCollection,
                     CosmosDatabase = cosmosDatabase,
                     CosmosKey = cosmosKey,
-                    CosmosUrl = cosmosUrl
+                    CosmosUrl = cosmosAddress
                 };
 
                 // open and test a new client / container
-                d.Client = await OpenAndTestCosmosClient(cosmosUrl, cosmosKey, cosmosDatabase, cosmosCollection);
+                d.Client = await OpenAndTestCosmosClient(cosmosAddress, cosmosKey, cosmosDatabase, cosmosCollection).ConfigureAwait(false);
                 d.Container = d.Client.GetContainer(cosmosDatabase, cosmosCollection);
 
                 // set the current CosmosDetail
@@ -111,7 +111,7 @@ namespace Helium.DataAccessLayer
             // open and test a new client / container
             var c = new CosmosClient(cosmosUrl, cosmosKey, _cosmosDetails.CosmosClientOptions);
             var con = c.GetContainer(cosmosDatabase, cosmosCollection);
-            await con.ReadItemAsync<dynamic>("action", new PartitionKey("0"));
+            await con.ReadItemAsync<dynamic>("action", new PartitionKey("0").ConfigureAwait(false));
 
             return c;
         }

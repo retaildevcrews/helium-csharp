@@ -41,7 +41,7 @@ namespace Helium.Controllers
 
             try
             {
-                return Ok(await _dal.GetGenresAsync());
+                return Ok(await _dal.GetGenresAsync().ConfigureAwait(false));
             }
 
             catch (CosmosException ce)

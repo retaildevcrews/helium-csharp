@@ -10,15 +10,15 @@ namespace KeyVault.Extensions
         /// </summary>
         /// <param name="services">IServiceCollection</param>
         /// <param name="client">KeyVaultClient</param>
-        /// <param name="uri">Key Vault URI</param>
+        /// <param name="address">Key Vault address</param>
         /// <returns>IServiceCollection</returns>
-        public static IServiceCollection AddKeyVaultConnection(this IServiceCollection services, KeyVaultClient client, string uri)
+        public static IServiceCollection AddKeyVaultConnection(this IServiceCollection services, KeyVaultClient client, string address)
         {
             // add the KeyVaultConnection as a singleton
             services.AddSingleton<IKeyVaultConnection>(new KeyVaultConnection
             {
                 Client = client,
-                Uri = uri
+                Uri = address
             });
 
             return services;

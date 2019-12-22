@@ -71,12 +71,12 @@ namespace Helium
 
 
                 // Run each health check
-                data.Add("getGenresAsync", await GetGenresAsync());
-                data.Add("getActorByIdAsync", await GetActorByIdAsync("nm0000173"));
-                data.Add("getMovieByIdAsync", await GetMovieByIdAsync("tt0133093"));
-                data.Add("searchMoviesAsync", await SearchMoviesAsync("ring"));
-                data.Add("searchActorsAsync", await SearchActorsAsync("nicole"));
-                data.Add("getTopRatedMoviesAsync", await GetTopRatedMoviesAsync());
+                data.Add("getGenresAsync", await GetGenresAsync().ConfigureAwait(false));
+                data.Add("getActorByIdAsync", await GetActorByIdAsync("nm0000173").ConfigureAwait(false));
+                data.Add("getMovieByIdAsync", await GetMovieByIdAsync("tt0133093").ConfigureAwait(false));
+                data.Add("searchMoviesAsync", await SearchMoviesAsync("ring").ConfigureAwait(false));
+                data.Add("searchActorsAsync", await SearchActorsAsync("nicole").ConfigureAwait(false));
+                data.Add("getTopRatedMoviesAsync", await GetTopRatedMoviesAsync().ConfigureAwait(false));
 
                 HealthStatus status = HealthStatus.Healthy;
 

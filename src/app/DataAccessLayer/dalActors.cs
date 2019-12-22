@@ -30,7 +30,7 @@ namespace Helium.DataAccessLayer
             // note: if the key cannot be determined from the ID, ReadDocumentAsync cannot be used.
             // GetPartitionKey will throw an ArgumentException if the actorId isn't valid
             // get an actor by ID
-            return await _cosmosDetails.Container.ReadItemAsync<Actor>(actorId, new PartitionKey(GetPartitionKey(actorId)));
+            return await _cosmosDetails.Container.ReadItemAsync<Actor>(actorId, new PartitionKey(GetPartitionKey(actorId))).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -42,7 +42,7 @@ namespace Helium.DataAccessLayer
         public async Task<IEnumerable<Actor>> GetActorsAsync(int offset = 0, int limit = 0)
         {
             // get all actors
-            return await GetActorsByQueryAsync(string.Empty, offset, limit);
+            return await GetActorsByQueryAsync(string.Empty, offset, limit).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -85,7 +85,7 @@ namespace Helium.DataAccessLayer
 
             sql += orderby + offsetLimit;
 
-            return await QueryActorWorkerAsync(sql);
+            return await QueryActorWorkerAsync(sql).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -102,7 +102,7 @@ namespace Helium.DataAccessLayer
 
             while (query.HasMoreResults)
             {
-                foreach (var doc in await query.ReadNextAsync())
+                foreach (var doc in await query.ReadNextAsync().ConfigureAwait(false))
                 {
                     results.Add(doc);
                 }

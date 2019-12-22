@@ -25,7 +25,7 @@ namespace Helium.DataAccessLayer
 
             while (query.HasMoreResults)
             {
-                foreach (var doc in await query.ReadNextAsync())
+                foreach (var doc in await query.ReadNextAsync().ConfigureAwait(false))
                 {
                     results.Add(doc);
                 }
@@ -48,7 +48,7 @@ namespace Helium.DataAccessLayer
 
             while (query.HasMoreResults)
             {
-                foreach (var doc in await query.ReadNextAsync())
+                foreach (var doc in await query.ReadNextAsync().ConfigureAwait(false))
                 {
                     results.Add(doc);
                 }

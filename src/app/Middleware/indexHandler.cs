@@ -24,12 +24,12 @@ namespace Helium
                 {
                     // return the content
                     context.Response.ContentType = "text/html";
-                    await context.Response.Body.WriteAsync(responseBytes, 0, responseBytes.Length);
+                    await context.Response.Body.WriteAsync(responseBytes, 0, responseBytes.Length).ConfigureAwait(false);
                 }
                 else
                 {
                     // not a match, so call next middleware handler
-                    await next();
+                    await next().ConfigureAwait(false);
                 }
             });
 
