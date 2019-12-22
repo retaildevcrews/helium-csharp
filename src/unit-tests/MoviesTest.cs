@@ -98,33 +98,29 @@ namespace UnitTests
         [Fact]
         public async Task GetMoviesByGenre()
         {
-            // TODO - fix the load so this works
-
             OkObjectResult ok = await _controller.GetMoviesAsync(genre: "Action") as OkObjectResult;
 
-            //Assert.NotNull(ok);
+            Assert.NotNull(ok);
 
-            //var ie = ok.Value as IEnumerable<Movie>;
+            var ie = ok.Value as IEnumerable<Movie>;
 
-            //Assert.NotNull(ie);
+            Assert.NotNull(ie);
 
-            //Assert.Equal(380, ie.ToList<Movie>().Count);
+            Assert.Equal(380, ie.ToList<Movie>().Count);
         }
 
         [Fact]
         public async Task GetMoviesByActorId()
         {
-            // TODO - fix the load so this works
-
             OkObjectResult ok = await _controller.GetMoviesAsync(actorId: AssertValues.ActorById) as OkObjectResult;
 
-            //Assert.NotNull(ok);
+            Assert.NotNull(ok);
 
-            //var ie = ok.Value as IEnumerable<Movie>;
+            var ie = ok.Value as IEnumerable<Movie>;
 
-            //Assert.NotNull(ie);
+            Assert.NotNull(ie);
 
-            //Assert.Equal(49, ie.ToList<Movie>().Count);
+            Assert.Equal(49, ie.ToList<Movie>().Count);
         }
 
         [Fact]

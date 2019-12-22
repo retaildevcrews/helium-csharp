@@ -48,12 +48,7 @@ namespace UnitTests
             };
 
             // load the data from the json files
-            
-            // TODO - actors is not loading movies or profession correctly
-
             Actors = JsonConvert.DeserializeObject<List<Actor>>(File.ReadAllText(path + "actors.json"), settings);
-
-            // TODO - movies is not loading genres or roles correctly
 
             Movies = JsonConvert.DeserializeObject<List<Movie>>(File.ReadAllText(path + "movies.json"), settings);
 
