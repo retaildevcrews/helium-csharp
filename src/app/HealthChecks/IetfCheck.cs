@@ -14,7 +14,7 @@ namespace Helium.Model
         public double ObservedValue { get; set; }
         public string ObservedUnit { get; set; }
         public string Time { get; set; }
-        public List<string> AffectedEndpoints { get; set; }
+        public List<string> AffectedEndpoints { get; }
         public string Message { get; set; }
 
         /// <summary>
@@ -28,6 +28,8 @@ namespace Helium.Model
         /// <param name="hzCheck">HealthzCheck</param>
         public IetfCheck(HealthzCheck hzCheck)
         {
+            if (hzCheck == null) throw new ArgumentNullException(nameof(hzCheck));
+
             Status = ToIetfStatus(hzCheck.Status);
             ComponentType = hzCheck.ComponentType;
             ObservedValue = Math.Round(hzCheck.Duration.TotalMilliseconds, 2);

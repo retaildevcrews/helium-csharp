@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System;
+using System.Globalization;
 
 namespace Helium.Model
 {
@@ -11,7 +12,7 @@ namespace Helium.Model
         public HealthStatus Status { get; set; }
         public string ComponentType { get; set; }
         public TimeSpan Duration { get; set; }
-        public string Time => DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ");
+        public string Time { get; set; } = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ", CultureInfo.InvariantCulture);
         public string Endpoint { get; set; }
         public string Message { get; set; }
     }

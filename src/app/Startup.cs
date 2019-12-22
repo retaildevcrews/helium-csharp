@@ -128,7 +128,7 @@ namespace Helium
         /// Swagger uses this to annotate the documentation
         /// </summary>
         /// <returns>string - path to xml file</returns>
-        private string GetXmlCommentsPath()
+        private static string GetXmlCommentsPath()
         {
             var app = Microsoft.Extensions.PlatformAbstractions.PlatformServices.Default.Application;
             return System.IO.Path.Combine(app.ApplicationBasePath, Constants.XmlCommentsPath);

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Azure.KeyVault;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 
 namespace KeyVault.Extensions
 {
@@ -10,15 +11,15 @@ namespace KeyVault.Extensions
         /// </summary>
         /// <param name="services">IServiceCollection</param>
         /// <param name="client">KeyVaultClient</param>
-        /// <param name="address">Key Vault address</param>
+        /// <param name="uri">Key Vault URI</param>
         /// <returns>IServiceCollection</returns>
-        public static IServiceCollection AddKeyVaultConnection(this IServiceCollection services, KeyVaultClient client, string address)
+        public static IServiceCollection AddKeyVaultConnection(this IServiceCollection services, KeyVaultClient client, Uri uri)
         {
             // add the KeyVaultConnection as a singleton
             services.AddSingleton<IKeyVaultConnection>(new KeyVaultConnection
             {
                 Client = client,
-                Uri = address
+                Uri = uri
             });
 
             return services;

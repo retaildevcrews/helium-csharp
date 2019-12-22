@@ -116,7 +116,7 @@ namespace Helium
                             if (dal != null)
                             {
                                 // this will only reconnect if the variables changed
-                                await dal.Reconnect(config[Constants.CosmosUrl], config[Constants.CosmosKey], config[Constants.CosmosDatabase], config[Constants.CosmosCollection]).ConfigureAwait(false);
+                                await dal.Reconnect(new Uri(config[Constants.CosmosUrl]), config[Constants.CosmosKey], config[Constants.CosmosDatabase], config[Constants.CosmosCollection]).ConfigureAwait(false);
 
                                 if (key != config[Constants.CosmosKey])
                                 {
@@ -298,13 +298,13 @@ namespace Helium
                 .ConfigureServices(services =>
                 {
                     // add the data access layer via DI
-                    services.AddDal(config.GetValue<string>(Constants.CosmosUrl),
+                    services.AddDal(new Uri(config.GetValue<string>(Constants.CosmosUrl)),
                         config.GetValue<string>(Constants.CosmosKey),
                         config.GetValue<string>(Constants.CosmosDatabase),
                         config.GetValue<string>(Constants.CosmosCollection));
 
                     // add the KeyVaultConnection via DI
-                    services.AddKeyVaultConnection(kvClient, kvUrl);
+                    services.AddKeyVaultConnection(kvClient, new Uri(kvUrl));
 
                     // add IConfigurationRoot
                     services.AddSingleton<IConfigurationRoot>(config);
