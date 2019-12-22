@@ -293,7 +293,7 @@ namespace Helium
             IWebHostBuilder builder = WebHost.CreateDefaultBuilder()
                 .UseConfiguration(config)
                 .UseKestrel()
-                .UseUrls(string.Format($"http://*:{Constants.Port}/"))
+                .UseUrls(string.Format(System.Globalization.CultureInfo.InvariantCulture, $"http://*:{Constants.Port}/"))
                 .UseStartup<Startup>()
                 .ConfigureServices(services =>
                 {

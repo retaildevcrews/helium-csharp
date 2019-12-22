@@ -21,6 +21,11 @@ namespace Helium.DataAccessLayer
         /// <param name="cosmosCollection">CosmosDB Collection</param>
         public DAL(Uri cosmosUrl, string cosmosKey, string cosmosDatabase, string cosmosCollection)
         {
+            if (cosmosUrl == null)
+            {
+                throw new ArgumentNullException(nameof(cosmosUrl));
+            }
+
             _cosmosDetails = new CosmosDetails
             {
                 CosmosCollection = cosmosCollection,
@@ -96,17 +101,17 @@ namespace Helium.DataAccessLayer
 
             if (string.IsNullOrEmpty(cosmosKey))
             {
-                throw new ArgumentException(string.Format($"CosmosKey not set correctly {cosmosKey}", CultureInfo.InvariantCulture));
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, $"CosmosKey not set correctly {cosmosKey}"));
             }
 
             if (string.IsNullOrEmpty(cosmosDatabase))
             {
-                throw new ArgumentException(string.Format($"CosmosDatabase not set correctly {cosmosDatabase}", CultureInfo.InvariantCulture));
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, $"CosmosDatabase not set correctly {cosmosDatabase}"));
             }
 
             if (string.IsNullOrEmpty(cosmosCollection))
             {
-                throw new ArgumentException(string.Format($"CosmosCollection not set correctly {cosmosCollection}", CultureInfo.InvariantCulture));
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, $"CosmosCollection not set correctly {cosmosCollection}"));
             }
 
             // open and test a new client / container

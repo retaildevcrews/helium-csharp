@@ -18,7 +18,7 @@ namespace Helium
             builder.Use(async (context, next) =>
             {
                 // matches /version
-                if (context.Request.Path.Value.ToLower() == "/version")
+                if (context.Request.Path.Value.Equals("/version", System.StringComparison.OrdinalIgnoreCase))
                 {
                     if (_responseBytes == null)
                     {

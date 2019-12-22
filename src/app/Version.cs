@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 
 namespace Helium
 {
@@ -20,7 +21,7 @@ namespace Helium
 
                     var aVer = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
 
-                    _version = string.Format($"{aVer.Major}.{aVer.Minor}.{dt.ToString("MMdd.HHmm")}");
+                    _version = string.Format(CultureInfo.InvariantCulture, $"{aVer.Major}.{aVer.Minor}.{dt.ToString("MMdd.HHmm", CultureInfo.InvariantCulture)}");
                 }
 
                 return _version;

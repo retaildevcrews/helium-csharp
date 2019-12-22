@@ -16,6 +16,6 @@ namespace Helium.Model
         public string Endpoint { get; set; }
         public string Message { get; set; }
 
-        public static string TimeoutMessage = "Request exceeded expected duration";
+        public const string TimeoutMessage = "Request exceeded expected duration";
     }
 }
