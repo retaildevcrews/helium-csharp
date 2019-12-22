@@ -28,7 +28,10 @@ namespace Helium.Model
         /// <param name="hzCheck">HealthzCheck</param>
         public IetfCheck(HealthzCheck hzCheck)
         {
-            if (hzCheck == null) throw new ArgumentNullException(nameof(hzCheck));
+            if (hzCheck == null)
+            {
+                throw new ArgumentNullException(nameof(hzCheck));
+            }
 
             Status = ToIetfStatus(hzCheck.Status);
             ComponentType = hzCheck.ComponentType;

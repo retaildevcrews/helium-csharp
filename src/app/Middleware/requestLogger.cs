@@ -57,19 +57,31 @@ namespace Helium
 
             if (context.Response.StatusCode < 300)
             {
-                if (!_options.Log2xx) return;
+                if (!_options.Log2xx)
+                {
+                    return;
+                }
             }
             else if (context.Response.StatusCode < 400)
             {
-                if (!_options.Log3xx) return;
+                if (!_options.Log3xx)
+                {
+                    return;
+                }
             }
             else if (context.Response.StatusCode < 500)
             {
-                if (!_options.Log4xx) return;
+                if (!_options.Log4xx)
+                {
+                    return;
+                }
             }
             else
             {
-                if (!_options.Log5xx) return;
+                if (!_options.Log5xx)
+                {
+                    return;
+                }
             }
 
             // write the results to the console

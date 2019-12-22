@@ -62,7 +62,10 @@ namespace Helium.DataAccessLayer
         /// <returns>Task</returns>
         public async Task Reconnect(Uri cosmosUrl, string cosmosKey, string cosmosDatabase, string cosmosCollection, bool force = false)
         {
-            if (cosmosUrl == null) throw new ArgumentNullException(nameof(cosmosUrl));
+            if (cosmosUrl == null)
+            {
+                throw new ArgumentNullException(nameof(cosmosUrl));
+            }
 
             if (force ||
                 _cosmosDetails.CosmosCollection != cosmosCollection ||
@@ -143,7 +146,7 @@ namespace Helium.DataAccessLayer
             if (!string.IsNullOrEmpty(id) &&
                 id.Length > 5 &&
                 (id.StartsWith("tt", StringComparison.OrdinalIgnoreCase) || id.StartsWith("nm", StringComparison.OrdinalIgnoreCase)) &&
-                Int32.TryParse(id.Substring(2), out int idInt))
+                int.TryParse(id.Substring(2), out int idInt))
             {
                 return (idInt % 10).ToString(CultureInfo.InvariantCulture);
             }

@@ -16,7 +16,10 @@ namespace Helium
         /// <returns></returns>
         public static Task JsonResponseWriter(HttpContext httpContext, HealthReport healthReport)
         {
-            if (httpContext == null) throw new ArgumentNullException(nameof(httpContext));
+            if (httpContext == null)
+            {
+                throw new ArgumentNullException(nameof(httpContext));
+            }
 
             // write the json
             httpContext.Response.ContentType = "application/json";
