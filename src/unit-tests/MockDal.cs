@@ -1,6 +1,7 @@
 using Helium.DataAccessLayer;
 using Helium.Model;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -16,6 +17,7 @@ namespace UnitTests
         public static MockDal MockDal { get; } = new MockDal();
     }
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters")]
     public class MockDal : IDAL
     {
         public static List<Actor> Actors;
@@ -40,12 +42,22 @@ namespace UnitTests
                 Environment.Exit(-1);
             }
 
+            JsonSerializerSettings settings = new JsonSerializerSettings
+            {
+                ContractResolver = new DefaultContractResolver { NamingStrategy = new CamelCaseNamingStrategy() }
+            };
+
             // load the data from the json files
-            Actors = JsonConvert.DeserializeObject<List<Actor>>(File.ReadAllText(path + "actors.json"));
+            
+            // TODO - actors is not loading movies or profession correctly
 
-            Movies = JsonConvert.DeserializeObject<List<Movie>>(File.ReadAllText(path + "movies.json"));
+            Actors = JsonConvert.DeserializeObject<List<Actor>>(File.ReadAllText(path + "actors.json"), settings);
 
-            List<GenreDoc> list = JsonConvert.DeserializeObject<List<GenreDoc>>(File.ReadAllText(path + "genres.json"));
+            // TODO - movies is not loading genres or roles correctly
+
+            Movies = JsonConvert.DeserializeObject<List<Movie>>(File.ReadAllText(path + "movies.json"), settings);
+
+            List<GenreDoc> list = JsonConvert.DeserializeObject<List<GenreDoc>>(File.ReadAllText(path + "genres.json"), settings);
 
             Genres = new List<string>();
 
@@ -209,7 +221,7 @@ namespace UnitTests
             return Task<List<string>>.Factory.StartNew(() => { return res; });
         }
 
-        public Task Reconnect(string cosmosUrl, string cosmosKey, string cosmosDatabase, string cosmosCollection, bool force = false)
+        public Task Reconnect(Uri cosmosUrl, string cosmosKey, string cosmosDatabase, string cosmosCollection, bool force = false)
         {
             // do nothing
             return null;
@@ -218,6 +230,6 @@ namespace UnitTests
 
     public class GenreDoc
     {
-        public string Genre;
+        public string Genre { get; set; }
     }
 }
