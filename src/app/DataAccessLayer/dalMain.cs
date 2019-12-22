@@ -66,7 +66,7 @@ namespace Helium.DataAccessLayer
                 _cosmosDetails.CosmosCollection != cosmosCollection ||
                 _cosmosDetails.CosmosDatabase != cosmosDatabase ||
                 _cosmosDetails.CosmosKey != cosmosKey ||
-                _cosmosDetails.CosmosUrl != cosmosUrl?.AbsoluteUri)
+                _cosmosDetails.CosmosUrl != cosmosUrl.AbsoluteUri)
             {
                 CosmosDetails d = new CosmosDetails
                 {
