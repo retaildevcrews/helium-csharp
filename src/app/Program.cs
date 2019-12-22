@@ -27,7 +27,7 @@ namespace Helium
         private static IWebHost _host;
 
         // Key Vault configuration
-        public static IConfigurationRoot config = null;
+        private static IConfigurationRoot config = null;
 
 
         /// <summary>
@@ -54,7 +54,7 @@ namespace Helium
                 }
 
                 // setup ctl c handler
-                CancellationTokenSource ctCancel = SetupCtlCHandler();
+                using CancellationTokenSource ctCancel = SetupCtlCHandler();
 
                 // build the host
                 _host = await BuildHost(kvUrl).ConfigureAwait(false);
@@ -283,7 +283,7 @@ namespace Helium
         static async Task<IWebHost> BuildHost(string kvUrl)
         {
             // create the Key Vault Client
-            var kvClient = await GetKeyVaultClient(kvUrl).ConfigureAwait(false);
+            using var kvClient = await GetKeyVaultClient(kvUrl).ConfigureAwait(false);
 
             // build the config
             // we need the key vault values for the DAL
