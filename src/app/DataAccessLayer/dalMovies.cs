@@ -1,6 +1,7 @@
 using Helium.Model;
 using Microsoft.Azure.Cosmos;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -46,6 +47,7 @@ namespace Helium.DataAccessLayer
             return await GetMoviesByQueryAsync(string.Empty, offset: offset, limit: limit).ConfigureAwait(false);
         }
 
+
         /// <summary>
         /// Get a list of Movies by search and/or filter terms
         /// </summary>
@@ -58,6 +60,7 @@ namespace Helium.DataAccessLayer
         /// <param name="offset">zero based offset for paging</param>
         /// <param name="limit">number of documents for paging</param>
         /// <returns>List of Movies or an empty list</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1308:Normalize strings to uppercase", Justification = "search term has to be lower case")]
         public async Task<IEnumerable<Movie>> GetMoviesByQueryAsync(string q, string genre = "", int year = 0, double rating = 0, bool toprated = false, string actorId = "", int offset = 0, int limit = Constants.DefaultPageSize)
         {
             string sql = _movieSelect;
@@ -72,28 +75,28 @@ namespace Helium.DataAccessLayer
                 limit = Constants.MaxPageSize;
             }
 
-            string offsetLimit = string.Format(_movieOffset, offset, limit);
+            string offsetLimit = string.Format(CultureInfo.InvariantCulture, _movieOffset, offset, limit);
 
             if (!string.IsNullOrEmpty(q))
             {
                 // convert to lower and escape embedded '
-                q = q.Trim().ToLower().Replace("'", "''");
+                q = q.Trim().ToLowerInvariant().Replace("'", "''", System.StringComparison.OrdinalIgnoreCase);
 
                 if (!string.IsNullOrEmpty(q))
                 {
                     // get movies by a "like" search on title
-                    sql += string.Format($" and contains(m.textSearch, '{q}') ");
+                    sql += string.Format(CultureInfo.InvariantCulture, $" and contains(m.textSearch, '{q}') ");
                 }
             }
 
             if (year > 0)
             {
-                sql += string.Format($" and m.year = {year} ");
+                sql += string.Format(CultureInfo.InvariantCulture, $" and m.year = {year} ");
             }
 
             if (rating > 0)
             {
-                sql += string.Format($" and m.rating >= {rating} ");
+                sql += string.Format(CultureInfo.InvariantCulture, $" and m.rating >= {rating} ");
             }
 
             if (toprated)
@@ -129,7 +132,7 @@ namespace Helium.DataAccessLayer
                 }
 
                 // get movies by genre
-                sql += string.Format($" and array_contains(m.genres, '{genre}') ");
+                sql += string.Format(CultureInfo.InvariantCulture, $" and array_contains(m.genres, '{genre}') ");
             }
 
             sql += orderby + offsetLimit;

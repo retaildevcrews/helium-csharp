@@ -1,5 +1,6 @@
 using Microsoft.Azure.Cosmos;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Threading.Tasks;
 
 namespace Helium.DataAccessLayer
@@ -33,14 +34,16 @@ namespace Helium.DataAccessLayer
             return results;
         }
 
+
         /// <summary>
         /// Look up the proper Genre by key
         /// </summary>
         /// <param name="key"></param>
         /// <returns>string.Empty or the Genre</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1308:Normalize strings to uppercase", Justification = "key has to be lower case")]
         public async Task<string> GetGenreAsync(string key)
         {
-            string sql = string.Format($"select value m.genre from m where m.type = 'Genre' and m.id = '{key.Trim().ToLower()}'");
+            string sql = string.Format(CultureInfo.InvariantCulture, $"select value m.genre from m where m.type = 'Genre' and m.id = '{key?.Trim().ToLowerInvariant()}'");
 
             var query = _cosmosDetails.Container.GetItemQueryIterator<string>(new QueryDefinition(sql), requestOptions: _cosmosDetails.QueryRequestOptions);
 

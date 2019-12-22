@@ -5,6 +5,11 @@ using System.Threading.Tasks;
 
 namespace Helium.DataAccessLayer
 {
+    public static class DalMessages
+    {
+        public const string PartitionKeyErrorMessage = "Invalid Partition Key";
+    }
+
     /// <summary>
     /// Data Access Layer for CosmosDB
     /// </summary>
@@ -64,7 +69,7 @@ namespace Helium.DataAccessLayer
                 _cosmosDetails.CosmosCollection != cosmosCollection ||
                 _cosmosDetails.CosmosDatabase != cosmosDatabase ||
                 _cosmosDetails.CosmosKey != cosmosKey ||
-                _cosmosDetails.CosmosUrl != cosmosUrl.AbsoluteUri)
+                _cosmosDetails.CosmosUrl != cosmosUrl?.AbsoluteUri)
             {
                 CosmosDetails d = new CosmosDetails
                 {
@@ -142,7 +147,7 @@ namespace Helium.DataAccessLayer
                 return (idInt % 10).ToString(CultureInfo.InvariantCulture);
             }
 
-            throw new ArgumentException(nameof(GetPartitionKey));
+            throw new ArgumentException(DalMessages.PartitionKeyErrorMessage);
         }
     }
 
