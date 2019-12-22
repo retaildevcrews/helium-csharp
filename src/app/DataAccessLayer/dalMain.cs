@@ -5,11 +5,6 @@ using System.Threading.Tasks;
 
 namespace Helium.DataAccessLayer
 {
-    public static class DalMessages
-    {
-        public const string PartitionKeyErrorMessage = "Invalid Partition Key";
-    }
-
     /// <summary>
     /// Data Access Layer for CosmosDB
     /// </summary>
@@ -129,6 +124,7 @@ namespace Helium.DataAccessLayer
             return c;
         }
 
+
         /// <summary>
         /// Compute the partition key based on the movieId or actorId
         /// 
@@ -138,6 +134,7 @@ namespace Helium.DataAccessLayer
         /// </summary>
         /// <param name="id">document id</param>
         /// <returns>the partition key</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "log message")]
         public static string GetPartitionKey(string id)
         {
             // validate id
@@ -149,7 +146,7 @@ namespace Helium.DataAccessLayer
                 return (idInt % 10).ToString(CultureInfo.InvariantCulture);
             }
 
-            throw new ArgumentException(DalMessages.PartitionKeyErrorMessage);
+            throw new ArgumentException("Invalid Partition Key");
         }
     }
 
