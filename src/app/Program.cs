@@ -27,12 +27,14 @@ namespace Helium
         // Key Vault configuration
         public static IConfigurationRoot config = null;
 
+
         /// <summary>
         /// Main entry point
         /// 
         /// Configure and run the web server
         /// </summary>
         /// <param name="args">command line args</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1062:Validate arguments of public methods")]
         public static async Task Main(string[] args)
         {
             try

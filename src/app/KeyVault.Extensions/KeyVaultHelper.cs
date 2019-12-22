@@ -3,7 +3,7 @@
     /// <summary>
     /// Static helper methods for working with Key Vault
     /// </summary>
-    public class KeyVaultHelper
+    public sealed class KeyVaultHelper
     {
         /// <summary>
         /// Build the Key Vault URL from the name
