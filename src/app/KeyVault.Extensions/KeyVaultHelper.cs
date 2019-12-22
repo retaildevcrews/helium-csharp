@@ -17,7 +17,7 @@
             // name is required
             if (string.IsNullOrEmpty(kvUrl))
             {
-                throw new System.ArgumentNullException(nameof(name), "Key Vault name is required");
+                throw new System.ArgumentNullException(nameof(name));
             }
 
             // build the URL
