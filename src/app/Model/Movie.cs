@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace Helium.Model
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2227:Collection properties should be read only", Justification = "breaks json serialization")]
     public class MovieBase
     {
         [JsonProperty(Order = 2)]
@@ -19,6 +20,7 @@ namespace Helium.Model
         public List<string> Genres { get; set; }
     }
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2227:Collection properties should be read only", Justification = "breaks json serialization")]
     public class Movie : MovieBase
     {
         [JsonProperty(Order = 1)]
@@ -37,6 +39,7 @@ namespace Helium.Model
         public List<Role> Roles { get; set; }
     }
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2227:Collection properties should be read only", Justification = "breaks json serialization")]
     public class Role : ActorBase
     {
         [JsonProperty(Order = 1)]
@@ -49,7 +52,7 @@ namespace Helium.Model
 
     public class FeaturedMovie
     {
-        public string movieId { get; set; }
-        public int weight { get; set; } = 1;
+        public string MovieId { get; set; }
+        public int Weight { get; set; } = 1;
     }
 }

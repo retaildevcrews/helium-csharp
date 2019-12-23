@@ -15,6 +15,7 @@ namespace Helium.Model
         public int DeathYear { get; set; }
     }
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2227:Collection properties should be read only", Justification = "breaks json serialization")]
     public class Actor : ActorBase
     {
         [JsonProperty(Order = 1)]

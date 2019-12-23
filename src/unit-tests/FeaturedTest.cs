@@ -8,6 +8,7 @@ using Xunit;
 
 namespace UnitTests
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1001:Types that own disposable fields should be disposable")]
     public class FeaturedTest
     {
         private readonly Mock<ILogger<FeaturedController>> _logger = new Mock<ILogger<FeaturedController>>();
@@ -21,12 +22,12 @@ namespace UnitTests
         [Fact]
         public async Task GetFeaturedMovie()
         {
-            var list = await new MockDal().GetFeaturedMovieListAsync();
+            var list = await new MockDal().GetFeaturedMovieListAsync().ConfigureAwait(false);
 
             Assert.NotNull(list);
             Assert.Equal(7, list.Count);
 
-            var res = await _controller.GetFeaturedMovieAsync();
+            var res = await _controller.GetFeaturedMovieAsync().ConfigureAwait(false);
 
             OkObjectResult ok = res as OkObjectResult;
 

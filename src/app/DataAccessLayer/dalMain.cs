@@ -1,5 +1,6 @@
 using Microsoft.Azure.Cosmos;
 using System;
+using System.Globalization;
 using System.Threading.Tasks;
 
 namespace Helium.DataAccessLayer
@@ -11,21 +12,28 @@ namespace Helium.DataAccessLayer
     {
         private CosmosDetails _cosmosDetails = null;
 
+
         /// <summary>
         /// Data Access Layer Constructor
         /// </summary>
-        /// <param name="cosmosUrl">CosmosDB URL</param>
+        /// <param name="cosmosUrl">CosmosDB Url</param>
         /// <param name="cosmosKey">CosmosDB connection key</param>
         /// <param name="cosmosDatabase">CosmosDB Database</param>
         /// <param name="cosmosCollection">CosmosDB Collection</param>
-        public DAL(string cosmosUrl, string cosmosKey, string cosmosDatabase, string cosmosCollection)
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "objects are used by DI")]
+        public DAL(Uri cosmosUrl, string cosmosKey, string cosmosDatabase, string cosmosCollection)
         {
+            if (cosmosUrl == null)
+            {
+                throw new ArgumentNullException(nameof(cosmosUrl));
+            }
+
             _cosmosDetails = new CosmosDetails
             {
                 CosmosCollection = cosmosCollection,
                 CosmosDatabase = cosmosDatabase,
                 CosmosKey = cosmosKey,
-                CosmosUrl = cosmosUrl
+                CosmosUrl = cosmosUrl.AbsoluteUri
             };
 
             // create the CosmosDB client and container
@@ -52,24 +60,29 @@ namespace Helium.DataAccessLayer
         /// <param name="cosmosCollection">Cosmos Collection</param>
         /// <param name="force">force reconnection even if no params changed</param>
         /// <returns>Task</returns>
-        public async Task Reconnect(string cosmosUrl, string cosmosKey, string cosmosDatabase, string cosmosCollection, bool force = false)
+        public async Task Reconnect(Uri cosmosUrl, string cosmosKey, string cosmosDatabase, string cosmosCollection, bool force = false)
         {
+            if (cosmosUrl == null)
+            {
+                throw new ArgumentNullException(nameof(cosmosUrl));
+            }
+
             if (force ||
                 _cosmosDetails.CosmosCollection != cosmosCollection ||
                 _cosmosDetails.CosmosDatabase != cosmosDatabase ||
                 _cosmosDetails.CosmosKey != cosmosKey ||
-                _cosmosDetails.CosmosUrl != cosmosUrl)
+                _cosmosDetails.CosmosUrl != cosmosUrl.AbsoluteUri)
             {
                 CosmosDetails d = new CosmosDetails
                 {
                     CosmosCollection = cosmosCollection,
                     CosmosDatabase = cosmosDatabase,
                     CosmosKey = cosmosKey,
-                    CosmosUrl = cosmosUrl
+                    CosmosUrl = cosmosUrl.AbsoluteUri
                 };
 
                 // open and test a new client / container
-                d.Client = await OpenAndTestCosmosClient(cosmosUrl, cosmosKey, cosmosDatabase, cosmosCollection);
+                d.Client = await OpenAndTestCosmosClient(cosmosUrl, cosmosKey, cosmosDatabase, cosmosCollection).ConfigureAwait(false);
                 d.Container = d.Client.GetContainer(cosmosDatabase, cosmosCollection);
 
                 // set the current CosmosDetail
@@ -85,36 +98,37 @@ namespace Helium.DataAccessLayer
         /// <param name="cosmosDatabase">Cosmos Database</param>
         /// <param name="cosmosCollection">Cosmos Collection</param>
         /// <returns>An open and validated CosmosClient</returns>
-        private async Task<CosmosClient> OpenAndTestCosmosClient(string cosmosUrl, string cosmosKey, string cosmosDatabase, string cosmosCollection)
+        private async Task<CosmosClient> OpenAndTestCosmosClient(Uri cosmosUrl, string cosmosKey, string cosmosDatabase, string cosmosCollection)
         {
             // validate required parameters
-            if (string.IsNullOrEmpty(cosmosUrl))
+            if (cosmosUrl == null)
             {
-                throw new ArgumentException(string.Format($"CosmosUrl not set correctly {cosmosUrl}"));
+                throw new ArgumentNullException(nameof(cosmosUrl));
             }
 
             if (string.IsNullOrEmpty(cosmosKey))
             {
-                throw new ArgumentException(string.Format($"CosmosKey not set correctly {cosmosKey}"));
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, $"CosmosKey not set correctly {cosmosKey}"));
             }
 
             if (string.IsNullOrEmpty(cosmosDatabase))
             {
-                throw new ArgumentException(string.Format($"CosmosDatabase not set correctly {cosmosDatabase}"));
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, $"CosmosDatabase not set correctly {cosmosDatabase}"));
             }
 
             if (string.IsNullOrEmpty(cosmosCollection))
             {
-                throw new ArgumentException(string.Format($"CosmosCollection not set correctly {cosmosCollection}"));
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, $"CosmosCollection not set correctly {cosmosCollection}"));
             }
 
             // open and test a new client / container
-            var c = new CosmosClient(cosmosUrl, cosmosKey, _cosmosDetails.CosmosClientOptions);
+            var c = new CosmosClient(cosmosUrl.AbsoluteUri, cosmosKey, _cosmosDetails.CosmosClientOptions);
             var con = c.GetContainer(cosmosDatabase, cosmosCollection);
-            await con.ReadItemAsync<dynamic>("action", new PartitionKey("0"));
+            await con.ReadItemAsync<dynamic>("action", new PartitionKey("0")).ConfigureAwait(false);
 
             return c;
         }
+
 
         /// <summary>
         /// Compute the partition key based on the movieId or actorId
@@ -125,17 +139,19 @@ namespace Helium.DataAccessLayer
         /// </summary>
         /// <param name="id">document id</param>
         /// <returns>the partition key</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "log message")]
         public static string GetPartitionKey(string id)
         {
             // validate id
-            if (id.Length > 5 &&
-                (id.StartsWith("tt") || id.StartsWith("nm")) &&
-                Int32.TryParse(id.Substring(2), out int idInt))
+            if (!string.IsNullOrEmpty(id) &&
+                id.Length > 5 &&
+                (id.StartsWith("tt", StringComparison.OrdinalIgnoreCase) || id.StartsWith("nm", StringComparison.OrdinalIgnoreCase)) &&
+                int.TryParse(id.Substring(2), out int idInt))
             {
-                return (idInt % 10).ToString();
+                return (idInt % 10).ToString(CultureInfo.InvariantCulture);
             }
 
-            throw new ArgumentException("GetPartitionKey");
+            throw new ArgumentException("Invalid Partition Key");
         }
     }
 

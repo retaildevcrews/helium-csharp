@@ -16,7 +16,9 @@ using System.Threading.Tasks;
 
 namespace Helium
 {
-    public class App
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031")]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303")]
+    public sealed class App
     {
         // ILogger instance
         private static ILogger<App> _logger;
@@ -25,7 +27,8 @@ namespace Helium
         private static IWebHost _host;
 
         // Key Vault configuration
-        public static IConfigurationRoot config = null;
+        private static IConfigurationRoot config = null;
+
 
         /// <summary>
         /// Main entry point
@@ -33,6 +36,8 @@ namespace Helium
         /// Configure and run the web server
         /// </summary>
         /// <param name="args">command line args</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1062")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1303")]
         public static async Task Main(string[] args)
         {
             try
@@ -49,10 +54,10 @@ namespace Helium
                 }
 
                 // setup ctl c handler
-                CancellationTokenSource ctCancel = SetupCtlCHandler();
+                using CancellationTokenSource ctCancel = SetupCtlCHandler();
 
                 // build the host
-                _host = await BuildHost(kvUrl);
+                _host = await BuildHost(kvUrl).ConfigureAwait(false);
 
                 // log startup messages
                 LogStartup();
@@ -61,7 +66,7 @@ namespace Helium
                 var w = _host.RunAsync();
 
                 // this doesn't return except on ctl-c
-                await RunKeyRotationCheck(ctCancel);
+                await RunKeyRotationCheck(ctCancel).ConfigureAwait(false);
             }
 
             catch (Exception ex)
@@ -80,6 +85,7 @@ namespace Helium
             }
         }
 
+
         /// <summary>
         /// Check for Cosmos key rotation
         /// </summary>
@@ -94,7 +100,7 @@ namespace Helium
             {
                 try
                 {
-                    await Task.Delay(Constants.KeyVaultChangeCheckSeconds * 1000, ctCancel.Token);
+                    await Task.Delay(Constants.KeyVaultChangeCheckSeconds * 1000, ctCancel.Token).ConfigureAwait(false);
 
                     if (!ctCancel.IsCancellationRequested)
                     {
@@ -110,7 +116,7 @@ namespace Helium
                             if (dal != null)
                             {
                                 // this will only reconnect if the variables changed
-                                await dal.Reconnect(config[Constants.CosmosUrl], config[Constants.CosmosKey], config[Constants.CosmosDatabase], config[Constants.CosmosCollection]);
+                                await dal.Reconnect(new Uri(config[Constants.CosmosUrl]), config[Constants.CosmosKey], config[Constants.CosmosDatabase], config[Constants.CosmosCollection]).ConfigureAwait(false);
 
                                 if (key != config[Constants.CosmosKey])
                                 {
@@ -244,7 +250,7 @@ namespace Helium
                     var keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(new AzureServiceTokenProvider().KeyVaultTokenCallback));
 
                     // read a key to make sure the connection is valid 
-                    await keyVaultClient.GetSecretAsync(kvUrl, Constants.CosmosUrl);
+                    await keyVaultClient.GetSecretAsync(kvUrl, Constants.CosmosUrl).ConfigureAwait(false);
 
                     // return the client
                     return keyVaultClient;
@@ -256,7 +262,7 @@ namespace Helium
                         // log and retry
 
                         Console.WriteLine($"KeyVault:Retry: {ex.Message}");
-                        await Task.Delay(1000);
+                        await Task.Delay(1000).ConfigureAwait(false);
                     }
                     else
                     {
@@ -269,15 +275,17 @@ namespace Helium
             }
         }
 
+
         /// <summary>
         /// Build the web host
         /// </summary>
         /// <param name="kvUrl">URL of the Key Vault</param>
         /// <returns>Web Host ready to run</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "object used in DI")]
         static async Task<IWebHost> BuildHost(string kvUrl)
         {
             // create the Key Vault Client
-            var kvClient = await GetKeyVaultClient(kvUrl);
+            var kvClient = await GetKeyVaultClient(kvUrl).ConfigureAwait(false);
 
             // build the config
             // we need the key vault values for the DAL
@@ -287,18 +295,18 @@ namespace Helium
             IWebHostBuilder builder = WebHost.CreateDefaultBuilder()
                 .UseConfiguration(config)
                 .UseKestrel()
-                .UseUrls(string.Format($"http://*:{Constants.Port}/"))
+                .UseUrls(string.Format(System.Globalization.CultureInfo.InvariantCulture, $"http://*:{Constants.Port}/"))
                 .UseStartup<Startup>()
                 .ConfigureServices(services =>
                 {
                     // add the data access layer via DI
-                    services.AddDal(config.GetValue<string>(Constants.CosmosUrl),
+                    services.AddDal(new Uri(config.GetValue<string>(Constants.CosmosUrl)),
                         config.GetValue<string>(Constants.CosmosKey),
                         config.GetValue<string>(Constants.CosmosDatabase),
                         config.GetValue<string>(Constants.CosmosCollection));
 
                     // add the KeyVaultConnection via DI
-                    services.AddKeyVaultConnection(kvClient, kvUrl);
+                    services.AddKeyVaultConnection(kvClient, new Uri(kvUrl));
 
                     // add IConfigurationRoot
                     services.AddSingleton<IConfigurationRoot>(config);
@@ -319,7 +327,7 @@ namespace Helium
             string kvName = Environment.GetEnvironmentVariable(Constants.KeyVaultName);
 
             // command line arg overrides environment variable
-            if (args.Length > 0 && !args[0].StartsWith("-"))
+            if (args.Length > 0 && !args[0].StartsWith("-", StringComparison.OrdinalIgnoreCase))
             {
                 kvName = args[0].Trim();
             }
@@ -329,7 +337,7 @@ namespace Helium
                 return string.Empty;
             }
 
-            return KeyVaultHelper.BuildKeyVaultUrl(kvName);
+            return KeyVaultHelper.BuildKeyVaultConnectionString(kvName);
         }
     }
 }

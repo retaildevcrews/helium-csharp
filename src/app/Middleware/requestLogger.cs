@@ -8,10 +8,10 @@ namespace Helium
 {
     public class LoggerOptions
     {
-        public bool Log2xx = true;
-        public bool Log3xx = true;
-        public bool Log4xx = true;
-        public bool Log5xx = true;
+        public bool Log2xx { get; set; } = true;
+        public bool Log3xx { get; set; } = true;
+        public bool Log4xx { get; set; } = true;
+        public bool Log5xx { get; set; } = true;
     }
 
     public static class LoggerMiddlewareExtensions
@@ -41,7 +41,7 @@ namespace Helium
         {
             // save for later
             _next = next;
-            _options = options.Value;
+            _options = options?.Value;
         }
 
         public async Task Invoke(HttpContext context)
@@ -52,24 +52,36 @@ namespace Helium
             // Invoke next handler
             if (_next != null)
             {
-                await _next.Invoke(context);
+                await _next.Invoke(context).ConfigureAwait(false);
             }
 
             if (context.Response.StatusCode < 300)
             {
-                if (!_options.Log2xx) return;
+                if (!_options.Log2xx)
+                {
+                    return;
+                }
             }
             else if (context.Response.StatusCode < 400)
             {
-                if (!_options.Log3xx) return;
+                if (!_options.Log3xx)
+                {
+                    return;
+                }
             }
             else if (context.Response.StatusCode < 500)
             {
-                if (!_options.Log4xx) return;
+                if (!_options.Log4xx)
+                {
+                    return;
+                }
             }
             else
             {
-                if (!_options.Log5xx) return;
+                if (!_options.Log5xx)
+                {
+                    return;
+                }
             }
 
             // write the results to the console

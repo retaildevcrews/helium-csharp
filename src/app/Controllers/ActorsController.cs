@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Globalization;
 using System.Threading.Tasks;
 
 namespace Helium.Controllers
@@ -39,6 +40,8 @@ namespace Helium.Controllers
         [HttpGet]
         [Produces("application/json")]
         [ProducesResponseType(typeof(Actor[]), 200)]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Method logs and handles all exceptions")]
+
         public async Task<IActionResult> GetActorsAsync([FromQuery] string q, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = Constants.DefaultPageSize)
         {
             string method = GetMethod(q, pageNumber, pageSize);
@@ -63,7 +66,7 @@ namespace Helium.Controllers
                     pageNumber = 0;
                 }
 
-                return Ok(await _dal.GetActorsByQueryAsync(q, pageNumber * pageSize, pageSize));
+                return Ok(await _dal.GetActorsByQueryAsync(q, pageNumber * pageSize, pageSize).ConfigureAwait(false));
             }
 
             catch (CosmosException ce)
@@ -115,6 +118,8 @@ namespace Helium.Controllers
         [Produces("application/json")]
         [ProducesResponseType(typeof(Actor), 200)]
         [ProducesResponseType(typeof(void), 404)]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Method logs and handles all exceptions")]
+
         public async Task<IActionResult> GetActorByIdAsync(string actorId)
         {
             _logger.LogInformation($"GetActorByIdAsync {actorId}");
@@ -122,7 +127,7 @@ namespace Helium.Controllers
             try
             {
                 // get a single actor
-                return Ok(await _dal.GetActorAsync(actorId));
+                return Ok(await _dal.GetActorAsync(actorId).ConfigureAwait(false));
             }
 
             // actorId isn't well formed
@@ -202,15 +207,15 @@ namespace Helium.Controllers
                 // add the query parameters to the method name if exists
                 if (HttpContext.Request.Query.ContainsKey("q"))
                 {
-                    method = string.Format($"{method}:q:{q}");
+                    method = string.Format(CultureInfo.InvariantCulture, $"{method}:q:{q}");
                 }
                 if (HttpContext.Request.Query.ContainsKey("pageNumber"))
                 {
-                    method = string.Format($"{method}:pageNumber:{pageNumber}");
+                    method = string.Format(CultureInfo.InvariantCulture, $"{method}:pageNumber:{pageNumber}");
                 }
                 if (HttpContext.Request.Query.ContainsKey("pageSize"))
                 {
-                    method = string.Format($"{method}:pageSize:{pageSize}");
+                    method = string.Format(CultureInfo.InvariantCulture, $"{method}:pageSize:{pageSize}");
                 }
             }
 

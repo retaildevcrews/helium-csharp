@@ -1,6 +1,7 @@
 using Helium.Model;
 using Microsoft.Azure.Cosmos;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Threading.Tasks;
 
 namespace Helium.DataAccessLayer
@@ -30,7 +31,7 @@ namespace Helium.DataAccessLayer
             // note: if the key cannot be determined from the ID, ReadDocumentAsync cannot be used.
             // GetPartitionKey will throw an ArgumentException if the actorId isn't valid
             // get an actor by ID
-            return await _cosmosDetails.Container.ReadItemAsync<Actor>(actorId, new PartitionKey(GetPartitionKey(actorId)));
+            return await _cosmosDetails.Container.ReadItemAsync<Actor>(actorId, new PartitionKey(GetPartitionKey(actorId))).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -42,8 +43,9 @@ namespace Helium.DataAccessLayer
         public async Task<IEnumerable<Actor>> GetActorsAsync(int offset = 0, int limit = 0)
         {
             // get all actors
-            return await GetActorsByQueryAsync(string.Empty, offset, limit);
+            return await GetActorsByQueryAsync(string.Empty, offset, limit).ConfigureAwait(false);
         }
+
 
         /// <summary>
         /// Get a list of Actors by search string
@@ -55,6 +57,7 @@ namespace Helium.DataAccessLayer
         /// <param name="offset">zero based offset for paging</param>
         /// <param name="limit">number of documents for paging</param>
         /// <returns>List of Actors or an empty list</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1308:Normalize strings to uppercase", Justification = "search string has to be lower case")]
         public async Task<IEnumerable<Actor>> GetActorsByQueryAsync(string q, int offset = 0, int limit = Constants.DefaultPageSize)
         {
             string sql = _actorSelect;
@@ -69,23 +72,23 @@ namespace Helium.DataAccessLayer
                 limit = Constants.MaxPageSize;
             }
 
-            string offsetLimit = string.Format(_actorOffset, offset, limit);
+            string offsetLimit = string.Format(CultureInfo.InvariantCulture, _actorOffset, offset, limit);
 
             if (!string.IsNullOrEmpty(q))
             {
                 // convert to lower and escape embedded '
-                q = q.Trim().ToLower().Replace("'", "''");
+                q = q.Trim().ToLowerInvariant().Replace("'", "''", System.StringComparison.OrdinalIgnoreCase);
 
                 if (!string.IsNullOrEmpty(q))
                 {
                     // get actors by a "like" search on name
-                    sql += string.Format($" and contains(m.textSearch, '{q}') ");
+                    sql += string.Format(CultureInfo.InvariantCulture, $" and contains(m.textSearch, '{q}') ");
                 }
             }
 
             sql += orderby + offsetLimit;
 
-            return await QueryActorWorkerAsync(sql);
+            return await QueryActorWorkerAsync(sql).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -102,7 +105,7 @@ namespace Helium.DataAccessLayer
 
             while (query.HasMoreResults)
             {
-                foreach (var doc in await query.ReadNextAsync())
+                foreach (var doc in await query.ReadNextAsync().ConfigureAwait(false))
                 {
                     results.Add(doc);
                 }

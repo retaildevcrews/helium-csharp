@@ -5,6 +5,7 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
@@ -52,12 +53,14 @@ namespace Helium
             }
         }
 
+
         /// <summary>
         /// Run the health check (IHealthCheck)
         /// </summary>
         /// <param name="context">HealthCheckContext</param>
         /// <param name="cancellationToken">CancellationToken</param>
         /// <returns></returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types")]
         public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
         {
             // dictionary
@@ -71,12 +74,12 @@ namespace Helium
 
 
                 // Run each health check
-                data.Add("getGenresAsync", await GetGenresAsync());
-                data.Add("getActorByIdAsync", await GetActorByIdAsync("nm0000173"));
-                data.Add("getMovieByIdAsync", await GetMovieByIdAsync("tt0133093"));
-                data.Add("searchMoviesAsync", await SearchMoviesAsync("ring"));
-                data.Add("searchActorsAsync", await SearchActorsAsync("nicole"));
-                data.Add("getTopRatedMoviesAsync", await GetTopRatedMoviesAsync());
+                data.Add("getGenresAsync", await GetGenresAsync().ConfigureAwait(false));
+                data.Add("getActorByIdAsync", await GetActorByIdAsync("nm0000173").ConfigureAwait(false));
+                data.Add("getMovieByIdAsync", await GetMovieByIdAsync("tt0133093").ConfigureAwait(false));
+                data.Add("searchMoviesAsync", await SearchMoviesAsync("ring").ConfigureAwait(false));
+                data.Add("searchActorsAsync", await SearchActorsAsync("nicole").ConfigureAwait(false));
+                data.Add("getTopRatedMoviesAsync", await GetTopRatedMoviesAsync().ConfigureAwait(false));
 
                 HealthStatus status = HealthStatus.Healthy;
 
@@ -92,6 +95,22 @@ namespace Helium
                     {
                         break;
                     }
+                }
+
+                // display any non-healthy checks
+                if (status != HealthStatus.Healthy)
+                {
+                    string log = "Healthz Status Issues";
+
+                    foreach (var d in data.Values)
+                    {
+                        if (d is HealthzCheck h && h.Status != HealthStatus.Healthy)
+                        {
+                            log += string.Format(CultureInfo.InvariantCulture, $"\n\t{h.Status}\t{Math.Round(h.Duration.TotalMilliseconds, 2)}\t{(int)h.TargetDuration.TotalMilliseconds}\t{h.Endpoint}");
+                        }
+                    }
+
+                    Console.WriteLine(log);
                 }
 
                 // return the result

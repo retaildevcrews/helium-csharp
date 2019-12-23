@@ -10,6 +10,7 @@ using Xunit;
 
 namespace UnitTests
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1001:Types that own disposable fields should be disposable")]
     public class MoviesTest
     {
         private readonly Mock<ILogger<MoviesController>> _logger = new Mock<ILogger<MoviesController>>();
@@ -24,7 +25,7 @@ namespace UnitTests
         public async Task GetAllMovies()
         {
 
-            OkObjectResult ok = await _controller.GetMoviesAsync(string.Empty) as OkObjectResult;
+            OkObjectResult ok = await _controller.GetMoviesAsync(string.Empty).ConfigureAwait(false) as OkObjectResult;
 
             Assert.NotNull(ok);
 
@@ -39,7 +40,7 @@ namespace UnitTests
         public async Task GetMoviesBySearch()
         {
 
-            OkObjectResult ok = await _controller.GetMoviesAsync(q: AssertValues.MoviesSearchString) as OkObjectResult;
+            OkObjectResult ok = await _controller.GetMoviesAsync(q: AssertValues.MoviesSearchString).ConfigureAwait(false) as OkObjectResult;
 
             Assert.NotNull(ok);
 
@@ -54,7 +55,7 @@ namespace UnitTests
         public async Task GetMoviesByYear()
         {
 
-            OkObjectResult ok = await _controller.GetMoviesAsync(year: 2000) as OkObjectResult;
+            OkObjectResult ok = await _controller.GetMoviesAsync(year: 2000).ConfigureAwait(false) as OkObjectResult;
 
             Assert.NotNull(ok);
 
@@ -69,7 +70,7 @@ namespace UnitTests
         public async Task GetMoviesByRating()
         {
 
-            OkObjectResult ok = await _controller.GetMoviesAsync(rating: 8.9) as OkObjectResult;
+            OkObjectResult ok = await _controller.GetMoviesAsync(rating: 8.9).ConfigureAwait(false) as OkObjectResult;
 
             Assert.NotNull(ok);
 
@@ -84,7 +85,7 @@ namespace UnitTests
         public async Task GetMoviesByTopRated()
         {
 
-            OkObjectResult ok = await _controller.GetMoviesAsync(topRated: true) as OkObjectResult;
+            OkObjectResult ok = await _controller.GetMoviesAsync(topRated: true).ConfigureAwait(false) as OkObjectResult;
 
             Assert.NotNull(ok);
 
@@ -98,8 +99,7 @@ namespace UnitTests
         [Fact]
         public async Task GetMoviesByGenre()
         {
-
-            OkObjectResult ok = await _controller.GetMoviesAsync(genre: "Action") as OkObjectResult;
+            OkObjectResult ok = await _controller.GetMoviesAsync(genre: "Action").ConfigureAwait(false) as OkObjectResult;
 
             Assert.NotNull(ok);
 
@@ -113,8 +113,7 @@ namespace UnitTests
         [Fact]
         public async Task GetMoviesByActorId()
         {
-
-            OkObjectResult ok = await _controller.GetMoviesAsync(actorId: AssertValues.ActorById) as OkObjectResult;
+            OkObjectResult ok = await _controller.GetMoviesAsync(actorId: AssertValues.ActorById).ConfigureAwait(false) as OkObjectResult;
 
             Assert.NotNull(ok);
 
@@ -130,7 +129,7 @@ namespace UnitTests
         {
             // do not use c.GetMovieByIdAsync().Result
             // due to thread syncronization issues with build clients, it is not reliable
-            var res = await _controller.GetMovieByIdAsync(AssertValues.MovieById);
+            var res = await _controller.GetMovieByIdAsync(AssertValues.MovieById).ConfigureAwait(false);
 
             OkObjectResult ok = res as OkObjectResult;
 
@@ -147,13 +146,13 @@ namespace UnitTests
         public async Task GetMovieByIdFail()
         {
             // this will fail GetPartitionKey
-            NotFoundResult nf = await _controller.GetMovieByIdAsync(AssertValues.BadId) as NotFoundResult;
+            NotFoundResult nf = await _controller.GetMovieByIdAsync(AssertValues.BadId).ConfigureAwait(false) as NotFoundResult;
 
             Assert.NotNull(nf);
             Assert.Equal((int)System.Net.HttpStatusCode.NotFound, nf.StatusCode);
 
             // this will fail search
-            nf = await _controller.GetMovieByIdAsync(AssertValues.MovieById + "000") as NotFoundResult;
+            nf = await _controller.GetMovieByIdAsync(AssertValues.MovieById + "000").ConfigureAwait(false) as NotFoundResult;
 
             Assert.NotNull(nf);
             Assert.Equal((int)System.Net.HttpStatusCode.NotFound, nf.StatusCode);
@@ -162,12 +161,12 @@ namespace UnitTests
         [Fact]
         public async Task GetFeaturedMovie()
         {
-            var list = await new MockDal().GetFeaturedMovieListAsync();
+            var list = await new MockDal().GetFeaturedMovieListAsync().ConfigureAwait(false);
 
             Assert.NotNull(list);
             Assert.Equal(7, list.Count);
 
-            var res = await _controller.GetMovieByIdAsync(list[0]);
+            var res = await _controller.GetMovieByIdAsync(list[0]).ConfigureAwait(false);
 
             OkObjectResult ok = res as OkObjectResult;
 

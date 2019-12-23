@@ -1,6 +1,6 @@
 ﻿namespace UnitTests
 {
-    public class AssertValues
+    public sealed class AssertValues
     {
         public static readonly int ActorsCount = 4434;
 

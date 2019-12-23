@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Globalization;
 using System.Threading.Tasks;
 
 namespace Helium.Controllers
@@ -13,11 +14,11 @@ namespace Helium.Controllers
     /// </summary>
     [Produces("application/json")]
     [Route("api/[controller]")]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types")]
     public class MoviesController : Controller
     {
         private readonly ILogger _logger;
         private readonly IDAL _dal;
-        private readonly Random _rand = new Random(DateTime.Now.Millisecond);
 
         /// <summary>
         ///  Constructor
@@ -45,6 +46,8 @@ namespace Helium.Controllers
         [HttpGet]
         [Produces("application/json")]
         [ProducesResponseType(typeof(Movie[]), 200)]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Method logs and handles all exceptions")]
+
         public async Task<IActionResult> GetMoviesAsync([FromQuery]string q = "", [FromQuery] string genre = "", [FromQuery] int year = 0, [FromQuery] double rating = 0, [FromQuery] bool topRated = false, [FromQuery] string actorId = "", [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = Constants.DefaultPageSize)
         {
             string method = GetMethod(q, genre, year, rating, topRated, actorId, pageNumber, pageSize);
@@ -69,7 +72,7 @@ namespace Helium.Controllers
                     pageNumber = 0;
                 }
 
-                return Ok(await _dal.GetMoviesByQueryAsync(q, genre, year, rating, topRated, actorId, pageNumber * pageSize, pageSize));
+                return Ok(await _dal.GetMoviesByQueryAsync(q, genre, year, rating, topRated, actorId, pageNumber * pageSize, pageSize).ConfigureAwait(false));
             }
 
             catch (CosmosException ce)
@@ -121,6 +124,8 @@ namespace Helium.Controllers
         [Produces("application/json")]
         [ProducesResponseType(typeof(Movie), 200)]
         [ProducesResponseType(typeof(void), 404)]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Method logs and handles all exceptions")]
+
         public async System.Threading.Tasks.Task<IActionResult> GetMovieByIdAsync(string movieId)
         {
             _logger.LogInformation($"GetMovieByIdAsync {movieId}");
@@ -129,7 +134,7 @@ namespace Helium.Controllers
             {
                 // get movie by movieId
                 // CosmosDB API will throw an exception on a bad movieId
-                Movie m = await _dal.GetMovieAsync(movieId);
+                Movie m = await _dal.GetMovieAsync(movieId).ConfigureAwait(false);
 
                 return Ok(m);
             }
@@ -216,42 +221,42 @@ namespace Helium.Controllers
                 // add the query parameters to the method name if exists
                 if (HttpContext.Request.Query.ContainsKey("q"))
                 {
-                    method = string.Format($"{method}:q:{q}");
+                    method = string.Format(CultureInfo.InvariantCulture, $"{method}:q:{q}");
                 }
 
                 if (HttpContext.Request.Query.ContainsKey("genre"))
                 {
-                    method = string.Format($"{method}:genre:{genre}");
+                    method = string.Format(CultureInfo.InvariantCulture, $"{method}:genre:{genre}");
                 }
 
                 if (HttpContext.Request.Query.ContainsKey("year"))
                 {
-                    method = string.Format($"{method}:year:{year}");
+                    method = string.Format(CultureInfo.InvariantCulture, $"{method}:year:{year}");
                 }
 
                 if (HttpContext.Request.Query.ContainsKey("rating"))
                 {
-                    method = string.Format($"{method}:rating:{rating}");
+                    method = string.Format(CultureInfo.InvariantCulture, $"{method}:rating:{rating}");
                 }
 
                 if (HttpContext.Request.Query.ContainsKey("topRated") && topRated)
                 {
-                    method = string.Format($"{method}:topRated:true");
+                    method = string.Format(CultureInfo.InvariantCulture, $"{method}:topRated:true");
                 }
 
                 if (HttpContext.Request.Query.ContainsKey("actorId"))
                 {
-                    method = string.Format($"{method}:actorId:{actorId}");
+                    method = string.Format(CultureInfo.InvariantCulture, $"{method}:actorId:{actorId}");
                 }
 
                 if (HttpContext.Request.Query.ContainsKey("pageNumber"))
                 {
-                    method = string.Format($"{method}:pageNumber:{pageNumber}");
+                    method = string.Format(CultureInfo.InvariantCulture, $"{method}:pageNumber:{pageNumber}");
                 }
 
                 if (HttpContext.Request.Query.ContainsKey("pageSize"))
                 {
-                    method = string.Format($"{method}:pageSize:{pageSize}");
+                    method = string.Format(CultureInfo.InvariantCulture, $"{method}:pageSize:{pageSize}");
                 }
             }
 

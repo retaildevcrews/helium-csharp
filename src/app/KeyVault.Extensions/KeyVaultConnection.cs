@@ -1,4 +1,5 @@
 ﻿using Microsoft.Azure.KeyVault;
+using System;
 
 namespace KeyVault.Extensions
 {
@@ -10,7 +11,7 @@ namespace KeyVault.Extensions
     public interface IKeyVaultConnection
     {
         IKeyVaultClient Client { get; set; }
-        string Uri { get; set; }
+        Uri Uri { get; set; }
     }
 
     /// <summary>
@@ -19,6 +20,6 @@ namespace KeyVault.Extensions
     public class KeyVaultConnection : IKeyVaultConnection
     {
         public IKeyVaultClient Client { get; set; }
-        public string Uri { get; set; }
+        public Uri Uri { get; set; }
     }
 }

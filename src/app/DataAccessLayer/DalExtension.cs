@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using System;
 
 namespace Helium.DataAccessLayer
 {
@@ -16,7 +17,7 @@ namespace Helium.DataAccessLayer
         /// <param name="cosmosDatabase">Cosmos Database</param>
         /// <param name="cosmosCollection">Cosmos Collection</param>
         /// <returns></returns>
-        public static IServiceCollection AddDal(this IServiceCollection services, string cosmosUrl, string cosmosKey, string cosmosDatabase, string cosmosCollection)
+        public static IServiceCollection AddDal(this IServiceCollection services, Uri cosmosUrl, string cosmosKey, string cosmosDatabase, string cosmosCollection)
         {
             // add the data access layer as a singleton
             services.AddSingleton<IDAL>(new DAL(

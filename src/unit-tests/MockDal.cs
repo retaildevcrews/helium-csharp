@@ -1,6 +1,7 @@
 using Helium.DataAccessLayer;
 using Helium.Model;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,18 +10,21 @@ using System.Threading.Tasks;
 
 namespace UnitTests
 {
-    public class TestApp
+    public sealed class TestApp
     {
         // static instance to prevent reloading
 
         public static MockDal MockDal { get; } = new MockDal();
     }
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters")]
     public class MockDal : IDAL
     {
-        public static List<Actor> Actors;
-        public static List<Movie> Movies;
-        public static List<string> Genres;
+#pragma warning disable CA2227 // these can't be read-only
+        public static List<Actor> Actors { get; set; }
+        public static List<Movie> Movies { get; set; }
+        public static List<string> Genres { get; set; }
+#pragma warning restore CA2227
 
         public MockDal()
         {
@@ -40,12 +44,17 @@ namespace UnitTests
                 Environment.Exit(-1);
             }
 
+            JsonSerializerSettings settings = new JsonSerializerSettings
+            {
+                ContractResolver = new DefaultContractResolver { NamingStrategy = new CamelCaseNamingStrategy() }
+            };
+
             // load the data from the json files
-            Actors = JsonConvert.DeserializeObject<List<Actor>>(File.ReadAllText(path + "actors.json"));
+            Actors = JsonConvert.DeserializeObject<List<Actor>>(File.ReadAllText(path + "actors.json"), settings);
 
-            Movies = JsonConvert.DeserializeObject<List<Movie>>(File.ReadAllText(path + "movies.json"));
+            Movies = JsonConvert.DeserializeObject<List<Movie>>(File.ReadAllText(path + "movies.json"), settings);
 
-            List<GenreDoc> list = JsonConvert.DeserializeObject<List<GenreDoc>>(File.ReadAllText(path + "genres.json"));
+            List<GenreDoc> list = JsonConvert.DeserializeObject<List<GenreDoc>>(File.ReadAllText(path + "genres.json"), settings);
 
             Genres = new List<string>();
 
@@ -77,13 +86,17 @@ namespace UnitTests
 
         public Task<IEnumerable<Actor>> GetActorsByQueryAsync(string q, int offset = 0, int limit = 0)
         {
-            List<Actor> res = new List<Actor>();
+            // string.empty is valid, but null is not
+            if (q == null)
+            {
+                throw new ArgumentNullException(nameof(q));
+            }
 
-            q = q.ToLower().Trim();
+            List<Actor> res = new List<Actor>();
 
             foreach (Actor a in Actors)
             {
-                if (a.TextSearch.Contains(q))
+                if (a.TextSearch.Contains(q.Trim(), StringComparison.OrdinalIgnoreCase))
                 {
                     res.Add(a);
                 }
@@ -123,11 +136,9 @@ namespace UnitTests
 
             if (!string.IsNullOrEmpty(q))
             {
-                q = q.ToLower();
-
                 foreach (Movie m in Movies)
                 {
-                    if (m.TextSearch.Contains(q))
+                    if (m.TextSearch.Contains(q, StringComparison.OrdinalIgnoreCase))
                     {
                         res.Add(m);
                     }
@@ -180,7 +191,9 @@ namespace UnitTests
 
             else if (!string.IsNullOrEmpty(actorId))
             {
-                actorId = actorId.Trim().ToLower();
+#pragma warning disable CA1308 // lower is correct
+                actorId = actorId.Trim().ToLowerInvariant();
+#pragma warning restore CA1308 
 
                 foreach (Movie m in Movies)
                 {
@@ -209,7 +222,7 @@ namespace UnitTests
             return Task<List<string>>.Factory.StartNew(() => { return res; });
         }
 
-        public Task Reconnect(string cosmosUrl, string cosmosKey, string cosmosDatabase, string cosmosCollection, bool force = false)
+        public Task Reconnect(Uri cosmosUrl, string cosmosKey, string cosmosDatabase, string cosmosCollection, bool force = false)
         {
             // do nothing
             return null;
@@ -218,6 +231,6 @@ namespace UnitTests
 
     public class GenreDoc
     {
-        public string Genre;
+        public string Genre { get; set; }
     }
 }

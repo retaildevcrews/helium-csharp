@@ -57,11 +57,13 @@ namespace Helium
             }
         }
 
+
         /// <summary>
         /// Configure the application builder
         /// </summary>
         /// <param name="app"></param>
         /// <param name="env"></param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "Required for DI")]
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             // log 4xx and 5xx results to console
@@ -128,7 +130,7 @@ namespace Helium
         /// Swagger uses this to annotate the documentation
         /// </summary>
         /// <returns>string - path to xml file</returns>
-        private string GetXmlCommentsPath()
+        private static string GetXmlCommentsPath()
         {
             var app = Microsoft.Extensions.PlatformAbstractions.PlatformServices.Default.Application;
             return System.IO.Path.Combine(app.ApplicationBasePath, Constants.XmlCommentsPath);

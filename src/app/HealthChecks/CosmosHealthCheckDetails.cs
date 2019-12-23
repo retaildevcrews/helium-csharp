@@ -10,12 +10,14 @@ namespace Helium
     {
         private readonly Stopwatch stopwatch = new Stopwatch();
 
+
         /// <summary>
         /// Build the response
         /// </summary>
         /// <param name="uri">string</param>
         /// <param name="targetDurationMs">double (ms)</param>
         /// <returns>HealthzCheck</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters")]
         private HealthzCheck BuildHealthzCheck(string uri, double targetDurationMs)
         {
             stopwatch.Stop();
@@ -26,6 +28,7 @@ namespace Helium
                 Endpoint = uri,
                 Status = HealthStatus.Healthy,
                 Duration = stopwatch.Elapsed,
+                TargetDuration = new System.TimeSpan(0, 0, 0, 0, (int)targetDurationMs),
                 ComponentType = "CosmosDB"
             };
 
@@ -33,7 +36,7 @@ namespace Helium
             if (result.Duration.TotalMilliseconds > targetDurationMs)
             {
                 result.Status = HealthStatus.Degraded;
-                result.Message = "Request exceeded expected duration";
+                result.Message = HealthzCheck.TimeoutMessage;
             }
 
             return result;
@@ -46,9 +49,9 @@ namespace Helium
         private async Task<HealthzCheck> GetGenresAsync()
         {
             stopwatch.Restart();
-            (await _dal.GetGenresAsync()).ToList<string>();
+            (await _dal.GetGenresAsync().ConfigureAwait(false)).ToList<string>();
 
-            return BuildHealthzCheck("/api/genres", 200);
+            return BuildHealthzCheck("/api/genres", 400);
         }
 
         /// <summary>
@@ -58,9 +61,9 @@ namespace Helium
         private async Task<HealthzCheck> GetMovieByIdAsync(string movieId)
         {
             stopwatch.Restart();
-            await _dal.GetMovieAsync(movieId);
+            await _dal.GetMovieAsync(movieId).ConfigureAwait(false);
 
-            return BuildHealthzCheck($"/api/movies/{movieId}", 200);
+            return BuildHealthzCheck($"/api/movies/{movieId}", 250);
         }
 
         /// <summary>
@@ -70,9 +73,9 @@ namespace Helium
         private async Task<HealthzCheck> SearchMoviesAsync(string query)
         {
             stopwatch.Restart();
-            (await _dal.GetMoviesByQueryAsync(query)).ToList<Movie>();
+            (await _dal.GetMoviesByQueryAsync(query).ConfigureAwait(false)).ToList<Movie>();
 
-            return BuildHealthzCheck($"/api/movies?q={query}", 200);
+            return BuildHealthzCheck($"/api/movies?q={query}", 400);
         }
 
         /// <summary>
@@ -82,9 +85,9 @@ namespace Helium
         private async Task<HealthzCheck> GetTopRatedMoviesAsync()
         {
             stopwatch.Restart();
-            (await _dal.GetMoviesByQueryAsync(string.Empty, toprated: true)).ToList<Movie>();
+            (await _dal.GetMoviesByQueryAsync(string.Empty, toprated: true).ConfigureAwait(false)).ToList<Movie>();
 
-            return BuildHealthzCheck("/api/movies?toprated=true", 200);
+            return BuildHealthzCheck("/api/movies?toprated=true", 400);
         }
 
         /// <summary>
@@ -94,9 +97,9 @@ namespace Helium
         private async Task<HealthzCheck> GetActorByIdAsync(string actorId)
         {
             stopwatch.Restart();
-            await _dal.GetActorAsync(actorId);
+            await _dal.GetActorAsync(actorId).ConfigureAwait(false);
 
-            return BuildHealthzCheck($"/api/actors/{actorId}", 200);
+            return BuildHealthzCheck($"/api/actors/{actorId}", 250);
         }
 
         /// <summary>
@@ -106,9 +109,9 @@ namespace Helium
         private async Task<HealthzCheck> SearchActorsAsync(string query)
         {
             stopwatch.Restart();
-            (await _dal.GetActorsByQueryAsync(query)).ToList<Actor>();
+            (await _dal.GetActorsByQueryAsync(query).ConfigureAwait(false)).ToList<Actor>();
 
-            return BuildHealthzCheck($"/api/actors?q={query}", 200);
+            return BuildHealthzCheck($"/api/actors?q={query}", 400);
         }
     }
 }
