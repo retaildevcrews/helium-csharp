@@ -11,8 +11,9 @@ namespace Helium.Model
     {
         public string Status { get; set; }
         public string ComponentType { get; set; }
-        public double ObservedValue { get; set; }
         public string ObservedUnit { get; set; }
+        public double ObservedValue { get; set; }
+        public double TargetValue { get; set; }
         public string Time { get; set; }
         public List<string> AffectedEndpoints { get; }
         public string Message { get; set; }
@@ -36,6 +37,7 @@ namespace Helium.Model
             Status = ToIetfStatus(hzCheck.Status);
             ComponentType = hzCheck.ComponentType;
             ObservedValue = Math.Round(hzCheck.Duration.TotalMilliseconds, 2);
+            TargetValue = Math.Round(hzCheck.TargetDuration.TotalMilliseconds, 0);
             ObservedUnit = "ms";
             Time = hzCheck.Time;
             Message = hzCheck.Message;

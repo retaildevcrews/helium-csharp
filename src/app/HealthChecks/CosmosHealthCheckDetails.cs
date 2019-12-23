@@ -28,6 +28,7 @@ namespace Helium
                 Endpoint = uri,
                 Status = HealthStatus.Healthy,
                 Duration = stopwatch.Elapsed,
+                TargetDuration = new System.TimeSpan(0, 0, 0, 0, (int)targetDurationMs),
                 ComponentType = "CosmosDB"
             };
 

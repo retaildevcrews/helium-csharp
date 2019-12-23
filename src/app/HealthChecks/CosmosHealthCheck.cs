@@ -5,6 +5,7 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
@@ -94,6 +95,22 @@ namespace Helium
                     {
                         break;
                     }
+                }
+
+                // display any non-healthy checks
+                if (status != HealthStatus.Healthy)
+                {
+                    string log = "Healthz Status Issues";
+
+                    foreach (var d in data.Values)
+                    {
+                        if (d is HealthzCheck h && h.Status != HealthStatus.Healthy)
+                        {
+                            log += string.Format(CultureInfo.InvariantCulture, $"\n\t{h.Status}\t{Math.Round(h.Duration.TotalMilliseconds, 2)}\t{(int)h.TargetDuration.TotalMilliseconds}\t{h.Endpoint}");
+                        }
+                    }
+
+                    Console.WriteLine(log);
                 }
 
                 // return the result
