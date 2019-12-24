@@ -12,6 +12,7 @@ namespace Helium
         public bool Log3xx { get; set; } = true;
         public bool Log4xx { get; set; } = true;
         public bool Log5xx { get; set; } = true;
+        public double TargetMs { get; set; } = 400;
     }
 
     public static class LoggerMiddlewareExtensions
@@ -55,6 +56,15 @@ namespace Helium
                 await _next.Invoke(context).ConfigureAwait(false);
             }
 
+            long duration = (long)DateTime.Now.Subtract(dtStart).TotalMilliseconds;
+
+            // log degraded requests if targetMs > 0
+            if (_options.TargetMs > 0 && duration > _options.TargetMs)
+            {
+                // write the slow message to the console
+                Console.WriteLine($"Degraded\t{duration}\t{context.Request.Host.Host}\t{context.Request.Path}");
+            }
+
             if (context.Response.StatusCode < 300)
             {
                 if (!_options.Log2xx)
@@ -85,7 +95,7 @@ namespace Helium
             }
 
             // write the results to the console
-            Console.WriteLine($"{context.Response.StatusCode}\t{(int)DateTime.Now.Subtract(dtStart).TotalMilliseconds}\t{context.Request.Path}");
+            Console.WriteLine($"{context.Response.StatusCode}\t{duration}\t{context.Request.Path}");
         }
     }
 }
