@@ -68,7 +68,7 @@ namespace Helium
         {
             // log 4xx and 5xx results to console
             // this should be first as it "wraps" all requests
-            app.UseLogger(new LoggerOptions { TargetMs = 400, Log2xx = false, Log3xx = false });
+            app.UseLogger(new LoggerOptions { TargetMs = 800, Log2xx = false, Log3xx = false });
 
             // differences based on dev or prod
             if (env.IsDevelopment())
