@@ -63,7 +63,7 @@ namespace Helium
             // log degraded requests if targetMs > 0
             if (_options.TargetMs > 0 && duration > _options.TargetMs)
             {
-                // write the slow message to the console
+                // write the degraded message to the console
                 Console.WriteLine($"Degraded\t{duration}\t{context.Request.Headers[_ipHeader]}\t{context.Request.Path}");
             }
 
