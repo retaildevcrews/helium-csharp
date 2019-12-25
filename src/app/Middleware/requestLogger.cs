@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace Helium
 {
+    /// <summary>
+    /// Logger options used to configure DI
+    /// </summary>
     public class LoggerOptions
     {
         public bool Log2xx { get; set; } = true;
@@ -15,6 +18,11 @@ namespace Helium
         public double TargetMs { get; set; } = 250;
     }
 
+    /// <summary>
+    /// Middleware extension to make registering Logger easy
+    /// 
+    /// Note: Logger should be on of the first things registered in DI
+    /// </summary>
     public static class LoggerMiddlewareExtensions
     {
         public static IApplicationBuilder UseLogger(this IApplicationBuilder builder, LoggerOptions options = null)
@@ -30,9 +38,11 @@ namespace Helium
         }
     }
 
+    /// <summary>
+    /// Simple aspnet core middleware that logs requests to the console
+    /// </summary>
     public class Logger
     {
-        // very simple example of before and after pipeline action
 
         // next action to Invoke
         private readonly RequestDelegate _next;
@@ -40,6 +50,11 @@ namespace Helium
 
         private const string _ipHeader = "X-Client-IP";
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="next">RequestDelegate</param>
+        /// <param name="options">LoggerOptions</param>
         public Logger(RequestDelegate next, IOptions<LoggerOptions> options)
         {
             // save for later
@@ -47,6 +62,11 @@ namespace Helium
             _options = options?.Value;
         }
 
+        /// <summary>
+        /// Called by aspnet pipeline
+        /// </summary>
+        /// <param name="context">HttpContext</param>
+        /// <returns>Task (void)</returns>
         public async Task Invoke(HttpContext context)
         {
             // set start time
@@ -58,6 +78,7 @@ namespace Helium
                 await _next.Invoke(context).ConfigureAwait(false);
             }
 
+            // compute request duration
             long duration = (long)DateTime.Now.Subtract(dtStart).TotalMilliseconds;
 
             // log degraded requests if targetMs > 0
