@@ -104,7 +104,7 @@ namespace Helium
                     {
                         if (d is HealthzCheck h && h.Status != HealthStatus.Healthy)
                         {
-                            Console.WriteLine($"{h.Status}\tHealthz\t{(long)h.Duration.TotalMilliseconds,6:0}\t{(int)h.TargetDuration.TotalMilliseconds,6:0}\t{h.Endpoint}");
+                            Console.WriteLine($"{h.Status}\t{(long)h.Duration.TotalMilliseconds,6:0}\tHealtz({(int)h.TargetDuration.TotalMilliseconds})\t{h.Endpoint}");
                         }
                     }
                 }
