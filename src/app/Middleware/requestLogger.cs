@@ -100,7 +100,7 @@ namespace Helium
             Console.WriteLine($"{context.Response.StatusCode}\t{duration}\t{GetPathAndQuerystring(context.Request)}");
         }
 
-        private string GetPathAndQuerystring(HttpRequest request)
+        private static string GetPathAndQuerystring(HttpRequest request)
         {
             return request?.Path.ToString() + request?.QueryString.ToString();
         }
