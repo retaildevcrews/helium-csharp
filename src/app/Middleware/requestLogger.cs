@@ -64,7 +64,7 @@ namespace Helium
             if (_options.TargetMs > 0 && duration > _options.TargetMs)
             {
                 // write the degraded message to the console
-                Console.WriteLine($"Degraded\t{duration}\t{context.Request.Headers[_ipHeader]}\t{GetPathAndQuerystring(context.Request)}");
+                Console.WriteLine($"Degraded\t{duration,6:0}\t{context.Request.Headers[_ipHeader]}\t{GetPathAndQuerystring(context.Request)}");
             }
 
             // don't log favicon.ico 404s
@@ -104,9 +104,14 @@ namespace Helium
             }
 
             // write the results to the console
-            Console.WriteLine($"{context.Response.StatusCode}\t{duration}\t{context.Request.Headers[_ipHeader]}\t{GetPathAndQuerystring(context.Request)}");
+            Console.WriteLine($"{context.Response.StatusCode}\t{duration,6:0}\t{context.Request.Headers[_ipHeader]}\t{GetPathAndQuerystring(context.Request)}");
         }
 
+        /// <summary>
+        /// Return the path and query string if it exists
+        /// </summary>
+        /// <param name="request">HttpRequest</param>
+        /// <returns>string</returns>
         private static string GetPathAndQuerystring(HttpRequest request)
         {
             return request?.Path.ToString() + request?.QueryString.ToString();
