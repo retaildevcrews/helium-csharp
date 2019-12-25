@@ -12,7 +12,7 @@ namespace Helium
         public bool Log3xx { get; set; } = true;
         public bool Log4xx { get; set; } = true;
         public bool Log5xx { get; set; } = true;
-        public double TargetMs { get; set; } = 400;
+        public double TargetMs { get; set; } = 250;
     }
 
     public static class LoggerMiddlewareExtensions
