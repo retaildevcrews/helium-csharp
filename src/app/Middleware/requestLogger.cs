@@ -102,7 +102,7 @@ namespace Helium
 
         private string GetPathAndQuerystring(HttpRequest request)
         {
-            return request?.QueryString == null ? request?.Path.ToString() : request.Path.ToString() + "?" + request.QueryString.ToString();
+            return request?.Path.ToString() + request?.QueryString.ToString();
         }
     }
 }
