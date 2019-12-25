@@ -100,16 +100,17 @@ namespace Helium
                 // display any non-healthy checks
                 if (status != HealthStatus.Healthy)
                 {
-                    string log = "Healthz Status Issues";
+                    string log = string.Empty;
 
                     foreach (var d in data.Values)
                     {
                         if (d is HealthzCheck h && h.Status != HealthStatus.Healthy)
                         {
-                            log += string.Format(CultureInfo.InvariantCulture, $"\n\t{h.Status}\t{Math.Round(h.Duration.TotalMilliseconds, 2)}\t{(int)h.TargetDuration.TotalMilliseconds}\t{h.Endpoint}");
+                            log += string.Format(CultureInfo.InvariantCulture, $"\nHealthz: {h.Status}\t{Math.Round(h.Duration.TotalMilliseconds, 2)}\t{(int)h.TargetDuration.TotalMilliseconds}\t{h.Endpoint}");
                         }
                     }
 
+                    if (!string.IsNullOrEmpty(log))
                     Console.WriteLine(log);
                 }
 

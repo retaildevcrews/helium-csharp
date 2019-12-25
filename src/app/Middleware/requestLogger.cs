@@ -62,7 +62,7 @@ namespace Helium
             if (_options.TargetMs > 0 && duration > _options.TargetMs)
             {
                 // write the slow message to the console
-                Console.WriteLine($"Degraded\t{duration}\t{GetIpFromRequest(context.Request)}\t{context.Request.Path}");
+                Console.WriteLine($"Degraded\t{duration}\t{context.Request.Headers["X_CLIENT_IP"]}\t{context.Request.Path}");
             }
 
             if (context.Response.StatusCode < 300)
@@ -96,23 +96,6 @@ namespace Helium
 
             // write the results to the console
             Console.WriteLine($"{context.Response.StatusCode}\t{duration}\t{context.Request.Path}");
-        }
-
-        private static string GetIpFromRequest(HttpRequest request)
-        {
-            string ip = request.Host.Host;
-
-            if (string.IsNullOrEmpty(ip))
-            {
-                ip = request.Headers["HTTP_X_FORWARDED_FOR"];
-            }
-
-            if (string.IsNullOrEmpty(ip))
-            {
-                ip = request.Headers["REMOTE_ADDR"];
-            }
-
-            return ip;
         }
     }
 }
