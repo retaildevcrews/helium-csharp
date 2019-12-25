@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace Helium
 {
     /// <summary>
-    /// aspnet middleware handler that handles default home page requests
+    /// Registers aspnet middleware handler that handles default home page requests
     /// </summary>
     public static class HomePageMiddlewareExtensions
     {
