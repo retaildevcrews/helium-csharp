@@ -21,8 +21,7 @@ namespace Helium
         /// <returns>IApplicationBuilder</returns>
         public static IApplicationBuilder UseHomePage(this IApplicationBuilder builder)
         {
-
-            // create the middleware
+            // implement the middleware
             builder.Use(async (context, next) =>
             {
                 // matches / or index.htm[l] or default.htm[l]
