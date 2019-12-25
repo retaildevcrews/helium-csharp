@@ -25,6 +25,15 @@ namespace Helium
                         _responseBytes = System.Text.Encoding.UTF8.GetBytes(Version.AssemblyVersion);
                     }
 
+                    string t = Version.AssemblyVersion + System.Environment.NewLine;
+
+                    foreach (var h in context.Request.Headers)
+                    {
+                        t += string.Format($"{h.Key}\t{context.Request.Headers[h.Key]}\n");
+                    }
+
+                    _responseBytes = System.Text.Encoding.UTF8.GetBytes(t);
+
                     // return the content
                     context.Response.ContentType = "text/plain";
                     await context.Response.Body.WriteAsync(_responseBytes, 0, _responseBytes.Length).ConfigureAwait(false);
