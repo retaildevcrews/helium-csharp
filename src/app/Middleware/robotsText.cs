@@ -21,7 +21,7 @@ namespace Helium
         /// <returns></returns>
         public static IApplicationBuilder UseRobots(this IApplicationBuilder builder)
         {
-            // create the middleware
+            // implement the middleware
             builder.Use(async (context, next) =>
             {
                 // remove the leading /
