@@ -64,7 +64,7 @@ namespace Helium
             if (_options.TargetMs > 0 && duration > _options.TargetMs)
             {
                 // write the degraded message to the console
-                Console.WriteLine($"Degraded\t{duration}\t{context.Request.Headers[_ipHeader]}\t{context.Request.Path}");
+                Console.WriteLine($"Degraded\t{duration}\t{context.Request.Headers[_ipHeader]}\t{GetPathAndQuerystring(context.Request)}");
             }
 
             if (context.Response.StatusCode < 300)
@@ -97,7 +97,12 @@ namespace Helium
             }
 
             // write the results to the console
-            Console.WriteLine($"{context.Response.StatusCode}\t{duration}\t{context.Request.Path}");
+            Console.WriteLine($"{context.Response.StatusCode}\t{duration}\t{GetPathAndQuerystring(context.Request)}");
+        }
+
+        private string GetPathAndQuerystring(HttpRequest request)
+        {
+            return request?.QueryString == null ? request?.Path.ToString() : request.Path.ToString() + "?" + request.QueryString.ToString();
         }
     }
 }
