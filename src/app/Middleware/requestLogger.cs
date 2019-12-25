@@ -38,6 +38,8 @@ namespace Helium
         private readonly RequestDelegate _next;
         private readonly LoggerOptions _options = new LoggerOptions();
 
+        private const string _ipHeader = "X-Client-IP";
+
         public Logger(RequestDelegate next, IOptions<LoggerOptions> options)
         {
             // save for later
@@ -62,7 +64,7 @@ namespace Helium
             if (_options.TargetMs > 0 && duration > _options.TargetMs)
             {
                 // write the slow message to the console
-                Console.WriteLine($"Degraded\t{duration}\t{context.Request.Headers["X_CLIENT_IP"]}\t{context.Request.Path}");
+                Console.WriteLine($"Degraded\t{duration}\t{context.Request.Headers[_ipHeader]}\t{context.Request.Path}");
             }
 
             if (context.Response.StatusCode < 300)
