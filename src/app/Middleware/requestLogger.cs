@@ -67,6 +67,13 @@ namespace Helium
                 Console.WriteLine($"Degraded\t{duration}\t{context.Request.Headers[_ipHeader]}\t{GetPathAndQuerystring(context.Request)}");
             }
 
+            // don't log favicon.ico 404s
+            if (context.Request.Path.StartsWithSegments("/favicon.ico", StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            // check for logging by response level
             if (context.Response.StatusCode < 300)
             {
                 if (!_options.Log2xx)
@@ -97,7 +104,7 @@ namespace Helium
             }
 
             // write the results to the console
-            Console.WriteLine($"{context.Response.StatusCode}\t{duration}\t{GetPathAndQuerystring(context.Request)}");
+            Console.WriteLine($"{context.Response.StatusCode}\t{duration}\t{context.Request.Headers[_ipHeader]}\t{GetPathAndQuerystring(context.Request)}");
         }
 
         private static string GetPathAndQuerystring(HttpRequest request)
