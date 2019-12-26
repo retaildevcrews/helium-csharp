@@ -85,7 +85,9 @@ namespace Helium
             if (_options.TargetMs > 0 && duration > _options.TargetMs)
             {
                 // write the degraded message to the console
-                Console.WriteLine($"Degraded\t{duration,6:0}\t{context.Request.Headers[_ipHeader]}\t{GetPathAndQuerystring(context.Request)}");
+
+                // TODO - temporarily disable this for debugging healthz degraded correlation
+                //Console.WriteLine($"Degraded\t{duration,6:0}\t{context.Request.Headers[_ipHeader]}\t{GetPathAndQuerystring(context.Request)}");
             }
 
             // don't log favicon.ico 404s
