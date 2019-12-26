@@ -91,7 +91,7 @@ namespace Helium
             }
 
             // TODO - remove this block - debugging healthz correlation
-            if (context.Request.Path.StartsWithSegments("/healthz", StringComparison.OrdinalIgnoreCase))
+            if (duration > 250 && context.Request.Path.StartsWithSegments("/healthz", StringComparison.OrdinalIgnoreCase))
             {
                 Console.WriteLine($"{context.Response.StatusCode}\t{duration,6:0}\t{context.Request.Headers[_ipHeader]}\t{GetPathAndQuerystring(context.Request)}");
                 return;
