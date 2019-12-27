@@ -89,16 +89,16 @@ namespace Helium
             {
                 // Cosmos DB health checks
                 // return plain text - Healthy, Degraded, Unhealthy
-                endpoints.MapHealthChecks("/healthz", new HealthCheckOptions());
+                endpoints.MapHealthChecks("/healthc", new HealthCheckOptions());
 
                 // use json response writer
-                endpoints.MapHealthChecks("/healthz/json", new HealthCheckOptions()
+                endpoints.MapHealthChecks("/healthc/json", new HealthCheckOptions()
                 {
                     ResponseWriter = CosmosHealthCheck.JsonResponseWriter
                 });
 
                 // use IETF response writer
-                endpoints.MapHealthChecks("/healthz/ietf", new HealthCheckOptions()
+                endpoints.MapHealthChecks("/healthc/ietf", new HealthCheckOptions()
                 {
                     ResponseWriter = CosmosHealthCheck.IetfResponseWriter
                 });
