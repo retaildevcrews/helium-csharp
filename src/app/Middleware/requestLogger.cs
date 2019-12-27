@@ -81,13 +81,17 @@ namespace Helium
             // compute request duration
             long duration = (long)DateTime.Now.Subtract(dtStart).TotalMilliseconds;
 
+            // don't log favicon.ico 404s
+            if (context.Request.Path.StartsWithSegments("/favicon.ico", StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
             // log degraded requests if targetMs > 0
             if (_options.TargetMs > 0 && duration > _options.TargetMs)
             {
                 // write the degraded message to the console
-
-                // TODO - temporarily disable this for debugging healthz degraded correlation
-                //Console.WriteLine($"Degraded\t{duration,6:0}\t{context.Request.Headers[_ipHeader]}\t{GetPathAndQuerystring(context.Request)}");
+                Console.WriteLine($"Degraded\t{duration,6:0}\t{context.Request.Headers[_ipHeader]}\t{GetPathAndQuerystring(context.Request)}");
             }
 
             // TODO - remove this block - debugging healthz correlation
@@ -97,12 +101,6 @@ namespace Helium
                 return;
             }
 
-
-            // don't log favicon.ico 404s
-            if (context.Request.Path.StartsWithSegments("/favicon.ico", StringComparison.OrdinalIgnoreCase))
-            {
-                return;
-            }
 
             // check for logging by response level
             if (context.Response.StatusCode < 300)
