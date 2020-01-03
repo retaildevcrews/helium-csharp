@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Helium.Model;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
 using System;
 using System.Threading.Tasks;
@@ -78,29 +80,47 @@ namespace Helium
                 await _next.Invoke(context).ConfigureAwait(false);
             }
 
-            // compute request duration
-            long duration = (long)DateTime.Now.Subtract(dtStart).TotalMilliseconds;
-
             // don't log favicon.ico 404s
             if (context.Request.Path.StartsWithSegments("/favicon.ico", StringComparison.OrdinalIgnoreCase))
             {
                 return;
             }
 
-            // log degraded requests if targetMs > 0
-            if (_options.TargetMs > 0 && duration > _options.TargetMs)
-            {
-                // write the degraded message to the console
-                Console.WriteLine($"Degraded\t{duration,6:0}\t{context.Request.Headers[_ipHeader]}\t{GetPathAndQuerystring(context.Request)}");
-            }
+            // compute request duration
+            var duration = DateTime.Now.Subtract(dtStart).TotalMilliseconds;
 
-            // TODO - remove this block - debugging healthz correlation
-            if (duration > 250 && context.Request.Path.StartsWithSegments("/healthz", StringComparison.OrdinalIgnoreCase))
+            // handle healthz composite logging
+            if (context.Items.Count > 0 && context.Items.ContainsKey(typeof(HealthCheckResult).ToString()))
             {
-                Console.WriteLine($"{context.Response.StatusCode}\t{duration,6:0}\t{context.Request.Headers[_ipHeader]}\t{GetPathAndQuerystring(context.Request)}");
-                return;
-            }
+                var hcr = (HealthCheckResult)context.Items[typeof(HealthCheckResult).ToString()];
 
+
+                // log not healthy requests
+                if (hcr.Status != HealthStatus.Healthy)
+                {
+                    string log = string.Empty;
+
+                    // build the log message
+                    // Console.WriteLine($"{context.Response.StatusCode}\t{duration,6:0}\t{context.Request.Headers[_ipHeader]}\t{GetPathAndQuerystring(context.Request)}");
+                    log += string.Format($"{hcr.Status}\t{duration,6:0}\t{context.Request.Headers[_ipHeader]}\t{GetPathAndQuerystring(context.Request)}\n");
+
+
+                    foreach (var d in hcr.Data.Values)
+                    {
+                        // add each not healthy check to the log message
+                        if (d is HealthzCheck h && h.Status != HealthStatus.Healthy)
+                        {
+                            log += string.Format($"{h.Status}\t{h.Duration.TotalMilliseconds,6:0}\t({h.TargetDuration.TotalMilliseconds,1:0})\t{h.Endpoint}\n");
+                        }
+                    }
+
+                    // write the log message
+                    Console.Write(log);
+
+                    // done logging this request
+                    return;
+                }
+            }
 
             // check for logging by response level
             if (context.Response.StatusCode < 300)
