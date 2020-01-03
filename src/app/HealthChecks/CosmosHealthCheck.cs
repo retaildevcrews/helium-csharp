@@ -97,17 +97,20 @@ namespace Helium
                     }
                 }
 
+
+// TODO - remove or uncomment
+
                 // display any non-healthy checks
-                if (status != HealthStatus.Healthy)
-                {
-                    foreach (var d in data.Values)
-                    {
-                        if (d is HealthzCheck h && h.Status != HealthStatus.Healthy)
-                        {
-                            Console.WriteLine($"{h.Status}\t{(long)h.Duration.TotalMilliseconds,6:0}\tHealtz({(int)h.TargetDuration.TotalMilliseconds})\t{h.Endpoint}");
-                        }
-                    }
-                }
+                //if (status != HealthStatus.Healthy)
+                //{
+                //    foreach (var d in data.Values)
+                //    {
+                //        if (d is HealthzCheck h && h.Status != HealthStatus.Healthy)
+                //        {
+                //            Console.WriteLine($"{h.Status}\t{(long)h.Duration.TotalMilliseconds,6:0}\tHealtz({(int)h.TargetDuration.TotalMilliseconds})\t{h.Endpoint}");
+                //        }
+                //    }
+                //}
 
                 // return the result
                 return new HealthCheckResult(status, Description, data: data);
