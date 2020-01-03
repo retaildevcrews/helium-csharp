@@ -84,6 +84,8 @@ namespace Helium
             // use routing
             app.UseRouting();
 
+// TODO - remove this or change back to /healthz*
+
             // add the end points
             app.UseEndpoints(endpoints =>
             {
