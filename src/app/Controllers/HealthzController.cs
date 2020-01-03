@@ -6,26 +6,29 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Helium;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Helium.Controllers
 {
     /// <summary>
-    /// Handle the single /api/genres requests
+    /// Handle the /healthz* requests
     /// </summary>
     [Route("[controller]")]
     public class HealthzController : Controller
     {
         private readonly ILogger _logger;
-        private readonly ILogger<Helium.CosmosHealthCheck> _hcLogger;
+        private readonly ILogger<CosmosHealthCheck> _hcLogger;
         private readonly IDAL _dal;
 
         /// <summary>
         ///  Constructor
         /// </summary>
-        /// <param name="logger">log instance</param>
-        /// <param name="dal">data access layer instance</param>
-        /// <param name="hcLogger"></param>
-        public HealthzController(ILogger<GenresController> logger, IDAL dal, ILogger<Helium.CosmosHealthCheck> hcLogger)
+        /// <param name="logger">logger</param>
+        /// <param name="dal">data access layer</param>
+        /// <param name="hcLogger">HealthCheck logger</param>
+        public HealthzController(ILogger<HealthzController> logger, IDAL dal, ILogger<CosmosHealthCheck> hcLogger)
         {
             _logger = logger;
             _hcLogger = hcLogger;
@@ -34,7 +37,7 @@ namespace Helium.Controllers
 
         /// <summary>
         /// </summary>
-        /// <remarks>Returns a JSON string array of Genre</remarks>
+        /// <remarks>Returns a plain text health status (Healthy, Degraded or Unhealthy</remarks>
         /// <response code="200">JSON array of strings or empty array if not found</response>
         [HttpGet]
         [Produces("text/plain")]
@@ -67,16 +70,16 @@ namespace Helium.Controllers
 
         /// <summary>
         /// </summary>
-        /// <remarks>Returns a single JSON Movie by movieId</remarks>
-        /// <param name="type"></param>
-        /// <response code="404">movieId not found</response>
+        /// <remarks>Returns a JSON representation of the full Health Check</remarks>
+        /// <param name="type">json or ietf</param>
+        /// <response code="404">invalid type</response>
         [HttpGet("{type}")]
         [Produces("application/json")]
-        [ProducesResponseType(typeof(Helium.CosmosHealthCheck), 200)]
+        [ProducesResponseType(typeof(CosmosHealthCheck), 200)]
         [ProducesResponseType(typeof(void), 404)]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Method logs and handles all exceptions")]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "log messages")]
-        public async System.Threading.Tasks.Task<IActionResult> RunHealthz(string type)
+        public async System.Threading.Tasks.Task<IActionResult> RunHealthzAsync(string type)
         {
             _logger.LogInformation(nameof(RunHealthzAsync));
 
@@ -88,10 +91,18 @@ namespace Helium.Controllers
 
                 HealthCheckResult res = await RunCosmosHealthCheck().ConfigureAwait(false);
 
+                HttpContext.Items.Add(typeof(HealthCheckResult).ToString(), res);
 
-                var ietf = CosmosHealthCheck.IetfResponseWriter(HttpContext, res);
+                // TODO - check res.Status and return 200 or 503?
 
-                return Ok(ietf);
+                if (type.Equals("ietf", StringComparison.OrdinalIgnoreCase))
+                {
+                    var ietf = CosmosHealthCheck.IetfResponseWriter(HttpContext, res);
+
+                    return Ok(ietf);
+                }
+
+                return Ok(res);
             }
             else
             {
@@ -99,7 +110,10 @@ namespace Helium.Controllers
             }
         }
 
-
+        /// <summary>
+        /// Run the health check
+        /// </summary>
+        /// <returns>HealthCheckResult</returns>
         private async Task<HealthCheckResult> RunCosmosHealthCheck()
         {
             CosmosHealthCheck chk = new CosmosHealthCheck(_hcLogger, _dal);
