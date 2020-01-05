@@ -48,7 +48,7 @@ namespace Helium
 
         // next action to Invoke
         private readonly RequestDelegate _next;
-        private readonly LoggerOptions _options = new LoggerOptions();
+        private readonly LoggerOptions _options;
 
         private const string _ipHeader = "X-Client-IP";
 
@@ -62,6 +62,12 @@ namespace Helium
             // save for later
             _next = next;
             _options = options?.Value;
+
+            if (_options == null)
+            {
+                // use default
+                _options = new LoggerOptions();
+            }
         }
 
         /// <summary>
@@ -80,18 +86,87 @@ namespace Helium
                 await _next.Invoke(context).ConfigureAwait(false);
             }
 
+            // compute request duration
+            var duration = DateTime.Now.Subtract(dtStart).TotalMilliseconds;
+
             // don't log favicon.ico 404s
             if (context.Request.Path.StartsWithSegments("/favicon.ico", StringComparison.OrdinalIgnoreCase))
             {
                 return;
             }
 
-            // compute request duration
-            var duration = DateTime.Now.Subtract(dtStart).TotalMilliseconds;
-
             // handle healthz composite logging
+            if (LogHealthzHandled(context, duration))
+            {
+                return;
+            }
+
+            // write the results to the console
+            if (ShouldLogRequest(context.Response))
+            {
+                Console.WriteLine($"{context.Response.StatusCode}\t{duration,6:0}\t{context.Request.Headers[_ipHeader]}\t{GetPathAndQuerystring(context.Request)}");
+            }
+        }
+
+        /// <summary>
+        /// Check log level to determine if request should be logged
+        /// </summary>
+        /// <param name="response">HttpResponse</param>
+        /// <returns></returns>
+        private bool ShouldLogRequest(HttpResponse response)
+        {
+
+            // check for logging by response level
+            if (response.StatusCode < 300)
+            {
+                if (!_options.Log2xx)
+                {
+                    return false;
+                }
+            }
+            else if (response.StatusCode < 400)
+            {
+                if (!_options.Log3xx)
+                {
+                    return false;
+                }
+            }
+            else if (response.StatusCode < 500)
+            {
+                if (!_options.Log4xx)
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                if (!_options.Log5xx)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Log the healthz results for degraded and unhealthy
+        /// </summary>
+        /// <param name="context">HttpContext</param>
+        /// <param name="duration">double</param>
+        /// <returns></returns>
+        private static bool LogHealthzHandled(HttpContext context, double duration)
+        {
+            if (context == null)
+            {
+                throw new ArgumentNullException(nameof(context));
+            }
+
+            // check if there is a HealthCheckResult item
             if (context.Items.Count > 0 && context.Items.ContainsKey(typeof(HealthCheckResult).ToString()))
             {
+                // TODO - log the exception if not null
+
                 var hcr = (HealthCheckResult)context.Items[typeof(HealthCheckResult).ToString()];
 
 
@@ -101,16 +176,15 @@ namespace Helium
                     string log = string.Empty;
 
                     // build the log message
-                    // Console.WriteLine($"{context.Response.StatusCode}\t{duration,6:0}\t{context.Request.Headers[_ipHeader]}\t{GetPathAndQuerystring(context.Request)}");
                     log += string.Format($"{hcr.Status}\t{duration,6:0}\t{context.Request.Headers[_ipHeader]}\t{GetPathAndQuerystring(context.Request)}\n");
 
 
+                    // add each not healthy check to the log message
                     foreach (var d in hcr.Data.Values)
                     {
-                        // add each not healthy check to the log message
                         if (d is HealthzCheck h && h.Status != HealthStatus.Healthy)
                         {
-                            log += string.Format($"{h.Status}\t{h.Duration.TotalMilliseconds,6:0}\t({h.TargetDuration.TotalMilliseconds,1:0})\t{h.Endpoint}\n");
+                            log += string.Format($"{h.Status}\t{h.Duration.TotalMilliseconds,6:0}\t{context.Request.Headers[_ipHeader]}\t{h.Endpoint}\t({h.TargetDuration.TotalMilliseconds,1:0})\n");
                         }
                     }
 
@@ -118,42 +192,12 @@ namespace Helium
                     Console.Write(log);
 
                     // done logging this request
-                    return;
+                    return true;
                 }
             }
 
-            // check for logging by response level
-            if (context.Response.StatusCode < 300)
-            {
-                if (!_options.Log2xx)
-                {
-                    return;
-                }
-            }
-            else if (context.Response.StatusCode < 400)
-            {
-                if (!_options.Log3xx)
-                {
-                    return;
-                }
-            }
-            else if (context.Response.StatusCode < 500)
-            {
-                if (!_options.Log4xx)
-                {
-                    return;
-                }
-            }
-            else
-            {
-                if (!_options.Log5xx)
-                {
-                    return;
-                }
-            }
-
-            // write the results to the console
-            Console.WriteLine($"{context.Response.StatusCode}\t{duration,6:0}\t{context.Request.Headers[_ipHeader]}\t{GetPathAndQuerystring(context.Request)}");
+            // keep processing
+            return false;
         }
 
         /// <summary>
