@@ -177,7 +177,7 @@ namespace Helium
                     string log = string.Empty;
 
                     // build the log message
-                    log += string.Format($"{hcr.Status}\t{duration,6:0}\t{context.Request.Headers[_ipHeader]}\t{GetPathAndQuerystring(context.Request)}\n", CultureInfo.InvariantCulture);
+                    log += string.Format($"{hcr.Status}\t{(long)duration,6}\t{context.Request.Headers[_ipHeader]}\t{GetPathAndQuerystring(context.Request)}\n", CultureInfo.InvariantCulture);
 
 
                     // add each not healthy check to the log message
@@ -185,7 +185,7 @@ namespace Helium
                     {
                         if (d is HealthzCheck h && h.Status != HealthStatus.Healthy)
                         {
-                            log += string.Format($"{h.Status}\t{h.Duration.TotalMilliseconds,6:0}\t{context.Request.Headers[_ipHeader]}\t{h.Endpoint}\t({h.TargetDuration.TotalMilliseconds,1:0})\n", CultureInfo.InvariantCulture);
+                            log += string.Format($"{h.Status}\t{(long)h.Duration.TotalMilliseconds,6}\t{context.Request.Headers[_ipHeader]}\t{h.Endpoint}\t({h.TargetDuration.TotalMilliseconds,1:0})\n", CultureInfo.InvariantCulture);
                         }
                     }
 
