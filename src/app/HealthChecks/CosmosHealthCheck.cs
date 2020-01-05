@@ -5,7 +5,6 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
@@ -98,7 +97,7 @@ namespace Helium
                 }
 
 
-// TODO - remove or uncomment
+                // TODO - remove or uncomment
 
                 // display any non-healthy checks
                 //if (status != HealthStatus.Healthy)
