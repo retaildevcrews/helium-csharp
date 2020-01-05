@@ -25,7 +25,7 @@ namespace Helium
             }
 
             // write timespan to milliseconds
-            writer.WriteStringValue(value.ToString(@"hh\:mm\:ss\.fff"));
+            writer.WriteStringValue(value.ToString(@"hh\:mm\:ss\.fff", CultureInfo.InvariantCulture));
         }
     }
 
