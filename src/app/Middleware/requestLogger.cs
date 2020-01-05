@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
 using System;
+using System.Globalization;
 using System.Threading.Tasks;
 
 namespace Helium
@@ -176,7 +177,7 @@ namespace Helium
                     string log = string.Empty;
 
                     // build the log message
-                    log += string.Format($"{hcr.Status}\t{duration,6:0}\t{context.Request.Headers[_ipHeader]}\t{GetPathAndQuerystring(context.Request)}\n");
+                    log += string.Format($"{hcr.Status}\t{duration,6:0}\t{context.Request.Headers[_ipHeader]}\t{GetPathAndQuerystring(context.Request)}\n", CultureInfo.InvariantCulture);
 
 
                     // add each not healthy check to the log message
