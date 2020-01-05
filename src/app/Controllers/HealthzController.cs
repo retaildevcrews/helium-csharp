@@ -41,7 +41,7 @@ namespace Helium.Controllers
         /// <response code="200">JSON array of strings or empty array if not found</response>
         [HttpGet]
         [Produces("text/plain")]
-        [ProducesResponseType(typeof(string[]), 200)]
+        [ProducesResponseType(typeof(string), 200)]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "Method Name")]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Method logs and handles all exceptions")]
         public async Task<IActionResult> RunHealthzAsync()
@@ -70,44 +70,48 @@ namespace Helium.Controllers
 
         /// <summary>
         /// </summary>
-        /// <remarks>Returns a JSON representation of the full Health Check</remarks>
-        /// <param name="type">json or ietf</param>
-        /// <response code="404">invalid type</response>
-        [HttpGet("{type}")]
-        [Produces("application/json")]
+        /// <remarks>Returns an IETF (draft) health+json representation of the full Health Check</remarks>
+        [HttpGet("ietf")]
+        [Produces("application/health+json")]
         [ProducesResponseType(typeof(CosmosHealthCheck), 200)]
-        [ProducesResponseType(typeof(void), 404)]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Method logs and handles all exceptions")]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "log messages")]
-        public async System.Threading.Tasks.Task<IActionResult> RunHealthzAsync(string type)
+        public async System.Threading.Tasks.Task RunIetfAsync()
         {
             _logger.LogInformation(nameof(RunHealthzAsync));
 
-            if (type != null &&
-                (type.Equals("json", StringComparison.OrdinalIgnoreCase) ||
-                type.Equals("ietf", StringComparison.OrdinalIgnoreCase)))
-            {
-                DateTime dt = DateTime.UtcNow;
+            DateTime dt = DateTime.UtcNow;
 
-                HealthCheckResult res = await RunCosmosHealthCheck().ConfigureAwait(false);
+            HealthCheckResult res = await RunCosmosHealthCheck().ConfigureAwait(false);
 
-                HttpContext.Items.Add(typeof(HealthCheckResult).ToString(), res);
+            HttpContext.Items.Add(typeof(HealthCheckResult).ToString(), res);
 
-                // TODO - check res.Status and return 200 or 503?
+            // TODO - check res.Status and return 200 or 503?
 
-                if (type.Equals("ietf", StringComparison.OrdinalIgnoreCase))
-                {
-                    var ietf = CosmosHealthCheck.IetfResponseWriter(HttpContext, res);
+            await CosmosHealthCheck.IetfResponseWriter(HttpContext, res, DateTime.UtcNow.Subtract(dt)).ConfigureAwait(false);
+        }
 
-                    return Ok(ietf);
-                }
+        /// <summary>
+        /// </summary>
+        /// <remarks>Returns a JSON representation of the full Health Check</remarks>
+        [HttpGet("json")]
+        [Produces("application/json")]
+        [ProducesResponseType(typeof(CosmosHealthCheck), 200)]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Method logs and handles all exceptions")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "log messages")]
+        public async System.Threading.Tasks.Task<IActionResult> RunHealthzJsonAsync()
+        {
+            _logger.LogInformation(nameof(RunHealthzAsync));
 
-                return Ok(res);
-            }
-            else
-            {
-                return NotFound();
-            }
+            DateTime dt = DateTime.UtcNow;
+
+            HealthCheckResult res = await RunCosmosHealthCheck().ConfigureAwait(false);
+
+            HttpContext.Items.Add(typeof(HealthCheckResult).ToString(), res);
+
+            // TODO - check res.Status and return 200 or 503?
+
+            return Ok(res);
         }
 
         /// <summary>
