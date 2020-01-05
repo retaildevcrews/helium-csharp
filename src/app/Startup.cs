@@ -33,13 +33,14 @@ namespace Helium
         /// <param name="services">The services in the web host</param>
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers().AddJsonOptions(options => {
+            services.AddControllers().AddJsonOptions(options =>
+            {
                 options.JsonSerializerOptions.IgnoreNullValues = true;
                 options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
                 options.JsonSerializerOptions.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
                 options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
                 options.JsonSerializerOptions.Converters.Add(new TimeSpanConverter());
-                });
+            });
 
             // add healthcheck service
             services.AddHealthChecks().AddCosmosHealthCheck(CosmosHealthCheck.Name);
@@ -92,7 +93,7 @@ namespace Helium
             // use routing
             app.UseRouting();
 
-// TODO - remove this or change back to /healthz*
+            // TODO - remove this or change back to /healthz*
 
             // add the end points
             app.UseEndpoints(endpoints =>
