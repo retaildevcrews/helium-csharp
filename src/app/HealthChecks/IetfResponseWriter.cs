@@ -64,44 +64,22 @@ namespace Helium
             return httpContext.Response.WriteAsync(JsonSerializer.Serialize(result, jsonOptions));
         }
 
-        public static Dictionary<string, object> IetfResponseWriter(HttpContext httpContext, HealthCheckResult res)
+        public static Task IetfResponseWriter(HttpContext httpContext, HealthCheckResult res, TimeSpan totalTime)
         {
             if (httpContext == null)
             {
                 throw new ArgumentNullException(nameof(httpContext));
             }
 
-            Dictionary<string, object> result = new Dictionary<string, object>();
-            Dictionary<string, object> checks = new Dictionary<string, object>();
-
-            result.Add("status", IetfCheck.ToIetfStatus(res.Status));
-            result.Add("serviceId", "helium-csharp");
-            result.Add("description", "Helium Health Check");
-
-            // add all the entries
-            // add all the data elements
-            foreach (var d in res.Data)
+            // create the health report entry
+            Dictionary<string, HealthReportEntry> entries = new Dictionary<string, HealthReportEntry>
             {
-                // transform HealthzCheck into IetfCheck
-                if (d.Value is HealthzCheck r)
-                {
-                    // add to checks dictionary
-                    checks.Add(d.Key, new IetfCheck(r));
-                }
-                else
-                {
-                    // add to the main dictionary
-                    result.Add(d.Key, d.Value);
-                }
-            }
+                { "CosmosDB", new HealthReportEntry(res.Status, res.Description, totalTime, res.Exception, res.Data) }
+            };
 
-            // add the checks to the dictionary
-            result.Add("checks", checks);
+            // write the health report
+            return IetfResponseWriter(httpContext, new HealthReport(entries, totalTime));
 
-            // write the json
-            httpContext.Response.ContentType = "application/health+json";
-
-            return result;
         }
     }
 }
