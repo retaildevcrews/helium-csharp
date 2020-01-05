@@ -185,7 +185,7 @@ namespace Helium
                     {
                         if (d is HealthzCheck h && h.Status != HealthStatus.Healthy)
                         {
-                            log += string.Format($"{h.Status}\t{h.Duration.TotalMilliseconds,6:0}\t{context.Request.Headers[_ipHeader]}\t{h.Endpoint}\t({h.TargetDuration.TotalMilliseconds,1:0})\n");
+                            log += string.Format($"{h.Status}\t{h.Duration.TotalMilliseconds,6:0}\t{context.Request.Headers[_ipHeader]}\t{h.Endpoint}\t({h.TargetDuration.TotalMilliseconds,1:0})\n", CultureInfo.InvariantCulture);
                         }
                     }
 
