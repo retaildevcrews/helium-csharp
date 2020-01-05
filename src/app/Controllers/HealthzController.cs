@@ -1,14 +1,9 @@
 ﻿using Helium.DataAccessLayer;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
-using Helium;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace Helium.Controllers
 {
@@ -49,23 +44,12 @@ namespace Helium.Controllers
             // get list of genres as list of string
             _logger.LogInformation(nameof(RunHealthzAsync));
 
-            try
-            {
-                HealthCheckResult res = await RunCosmosHealthCheck().ConfigureAwait(false);
+            // TODO - check res.Status and return 200 or 503?
 
-                return Ok(res.Status.ToString());
-            }
+            HealthCheckResult res = await RunCosmosHealthCheck().ConfigureAwait(false);
+            HttpContext.Items.Add(typeof(HealthCheckResult).ToString(), res);
 
-            catch (Exception ex)
-            {
-                // log and return 500
-                _logger.LogError($"Exception:RunHealthz\n{ex}");
-
-                return new ObjectResult(Constants.HealthzControllerException)
-                {
-                    StatusCode = (int)System.Net.HttpStatusCode.InternalServerError
-                };
-            }
+            return Ok(res.Status.ToString());
         }
 
         /// <summary>
