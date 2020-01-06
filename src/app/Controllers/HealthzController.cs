@@ -32,8 +32,7 @@ namespace Helium.Controllers
 
         /// <summary>
         /// </summary>
-        /// <remarks>Returns a plain text health status (Healthy, Degraded or Unhealthy</remarks>
-        /// <response code="200">JSON array of strings or empty array if not found</response>
+        /// <remarks>Returns a plain text health status (Healthy, Degraded or Unhealthy)</remarks>
         [HttpGet]
         [Produces("text/plain")]
         [ProducesResponseType(typeof(string), 200)]
