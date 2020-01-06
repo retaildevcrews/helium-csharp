@@ -43,7 +43,7 @@ namespace Helium
             });
 
             // add healthcheck service
-            services.AddHealthChecks().AddCosmosHealthCheck(CosmosHealthCheck.Name);
+            services.AddHealthChecks().AddCosmosHealthCheck(CosmosHealthCheck.ServiceId);
 
             // configure Swagger
             services.ConfigureSwaggerGen(options =>
@@ -92,31 +92,6 @@ namespace Helium
 
             // use routing
             app.UseRouting();
-
-            // TODO - remove this or change back to /healthz*
-
-            // add the end points
-            app.UseEndpoints(endpoints =>
-            {
-                // Cosmos DB health checks
-                // return plain text - Healthy, Degraded, Unhealthy
-                endpoints.MapHealthChecks("/healthc", new HealthCheckOptions());
-
-                // use json response writer
-                endpoints.MapHealthChecks("/healthc/json", new HealthCheckOptions()
-                {
-                    ResponseWriter = CosmosHealthCheck.JsonResponseWriter
-                });
-
-                // use IETF response writer
-                endpoints.MapHealthChecks("/healthc/ietf", new HealthCheckOptions()
-                {
-                    ResponseWriter = CosmosHealthCheck.IetfResponseWriter
-                });
-
-                // add the controllers
-                endpoints.MapControllers();
-            });
 
             // Enable middleware to serve generated Swagger as a JSON endpoint.
             app.UseSwagger();
