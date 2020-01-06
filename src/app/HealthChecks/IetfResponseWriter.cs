@@ -32,8 +32,8 @@ namespace Helium
             Dictionary<string, object> checks = new Dictionary<string, object>();
 
             result.Add("status", IetfCheck.ToIetfStatus(healthReport.Status));
-            result.Add("serviceId", "helium-csharp");
-            result.Add("description", "Helium Health Check");
+            result.Add("serviceId", CosmosHealthCheck.ServiceId);
+            result.Add("description", CosmosHealthCheck.Description);
 
             // add all the entries
             foreach (var e in healthReport.Entries.Values)
