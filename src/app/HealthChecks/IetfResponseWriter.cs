@@ -28,9 +28,11 @@ namespace Helium
                 throw new ArgumentNullException(nameof(healthReport));
             }
 
+            // create the dictionaries
             Dictionary<string, object> result = new Dictionary<string, object>();
             Dictionary<string, object> checks = new Dictionary<string, object>();
 
+            // add header values
             result.Add("status", IetfCheck.ToIetfStatus(healthReport.Status));
             result.Add("serviceId", CosmosHealthCheck.ServiceId);
             result.Add("description", CosmosHealthCheck.Description);
@@ -60,9 +62,17 @@ namespace Helium
 
             // write the json
             httpContext.Response.ContentType = "application/health+json";
+            httpContext.Response.StatusCode = healthReport.Status == HealthStatus.Healthy ? (int) System.Net.HttpStatusCode.OK : (int) System.Net.HttpStatusCode.ServiceUnavailable;
             return httpContext.Response.WriteAsync(JsonSerializer.Serialize(result, jsonOptions));
         }
 
+        /// <summary>
+        /// Write the Health Check results as json
+        /// </summary>
+        /// <param name="httpContext">HttpContext</param>
+        /// <param name="res">HealthCheckResult</param>
+        /// <param name="totalTime">TimeSpan</param>
+        /// <returns></returns>
         public static Task IetfResponseWriter(HttpContext httpContext, HealthCheckResult res, TimeSpan totalTime)
         {
             if (httpContext == null)
@@ -70,14 +80,13 @@ namespace Helium
                 throw new ArgumentNullException(nameof(httpContext));
             }
 
-            // create the health report entry
-            Dictionary<string, HealthReportEntry> entries = new Dictionary<string, HealthReportEntry>
-            {
-                { "CosmosDB", new HealthReportEntry(res.Status, res.Description, totalTime, res.Exception, res.Data) }
-            };
+            // Convert the HealthCheckResult to a HealthReport
+            HealthReport rpt = new HealthReport(
+                new Dictionary<string, HealthReportEntry> { { CosmosHealthCheck.ServiceId, new HealthReportEntry(res.Status, res.Description, totalTime, res.Exception, res.Data) } },
+                totalTime);
 
-            // write the health report
-            return IetfResponseWriter(httpContext, new HealthReport(entries, totalTime));
+            // call the response writer
+            return IetfResponseWriter(httpContext, rpt);
 
         }
     }
