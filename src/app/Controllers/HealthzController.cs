@@ -73,7 +73,7 @@ namespace Helium.Controllers
         /// <summary>
         /// </summary>
         /// <remarks>Returns a JSON representation of the full Health Check</remarks>
-        [HttpGet("json")]
+        [HttpGet("dotnet")]
         [Produces("application/json")]
         [ProducesResponseType(typeof(CosmosHealthCheck), 200)]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Method logs and handles all exceptions")]
