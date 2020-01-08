@@ -8,7 +8,7 @@ namespace Helium
     /// <summary>
     /// Custom TimeSpan Converter
     /// 
-    /// 00:00:00.1234567
+    /// 00:00:00.123
     /// </summary>
     public class TimeSpanConverter : JsonConverter<TimeSpan>
     {
@@ -24,7 +24,8 @@ namespace Helium
                 throw new ArgumentNullException(nameof(writer));
             }
 
-            writer.WriteStringValue(value.ToString());
+            // write timespan to milliseconds
+            writer.WriteStringValue(value.ToString(@"hh\:mm\:ss\.fff", CultureInfo.InvariantCulture));
         }
     }
 

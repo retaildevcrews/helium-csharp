@@ -1,10 +1,11 @@
-﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Helium
 {
@@ -31,10 +32,17 @@ namespace Helium
         /// <param name="services">The services in the web host</param>
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers().AddJsonOptions(options => options.JsonSerializerOptions.IgnoreNullValues = true);
+            services.AddControllers().AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.IgnoreNullValues = true;
+                options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+                options.JsonSerializerOptions.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                options.JsonSerializerOptions.Converters.Add(new TimeSpanConverter());
+            });
 
             // add healthcheck service
-            services.AddHealthChecks().AddCosmosHealthCheck(CosmosHealthCheck.Name);
+            services.AddHealthChecks().AddCosmosHealthCheck(CosmosHealthCheck.ServiceId);
 
             // configure Swagger
             services.ConfigureSwaggerGen(options =>
@@ -68,7 +76,7 @@ namespace Helium
         {
             // log 4xx and 5xx results to console
             // this should be first as it "wraps" all requests
-            app.UseLogger(new LoggerOptions { Log2xx = false, Log3xx = false });
+            app.UseLogger(new LoggerOptions { TargetMs = 800, Log2xx = false, Log3xx = false });
 
             // differences based on dev or prod
             if (env.IsDevelopment())
@@ -84,28 +92,8 @@ namespace Helium
             // use routing
             app.UseRouting();
 
-            // add the end points
-            app.UseEndpoints(endpoints =>
-            {
-                // Cosmos DB health checks
-                // return plain text - Healthy, Degraded, Unhealthy
-                endpoints.MapHealthChecks("/healthz", new HealthCheckOptions());
-
-                // use json response writer
-                endpoints.MapHealthChecks("/healthz/json", new HealthCheckOptions()
-                {
-                    ResponseWriter = CosmosHealthCheck.JsonResponseWriter
-                });
-
-                // use IETF response writer
-                endpoints.MapHealthChecks("/healthz/ietf", new HealthCheckOptions()
-                {
-                    ResponseWriter = CosmosHealthCheck.IetfResponseWriter
-                });
-
-                // add the controllers
-                endpoints.MapControllers();
-            });
+            // map the controllers
+            app.UseEndpoints(ep => { ep.MapControllers(); });
 
             // Enable middleware to serve generated Swagger as a JSON endpoint.
             app.UseSwagger();

@@ -3,20 +3,25 @@ using System.Collections.Generic;
 
 namespace Helium
 {
+    /// <summary>
+    /// Registers aspnet middleware handler that handles default home page requests
+    /// </summary>
     public static class HomePageMiddlewareExtensions
     {
+        // list of paths to handle
         static readonly HashSet<string> validPaths = new HashSet<string> { "/", "/INDEX.HTML", "/INDEX.HTM", "/DEFAULT.HTML", "/DEFAULT.HTM" };
+
+        // response to return
         static readonly byte[] responseBytes = System.Text.Encoding.UTF8.GetBytes("Under construction ...");
 
         /// <summary>
         /// Middleware extension method to handle home page request
         /// </summary>
         /// <param name="builder">this IApplicationBuilder</param>
-        /// <returns></returns>
+        /// <returns>IApplicationBuilder</returns>
         public static IApplicationBuilder UseHomePage(this IApplicationBuilder builder)
         {
-
-            // create the middleware
+            // implement the middleware
             builder.Use(async (context, next) =>
             {
                 // matches / or index.htm[l] or default.htm[l]
