@@ -92,6 +92,9 @@ namespace Helium
             // use routing
             app.UseRouting();
 
+            // map the controllers
+            app.UseEndpoints(ep => { ep.MapControllers(); });
+
             // Enable middleware to serve generated Swagger as a JSON endpoint.
             app.UseSwagger();
 
