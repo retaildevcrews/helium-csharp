@@ -166,8 +166,6 @@ namespace Helium
             // check if there is a HealthCheckResult item
             if (context.Items.Count > 0 && context.Items.ContainsKey(typeof(HealthCheckResult).ToString()))
             {
-                // TODO - log the exception if not null
-
                 var hcr = (HealthCheckResult)context.Items[typeof(HealthCheckResult).ToString()];
 
 
@@ -177,7 +175,7 @@ namespace Helium
                     string log = string.Empty;
 
                     // build the log message
-                    log += string.Format($"{hcr.Status}\t{(long)duration,6}\t{context.Request.Headers[_ipHeader]}\t{GetPathAndQuerystring(context.Request)}\n", CultureInfo.InvariantCulture);
+                    log += string.Format(CultureInfo.InvariantCulture, $"{hcr.Status}\t{duration,6:0}\t{context.Request.Headers[_ipHeader]}\t{GetPathAndQuerystring(context.Request)}\n");
 
 
                     // add each not healthy check to the log message
@@ -185,8 +183,14 @@ namespace Helium
                     {
                         if (d is HealthzCheck h && h.Status != HealthStatus.Healthy)
                         {
-                            log += string.Format($"{h.Status}\t{(long)h.Duration.TotalMilliseconds,6}\t{context.Request.Headers[_ipHeader]}\t{h.Endpoint}\t({h.TargetDuration.TotalMilliseconds,1:0})\n", CultureInfo.InvariantCulture);
+                            log += string.Format(CultureInfo.InvariantCulture, $"{h.Status}\t{(long)h.Duration.TotalMilliseconds,6}\t{context.Request.Headers[_ipHeader]}\t{h.Endpoint}\t({h.TargetDuration.TotalMilliseconds,1:0})\n");
                         }
+                    }
+
+                    if (hcr.Exception != null)
+                    {
+                        log += "HealthCheckException\n";
+                        log += hcr.Exception.ToString() + "\n";
                     }
 
                     // write the log message
