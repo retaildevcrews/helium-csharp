@@ -43,8 +43,6 @@ namespace Helium.Controllers
             // get list of genres as list of string
             _logger.LogInformation(nameof(RunHealthzAsync));
 
-            // TODO - check res.Status and return 200 or 503?
-
             HealthCheckResult res = await RunCosmosHealthCheck().ConfigureAwait(false);
             HttpContext.Items.Add(typeof(HealthCheckResult).ToString(), res);
 
@@ -69,8 +67,6 @@ namespace Helium.Controllers
 
             HttpContext.Items.Add(typeof(HealthCheckResult).ToString(), res);
 
-            // TODO - check res.Status and return 200 or 503?
-
             await CosmosHealthCheck.IetfResponseWriter(HttpContext, res, DateTime.UtcNow.Subtract(dt)).ConfigureAwait(false);
         }
 
@@ -91,8 +87,6 @@ namespace Helium.Controllers
             HealthCheckResult res = await RunCosmosHealthCheck().ConfigureAwait(false);
 
             HttpContext.Items.Add(typeof(HealthCheckResult).ToString(), res);
-
-            // TODO - check res.Status and return 200 or 503?
 
             return Ok(res);
         }
