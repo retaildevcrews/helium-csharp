@@ -145,7 +145,7 @@ namespace Helium
         private async Task<HealthzCheck> GetTopRatedMoviesAsync(Dictionary<string, object> data = null)
         {
             const int maxMilliseconds = 400;
-            const string path = "/api/movies?torated=true";
+            const string path = "/api/movies?toprated=true";
 
             stopwatch.Restart();
 
