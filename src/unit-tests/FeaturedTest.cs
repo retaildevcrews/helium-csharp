@@ -1,7 +1,5 @@
 using Helium.Controllers;
 using Helium.Model;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Moq;
 using System.Threading.Tasks;
 using Xunit;
