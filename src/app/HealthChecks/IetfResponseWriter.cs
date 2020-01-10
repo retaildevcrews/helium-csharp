@@ -62,7 +62,7 @@ namespace Helium
 
             // write the json
             httpContext.Response.ContentType = "application/health+json";
-            httpContext.Response.StatusCode = healthReport.Status == HealthStatus.Healthy ? (int)System.Net.HttpStatusCode.OK : (int)System.Net.HttpStatusCode.ServiceUnavailable;
+            httpContext.Response.StatusCode = healthReport.Status == HealthStatus.Unhealthy ? (int)System.Net.HttpStatusCode.ServiceUnavailable : (int)System.Net.HttpStatusCode.OK;
             return httpContext.Response.WriteAsync(JsonSerializer.Serialize(result, jsonOptions));
         }
 

@@ -44,9 +44,13 @@ namespace Helium.Controllers
             _logger.LogInformation(nameof(RunHealthzAsync));
 
             HealthCheckResult res = await RunCosmosHealthCheck().ConfigureAwait(false);
+
             HttpContext.Items.Add(typeof(HealthCheckResult).ToString(), res);
 
-            return Ok(res.Status.ToString());
+            return new ObjectResult(res.Status.ToString())
+            {
+                StatusCode = res.Status == HealthStatus.Unhealthy ? (int)System.Net.HttpStatusCode.ServiceUnavailable : (int)System.Net.HttpStatusCode.OK
+            };
         }
 
         /// <summary>
@@ -60,6 +64,8 @@ namespace Helium.Controllers
         public async System.Threading.Tasks.Task RunIetfAsync()
         {
             _logger.LogInformation(nameof(RunHealthzAsync));
+
+            DateTime dt = DateTime.UtcNow;
 
             HealthCheckResult res = await RunCosmosHealthCheck().ConfigureAwait(false);
 
@@ -80,13 +86,14 @@ namespace Helium.Controllers
         {
             _logger.LogInformation(nameof(RunHealthzAsync));
 
-            DateTime dt = DateTime.UtcNow;
-
             HealthCheckResult res = await RunCosmosHealthCheck().ConfigureAwait(false);
 
             HttpContext.Items.Add(typeof(HealthCheckResult).ToString(), res);
 
-            return Ok(res);
+            return new ObjectResult(res)
+            {
+                StatusCode = res.Status == HealthStatus.Unhealthy ? (int)System.Net.HttpStatusCode.ServiceUnavailable : (int)System.Net.HttpStatusCode.OK
+            };
         }
 
         /// <summary>

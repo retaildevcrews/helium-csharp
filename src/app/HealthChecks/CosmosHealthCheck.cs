@@ -52,7 +52,6 @@ namespace Helium
             }
         }
 
-
         /// <summary>
         /// Run the health check (IHealthCheck)
         /// </summary>
@@ -67,20 +66,19 @@ namespace Helium
 
             try
             {
+                HealthStatus status = HealthStatus.Healthy;
+
                 // add instance and version
                 data.Add("Instance", System.Environment.GetEnvironmentVariable("WEBSITE_ROLE_INSTANCE_ID") ?? "unknown");
                 data.Add("Version", Helium.Version.AssemblyVersion);
 
-
                 // Run each health check
-                data.Add("getGenresAsync", await GetGenresAsync().ConfigureAwait(false));
-                data.Add("getActorByIdAsync", await GetActorByIdAsync("nm0000173").ConfigureAwait(false));
-                data.Add("getMovieByIdAsync", await GetMovieByIdAsync("tt0133093").ConfigureAwait(false));
-                data.Add("searchMoviesAsync", await SearchMoviesAsync("ring").ConfigureAwait(false));
-                data.Add("searchActorsAsync", await SearchActorsAsync("nicole").ConfigureAwait(false));
-                data.Add("getTopRatedMoviesAsync", await GetTopRatedMoviesAsync().ConfigureAwait(false));
-
-                HealthStatus status = HealthStatus.Healthy;
+                await GetGenresAsync(data).ConfigureAwait(false);
+                await GetActorByIdAsync("nm0000173", data).ConfigureAwait(false);
+                await GetMovieByIdAsync("tt0133093", data).ConfigureAwait(false);
+                await SearchMoviesAsync("ring", data).ConfigureAwait(false);
+                await SearchActorsAsync("nicole", data).ConfigureAwait(false);
+                await GetTopRatedMoviesAsync(data).ConfigureAwait(false);
 
                 // overall health is the worst status
                 foreach (var d in data.Values)
