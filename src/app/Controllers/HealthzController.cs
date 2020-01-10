@@ -44,6 +44,7 @@ namespace Helium.Controllers
             _logger.LogInformation(nameof(RunHealthzAsync));
 
             HealthCheckResult res = await RunCosmosHealthCheck().ConfigureAwait(false);
+
             HttpContext.Items.Add(typeof(HealthCheckResult).ToString(), res);
 
             return new ObjectResult(res.Status.ToString())
