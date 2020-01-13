@@ -1,4 +1,5 @@
 ﻿using Helium.DataAccessLayer;
+using Helium.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
@@ -47,7 +48,7 @@ namespace Helium.Controllers
 
             HttpContext.Items.Add(typeof(HealthCheckResult).ToString(), res);
 
-            return new ObjectResult(res.Status.ToString())
+            return new ObjectResult(IetfCheck.ToIetfStatus(res.Status))
             {
                 StatusCode = res.Status == HealthStatus.Unhealthy ? (int)System.Net.HttpStatusCode.ServiceUnavailable : (int)System.Net.HttpStatusCode.OK
             };
