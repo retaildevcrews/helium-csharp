@@ -57,9 +57,9 @@ namespace Helium.Model
         {
             return status switch
             {
-                HealthStatus.Healthy => "up",
+                HealthStatus.Healthy => "pass",
                 HealthStatus.Degraded => "warn",
-                _ => "down"
+                _ => "fail"
             };
         }
     }
