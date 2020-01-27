@@ -42,7 +42,7 @@ namespace Helium.Model
             Time = hzCheck.Time;
             Message = hzCheck.Message;
 
-            if (!string.IsNullOrEmpty(hzCheck.Endpoint))
+            if (hzCheck.Status != HealthStatus.Healthy && !string.IsNullOrEmpty(hzCheck.Endpoint))
             {
                 AffectedEndpoints = new List<string> { hzCheck.Endpoint };
             }
@@ -57,9 +57,9 @@ namespace Helium.Model
         {
             return status switch
             {
-                HealthStatus.Healthy => "up",
+                HealthStatus.Healthy => "pass",
                 HealthStatus.Degraded => "warn",
-                _ => "down"
+                _ => "fail"
             };
         }
     }
