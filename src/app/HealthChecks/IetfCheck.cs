@@ -42,7 +42,7 @@ namespace Helium.Model
             Time = hzCheck.Time;
             Message = hzCheck.Message;
 
-            if (!string.IsNullOrEmpty(hzCheck.Endpoint))
+            if (hzCheck.Status != HealthStatus.Healthy && !string.IsNullOrEmpty(hzCheck.Endpoint))
             {
                 AffectedEndpoints = new List<string> { hzCheck.Endpoint };
             }
