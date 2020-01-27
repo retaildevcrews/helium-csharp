@@ -66,6 +66,7 @@ namespace Helium
         /// <returns>HealthzCheck</returns>
         private async Task<HealthzCheck> GetGenresAsync(Dictionary<string, object> data = null)
         {
+            const string name = "getGenres";
             const int maxMilliseconds = 400;
             const string path = "/api/genres";
 
@@ -75,11 +76,11 @@ namespace Helium
             {
                 (await _dal.GetGenresAsync().ConfigureAwait(false)).ToList<string>();
 
-                return BuildHealthzCheck(path, maxMilliseconds, null, data, nameof(GetGenresAsync));
+                return BuildHealthzCheck(path, maxMilliseconds, null, data, name);
             }
             catch (Exception ex)
             {
-                BuildHealthzCheck(path, maxMilliseconds, ex, data, nameof(GetGenresAsync));
+                BuildHealthzCheck(path, maxMilliseconds, ex, data, name);
 
                 // throw the exception so that HealthCheck logs
                 throw;
@@ -92,6 +93,7 @@ namespace Helium
         /// <returns>HealthzCheck</returns>
         private async Task<HealthzCheck> GetMovieByIdAsync(string movieId, Dictionary<string, object> data = null)
         {
+            const string name = "getMovieById";
             const int maxMilliseconds = 400;
             string path = "/api/movies/" + movieId;
 
@@ -101,11 +103,11 @@ namespace Helium
             {
                 await _dal.GetMovieAsync(movieId).ConfigureAwait(false);
 
-                return BuildHealthzCheck(path, maxMilliseconds, null, data, nameof(GetMovieByIdAsync));
+                return BuildHealthzCheck(path, maxMilliseconds, null, data, name);
             }
             catch (Exception ex)
             {
-                BuildHealthzCheck(path, maxMilliseconds, ex, data, nameof(GetMovieByIdAsync));
+                BuildHealthzCheck(path, maxMilliseconds, ex, data, name);
 
                 // throw the exception so that HealthCheck logs
                 throw;
@@ -118,6 +120,7 @@ namespace Helium
         /// <returns>HealthzCheck</returns>
         private async Task<HealthzCheck> SearchMoviesAsync(string query, Dictionary<string, object> data = null)
         {
+            const string name = "searchMovies";
             const int maxMilliseconds = 400;
             string path = "/api/movies?q=" + query;
 
@@ -127,11 +130,11 @@ namespace Helium
             {
                 (await _dal.GetMoviesByQueryAsync(query).ConfigureAwait(false)).ToList<Movie>();
 
-                return BuildHealthzCheck(path, maxMilliseconds, null, data, nameof(SearchMoviesAsync));
+                return BuildHealthzCheck(path, maxMilliseconds, null, data, name);
             }
             catch (Exception ex)
             {
-                BuildHealthzCheck(path, maxMilliseconds, ex, data, nameof(SearchMoviesAsync));
+                BuildHealthzCheck(path, maxMilliseconds, ex, data, name);
 
                 // throw the exception so that HealthCheck logs
                 throw;
@@ -144,6 +147,7 @@ namespace Helium
         /// <returns>HealthzCheck</returns>
         private async Task<HealthzCheck> GetTopRatedMoviesAsync(Dictionary<string, object> data = null)
         {
+            const string name = "getTopRatedMovies";
             const int maxMilliseconds = 400;
             const string path = "/api/movies?toprated=true";
 
@@ -153,11 +157,11 @@ namespace Helium
             {
                 (await _dal.GetMoviesByQueryAsync(string.Empty, toprated: true).ConfigureAwait(false)).ToList<Movie>();
 
-                return BuildHealthzCheck(path, maxMilliseconds, null, data, nameof(GetTopRatedMoviesAsync));
+                return BuildHealthzCheck(path, maxMilliseconds, null, data, name);
             }
             catch (Exception ex)
             {
-                BuildHealthzCheck(path, maxMilliseconds, ex, data, nameof(GetTopRatedMoviesAsync));
+                BuildHealthzCheck(path, maxMilliseconds, ex, data, name);
 
                 // throw the exception so that HealthCheck logs
                 throw;
@@ -170,6 +174,7 @@ namespace Helium
         /// <returns>HealthzCheck</returns>
         private async Task<HealthzCheck> GetActorByIdAsync(string actorId, Dictionary<string, object> data = null)
         {
+            const string name = "getActorById";
             const int maxMilliseconds = 250;
             string path = "/api/actors/" + actorId;
 
@@ -178,11 +183,11 @@ namespace Helium
             try
             {
                 await _dal.GetActorAsync(actorId).ConfigureAwait(false);
-                return BuildHealthzCheck(path, maxMilliseconds, null, data, nameof(GetActorByIdAsync));
+                return BuildHealthzCheck(path, maxMilliseconds, null, data, name);
             }
             catch (Exception ex)
             {
-                BuildHealthzCheck(path, maxMilliseconds, ex, data, nameof(GetActorByIdAsync));
+                BuildHealthzCheck(path, maxMilliseconds, ex, data, name);
 
                 // throw the exception so that HealthCheck logs
                 throw;
@@ -195,6 +200,7 @@ namespace Helium
         /// <returns>HealthzCheck</returns>
         private async Task<HealthzCheck> SearchActorsAsync(string query, Dictionary<string, object> data = null)
         {
+            const string name = "searchActors";
             const int maxMilliseconds = 400;
             string path = "/api/actors?q=" + query;
 
@@ -204,11 +210,11 @@ namespace Helium
             {
                 (await _dal.GetActorsByQueryAsync(query).ConfigureAwait(false)).ToList<Actor>();
 
-                return BuildHealthzCheck(path, maxMilliseconds, null, data, nameof(SearchActorsAsync));
+                return BuildHealthzCheck(path, maxMilliseconds, null, data, name);
             }
             catch (Exception ex)
             {
-                BuildHealthzCheck(path, maxMilliseconds, ex, data, nameof(SearchActorsAsync));
+                BuildHealthzCheck(path, maxMilliseconds, ex, data, name);
 
                 // throw the exception so that HealthCheck logs
                 throw;

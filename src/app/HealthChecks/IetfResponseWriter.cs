@@ -47,12 +47,12 @@ namespace Helium
                     if (d.Value is HealthzCheck r)
                     {
                         // add to checks dictionary
-                        checks.Add(ToCamelCase(d.Key), new IetfCheck(r));
+                        checks.Add(d.Key, new IetfCheck(r));
                     }
                     else
                     {
                         // add to the main dictionary
-                        result.Add(ToCamelCase(d.Key), d.Value);
+                        result.Add(d.Key, d.Value);
                     }
                 }
             }
@@ -88,29 +88,6 @@ namespace Helium
             // call the response writer
             return IetfResponseWriter(httpContext, rpt);
 
-        }
-
-        /// <summary>
-        /// Convert string to camelCase
-        /// </summary>
-        /// <param name="src">string to convert</param>
-        /// <returns>string</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1308:Normalize strings to uppercase", Justification = "to lower is correct")]
-        public static string ToCamelCase(string src)
-        {
-            if (string.IsNullOrEmpty(src))
-            {
-                return src;
-            }
-
-            string camel = src.Substring(0, 1).ToLowerInvariant();
-
-            if (src.Length > 1)
-            {
-                camel += src.Substring(1);
-            }
-
-            return camel;
         }
     }
 }
