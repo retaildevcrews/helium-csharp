@@ -16,7 +16,7 @@ This is an ASP.NET Core Web API reference application designed to "fork and code
 ## Prerequisites
 
 - Docker CLI ([download](https://docs.docker.com/install/))
-- .NET Core SDK 3.0 ([download](https://dotnet.microsoft.com/download))
+- .NET Core SDK 3.1 ([download](https://dotnet.microsoft.com/download))
 - Azure CLI 2.0.72+ ([download](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest))
 - Visual Studio Code (optional) ([download](https://code.visualstudio.com/download))
 
@@ -50,6 +50,7 @@ Run the application locally
 cd src/app
 
 # run in the background
+# $He_Name is set to the name of your key vault
 dotnet run $He_Name &
 
 # test the application
