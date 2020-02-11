@@ -1,7 +1,5 @@
 using Microsoft.Azure.Cosmos;
-using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Threading.Tasks;
 
 namespace Helium.DataAccessLayer
@@ -44,18 +42,15 @@ namespace Helium.DataAccessLayer
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1308:Normalize strings to uppercase", Justification = "key has to be lower case")]
         public async Task<string> GetGenreAsync(string key)
         {
-            GenreObject g = await _cosmosDetails.Container.ReadItemAsync<GenreObject>(key.ToLowerInvariant(), new PartitionKey("0")).ConfigureAwait(false);
+            // we know the partition key is 0
+            PartitionKey partitionKey = new PartitionKey("0");
 
-            return g.Genre;
-        }
+            // read the genre from Cosmos
+            // this will throw exception if not found
+            var ir = await _cosmosDetails.Container.ReadItemAsync<IDictionary<string, string>>(key.ToLowerInvariant(), partitionKey).ConfigureAwait(false);
 
-        /// <summary>
-        /// Internal class for reading Genre json
-        /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses", Justification = "Late bound")]
-        internal class GenreObject
-        {
-            public string Genre { get; set; }
+            // return the value
+            return ir.Resource["genre"];
         }
     }
 }
