@@ -86,7 +86,7 @@ namespace Helium.Controllers
                 };
             }
 
-            catch (System.AggregateException age)
+            catch (AggregateException age)
             {
                 var root = age.GetBaseException();
 
@@ -170,7 +170,7 @@ namespace Helium.Controllers
                 }
             }
 
-            catch (System.AggregateException age)
+            catch (AggregateException age)
             {
                 var root = age.GetBaseException();
 
