@@ -10,6 +10,11 @@ namespace Helium.DataAccessLayer
     /// </summary>
     public partial class DAL : IDAL
     {
+        public int DefaultPageSize = 100;
+        public int MaxPageSize = 1000;
+        public int CosmosTimeout = 60;
+        public int CosmosMaxRetries = 10;
+
         private CosmosDetails _cosmosDetails = null;
 
 
@@ -30,6 +35,9 @@ namespace Helium.DataAccessLayer
 
             _cosmosDetails = new CosmosDetails
             {
+                MaxRows = MaxPageSize,
+                Retries = CosmosMaxRetries,
+                Timeout = CosmosTimeout,
                 CosmosCollection = cosmosCollection,
                 CosmosDatabase = cosmosDatabase,
                 CosmosKey = cosmosKey,
@@ -160,15 +168,47 @@ namespace Helium.DataAccessLayer
         public CosmosClient Client = null;
         public Container Container = null;
 
+        // default values for Cosmos Options
+        public int MaxRows = 1000;
+        public int Timeout = 60;
+        public int Retries = 10;
+
+        // Cosmos connection fields
         public string CosmosUrl;
         public string CosmosKey;
         public string CosmosDatabase;
         public string CosmosCollection;
 
+        // member variables
+        private QueryRequestOptions _queryRequestOptions = null;
+        private CosmosClientOptions _cosmosClientOptions = null;
+
         // CosmosDB query request options
-        public readonly QueryRequestOptions QueryRequestOptions = new QueryRequestOptions { MaxItemCount = 600 };
+        public QueryRequestOptions QueryRequestOptions
+        {
+            get
+            {
+                if (_queryRequestOptions == null)
+                {
+                    _queryRequestOptions =  new QueryRequestOptions { MaxItemCount = MaxRows };
+                }
+
+                return _queryRequestOptions;
+            }
+        }
 
         // default protocol is tcp, default connection mode is direct
-        public readonly CosmosClientOptions CosmosClientOptions = new CosmosClientOptions { RequestTimeout = TimeSpan.FromSeconds(60), MaxRetryAttemptsOnRateLimitedRequests = 9, MaxRetryWaitTimeOnRateLimitedRequests = TimeSpan.FromSeconds(60) };
+        public CosmosClientOptions CosmosClientOptions
+        {
+            get
+            {
+                if (_cosmosClientOptions == null)
+                {
+                    _cosmosClientOptions = new CosmosClientOptions { RequestTimeout = TimeSpan.FromSeconds(Timeout), MaxRetryAttemptsOnRateLimitedRequests = Retries, MaxRetryWaitTimeOnRateLimitedRequests = TimeSpan.FromSeconds(Timeout) };
+                }
+
+                return _cosmosClientOptions;
+            }
+        }
     }
 }
