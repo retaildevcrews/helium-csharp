@@ -1,7 +1,9 @@
 ---
 name: Feature Request
 about: Suggest an idea for this project
-labels: Enhancement, Design Review
+title: ''
+labels: Design Review, Enhancement
+assignees: ''
 
 ---
 
@@ -19,4 +21,4 @@ labels: Enhancement, Design Review
 
 ## Next Steps
 - Schedule Design Session
-- 
+-
