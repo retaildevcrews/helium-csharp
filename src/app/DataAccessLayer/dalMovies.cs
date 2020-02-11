@@ -122,10 +122,12 @@ namespace Helium.DataAccessLayer
 
             if (!string.IsNullOrEmpty(genre))
             {
-                // convert to lower and escape embedded '
-                genre = await GetGenreAsync(genre).ConfigureAwait(false);
-
-                if (string.IsNullOrEmpty(genre))
+                try
+                {
+                    // convert to lower and escape embedded '
+                    genre = await GetGenreAsync(genre).ConfigureAwait(false);
+                }
+                catch
                 {
                     // genre doesn't exist
                     return new List<Movie>().AsQueryable<Movie>();
