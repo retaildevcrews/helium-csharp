@@ -1,6 +1,5 @@
 using Microsoft.Azure.Cosmos;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Threading.Tasks;
 
 namespace Helium.DataAccessLayer
@@ -43,26 +42,15 @@ namespace Helium.DataAccessLayer
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1308:Normalize strings to uppercase", Justification = "key has to be lower case")]
         public async Task<string> GetGenreAsync(string key)
         {
-            string sql = string.Format(CultureInfo.InvariantCulture, $"select value m.genre from m where m.type = 'Genre' and m.id = '{key?.Trim().ToLowerInvariant()}'");
+            // we know the partition key is 0
+            PartitionKey partitionKey = new PartitionKey("0");
 
-            var query = _cosmosDetails.Container.GetItemQueryIterator<string>(new QueryDefinition(sql), requestOptions: _cosmosDetails.QueryRequestOptions);
+            // read the genre from Cosmos
+            // this will throw exception if not found
+            var ir = await _cosmosDetails.Container.ReadItemAsync<IDictionary<string, string>>(key.ToLowerInvariant(), partitionKey).ConfigureAwait(false);
 
-            List<string> results = new List<string>();
-
-            while (query.HasMoreResults)
-            {
-                foreach (var doc in await query.ReadNextAsync().ConfigureAwait(false))
-                {
-                    results.Add(doc);
-                }
-            }
-
-            if (results != null && results.Count > 0)
-            {
-                return results[0];
-            }
-
-            return string.Empty;
+            // return the value
+            return ir.Resource["genre"];
         }
     }
 }
