@@ -190,7 +190,7 @@ namespace Helium.DataAccessLayer
             {
                 if (_queryRequestOptions == null)
                 {
-                    _queryRequestOptions =  new QueryRequestOptions { MaxItemCount = MaxRows };
+                    _queryRequestOptions = new QueryRequestOptions { MaxItemCount = MaxRows };
                 }
 
                 return _queryRequestOptions;
