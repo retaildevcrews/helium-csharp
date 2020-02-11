@@ -124,7 +124,7 @@ namespace Helium.DataAccessLayer
             {
                 try
                 {
-                    // convert to lower and escape embedded '
+                    // convert to lower
                     genre = await GetGenreAsync(genre).ConfigureAwait(false);
                 }
                 catch
