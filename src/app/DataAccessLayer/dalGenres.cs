@@ -1,4 +1,5 @@
 using Microsoft.Azure.Cosmos;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Threading.Tasks;
@@ -43,26 +44,18 @@ namespace Helium.DataAccessLayer
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1308:Normalize strings to uppercase", Justification = "key has to be lower case")]
         public async Task<string> GetGenreAsync(string key)
         {
-            string sql = string.Format(CultureInfo.InvariantCulture, $"select value m.genre from m where m.type = 'Genre' and m.id = '{key?.Trim().ToLowerInvariant()}'");
+            GenreObject g = await _cosmosDetails.Container.ReadItemAsync<GenreObject>(key.ToLowerInvariant(), new PartitionKey("0")).ConfigureAwait(false);
 
-            var query = _cosmosDetails.Container.GetItemQueryIterator<string>(new QueryDefinition(sql), requestOptions: _cosmosDetails.QueryRequestOptions);
+            return g.Genre;
+        }
 
-            List<string> results = new List<string>();
-
-            while (query.HasMoreResults)
-            {
-                foreach (var doc in await query.ReadNextAsync().ConfigureAwait(false))
-                {
-                    results.Add(doc);
-                }
-            }
-
-            if (results != null && results.Count > 0)
-            {
-                return results[0];
-            }
-
-            return string.Empty;
+        /// <summary>
+        /// Internal class for reading Genre json
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses", Justification = "Late bound")]
+        internal class GenreObject
+        {
+            public string Genre { get; set; }
         }
     }
 }
