@@ -1,7 +1,9 @@
 ---
 name: Release Template
 about: Verify code is ready to release
+title: ''
 labels: Release
+assignees: ''
 
 ---
 

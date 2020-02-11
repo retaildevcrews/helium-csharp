@@ -1,7 +1,10 @@
 ---
-name: 'Definiton of Done Review'
-about: Verify User Story meets acceptance criteria, has key features and meets Definition of Done
+name: Definiton of Done Review
+about: Verify User Story meets acceptance criteria, has key features and meets Definition
+  of Done
+title: ''
 labels: Release
+assignees: ''
 
 ---
 
