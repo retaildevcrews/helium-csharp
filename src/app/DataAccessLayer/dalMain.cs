@@ -10,10 +10,10 @@ namespace Helium.DataAccessLayer
     /// </summary>
     public partial class DAL : IDAL
     {
-        public int DefaultPageSize = 100;
-        public int MaxPageSize = 1000;
-        public int CosmosTimeout = 60;
-        public int CosmosMaxRetries = 10;
+        public int DefaultPageSize { get; set; } = 100;
+        public int MaxPageSize { get; set; } = 1000;
+        public int CosmosTimeout { get; set; } = 60;
+        public int CosmosMaxRetries { get; set; } = 10;
 
         private CosmosDetails _cosmosDetails = null;
 
