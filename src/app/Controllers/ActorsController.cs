@@ -40,8 +40,6 @@ namespace Helium.Controllers
         [HttpGet]
         [Produces("application/json")]
         [ProducesResponseType(typeof(Actor[]), 200)]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Method logs and handles all exceptions")]
-
         public async Task<IActionResult> GetActorsAsync([FromQuery] string q, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = Constants.DefaultPageSize)
         {
             string method = GetMethod(q, pageNumber, pageSize);
@@ -118,8 +116,6 @@ namespace Helium.Controllers
         [Produces("application/json")]
         [ProducesResponseType(typeof(Actor), 200)]
         [ProducesResponseType(typeof(void), 404)]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Method logs and handles all exceptions")]
-
         public async Task<IActionResult> GetActorByIdAsync(string actorId)
         {
             _logger.LogInformation($"GetActorByIdAsync {actorId}");
