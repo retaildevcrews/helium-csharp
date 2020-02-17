@@ -22,7 +22,6 @@ namespace Helium
         /// <param name="data">Dictionary(string, object)</param>
         /// <param name="testName">string</param>
         /// <returns>HealthzCheck</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters")]
         private HealthzCheck BuildHealthzCheck(string uri, double targetDurationMs, Exception ex = null, Dictionary<string, object> data = null, string testName = null)
         {
             stopwatch.Stop();

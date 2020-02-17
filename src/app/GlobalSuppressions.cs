@@ -13,3 +13,7 @@
 [assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Literal string", Justification = "logging is not globalized", Scope = "type", Target = "Helium.App")]
 [assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1062:Literal string", Justification = "logging is not globalized", Scope = "type", Target = "Helium.App")]
 [assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA2000:IDispose", Justification = "IDispose is implemented", Scope = "type", Target = "Helium.App")]
+
+[assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "Required for DI", Scope = "type", Target = "Helium.Startup")]
+
+[assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1031:Catch Exception", Justification = "need to catch all exceptions", Scope = "namespaceanddescendants", Target = "Helium.CosmosHealthCheck")]
