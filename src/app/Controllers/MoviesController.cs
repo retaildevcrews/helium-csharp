@@ -14,7 +14,6 @@ namespace Helium.Controllers
     /// </summary>
     [Produces("application/json")]
     [Route("api/[controller]")]
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types")]
     public class MoviesController : Controller
     {
         private readonly ILogger _logger;
@@ -46,8 +45,6 @@ namespace Helium.Controllers
         [HttpGet]
         [Produces("application/json")]
         [ProducesResponseType(typeof(Movie[]), 200)]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Method logs and handles all exceptions")]
-
         public async Task<IActionResult> GetMoviesAsync([FromQuery]string q = "", [FromQuery] string genre = "", [FromQuery] int year = 0, [FromQuery] double rating = 0, [FromQuery] bool topRated = false, [FromQuery] string actorId = "", [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = Constants.DefaultPageSize)
         {
             string method = GetMethod(q, genre, year, rating, topRated, actorId, pageNumber, pageSize);
@@ -124,8 +121,6 @@ namespace Helium.Controllers
         [Produces("application/json")]
         [ProducesResponseType(typeof(Movie), 200)]
         [ProducesResponseType(typeof(void), 404)]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Method logs and handles all exceptions")]
-
         public async System.Threading.Tasks.Task<IActionResult> GetMovieByIdAsync(string movieId)
         {
             _logger.LogInformation($"GetMovieByIdAsync {movieId}");

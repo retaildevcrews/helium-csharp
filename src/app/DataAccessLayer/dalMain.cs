@@ -10,10 +10,10 @@ namespace Helium.DataAccessLayer
     /// </summary>
     public partial class DAL : IDAL
     {
-        public int DefaultPageSize = 100;
-        public int MaxPageSize = 1000;
-        public int CosmosTimeout = 60;
-        public int CosmosMaxRetries = 10;
+        public int DefaultPageSize { get; set; } = 100;
+        public int MaxPageSize { get; set; } = 1000;
+        public int CosmosTimeout { get; set; } = 60;
+        public int CosmosMaxRetries { get; set; } = 10;
 
         private CosmosDetails _cosmosDetails = null;
 
@@ -25,7 +25,6 @@ namespace Helium.DataAccessLayer
         /// <param name="cosmosKey">CosmosDB connection key</param>
         /// <param name="cosmosDatabase">CosmosDB Database</param>
         /// <param name="cosmosCollection">CosmosDB Collection</param>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "objects are used by DI")]
         public DAL(Uri cosmosUrl, string cosmosKey, string cosmosDatabase, string cosmosCollection)
         {
             if (cosmosUrl == null)
@@ -147,7 +146,6 @@ namespace Helium.DataAccessLayer
         /// </summary>
         /// <param name="id">document id</param>
         /// <returns>the partition key</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "log message")]
         public static string GetPartitionKey(string id)
         {
             // validate id

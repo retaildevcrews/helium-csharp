@@ -40,8 +40,6 @@ namespace Helium.Controllers
         [Produces("application/json")]
         [ProducesResponseType(typeof(Movie), 200)]
         [ProducesResponseType(typeof(void), 404)]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Method logs and handles all exceptions")]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "Method Name")]
         public async Task<IActionResult> GetFeaturedMovieAsync()
         {
             string method = nameof(GetFeaturedMovieAsync);
