@@ -37,3 +37,6 @@ _[Add user story or References #issue]._
 - [ ] Smoke test deployed for 48 hours
 
 Engineering Playbook [Definition of Done](https://github.com/microsoft/code-with-engineering-playbook/blob/master/team-agreements/definition-of-done/readme.md)
+
+## Next Steps
+- [ ] Release template created

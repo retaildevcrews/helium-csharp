@@ -1,6 +1,7 @@
 ---
 name: Tasks
-about: Create a task for sprints
+about: Use to create small tasks & must link to original issue; should be items from
+  design review and/or bug
 title: ''
 labels: ''
 assignees: ''
@@ -9,4 +10,4 @@ assignees: ''
 
 ## Description:
 -
-- References #xx (include when appropriate)
+- References #xx
