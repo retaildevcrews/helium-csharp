@@ -2,7 +2,7 @@
 name: Retro
 about: Ensure all steps for Retro are completed & tracked
 title: ''
-labels: Retro
+labels: Retro, Pri1
 assignees: ''
 
 ---
