@@ -8,7 +8,7 @@
         public static readonly string SwaggerVersion = "v " + Version.AssemblyVersion;
         public const string SwaggerName = "helium";
         public const string SwaggerTitle = "Helium (C#)";
-        public const string SwaggerPath = "/swagger/helium.json";
+        public const string SwaggerPath = "/swagger/" + SwaggerName + "/swagger.json";
         public const string XmlCommentsPath = SwaggerName + ".xml";
 
         public const string KeyVaultName = "KeyVaultName";
