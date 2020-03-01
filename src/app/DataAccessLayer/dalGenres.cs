@@ -42,6 +42,11 @@ namespace Helium.DataAccessLayer
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1308:Normalize strings to uppercase", Justification = "key has to be lower case")]
         public async Task<string> GetGenreAsync(string key)
         {
+            if (string.IsNullOrWhiteSpace(key))
+            {
+                throw new System.ArgumentNullException(nameof(key));
+            }
+
             // we know the partition key is 0
             PartitionKey partitionKey = new PartitionKey("0");
 
