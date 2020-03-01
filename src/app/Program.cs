@@ -209,8 +209,8 @@ namespace Helium
             {
                 // standard config builder
                 var cfgBuilder = new ConfigurationBuilder()
-                    .SetBasePath(Directory.GetCurrentDirectory())
                     .AddJsonFile("appsettings.json", optional: false)
+                    .SetBasePath(Directory.GetCurrentDirectory())
                     // use Azure Key Vault
                     .AddAzureKeyVault(kvUrl, kvClient, new DefaultKeyVaultSecretManager());
 
