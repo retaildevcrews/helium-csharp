@@ -71,8 +71,7 @@ namespace Helium
         /// </summary>
         /// <param name="app"></param>
         /// <param name="env"></param>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "Required for DI")]
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public static void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             // log 4xx and 5xx results to console
             // this should be first as it "wraps" all requests

@@ -39,7 +39,6 @@ namespace Helium.DataAccessLayer
         /// </summary>
         /// <param name="key"></param>
         /// <returns>string.Empty or the Genre</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1308:Normalize strings to uppercase", Justification = "key has to be lower case")]
         public async Task<string> GetGenreAsync(string key)
         {
             if (string.IsNullOrWhiteSpace(key))
