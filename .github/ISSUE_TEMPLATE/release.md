@@ -30,4 +30,5 @@ This checklist is for verifing the release is ready to publish and published cor
 ### Release
 - [ ] Tag repo with version tag
 - [ ] Ensure CI-CD runs correctly
+- [ ] Validate e2e testing
 - [ ] Close Release Task

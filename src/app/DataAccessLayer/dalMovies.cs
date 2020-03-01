@@ -123,10 +123,10 @@ namespace Helium.DataAccessLayer
             {
                 try
                 {
-                    // convert to lower
+                    // get genre from key
                     genre = await GetGenreAsync(genre).ConfigureAwait(false);
                 }
-                catch
+                catch (CosmosException)
                 {
                     // genre doesn't exist
                     return new List<Movie>().AsQueryable<Movie>();

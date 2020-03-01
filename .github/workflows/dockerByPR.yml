@@ -1,0 +1,85 @@
+name: DockerCI-PR
+
+on:
+  pull_request:
+    branches:
+      - master
+
+    paths-ignore:
+      - 'docs/**'
+      - '.github/**'
+      - '**.md'
+      - 'saveenv.sh'
+
+jobs:
+
+  docker-build-push:
+
+    runs-on: ubuntu-latest
+    env:
+      #  DOCKER_REPO  - the docker repository name in the form: organization/repository
+      DOCKER_REPO: 'retaildevcrew/helium-csharp'
+
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Login to registry
+      run: |
+        # Login to registry
+
+        #    You must add the following secrets to github
+        #    DOCKER_USER  - your dockerhub user name
+        #    DOCKER_PAT   - the personal access token for dockerhub
+       
+
+        ## login to dockerhub
+        echo "${{ secrets.DOCKER_PAT }}" | docker login -u ${{ secrets.DOCKER_USER }} --password-stdin
+
+    - name: Build Container
+      run: docker build . --file Dockerfile --tag image
+
+    - name: Docker Push
+      run: |
+        # Tag and push the docker image
+
+        IMAGE_ID=$DOCKER_REPO
+
+        # Tag image based on repo tag if a github label
+
+
+        # Strip git ref prefix from version
+        VERSION=$(echo "${{ github.head_ref }}" | sed -e 's,.*/\(.*\),\1,')
+
+        docker tag image $IMAGE_ID:dev-$VERSION
+
+        docker push $IMAGE_ID:dev-$VERSION
+
+  acr-build-push-version:
+    runs-on: ubuntu-latest
+    env:
+      ACR_REG: 'heliume2e'
+      ACR_REPO: 'heliume2e.azurecr.io'
+      ACR_IMAGE: 'helium-csharp'
+    steps:
+      - uses: actions/checkout@v1
+      - name: acr-push-build
+        run: |
+          #    You must add the following secrets to github
+          #    SERVICE_PRINCIPAL  - your SP Client ID that has ACR Push IAM role
+          #    SERVICE_PRINCIPAL_PASSWORD   - the personal access token for the SP Client id
+          #    TENANT  - The tenant ID of the subscription of the ACR
+          
+          # Strip git ref prefix from version
+          VERSION=$(echo "${{ github.head_ref }}" | sed -e 's,.*/\(.*\),\1,')
+          echo $VERSION
+
+          echo "Building Docker image ${ACR_REPO}/${ACR_IMAGE}:dev-${VERSION} from ${GITHUB_REPOSITORY} on ${{ github.ref }}; and pushing it to ${ACR_REG} Azure Container Registry"
+          
+          # Use AZ Login with Service Principal Authentication
+          az login --service-principal -u ${{ secrets.SERVICE_PRINCIPAL }} -p ${{ secrets.SERVICE_PRINCIPAL_SECRET }} --tenant ${{ secrets.TENANT }}
+
+          # Push to ACR for Build and Push
+          az acr build -r ${ACR_REG} -f Dockerfile -t ${ACR_REPO}/${ACR_IMAGE}:dev-${VERSION} https://github.com/${GITHUB_REPOSITORY}.git#${{ github.ref }}
+
+
+  

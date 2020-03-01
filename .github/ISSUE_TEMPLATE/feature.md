@@ -20,5 +20,6 @@ assignees: ''
 - 
 
 ## Next Steps
-- Schedule Design Session
--
+- [ ] Team consensus to proceed 
+- [ ] Complete Design Review Template (if applicable)
+- [ ] Schedule Design Session

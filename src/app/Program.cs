@@ -16,8 +16,6 @@ using System.Threading.Tasks;
 
 namespace Helium
 {
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031", Justification = "catching Exception is necessary for the web service")]
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303", Justification = "logging is not localized")]
     public sealed class App
     {
         // ILogger instance
@@ -36,7 +34,6 @@ namespace Helium
         /// Configure and run the web server
         /// </summary>
         /// <param name="args">command line args</param>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1062", Justification = "args can be null")]
         public static async Task Main(string[] args)
         {
             try
@@ -280,7 +277,6 @@ namespace Helium
         /// </summary>
         /// <param name="kvUrl">URL of the Key Vault</param>
         /// <returns>Web Host ready to run</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "object used in DI")]
         static async Task<IWebHost> BuildHost(string kvUrl)
         {
             // create the Key Vault Client
