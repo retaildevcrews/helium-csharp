@@ -1,22 +1,15 @@
-﻿using Helium.DataAccessLayer;
-using Helium.Model;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.Cosmos;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.Http;
 using System;
-using System.Globalization;
-using System.Threading.Tasks;
 
 namespace Helium.Controllers
 {
     /// <summary>
     /// Validate the query string parameters
     /// </summary>
-    public static class QueryStringValidator
+    public static class ParameterValidator
     {
         /// <summary>
-        /// Validate parameters common between Actors and Movies
+        /// validate query string parameters common between Actors and Movies
         /// </summary>
         /// <param name="query">IQueryCollection</param>
         /// <param name="q">search</param>
@@ -67,6 +60,19 @@ namespace Helium.Controllers
             return true;
         }
 
+        /// <summary>
+        /// validate query string parameters for Movies
+        /// </summary>
+        /// <param name="query">IQueryCollection</param>
+        /// <param name="q">search</param>
+        /// <param name="genre">genre</param>
+        /// <param name="year">year</param>
+        /// <param name="rating">rating</param>
+        /// <param name="actorId">actorId</param>
+        /// <param name="pageNumber">Page Number</param>
+        /// <param name="pageSize">Page Size</param>
+        /// <param name="message">error message</param>
+        /// <returns></returns>
         public static bool Movies(IQueryCollection query, string q, string genre, int year, double rating, string actorId, int pageNumber, int pageSize, out string message)
         {
             message = string.Empty;
@@ -125,6 +131,12 @@ namespace Helium.Controllers
             return true;
         }
 
+        /// <summary>
+        /// validate actorId
+        /// </summary>
+        /// <param name="actorId">actorId</param>
+        /// <param name="message">error message</param>
+        /// <returns></returns>
         public static bool ActorId(string actorId, out string message)
         {
             message = string.Empty;
@@ -134,7 +146,8 @@ namespace Helium.Controllers
                 actorId.Length < 7 ||
                 actorId.Length > 11 ||
                 actorId.Substring(0, 2) != "nm" ||
-                !int.TryParse(actorId.Substring(2), out int _))
+                !int.TryParse(actorId.Substring(2), out int val) ||
+                val <= 0)
             {
                 message = "Invalid Actor ID parameter";
                 return false;
@@ -143,6 +156,12 @@ namespace Helium.Controllers
             return true;
         }
 
+        /// <summary>
+        /// validate movieId
+        /// </summary>
+        /// <param name="movieId">movieId</param>
+        /// <param name="message">error message</param>
+        /// <returns></returns>
         public static bool MovieId(string movieId, out string message)
         {
             message = string.Empty;
@@ -152,7 +171,8 @@ namespace Helium.Controllers
                 movieId.Length < 7 ||
                 movieId.Length > 11 ||
                 movieId.Substring(0, 2) != "tt" ||
-                !int.TryParse(movieId.Substring(2), out int _))
+                !int.TryParse(movieId.Substring(2), out int val) ||
+                val <= 0)
             {
                 message = "Invalid Movie ID parameter";
                 return false;
