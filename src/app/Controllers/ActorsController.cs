@@ -45,7 +45,7 @@ namespace Helium.Controllers
             string method = GetMethod(q, pageNumber, pageSize);
 
             // validate query string parameters
-            if (!ParameterValidator.Common(HttpContext.Request.Query, q, pageNumber, pageSize, out string message))
+            if (!ParameterValidator.Common(HttpContext?.Request?.Query, q, pageNumber, pageSize, out string message))
             {
                 _logger.LogWarning($"InvalidParameter|{method}|{message}");
 

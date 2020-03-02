@@ -51,7 +51,7 @@ namespace Helium.Controllers
             string method = GetMethod(q, genre, year, rating, topRated, actorId, pageNumber, pageSize);
 
             // validate query string parameters
-            if (!ParameterValidator.Movies(HttpContext.Request.Query, q, genre, year, rating, actorId, pageNumber, pageSize, out string message))
+            if (!ParameterValidator.Movies(HttpContext?.Request?.Query, q, genre, year, rating, actorId, pageNumber, pageSize, out string message))
             {
                 _logger.LogWarning($"InvalidParameter|{method}|{message}");
 
