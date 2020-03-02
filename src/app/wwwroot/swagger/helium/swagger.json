@@ -22,7 +22,7 @@
               "maxLength": 100,
               "minLength": 3,
               "type": "string",
-              "example": "keanu"
+              "example": "reeves"
             }
           },
           {
@@ -35,6 +35,7 @@
             "schema": {
               "maximum": 10000,
               "minimum": 1,
+              "example": 1,
               "type": "integer",
               "default": 1
             }
@@ -49,6 +50,7 @@
             "schema": {
               "maximum": 1000,
               "minimum": 1,
+              "example":  10,
               "type": "integer",
               "default": 100
             }
@@ -64,7 +66,118 @@
                   "items": {
                     "$ref": "#/components/schemas/Actor"
                   }
-                }
+                },
+                "example": [
+                  {
+                    "id": "nm0000206",
+                    "actorId": "nm0000206",
+                    "partitionKey": "6",
+                    "type": "Actor",
+                    "name": "Keanu Reeves",
+                    "birthYear": 1964,
+                    "textSearch": "keanu reeves",
+                    "profession": [
+                      "actor",
+                      "producer",
+                      "soundtrack"
+                    ],
+                    "movies": [
+                      {
+                        "movieId": "tt0102685",
+                        "title": "Point Break",
+                        "year": 1991,
+                        "runtime": 122,
+                        "genres": [
+                          "Action",
+                          "Crime",
+                          "Thriller"
+                        ]
+                      },
+                      {
+                        "movieId": "tt0133093",
+                        "title": "The Matrix",
+                        "year": 1999,
+                        "runtime": 136,
+                        "genres": [
+                          "Action",
+                          "Sci-Fi"
+                        ]
+                      },
+                      {
+                        "movieId": "tt0234215",
+                        "title": "The Matrix Reloaded",
+                        "year": 2003,
+                        "runtime": 138,
+                        "genres": [
+                          "Action",
+                          "Sci-Fi"
+                        ]
+                      },
+                      {
+                        "movieId": "tt0242653",
+                        "title": "The Matrix Revolutions",
+                        "year": 2003,
+                        "runtime": 129,
+                        "genres": [
+                          "Action",
+                          "Sci-Fi"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "id": "nm0716257",
+                    "actorId": "nm0716257",
+                    "partitionKey": "7",
+                    "type": "Actor",
+                    "name": "Matt Reeves",
+                    "birthYear": 1966,
+                    "textSearch": "matt reeves",
+                    "profession": [
+                      "producer",
+                      "writer",
+                      "director"
+                    ],
+                    "movies": [
+                      {
+                        "movieId": "tt3450958",
+                        "title": "War for the Planet of the Apes",
+                        "year": 2017,
+                        "runtime": 140,
+                        "genres": [
+                          "Action",
+                          "Adventure",
+                          "Drama"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "id": "nm0716293",
+                    "actorId": "nm0716293",
+                    "partitionKey": "3",
+                    "type": "Actor",
+                    "name": "Saskia Reeves",
+                    "birthYear": 1961,
+                    "textSearch": "saskia reeves",
+                    "profession": [
+                      "actress",
+                      "soundtrack"
+                    ],
+                    "movies": [
+                      {
+                        "movieId": "tt0101595",
+                        "title": "Close My Eyes",
+                        "year": 1991,
+                        "runtime": 108,
+                        "genres": [
+                          "Drama",
+                          "Romance"
+                        ]
+                      }
+                    ]
+                  }
+                ]
               }
             }
           },
@@ -118,27 +231,6 @@
                   "profession": [ "actor", "producer", "soundtrack" ],
                   "movies": [
                     {
-                      "movieId": "tt0100822",
-                      "title": "Tune in Tomorrow...",
-                      "year": 1990,
-                      "runtime": 107,
-                      "genres": [ "Comedy", "Romance" ]
-                    },
-                    {
-                      "movieId": "tt0101452",
-                      "title": "Bill & Ted's Bogus Journey",
-                      "year": 1991,
-                      "runtime": 93,
-                      "genres": [ "Adventure", "Comedy", "Fantasy" ]
-                    },
-                    {
-                      "movieId": "tt0102494",
-                      "title": "My Own Private Idaho",
-                      "year": 1991,
-                      "runtime": 104,
-                      "genres": [ "Drama" ]
-                    },
-                    {
                       "movieId": "tt0102685",
                       "title": "Point Break",
                       "year": 1991,
@@ -146,116 +238,11 @@
                       "genres": [ "Action", "Crime", "Thriller" ]
                     },
                     {
-                      "movieId": "tt0103874",
-                      "title": "Bram Stoker's Dracula",
-                      "year": 1992,
-                      "runtime": 128,
-                      "genres": [ "Horror" ]
-                    },
-                    {
-                      "movieId": "tt0107426",
-                      "title": "Little Buddha",
-                      "year": 1993,
-                      "runtime": 123,
-                      "genres": [ "Drama" ]
-                    },
-                    {
-                      "movieId": "tt0107616",
-                      "title": "Much Ado About Nothing",
-                      "year": 1993,
-                      "runtime": 111,
-                      "genres": [ "Comedy", "Drama", "Romance" ]
-                    },
-                    {
-                      "movieId": "tt0111257",
-                      "title": "Speed",
-                      "year": 1994,
-                      "runtime": 116,
-                      "genres": [ "Action", "Adventure", "Thriller" ]
-                    },
-                    {
-                      "movieId": "tt0113481",
-                      "title": "Johnny Mnemonic",
-                      "year": 1995,
-                      "runtime": 96,
-                      "genres": [ "Action", "Drama", "Sci-Fi" ]
-                    },
-                    {
-                      "movieId": "tt0114887",
-                      "title": "A Walk in the Clouds",
-                      "year": 1995,
-                      "runtime": 102,
-                      "genres": [ "Drama", "Romance" ]
-                    },
-                    {
-                      "movieId": "tt0115857",
-                      "title": "Chain Reaction",
-                      "year": 1996,
-                      "runtime": 107,
-                      "genres": [ "Action", "Drama", "Sci-Fi" ]
-                    },
-                    {
-                      "movieId": "tt0116289",
-                      "title": "Feeling Minnesota",
-                      "year": 1996,
-                      "runtime": 99,
-                      "genres": [ "Comedy", "Crime", "Drama" ]
-                    },
-                    {
-                      "movieId": "tt0118971",
-                      "title": "The Devil's Advocate",
-                      "year": 1997,
-                      "runtime": 144,
-                      "genres": [ "Drama", "Mystery", "Thriller" ]
-                    },
-                    {
-                      "movieId": "tt0119502",
-                      "title": "The Last Time I Committed Suicide",
-                      "year": 1997,
-                      "runtime": 92,
-                      "genres": [ "Biography", "Romance" ]
-                    },
-                    {
                       "movieId": "tt0133093",
                       "title": "The Matrix",
                       "year": 1999,
                       "runtime": 136,
                       "genres": [ "Action", "Sci-Fi" ]
-                    },
-                    {
-                      "movieId": "tt0180734",
-                      "title": "Hardball",
-                      "year": 2001,
-                      "runtime": 106,
-                      "genres": [ "Drama", "Sport" ]
-                    },
-                    {
-                      "movieId": "tt0191397",
-                      "title": "The Replacements",
-                      "year": 2000,
-                      "runtime": 118,
-                      "genres": [ "Comedy", "Sport" ]
-                    },
-                    {
-                      "movieId": "tt0204626",
-                      "title": "The Watcher",
-                      "year": 2000,
-                      "runtime": 97,
-                      "genres": [ "Crime", "Drama", "Mystery" ]
-                    },
-                    {
-                      "movieId": "tt0219699",
-                      "title": "The Gift",
-                      "year": 2000,
-                      "runtime": 112,
-                      "genres": [ "Drama", "Fantasy", "Horror" ]
-                    },
-                    {
-                      "movieId": "tt0230838",
-                      "title": "Sweet November",
-                      "year": 2001,
-                      "runtime": 119,
-                      "genres": [ "Drama", "Romance" ]
                     },
                     {
                       "movieId": "tt0234215",
@@ -272,130 +259,11 @@
                       "genres": [ "Action", "Sci-Fi" ]
                     },
                     {
-                      "movieId": "tt0318761",
-                      "title": "Thumbsucker",
-                      "year": 2005,
-                      "runtime": 96,
-                      "genres": [ "Comedy", "Drama" ]
-                    },
-                    {
-                      "movieId": "tt0337741",
-                      "title": "Something's Gotta Give",
-                      "year": 2003,
-                      "runtime": 128,
-                      "genres": [ "Comedy", "Drama", "Romance" ]
-                    },
-                    {
-                      "movieId": "tt0360486",
-                      "title": "Constantine",
-                      "year": 2005,
-                      "runtime": 121,
-                      "genres": [ "Action", "Fantasy", "Horror" ]
-                    },
-                    {
-                      "movieId": "tt0405296",
-                      "title": "A Scanner Darkly",
-                      "year": 2006,
-                      "runtime": 100,
-                      "genres": [ "Animation", "Crime", "Drama" ]
-                    },
-                    {
-                      "movieId": "tt0410297",
-                      "title": "The Lake House",
-                      "year": 2006,
-                      "runtime": 99,
-                      "genres": [ "Drama", "Fantasy", "Romance" ]
-                    },
-                    {
-                      "movieId": "tt0421073",
-                      "title": "Street Kings",
-                      "year": 2008,
-                      "runtime": 109,
-                      "genres": [ "Action", "Crime", "Drama" ]
-                    },
-                    {
-                      "movieId": "tt0970416",
-                      "title": "The Day the Earth Stood Still",
-                      "year": 2008,
-                      "runtime": 104,
-                      "genres": [ "Drama", "Sci-Fi", "Thriller" ]
-                    },
-                    {
-                      "movieId": "tt1220888",
-                      "title": "Henry's Crime",
-                      "year": 2010,
-                      "runtime": 108,
-                      "genres": [ "Comedy", "Crime", "Drama" ]
-                    },
-                    {
-                      "movieId": "tt1335975",
-                      "title": "47 Ronin",
-                      "year": 2013,
-                      "runtime": 128,
-                      "genres": [ "Action", "Drama", "Fantasy" ]
-                    },
-                    {
-                      "movieId": "tt1718158",
-                      "title": "Generation Um...",
-                      "year": 2012,
-                      "runtime": 97,
-                      "genres": [ "Drama" ]
-                    },
-                    {
-                      "movieId": "tt1974419",
-                      "title": "The Neon Demon",
-                      "year": 2016,
-                      "runtime": 117,
-                      "genres": [ "Horror", "Thriller" ]
-                    },
-                    {
-                      "movieId": "tt2016940",
-                      "title": "Man of Tai Chi",
-                      "year": 2013,
-                      "runtime": 105,
-                      "genres": [ "Action", "Drama" ]
-                    },
-                    {
                       "movieId": "tt2911666",
                       "title": "John Wick",
                       "year": 2014,
                       "runtime": 101,
                       "genres": [ "Action", "Crime", "Thriller" ]
-                    },
-                    {
-                      "movieId": "tt3503406",
-                      "title": "The Whole Truth",
-                      "year": 2016,
-                      "runtime": 93,
-                      "genres": [ "Crime", "Drama", "Mystery" ]
-                    },
-                    {
-                      "movieId": "tt3605418",
-                      "title": "Knock Knock",
-                      "year": 2015,
-                      "runtime": 99,
-                      "genres": [ "Drama", "Thriller" ]
-                    },
-                    {
-                      "movieId": "tt4019560",
-                      "title": "Exposed",
-                      "year": 2016,
-                      "runtime": 102,
-                      "genres": [ "Crime", "Drama", "Mystery" ]
-                    },
-                    {
-                      "movieId": "tt4154916",
-                      "title": "Replicas",
-                      "year": 2018,
-                      "runtime": 107,
-                      "genres": [ "Drama", "Sci-Fi", "Thriller" ]
-                    },
-                    {
-                      "movieId": "tt4334266",
-                      "title": "The Bad Batch",
-                      "year": 2016,
-                      "runtime": 118,
-                      "genres": [ "Drama", "Horror", "Romance" ]
                     },
                     {
                       "movieId": "tt4425200",
@@ -405,32 +273,11 @@
                       "genres": [ "Action", "Crime", "Thriller" ]
                     },
                     {
-                      "movieId": "tt5228262",
-                      "title": "A Happening of Monumental Proportions",
-                      "year": 2017,
-                      "runtime": 81,
-                      "genres": [ "Comedy", "Drama" ]
-                    },
-                    {
                       "movieId": "tt6146586",
                       "title": "John Wick: Chapter 3 - Parabellum",
                       "year": 2019,
                       "runtime": 131,
                       "genres": [ "Action", "Crime", "Thriller" ]
-                    },
-                    {
-                      "movieId": "tt6494418",
-                      "title": "Siberia",
-                      "year": 2018,
-                      "runtime": 104,
-                      "genres": [ "Crime", "Romance", "Thriller" ]
-                    },
-                    {
-                      "movieId": "tt6987770",
-                      "title": "Destination Wedding",
-                      "year": 2018,
-                      "runtime": 87,
-                      "genres": [ "Comedy", "Drama", "Romance" ]
                     }
                   ]
                 }
@@ -474,6 +321,45 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Movie"
+                },
+                "example": {
+                  "id": "tt0133093",
+                  "partitionKey": "3",
+                  "movieId": "tt0133093",
+                  "type": "Movie",
+                  "title": "The Matrix",
+                  "year": 1999,
+                  "runtime": 136,
+                  "rating": 8.7,
+                  "votes": 1546282,
+                  "totalScore": 13452653,
+                  "genres": [ "Action", "Sci-Fi" ],
+                  "roles": [
+                    {
+                      "order": 1,
+                      "actorId": "nm0000206",
+                      "name": "Keanu Reeves",
+                      "birthYear": 1964,
+                      "category": "Actor",
+                      "characters": [ "Neo" ]
+                    },
+                    {
+                      "order": 2,
+                      "actorId": "nm0000401",
+                      "name": "Laurence Fishburne",
+                      "birthYear": 1961,
+                      "category": "Actor",
+                      "characters": [ "Morpheus" ]
+                    },
+                    {
+                      "order": 3,
+                      "actorId": "nm0005251",
+                      "name": "Carrie-Anne Moss",
+                      "birthYear": 1967,
+                      "category": "Actress",
+                      "characters": [ "Trinity" ]
+                    }
+                  ]
                 }
               }
             }
@@ -515,7 +401,8 @@
               "text/plain": {
                 "schema": {
                   "type": "string"
-                }
+                },
+                "example":  "pass"
               }
             }
           }
@@ -534,6 +421,63 @@
               "application/health+json": {
                 "schema": {
                   "$ref": "#/components/schemas/IetfHealthCheck"
+                },
+                "example": {
+                  "status": "pass",
+                  "serviceId": "helium-csharp",
+                  "description": "Helium C# Health Check",
+                  "instance": "0",
+                  "version": "1.0.0302.0026",
+                  "checks": {
+                    "getGenres": {
+                      "status": "pass",
+                      "componentType": "CosmosDB",
+                      "observedUnit": "ms",
+                      "observedValue": 6.17,
+                      "targetValue": 400,
+                      "time": "2020-03-02T01:49:17Z"
+                    },
+                    "getActorById": {
+                      "status": "pass",
+                      "componentType": "CosmosDB",
+                      "observedUnit": "ms",
+                      "observedValue": 3.78,
+                      "targetValue": 250,
+                      "time": "2020-03-02T01:49:17Z"
+                    },
+                    "getMovieById": {
+                      "status": "pass",
+                      "componentType": "CosmosDB",
+                      "observedUnit": "ms",
+                      "observedValue": 1.4,
+                      "targetValue": 400,
+                      "time": "2020-03-02T01:49:17Z"
+                    },
+                    "searchMovies": {
+                      "status": "pass",
+                      "componentType": "CosmosDB",
+                      "observedUnit": "ms",
+                      "observedValue": 38.11,
+                      "targetValue": 400,
+                      "time": "2020-03-02T01:49:17Z"
+                    },
+                    "searchActors": {
+                      "status": "pass",
+                      "componentType": "CosmosDB",
+                      "observedUnit": "ms",
+                      "observedValue": 57.27,
+                      "targetValue": 400,
+                      "time": "2020-03-02T01:49:17Z"
+                    },
+                    "getTopRatedMovies": {
+                      "status": "pass",
+                      "componentType": "CosmosDB",
+                      "observedUnit": "ms",
+                      "observedValue": 13.66,
+                      "targetValue": 400,
+                      "time": "2020-03-02T01:49:17Z"
+                    }
+                  }
                 }
               }
             }
@@ -553,6 +497,62 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/DotNetHealthCheck"
+                },
+                "example": {
+                  "description": "Helium C# Health Check",
+                  "status": "Healthy",
+                  "data": {
+                    "instance": "0",
+                    "version": "1.0.0302.0026",
+                    "getGenres": {
+                      "status": "Healthy",
+                      "componentType": "CosmosDB",
+                      "duration": "00:00:00.010",
+                      "targetDuration": "00:00:00.400",
+                      "time": "2020-03-02T01:50:47Z",
+                      "endpoint": "/api/genres"
+                    },
+                    "getActorById": {
+                      "status": "Healthy",
+                      "componentType": "CosmosDB",
+                      "duration": "00:00:00.001",
+                      "targetDuration": "00:00:00.250",
+                      "time": "2020-03-02T01:50:47Z",
+                      "endpoint": "/api/actors/nm0000173"
+                    },
+                    "getMovieById": {
+                      "status": "Healthy",
+                      "componentType": "CosmosDB",
+                      "duration": "00:00:00.002",
+                      "targetDuration": "00:00:00.400",
+                      "time": "2020-03-02T01:50:47Z",
+                      "endpoint": "/api/movies/tt0133093"
+                    },
+                    "searchMovies": {
+                      "status": "Healthy",
+                      "componentType": "CosmosDB",
+                      "duration": "00:00:00.023",
+                      "targetDuration": "00:00:00.400",
+                      "time": "2020-03-02T01:50:47Z",
+                      "endpoint": "/api/movies?q=ring"
+                    },
+                    "searchActors": {
+                      "status": "Healthy",
+                      "componentType": "CosmosDB",
+                      "duration": "00:00:00.046",
+                      "targetDuration": "00:00:00.400",
+                      "time": "2020-03-02T01:50:47Z",
+                      "endpoint": "/api/actors?q=nicole"
+                    },
+                    "getTopRatedMovies": {
+                      "status": "Healthy",
+                      "componentType": "CosmosDB",
+                      "duration": "00:00:00.007",
+                      "targetDuration": "00:00:00.400",
+                      "time": "2020-03-02T01:50:47Z",
+                      "endpoint": "/api/movies?toprated=true"
+                    }
+                  }
                 }
               }
             }
@@ -599,7 +599,7 @@
             "explode": true,
             "schema": {
               "type": "integer",
-              "example": 2019
+              "example": 2003
             }
           },
           {
@@ -611,7 +611,7 @@
             "explode": true,
             "schema": {
               "type": "number",
-              "example": 8.8
+              "example": 6.5
             }
           },
           {
@@ -623,7 +623,7 @@
             "explode": true,
             "schema": {
               "type": "boolean",
-              "example": true,
+              "example": false,
               "default": false
             }
           },
@@ -648,7 +648,7 @@
             "explode": true,
             "schema": {
               "type": "integer",
-              "example": 10,
+              "example": 1,
               "default": 1
             }
           },
@@ -661,7 +661,7 @@
             "explode": true,
             "schema": {
               "type": "integer",
-              "example": 2,
+              "example": 10,
               "default": 100
             }
           }
@@ -676,7 +676,169 @@
                   "items": {
                     "$ref": "#/components/schemas/Movie"
                   }
-                }
+                },
+                "example": [
+                  {
+                    "id": "tt0234215",
+                    "partitionKey": "5",
+                    "movieId": "tt0234215",
+                    "type": "Movie",
+                    "title": "The Matrix Reloaded",
+                    "year": 2003,
+                    "runtime": 138,
+                    "rating": 7.2,
+                    "votes": 486680,
+                    "totalScore": 3504096,
+                    "textSearch": "the matrix reloaded",
+                    "genres": [
+                      "Action",
+                      "Sci-Fi"
+                    ],
+                    "roles": [
+                      {
+                        "order": 1,
+                        "actorId": "nm0000206",
+                        "name": "Keanu Reeves",
+                        "birthYear": 1964,
+                        "category": "Actor",
+                        "characters": [
+                          "Neo"
+                        ]
+                      },
+                      {
+                        "order": 2,
+                        "actorId": "nm0000401",
+                        "name": "Laurence Fishburne",
+                        "birthYear": 1961,
+                        "category": "Actor",
+                        "characters": [
+                          "Morpheus"
+                        ]
+                      },
+                      {
+                        "order": 3,
+                        "actorId": "nm0005251",
+                        "name": "Carrie-Anne Moss",
+                        "birthYear": 1967,
+                        "category": "Actress",
+                        "characters": [
+                          "Trinity"
+                        ]
+                      },
+                      {
+                        "order": 4,
+                        "actorId": "nm0915989",
+                        "name": "Hugo Weaving",
+                        "birthYear": 1960,
+                        "category": "Actor",
+                        "characters": [
+                          "Agent Smith"
+                        ]
+                      },
+                      {
+                        "order": 5,
+                        "actorId": "nm0905154",
+                        "name": "Lana Wachowski",
+                        "birthYear": 1965,
+                        "category": "Director"
+                      },
+                      {
+                        "order": 6,
+                        "actorId": "nm0905152",
+                        "name": "Lilly Wachowski",
+                        "birthYear": 1967,
+                        "category": "Director"
+                      },
+                      {
+                        "order": 7,
+                        "actorId": "nm0005428",
+                        "name": "Joel Silver",
+                        "birthYear": 1952,
+                        "category": "Producer"
+                      }
+                    ]
+                  },
+                  {
+                    "id": "tt0242653",
+                    "partitionKey": "3",
+                    "movieId": "tt0242653",
+                    "type": "Movie",
+                    "title": "The Matrix Revolutions",
+                    "year": 2003,
+                    "runtime": 129,
+                    "rating": 6.7,
+                    "votes": 422540,
+                    "totalScore": 2831018,
+                    "textSearch": "the matrix revolutions",
+                    "genres": [
+                      "Action",
+                      "Sci-Fi"
+                    ],
+                    "roles": [
+                      {
+                        "order": 1,
+                        "actorId": "nm0000206",
+                        "name": "Keanu Reeves",
+                        "birthYear": 1964,
+                        "category": "Actor",
+                        "characters": [
+                          "Neo"
+                        ]
+                      },
+                      {
+                        "order": 2,
+                        "actorId": "nm0000401",
+                        "name": "Laurence Fishburne",
+                        "birthYear": 1961,
+                        "category": "Actor",
+                        "characters": [
+                          "Morpheus"
+                        ]
+                      },
+                      {
+                        "order": 3,
+                        "actorId": "nm0005251",
+                        "name": "Carrie-Anne Moss",
+                        "birthYear": 1967,
+                        "category": "Actress",
+                        "characters": [
+                          "Trinity"
+                        ]
+                      },
+                      {
+                        "order": 4,
+                        "actorId": "nm0915989",
+                        "name": "Hugo Weaving",
+                        "birthYear": 1960,
+                        "category": "Actor",
+                        "characters": [
+                          "Agent Smith"
+                        ]
+                      },
+                      {
+                        "order": 5,
+                        "actorId": "nm0905154",
+                        "name": "Lana Wachowski",
+                        "birthYear": 1965,
+                        "category": "Director"
+                      },
+                      {
+                        "order": 6,
+                        "actorId": "nm0905152",
+                        "name": "Lilly Wachowski",
+                        "birthYear": 1967,
+                        "category": "Director"
+                      },
+                      {
+                        "order": 7,
+                        "actorId": "nm0005428",
+                        "name": "Joel Silver",
+                        "birthYear": 1952,
+                        "category": "Producer"
+                      }
+                    ]
+                  }
+                ]
               }
             }
           },
@@ -732,7 +894,6 @@
                   "rating": 8.7,
                   "votes": 1546282,
                   "totalScore": 13452653,
-                  "textSearch": "the matrix",
                   "genres": [ "Action", "Sci-Fi" ],
                   "roles": [
                     {
@@ -758,35 +919,6 @@
                       "birthYear": 1967,
                       "category": "Actress",
                       "characters": [ "Trinity" ]
-                    },
-                    {
-                      "order": 4,
-                      "actorId": "nm0915989",
-                      "name": "Hugo Weaving",
-                      "birthYear": 1960,
-                      "category": "Actor",
-                      "characters": [ "Agent Smith" ]
-                    },
-                    {
-                      "order": 5,
-                      "actorId": "nm0905154",
-                      "name": "Lana Wachowski",
-                      "birthYear": 1965,
-                      "category": "Director"
-                    },
-                    {
-                      "order": 6,
-                      "actorId": "nm0905152",
-                      "name": "Lilly Wachowski",
-                      "birthYear": 1967,
-                      "category": "Director"
-                    },
-                    {
-                      "order": 7,
-                      "actorId": "nm0005428",
-                      "name": "Joel Silver",
-                      "birthYear": 1952,
-                      "category": "Producer"
                     }
                   ]
                 }
@@ -858,7 +990,27 @@
           "movies": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/Actor_movies"
+              "type": "object",
+              "properties": {
+                "movieId": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "year": {
+                  "type": "integer"
+                },
+                "runtime": {
+                  "type": "integer"
+                },
+                "genres": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
             }
           }
         },
@@ -909,7 +1061,35 @@
           "roles": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/Movie_roles"
+              "type": "object",
+              "properties": {
+                "order": {
+                  "type": "integer"
+                },
+                "actorId": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "birthYear": {
+                  "type": "integer"
+                },
+                "deathYear": {
+                  "type": "integer",
+                  "nullable": true
+                },
+                "category": {
+                  "type": "string"
+                },
+                "characters": {
+                  "type": "array",
+                  "nullable": true,
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
             }
           }
         },
@@ -934,7 +1114,219 @@
             "type": "string"
           },
           "checks": {
-            "$ref": "#/components/schemas/IetfHealthCheck_checks"
+            "type": "object",
+            "properties": {
+              "getGenres": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string"
+                  },
+                  "componentId": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "observedUnit": {
+                    "type": "string"
+                  },
+                  "observedValue": {
+                    "type": "integer"
+                  },
+                  "targetValue": {
+                    "type": "integer"
+                  },
+                  "time": {
+                    "type": "string",
+                    "format": "datetime"
+                  },
+                  "endPoints": {
+                    "type": "array",
+                    "nullable": true,
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "getActorById": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string"
+                  },
+                  "componentId": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "observedUnit": {
+                    "type": "string"
+                  },
+                  "observedValue": {
+                    "type": "integer"
+                  },
+                  "targetValue": {
+                    "type": "integer"
+                  },
+                  "time": {
+                    "type": "string",
+                    "format": "datetime"
+                  },
+                  "endPoints": {
+                    "type": "array",
+                    "nullable": true,
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "getMovieById": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string"
+                  },
+                  "componentId": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "observedUnit": {
+                    "type": "string"
+                  },
+                  "observedValue": {
+                    "type": "integer"
+                  },
+                  "targetValue": {
+                    "type": "integer"
+                  },
+                  "time": {
+                    "type": "string",
+                    "format": "datetime"
+                  },
+                  "endPoints": {
+                    "type": "array",
+                    "nullable": true,
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "getTopRatedMovies": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string"
+                  },
+                  "componentId": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "observedUnit": {
+                    "type": "string"
+                  },
+                  "observedValue": {
+                    "type": "integer"
+                  },
+                  "targetValue": {
+                    "type": "integer"
+                  },
+                  "time": {
+                    "type": "string",
+                    "format": "datetime"
+                  },
+                  "endPoints": {
+                    "type": "array",
+                    "nullable": true,
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "searchMovies": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string"
+                  },
+                  "componentId": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "observedUnit": {
+                    "type": "string"
+                  },
+                  "observedValue": {
+                    "type": "integer"
+                  },
+                  "targetValue": {
+                    "type": "integer"
+                  },
+                  "time": {
+                    "type": "string",
+                    "format": "datetime"
+                  },
+                  "endPoints": {
+                    "type": "array",
+                    "nullable": true,
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "searchActors": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string"
+                  },
+                  "componentId": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "observedUnit": {
+                    "type": "string"
+                  },
+                  "observedValue": {
+                    "type": "integer"
+                  },
+                  "targetValue": {
+                    "type": "integer"
+                  },
+                  "time": {
+                    "type": "string",
+                    "format": "datetime"
+                  },
+                  "endPoints": {
+                    "type": "array",
+                    "nullable": true,
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "additionalProperties": false
@@ -949,182 +1341,204 @@
             "type": "string"
           },
           "data": {
-            "$ref": "#/components/schemas/DotNetHealthCheck_data"
+            "type": "object",
+            "properties": {
+              "instance": {
+                "type": "string"
+              },
+              "version": {
+                "type": "string"
+              },
+              "getGenres": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string"
+                  },
+                  "componentType": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "duration": {
+                    "type": "string",
+                    "format": "time"
+                  },
+                  "targetDuration": {
+                    "type": "string",
+                    "format": "time"
+                  },
+                  "time": {
+                    "type": "string",
+                    "format": "datetime"
+                  },
+                  "endPoint": {
+                    "type": "string",
+                    "nullable": true
+                  }
+                }
+              },
+              "getActorById": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string"
+                  },
+                  "componentType": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "duration": {
+                    "type": "string",
+                    "format": "time"
+                  },
+                  "targetDuration": {
+                    "type": "string",
+                    "format": "time"
+                  },
+                  "time": {
+                    "type": "string",
+                    "format": "datetime"
+                  },
+                  "endPoint": {
+                    "type": "string",
+                    "nullable": true
+                  }
+                }
+              },
+              "getMovieById": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string"
+                  },
+                  "componentType": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "duration": {
+                    "type": "string",
+                    "format": "time"
+                  },
+                  "targetDuration": {
+                    "type": "string",
+                    "format": "time"
+                  },
+                  "time": {
+                    "type": "string",
+                    "format": "datetime"
+                  },
+                  "endPoint": {
+                    "type": "string",
+                    "nullable": true
+                  }
+                }
+              },
+              "getTopRatedMovies": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string"
+                  },
+                  "componentType": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "duration": {
+                    "type": "string",
+                    "format": "time"
+                  },
+                  "targetDuration": {
+                    "type": "string",
+                    "format": "time"
+                  },
+                  "time": {
+                    "type": "string",
+                    "format": "datetime"
+                  },
+                  "endPoint": {
+                    "type": "string",
+                    "nullable": true
+                  }
+                }
+              },
+              "searchActors": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string"
+                  },
+                  "componentType": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "duration": {
+                    "type": "string",
+                    "format": "time"
+                  },
+                  "targetDuration": {
+                    "type": "string",
+                    "format": "time"
+                  },
+                  "time": {
+                    "type": "string",
+                    "format": "datetime"
+                  },
+                  "endPoint": {
+                    "type": "string",
+                    "nullable": true
+                  }
+                }
+              },
+              "searchMovies": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string"
+                  },
+                  "componentType": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "duration": {
+                    "type": "string",
+                    "format": "time"
+                  },
+                  "targetDuration": {
+                    "type": "string",
+                    "format": "time"
+                  },
+                  "time": {
+                    "type": "string",
+                    "format": "datetime"
+                  },
+                  "endPoint": {
+                    "type": "string",
+                    "nullable": true
+                  }
+                }
+              }
+            }
           }
         },
         "additionalProperties": false
-      },
-      "Actor_movies": {
-        "type": "object",
-        "properties": {
-          "movieId": {
-            "type": "string"
-          },
-          "title": {
-            "type": "string"
-          },
-          "year": {
-            "type": "integer"
-          },
-          "runtime": {
-            "type": "integer"
-          },
-          "genres": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          }
-        }
-      },
-      "Movie_roles": {
-        "type": "object",
-        "properties": {
-          "order": {
-            "type": "integer"
-          },
-          "actorId": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "birthYear": {
-            "type": "integer"
-          },
-          "deathYear": {
-            "type": "integer",
-            "nullable": true
-          },
-          "category": {
-            "type": "string"
-          },
-          "characters": {
-            "type": "array",
-            "nullable": true,
-            "items": {
-              "type": "string"
-            }
-          }
-        }
-      },
-      "IetfHealthCheck_checks_getGenres": {
-        "type": "object",
-        "properties": {
-          "status": {
-            "type": "string"
-          },
-          "componentId": {
-            "type": "string"
-          },
-          "message": {
-            "type": "string",
-            "nullable": true
-          },
-          "observedUnit": {
-            "type": "string"
-          },
-          "observedValue": {
-            "type": "integer"
-          },
-          "targetValue": {
-            "type": "integer"
-          },
-          "time": {
-            "type": "string",
-            "format": "datetime"
-          },
-          "endPoints": {
-            "type": "array",
-            "nullable": true,
-            "items": {
-              "type": "string"
-            }
-          }
-        }
-      },
-      "IetfHealthCheck_checks": {
-        "type": "object",
-        "properties": {
-          "getGenres": {
-            "$ref": "#/components/schemas/IetfHealthCheck_checks_getGenres"
-          },
-          "getActorById": {
-            "$ref": "#/components/schemas/IetfHealthCheck_checks_getGenres"
-          },
-          "getMovieById": {
-            "$ref": "#/components/schemas/IetfHealthCheck_checks_getGenres"
-          },
-          "getTopRatedMovies": {
-            "$ref": "#/components/schemas/IetfHealthCheck_checks_getGenres"
-          },
-          "searchMovies": {
-            "$ref": "#/components/schemas/IetfHealthCheck_checks_getGenres"
-          },
-          "searchActors": {
-            "$ref": "#/components/schemas/IetfHealthCheck_checks_getGenres"
-          }
-        }
-      },
-      "DotNetHealthCheck_data_getGenres": {
-        "type": "object",
-        "properties": {
-          "status": {
-            "type": "string"
-          },
-          "componentType": {
-            "type": "string"
-          },
-          "message": {
-            "type": "string",
-            "nullable": true
-          },
-          "duration": {
-            "type": "string",
-            "format": "time"
-          },
-          "targetDuration": {
-            "type": "string",
-            "format": "time"
-          },
-          "time": {
-            "type": "string",
-            "format": "datetime"
-          },
-          "endPoint": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "DotNetHealthCheck_data": {
-        "type": "object",
-        "properties": {
-          "instance": {
-            "type": "string"
-          },
-          "version": {
-            "type": "string"
-          },
-          "getGenres": {
-            "$ref": "#/components/schemas/DotNetHealthCheck_data_getGenres"
-          },
-          "getActorById": {
-            "$ref": "#/components/schemas/DotNetHealthCheck_data_getGenres"
-          },
-          "getMovieById": {
-            "$ref": "#/components/schemas/DotNetHealthCheck_data_getGenres"
-          },
-          "getTopRatedMovies": {
-            "$ref": "#/components/schemas/DotNetHealthCheck_data_getGenres"
-          },
-          "searchActors": {
-            "$ref": "#/components/schemas/DotNetHealthCheck_data_getGenres"
-          },
-          "searchMovies": {
-            "$ref": "#/components/schemas/DotNetHealthCheck_data_getGenres"
-          }
-        }
       }
     }
   }
