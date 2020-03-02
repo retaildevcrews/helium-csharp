@@ -10,7 +10,7 @@ This is an ASP.NET Core Web API reference application designed to "fork and code
 - Securely build, deploy and run an Azure Kubernetes Service (AKS) application
 - Use Managed Identity to securely access resources
 - Securely store secrets in Key Vault
-- Securely build and deploy the Docker container from Azure Container Registry (ACR) or Azure DevOps
+- Securely build and deploy the Docker container from Azure Container Registry (ACR)
 - Connect to and query Cosmos DB
 - Automatically send telemetry and logs to Azure Monitor
 - Instructions for setting up Key Vault, ACR, Azure Monitor and Cosmos DB are in the Helium [readme](https://github.com/retaildevcrews/helium)
