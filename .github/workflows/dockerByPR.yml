@@ -51,8 +51,10 @@ jobs:
         VERSION=$(echo "${{ github.head_ref }}" | sed -e 's,.*/\(.*\),\1,')
 
         docker tag image $IMAGE_ID:dev-$VERSION
-
         docker push $IMAGE_ID:dev-$VERSION
+
+        docker tag image $IMAGE_ID:beta
+        docker push $IMAGE_ID:beta
 
   acr-build-push-version:
     runs-on: ubuntu-latest
