@@ -44,6 +44,18 @@ namespace Helium.Controllers
         {
             string method = GetMethod(q, pageNumber, pageSize);
 
+            // validate query string parameters
+            if (!QueryStringValidator.Common(HttpContext.Request.Query, q, pageNumber, pageSize, out string message))
+            {
+                _logger.LogWarning($"InvalidParameter|{method}|{message}");
+
+                return new ContentResult
+                {
+                    Content = message,
+                    StatusCode = (int)System.Net.HttpStatusCode.BadRequest
+                };
+            }
+
             _logger.LogInformation(method);
 
             try
@@ -72,8 +84,9 @@ namespace Helium.Controllers
                 // log and return Cosmos status code
                 _logger.LogError($"CosmosException:{method}:{ce.StatusCode}:{ce.ActivityId}:{ce.Message}\n{ce}");
 
-                return new ObjectResult(Constants.ActorsControllerException)
+                return new ContentResult
                 {
+                    Content = Constants.ActorsControllerException,
                     StatusCode = (int)ce.StatusCode
                 };
             }
@@ -90,8 +103,9 @@ namespace Helium.Controllers
                 // log and return 500
                 _logger.LogError($"AggregateException|{method}|{root.GetType()}|{root.Message}|{root.Source}|{root.TargetSite}");
 
-                return new ObjectResult(Constants.ActorsControllerException)
+                return new ContentResult
                 {
+                    Content = Constants.ActorsControllerException,
                     StatusCode = (int)System.Net.HttpStatusCode.InternalServerError
                 };
             }
@@ -100,8 +114,9 @@ namespace Helium.Controllers
             {
                 _logger.LogError($"Exception:{method}\n{ex}");
 
-                return new ObjectResult(Constants.ActorsControllerException)
+                return new ContentResult
                 {
+                    Content = Constants.ActorsControllerException,
                     StatusCode = (int)System.Net.HttpStatusCode.InternalServerError
                 };
             }
@@ -119,6 +134,17 @@ namespace Helium.Controllers
         public async Task<IActionResult> GetActorByIdAsync(string actorId)
         {
             _logger.LogInformation($"GetActorByIdAsync {actorId}");
+
+            if (!QueryStringValidator.ActorId(actorId, out string message))
+            {
+                _logger.LogWarning($"GetActorByIdAsync|{actorId}|{message}");
+
+                return new ContentResult
+                {
+                    Content = message,
+                    StatusCode = (int)System.Net.HttpStatusCode.BadRequest
+                };
+            }
 
             try
             {
@@ -150,8 +176,9 @@ namespace Helium.Controllers
                     // log and return Cosmos status code
                     _logger.LogError($"CosmosException:GetActorByIdAsync:{ce.StatusCode}:{ce.ActivityId}:{ce.Message}\n{ce}");
 
-                    return new ObjectResult(Constants.ActorsControllerException)
+                    return new ContentResult
                     {
+                        Content = Constants.ActorsControllerException,
                         StatusCode = (int)ce.StatusCode
                     };
                 }
@@ -169,8 +196,9 @@ namespace Helium.Controllers
                 // log and return 500
                 _logger.LogError($"AggregateException|GetActorByIdAsync|{root.GetType()}|{root.Message}|{root.Source}|{root.TargetSite}");
 
-                return new ObjectResult(Constants.ActorsControllerException)
+                return new ContentResult
                 {
+                    Content = Constants.ActorsControllerException,
                     StatusCode = (int)System.Net.HttpStatusCode.InternalServerError
                 };
             }
@@ -180,8 +208,9 @@ namespace Helium.Controllers
             {
                 _logger.LogError($"Exception:GetActorByIdAsync:{e.Message}\n{e}");
 
-                return new ObjectResult(Constants.ActorsControllerException)
+                return new ContentResult
                 {
+                    Content = Constants.ActorsControllerException,
                     StatusCode = (int)System.Net.HttpStatusCode.InternalServerError
                 };
             }
