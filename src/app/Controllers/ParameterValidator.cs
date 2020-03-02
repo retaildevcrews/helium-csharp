@@ -32,7 +32,7 @@ namespace Helium.Controllers
             {
                 if (q == null || q.Length < 2 || q.Length > 20)
                 {
-                    message = "Invalid q parameter";
+                    message = "Invalid q (search) parameter";
                     return false;
                 }
             }
