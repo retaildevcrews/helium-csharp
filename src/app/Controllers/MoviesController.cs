@@ -153,11 +153,7 @@ namespace Helium.Controllers
                 _logger.LogInformation($"NotFound:GetMovieByIdAsync:{movieId}");
 
                 // return a 404
-                return new ContentResult
-                {
-                    Content = "MovidId not found",
-                    StatusCode = (int)System.Net.HttpStatusCode.NotFound
-                };
+                return NotFound();
             }
 
             catch (CosmosException ce)
