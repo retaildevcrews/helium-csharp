@@ -46,7 +46,7 @@ namespace Helium.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(Movie[]), 200)]
         [ProducesResponseType(typeof(string), 400)]
-        public async Task<IActionResult> GetMoviesAsync([FromQuery]string q = null, [FromQuery] string genre = null, [FromQuery] int year = 0, [FromQuery] double rating = 0, [FromQuery] bool topRated = false, [FromQuery] string actorId = null, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = Constants.DefaultPageSize)
+        public async Task<IActionResult> GetMoviesAsync([FromQuery]string q = null, [FromQuery] string genre = null, [FromQuery] int year = -1, [FromQuery] double rating = -1, [FromQuery] bool topRated = false, [FromQuery] string actorId = null, [FromQuery] int pageNumber = -1, [FromQuery] int pageSize = -1)
         {
             string method = GetMethod(q, genre, year, rating, topRated, actorId, pageNumber, pageSize);
 
@@ -153,7 +153,11 @@ namespace Helium.Controllers
                 _logger.LogInformation($"NotFound:GetMovieByIdAsync:{movieId}");
 
                 // return a 404
-                return NotFound();
+                return new ContentResult
+                {
+                    Content = "MovidId not found",
+                    StatusCode = (int)System.Net.HttpStatusCode.NotFound
+                };
             }
 
             catch (CosmosException ce)

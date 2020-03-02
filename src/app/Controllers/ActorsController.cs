@@ -40,7 +40,7 @@ namespace Helium.Controllers
         [HttpGet]
         [Produces("application/json")]
         [ProducesResponseType(typeof(Actor[]), 200)]
-        public async Task<IActionResult> GetActorsAsync([FromQuery] string q, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = Constants.DefaultPageSize)
+        public async Task<IActionResult> GetActorsAsync([FromQuery] string q, [FromQuery] int pageNumber = -1, [FromQuery] int pageSize = -1)
         {
             string method = GetMethod(q, pageNumber, pageSize);
 
