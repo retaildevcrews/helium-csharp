@@ -122,6 +122,7 @@ namespace Helium.Controllers
         [HttpGet("{movieId}")]
         [Produces("application/json")]
         [ProducesResponseType(typeof(Movie), 200)]
+        [ProducesResponseType(typeof(string), 400)]
         [ProducesResponseType(typeof(void), 404)]
         public async System.Threading.Tasks.Task<IActionResult> GetMovieByIdAsync(string movieId)
         {

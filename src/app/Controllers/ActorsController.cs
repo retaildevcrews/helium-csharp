@@ -40,6 +40,7 @@ namespace Helium.Controllers
         [HttpGet]
         [Produces("application/json")]
         [ProducesResponseType(typeof(Actor[]), 200)]
+        [ProducesResponseType(typeof(string), 400)]
         public async Task<IActionResult> GetActorsAsync([FromQuery] string q, [FromQuery] int pageNumber = -1, [FromQuery] int pageSize = -1)
         {
             string method = GetMethod(q, pageNumber, pageSize);
@@ -60,15 +61,6 @@ namespace Helium.Controllers
 
             try
             {
-                if (pageSize < 1)
-                {
-                    pageSize = Constants.DefaultPageSize;
-                }
-                else if (pageSize > Constants.MaxPageSize)
-                {
-                    pageSize = Constants.MaxPageSize;
-                }
-
                 pageNumber--;
 
                 if (pageNumber < 0)
@@ -130,6 +122,7 @@ namespace Helium.Controllers
         [HttpGet("{actorId}")]
         [Produces("application/json")]
         [ProducesResponseType(typeof(Actor), 200)]
+        [ProducesResponseType(typeof(string), 400)]
         [ProducesResponseType(typeof(void), 404)]
         public async Task<IActionResult> GetActorByIdAsync(string actorId)
         {
