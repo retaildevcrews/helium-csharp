@@ -30,7 +30,7 @@ namespace Helium.Controllers
             // validate q (search)
             if (query.ContainsKey("q"))
             {
-                if (q == null || q.Length < 3 || q.Length > 50)
+                if (q == null || q.Length < 2 || q.Length > 20)
                 {
                     message = "Invalid q parameter";
                     return false;
@@ -92,7 +92,7 @@ namespace Helium.Controllers
             // validate genre
             if (query.ContainsKey("genre"))
             {
-                if (genre == null || genre.Length < 3 || genre.Length > 50)
+                if (genre == null || genre.Length < 3 || genre.Length > 20)
                 {
                     message = "Invalid Genre parameter";
                     return false;
