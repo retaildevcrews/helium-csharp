@@ -55,12 +55,11 @@ namespace Helium.DataAccessLayer
         /// <param name="genre">get movies by genre</param>
         /// <param name="year">get movies by year</param>
         /// <param name="rating">get movies rated >= rating</param>
-        /// <param name="toprated">get top rated movies</param>
         /// <param name="actorId">get movies by actorId</param>
         /// <param name="offset">zero based offset for paging</param>
         /// <param name="limit">number of documents for paging</param>
         /// <returns>List of Movies or an empty list</returns>
-        public async Task<IEnumerable<Movie>> GetMoviesByQueryAsync(string q, string genre = "", int year = 0, double rating = 0, bool toprated = false, string actorId = "", int offset = 0, int limit = Constants.DefaultPageSize)
+        public async Task<IEnumerable<Movie>> GetMoviesByQueryAsync(string q, string genre = "", int year = 0, double rating = 0, string actorId = "", int offset = 0, int limit = Constants.DefaultPageSize)
         {
             string sql = _movieSelect;
             string orderby = _movieOrderBy;
@@ -96,13 +95,6 @@ namespace Helium.DataAccessLayer
             if (rating > 0)
             {
                 sql += string.Format(CultureInfo.InvariantCulture, $" and m.rating >= {rating} ");
-            }
-
-            if (toprated)
-            {
-                sql = "select top 10 " + sql.Substring(7);
-                orderby = " order by m.rating desc";
-                offsetLimit = string.Empty;
             }
 
             if (!string.IsNullOrEmpty(actorId))

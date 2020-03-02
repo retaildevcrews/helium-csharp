@@ -38,7 +38,6 @@ namespace Helium.Controllers
         /// <param name="genre">(optional) Movies of a genre (Action)</param>
         /// <param name="year">(optional) Get movies by year (2005)</param>
         /// <param name="rating">(optional) Get movies with a rating >= rating (8.5)</param>
-        /// <param name="topRated">(optional) Get top rated movies (true)</param>
         /// <param name="actorId">(optional) Get movies by Actor Id (nm0000704)</param>
         /// <param name="pageNumber">1 based page index</param>
         /// <param name="pageSize">page size (1000 max)</param>
@@ -46,9 +45,9 @@ namespace Helium.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(Movie[]), 200)]
         [ProducesResponseType(typeof(string), 400)]
-        public async Task<IActionResult> GetMoviesAsync([FromQuery]string q = null, [FromQuery] string genre = null, [FromQuery] int year = -1, [FromQuery] double rating = -1, [FromQuery] bool topRated = false, [FromQuery] string actorId = null, [FromQuery] int pageNumber = -1, [FromQuery] int pageSize = -1)
+        public async Task<IActionResult> GetMoviesAsync([FromQuery]string q = null, [FromQuery] string genre = null, [FromQuery] int year = -1, [FromQuery] double rating = -1, [FromQuery] string actorId = null, [FromQuery] int pageNumber = -1, [FromQuery] int pageSize = -1)
         {
-            string method = GetMethod(q, genre, year, rating, topRated, actorId, pageNumber, pageSize);
+            string method = GetMethod(q, genre, year, rating, actorId, pageNumber, pageSize);
 
             // validate query string parameters
             if (!ParameterValidator.Movies(HttpContext?.Request?.Query, q, genre, year, rating, actorId, pageNumber, pageSize, out string message))
@@ -68,7 +67,7 @@ namespace Helium.Controllers
             {
                 pageNumber--;
 
-                return Ok(await _dal.GetMoviesByQueryAsync(q, genre, year, rating, topRated, actorId, pageNumber * pageSize, pageSize).ConfigureAwait(false));
+                return Ok(await _dal.GetMoviesByQueryAsync(q, genre, year, rating, actorId, pageNumber * pageSize, pageSize).ConfigureAwait(false));
             }
 
             catch (CosmosException ce)
@@ -219,12 +218,11 @@ namespace Helium.Controllers
         /// <param name="genre"></param>
         /// <param name="year"></param>
         /// <param name="rating"></param>
-        /// <param name="topRated"></param>
         /// <param name="actorId"></param>
         /// <param name="pageNumber"></param>
         /// <param name="pageSize"></param>
         /// <returns></returns>
-        private string GetMethod(string q, string genre, int year, double rating, bool topRated, string actorId, int pageNumber, int pageSize)
+        private string GetMethod(string q, string genre, int year, double rating, string actorId, int pageNumber, int pageSize)
         {
             string method = "GetMovies";
 
@@ -249,11 +247,6 @@ namespace Helium.Controllers
                 if (HttpContext.Request.Query.ContainsKey("rating"))
                 {
                     method = string.Format(CultureInfo.InvariantCulture, $"{method}:rating:{rating}");
-                }
-
-                if (HttpContext.Request.Query.ContainsKey("topRated") && topRated)
-                {
-                    method = string.Format(CultureInfo.InvariantCulture, $"{method}:topRated:true");
                 }
 
                 if (HttpContext.Request.Query.ContainsKey("actorId"))

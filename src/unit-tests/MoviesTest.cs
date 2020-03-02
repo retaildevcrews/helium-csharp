@@ -82,21 +82,6 @@ namespace UnitTests
         }
 
         [Fact]
-        public async Task GetMoviesByTopRated()
-        {
-
-            OkObjectResult ok = await _controller.GetMoviesAsync(topRated: true).ConfigureAwait(false) as OkObjectResult;
-
-            Assert.NotNull(ok);
-
-            var ie = ok.Value as IEnumerable<Movie>;
-
-            Assert.NotNull(ie);
-
-            Assert.Equal(6, ie.ToList<Movie>().Count);
-        }
-
-        [Fact]
         public async Task GetMoviesByGenre()
         {
             OkObjectResult ok = await _controller.GetMoviesAsync(genre: "Action").ConfigureAwait(false) as OkObjectResult;

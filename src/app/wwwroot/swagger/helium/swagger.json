@@ -491,14 +491,6 @@
                       "observedValue": 57.27,
                       "targetValue": 400,
                       "time": "2020-03-02T01:49:17Z"
-                    },
-                    "getTopRatedMovies": {
-                      "status": "pass",
-                      "componentType": "CosmosDB",
-                      "observedUnit": "ms",
-                      "observedValue": 13.66,
-                      "targetValue": 400,
-                      "time": "2020-03-02T01:49:17Z"
                     }
                   }
                 }
@@ -566,14 +558,6 @@
                       "targetDuration": "00:00:00.400",
                       "time": "2020-03-02T01:50:47Z",
                       "endpoint": "/api/actors?q=nicole"
-                    },
-                    "getTopRatedMovies": {
-                      "status": "Healthy",
-                      "componentType": "CosmosDB",
-                      "duration": "00:00:00.007",
-                      "targetDuration": "00:00:00.400",
-                      "time": "2020-03-02T01:50:47Z",
-                      "endpoint": "/api/movies?toprated=true"
                     }
                   }
                 }
@@ -635,19 +619,6 @@
             "schema": {
               "type": "number",
               "example": 6.5
-            }
-          },
-          {
-            "name": "topRated",
-            "in": "query",
-            "description": "Get top rated movies <br> ```valid: true or false```",
-            "required": false,
-            "style": "form",
-            "explode": true,
-            "schema": {
-              "type": "boolean",
-              "example": false,
-              "default": false
             }
           },
           {
@@ -1244,41 +1215,6 @@
                   }
                 }
               },
-              "getTopRatedMovies": {
-                "type": "object",
-                "properties": {
-                  "status": {
-                    "type": "string"
-                  },
-                  "componentId": {
-                    "type": "string"
-                  },
-                  "message": {
-                    "type": "string",
-                    "nullable": true
-                  },
-                  "observedUnit": {
-                    "type": "string"
-                  },
-                  "observedValue": {
-                    "type": "integer"
-                  },
-                  "targetValue": {
-                    "type": "integer"
-                  },
-                  "time": {
-                    "type": "string",
-                    "format": "datetime"
-                  },
-                  "endPoints": {
-                    "type": "array",
-                    "nullable": true,
-                    "items": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
               "searchMovies": {
                 "type": "object",
                 "properties": {
@@ -1435,37 +1371,6 @@
                 }
               },
               "getMovieById": {
-                "type": "object",
-                "properties": {
-                  "status": {
-                    "type": "string"
-                  },
-                  "componentType": {
-                    "type": "string"
-                  },
-                  "message": {
-                    "type": "string",
-                    "nullable": true
-                  },
-                  "duration": {
-                    "type": "string",
-                    "format": "time"
-                  },
-                  "targetDuration": {
-                    "type": "string",
-                    "format": "time"
-                  },
-                  "time": {
-                    "type": "string",
-                    "format": "datetime"
-                  },
-                  "endPoint": {
-                    "type": "string",
-                    "nullable": true
-                  }
-                }
-              },
-              "getTopRatedMovies": {
                 "type": "object",
                 "properties": {
                   "status": {
