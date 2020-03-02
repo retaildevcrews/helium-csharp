@@ -146,16 +146,21 @@ namespace UnitTests
         public async Task GetMovieByIdFail()
         {
             // this will fail GetPartitionKey
-            NotFoundResult nf = await _controller.GetMovieByIdAsync(AssertValues.BadId).ConfigureAwait(false) as NotFoundResult;
+            NotFoundResult nfRes = await _controller.GetMovieByIdAsync(AssertValues.MovieById + "00").ConfigureAwait(false) as NotFoundResult;
 
-            Assert.NotNull(nf);
-            Assert.Equal((int)System.Net.HttpStatusCode.NotFound, nf.StatusCode);
+            Assert.NotNull(nfRes);
+            Assert.Equal((int)System.Net.HttpStatusCode.NotFound, nfRes.StatusCode);
 
-            // this will fail search
-            nf = await _controller.GetMovieByIdAsync(AssertValues.MovieById + "000").ConfigureAwait(false) as NotFoundResult;
 
-            Assert.NotNull(nf);
-            Assert.Equal((int)System.Net.HttpStatusCode.NotFound, nf.StatusCode);
+            ContentResult badRes = await _controller.GetMovieByIdAsync(AssertValues.BadId).ConfigureAwait(false) as ContentResult;
+
+            Assert.NotNull(badRes);
+            Assert.Equal((int)System.Net.HttpStatusCode.BadRequest, badRes.StatusCode);
+
+            badRes = await _controller.GetMovieByIdAsync(AssertValues.MovieById + "000").ConfigureAwait(false) as ContentResult;
+
+            Assert.NotNull(badRes);
+            Assert.Equal((int)System.Net.HttpStatusCode.BadRequest, badRes.StatusCode);
         }
 
         [Fact]
