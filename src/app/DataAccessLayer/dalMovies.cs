@@ -130,7 +130,7 @@ namespace Helium.DataAccessLayer
 
             sql += orderby + offsetLimit;
 
-            return await QueryMovieWorkerAsync(sql).ConfigureAwait(false);
+            return await InternalCosmosDBSqlQuery<Movie>(sql).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -143,17 +143,14 @@ namespace Helium.DataAccessLayer
 
             string sql = "select m.movieId, m.weight from m where m.type = 'Featured' order by m.weight desc";
 
-            var query = _cosmosDetails.Container.GetItemQueryIterator<FeaturedMovie>(sql, requestOptions: _cosmosDetails.QueryRequestOptions);
+            var query = await InternalCosmosDBSqlQuery<FeaturedMovie>(sql).ConfigureAwait(false);
 
-            while (query.HasMoreResults)
+            foreach(FeaturedMovie f in query)
             {
-                foreach (var doc in await query.ReadNextAsync().ConfigureAwait(false))
+                // apply weighting
+                for (int i = 0; i < f.Weight; i++)
                 {
-                    // apply weighting
-                    for (int i = 0; i < doc.Weight; i++)
-                    {
-                        list.Add(doc.MovieId);
-                    }
+                    list.Add(f.MovieId);
                 }
             }
 
@@ -164,28 +161,6 @@ namespace Helium.DataAccessLayer
             }
 
             return list;
-        }
-
-        /// <summary>
-        /// Movie worker query
-        /// </summary>
-        /// <param name="sql">select statement to execute</param>
-        /// <returns>List of Movies or empty list</returns>
-        public async Task<IEnumerable<Movie>> QueryMovieWorkerAsync(string sql)
-        {
-            // run query
-            var query = _cosmosDetails.Container.GetItemQueryIterator<Movie>(sql, requestOptions: _cosmosDetails.QueryRequestOptions);
-
-            List<Movie> results = new List<Movie>();
-
-            while (query.HasMoreResults)
-            {
-                foreach (var doc in await query.ReadNextAsync().ConfigureAwait(false))
-                {
-                    results.Add(doc);
-                }
-            }
-            return results;
         }
     }
 }

@@ -19,17 +19,16 @@ namespace Helium.DataAccessLayer
         {
             // get all genres as a list of strings
             // the "select value" converts m.genre to a string instead of a document
-            var query = _cosmosDetails.Container.GetItemQueryIterator<string>(new QueryDefinition(_genresSelect), requestOptions: _cosmosDetails.QueryRequestOptions);
 
             List<string> results = new List<string>();
 
-            while (query.HasMoreResults)
+            var q = await InternalCosmosDBSqlQuery<string>(_genresSelect).ConfigureAwait(false);
+
+            foreach (string g in q)
             {
-                foreach (var doc in await query.ReadNextAsync().ConfigureAwait(false))
-                {
-                    results.Add(doc);
-                }
+                results.Add(g);
             }
+
             return results;
         }
 

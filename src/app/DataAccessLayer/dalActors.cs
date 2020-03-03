@@ -87,29 +87,8 @@ namespace Helium.DataAccessLayer
 
             sql += orderby + offsetLimit;
 
-            return await QueryActorWorkerAsync(sql).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// Actor worker query
-        /// </summary>
-        /// <param name="sql">select statement to execute</param>
-        /// <returns>List of Actors or empty list</returns>
-        public async Task<IEnumerable<Actor>> QueryActorWorkerAsync(string sql)
-        {
-            // run query
-            var query = _cosmosDetails.Container.GetItemQueryIterator<Actor>(sql, requestOptions: _cosmosDetails.QueryRequestOptions);
-
-            List<Actor> results = new List<Actor>();
-
-            while (query.HasMoreResults)
-            {
-                foreach (var doc in await query.ReadNextAsync().ConfigureAwait(false))
-                {
-                    results.Add(doc);
-                }
-            }
-            return results;
+            return await InternalCosmosDBSqlQuery<Actor>(sql).ConfigureAwait(false);
         }
     }
+
 }
