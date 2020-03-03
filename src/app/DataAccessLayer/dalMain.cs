@@ -48,16 +48,6 @@ namespace Helium.DataAccessLayer
         }
 
         /// <summary>
-        /// Worker method that executes a query
-        /// </summary>
-        /// <param name="sql">the select statement to execute</param>
-        /// <returns>results of the query</returns>
-        public FeedIterator<dynamic> QueryWorker(string sql)
-        {
-            return _cosmosDetails.Container.GetItemQueryIterator<dynamic>(sql, requestOptions: _cosmosDetails.QueryRequestOptions);
-        }
-
-        /// <summary>
         /// Recreate the Cosmos Client / Container (after a key rotation)
         /// </summary>
         /// <param name="cosmosUrl">Cosmos URL</param>
