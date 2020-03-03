@@ -46,8 +46,9 @@ namespace Helium.Controllers
 
             HttpContext.Items.Add(typeof(HealthCheckResult).ToString(), res);
 
-            return new ObjectResult(IetfCheck.ToIetfStatus(res.Status))
+            return new ContentResult
             {
+                Content = IetfCheck.ToIetfStatus(res.Status),
                 StatusCode = res.Status == HealthStatus.Unhealthy ? (int)System.Net.HttpStatusCode.ServiceUnavailable : (int)System.Net.HttpStatusCode.OK
             };
         }

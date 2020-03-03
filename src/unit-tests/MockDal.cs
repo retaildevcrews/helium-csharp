@@ -130,7 +130,7 @@ namespace UnitTests
             return Task<IEnumerable<Movie>>.Factory.StartNew(() => { return Movies; });
         }
 
-        public Task<IEnumerable<Movie>> GetMoviesByQueryAsync(string q, string genre, int year = 0, double rating = 0.0, bool topRated = false, string actorId = "", int offset = 0, int limit = 0)
+        public Task<IEnumerable<Movie>> GetMoviesByQueryAsync(string q, string genre, int year = 0, double rating = 0.0, string actorId = "", int offset = 0, int limit = 0)
         {
             List<Movie> res = new List<Movie>();
 
@@ -172,17 +172,6 @@ namespace UnitTests
                 foreach (Movie m in Movies)
                 {
                     if (m.Rating >= rating)
-                    {
-                        res.Add(m);
-                    }
-                }
-            }
-
-            else if (topRated)
-            {
-                foreach (Movie m in Movies)
-                {
-                    if (m.Rating >= 8.8)
                     {
                         res.Add(m);
                     }

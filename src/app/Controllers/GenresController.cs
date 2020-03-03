@@ -49,8 +49,9 @@ namespace Helium.Controllers
                 // log and return Cosmos status code
                 _logger.LogError($"CosmosException:GetGenres:{ce.StatusCode}:{ce.ActivityId}:{ce.Message}\n{ce}");
 
-                return new ObjectResult(Constants.GenresControllerException)
+                return new ContentResult
                 {
+                    Content = Constants.GenresControllerException,
                     StatusCode = (int)ce.StatusCode
                 };
             }
@@ -67,8 +68,9 @@ namespace Helium.Controllers
                 // log and return 500
                 _logger.LogError($"AggregateException|GetGenres|{root.GetType()}|{root.Message}|{root.Source}|{root.TargetSite}");
 
-                return new ObjectResult(Constants.GenresControllerException)
+                return new ContentResult
                 {
+                    Content = Constants.GenresControllerException,
                     StatusCode = (int)System.Net.HttpStatusCode.InternalServerError
                 };
             }
@@ -78,8 +80,9 @@ namespace Helium.Controllers
                 // log and return 500
                 _logger.LogError($"Exception:GetGenres\n{ex}");
 
-                return new ObjectResult(Constants.GenresControllerException)
+                return new ContentResult
                 {
+                    Content = Constants.GenresControllerException,
                     StatusCode = (int)System.Net.HttpStatusCode.InternalServerError
                 };
             }

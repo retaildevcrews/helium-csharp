@@ -91,8 +91,9 @@ namespace Helium.Controllers
                     // log and return Cosmos status code
                     _logger.LogError($"CosmosException:{method}:{ce.StatusCode}:{ce.ActivityId}:{ce.Message}\n{ce}");
 
-                    return new ObjectResult(Constants.FeaturedControllerException)
+                    return new ContentResult
                     {
+                        Content = Constants.FeaturedControllerException,
                         StatusCode = (int)ce.StatusCode
                     };
                 }
@@ -110,8 +111,9 @@ namespace Helium.Controllers
                 // log and return 500
                 _logger.LogError($"AggregateException|{method}|{root.GetType()}|{root.Message}|{root.Source}|{root.TargetSite}");
 
-                return new ObjectResult(Constants.FeaturedControllerException)
+                return new ContentResult
                 {
+                    Content = Constants.FeaturedControllerException,
                     StatusCode = (int)System.Net.HttpStatusCode.InternalServerError
                 };
             }
@@ -121,8 +123,9 @@ namespace Helium.Controllers
                 // log and return 500
                 _logger.LogError($"Exception:{method}:{e.Message}\n{e}");
 
-                return new ObjectResult(Constants.FeaturedControllerException)
+                return new ContentResult
                 {
+                    Content = Constants.FeaturedControllerException,
                     StatusCode = (int)System.Net.HttpStatusCode.InternalServerError
                 };
             }

@@ -36,6 +36,10 @@ namespace Helium
         /// <param name="args">command line args</param>
         public static async Task Main(string[] args)
         {
+            if (args == null)
+            {
+                args = Array.Empty<string>();
+            }
             try
             {
                 // get the Key Vault URL

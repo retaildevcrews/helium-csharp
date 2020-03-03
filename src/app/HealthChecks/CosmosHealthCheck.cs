@@ -77,7 +77,6 @@ namespace Helium
                 await GetMovieByIdAsync("tt0133093", data).ConfigureAwait(false);
                 await SearchMoviesAsync("ring", data).ConfigureAwait(false);
                 await SearchActorsAsync("nicole", data).ConfigureAwait(false);
-                await GetTopRatedMoviesAsync(data).ConfigureAwait(false);
 
                 // overall health is the worst status
                 foreach (var d in data.Values)

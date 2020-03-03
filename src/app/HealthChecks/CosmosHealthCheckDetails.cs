@@ -141,33 +141,6 @@ namespace Helium
         }
 
         /// <summary>
-        /// Get Top Rated Movies Healthcheck
-        /// </summary>
-        /// <returns>HealthzCheck</returns>
-        private async Task<HealthzCheck> GetTopRatedMoviesAsync(Dictionary<string, object> data = null)
-        {
-            const string name = "getTopRatedMovies";
-            const int maxMilliseconds = 400;
-            const string path = "/api/movies?toprated=true";
-
-            stopwatch.Restart();
-
-            try
-            {
-                (await _dal.GetMoviesByQueryAsync(string.Empty, toprated: true).ConfigureAwait(false)).ToList<Movie>();
-
-                return BuildHealthzCheck(path, maxMilliseconds, null, data, name);
-            }
-            catch (Exception ex)
-            {
-                BuildHealthzCheck(path, maxMilliseconds, ex, data, name);
-
-                // throw the exception so that HealthCheck logs
-                throw;
-            }
-        }
-
-        /// <summary>
         /// Get Actor By Id Healthcheck
         /// </summary>
         /// <returns>HealthzCheck</returns>

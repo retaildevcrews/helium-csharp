@@ -69,16 +69,21 @@ namespace UnitTests
         public async Task GetActorByIdFail()
         {
             // this will fail GetPartitionKey
-            NotFoundResult nf = await _controller.GetActorByIdAsync(AssertValues.BadId).ConfigureAwait(false) as NotFoundResult;
+            ContentResult badRes = await _controller.GetActorByIdAsync(AssertValues.BadId).ConfigureAwait(false) as ContentResult;
 
-            Assert.NotNull(nf);
-            Assert.Equal((int)System.Net.HttpStatusCode.NotFound, nf.StatusCode);
+            Assert.NotNull(badRes);
+            Assert.Equal((int)System.Net.HttpStatusCode.BadRequest, badRes.StatusCode);
 
             // this will fail search
-            nf = await _controller.GetActorByIdAsync(AssertValues.ActorById + "000").ConfigureAwait(false) as NotFoundResult;
+            badRes = await _controller.GetActorByIdAsync(AssertValues.ActorById + "000").ConfigureAwait(false) as ContentResult;
 
-            Assert.NotNull(nf);
-            Assert.Equal((int)System.Net.HttpStatusCode.NotFound, nf.StatusCode);
+            Assert.NotNull(badRes);
+            Assert.Equal((int)System.Net.HttpStatusCode.BadRequest, badRes.StatusCode);
+
+            NotFoundResult nfRes = await _controller.GetActorByIdAsync(AssertValues.ActorById + "00").ConfigureAwait(false) as NotFoundResult;
+            Assert.NotNull(nfRes);
+            Assert.Equal((int)System.Net.HttpStatusCode.NotFound, nfRes.StatusCode);
+
         }
     }
 }

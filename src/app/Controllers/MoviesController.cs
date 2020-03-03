@@ -1,5 +1,6 @@
 ﻿using Helium.DataAccessLayer;
 using Helium.Model;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
@@ -37,39 +38,36 @@ namespace Helium.Controllers
         /// <param name="genre">(optional) Movies of a genre (Action)</param>
         /// <param name="year">(optional) Get movies by year (2005)</param>
         /// <param name="rating">(optional) Get movies with a rating >= rating (8.5)</param>
-        /// <param name="topRated">(optional) Get top rated movies (true)</param>
         /// <param name="actorId">(optional) Get movies by Actor Id (nm0000704)</param>
         /// <param name="pageNumber">1 based page index</param>
         /// <param name="pageSize">page size (1000 max)</param>
         /// <response code="200">JSON array of Movie objects or empty array if not found</response>
         [HttpGet]
-        [Produces("application/json")]
         [ProducesResponseType(typeof(Movie[]), 200)]
-        public async Task<IActionResult> GetMoviesAsync([FromQuery]string q = "", [FromQuery] string genre = "", [FromQuery] int year = 0, [FromQuery] double rating = 0, [FromQuery] bool topRated = false, [FromQuery] string actorId = "", [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = Constants.DefaultPageSize)
+        [ProducesResponseType(typeof(string), 400)]
+        public async Task<IActionResult> GetMoviesAsync([FromQuery]string q = null, [FromQuery] string genre = null, [FromQuery] int year = 0, [FromQuery] double rating = 0, [FromQuery] string actorId = null, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = Constants.DefaultPageSize)
         {
-            string method = GetMethod(q, genre, year, rating, topRated, actorId, pageNumber, pageSize);
+            string method = GetMethod(q, genre, year, rating, actorId, pageNumber, pageSize);
+
+            // validate query string parameters
+            if (!ParameterValidator.Movies(HttpContext?.Request?.Query, q, genre, year, rating, actorId, pageNumber, pageSize, out string message))
+            {
+                _logger.LogWarning($"InvalidParameter|{method}|{message}");
+
+                return new ContentResult
+                {
+                    Content = message,
+                    StatusCode = (int)System.Net.HttpStatusCode.BadRequest
+                };
+            }
 
             _logger.LogInformation(method);
 
             try
             {
-                if (pageSize < 1)
-                {
-                    pageSize = Constants.DefaultPageSize;
-                }
-                else if (pageSize > Constants.MaxPageSize)
-                {
-                    pageSize = Constants.MaxPageSize;
-                }
-
                 pageNumber--;
 
-                if (pageNumber < 0)
-                {
-                    pageNumber = 0;
-                }
-
-                return Ok(await _dal.GetMoviesByQueryAsync(q, genre, year, rating, topRated, actorId, pageNumber * pageSize, pageSize).ConfigureAwait(false));
+                return Ok(await _dal.GetMoviesByQueryAsync(q, genre, year, rating, actorId, pageNumber * pageSize, pageSize).ConfigureAwait(false));
             }
 
             catch (CosmosException ce)
@@ -77,8 +75,9 @@ namespace Helium.Controllers
                 // log and return Cosmos status code
                 _logger.LogError($"CosmosException:{method}:{ce.StatusCode}:{ce.ActivityId}:{ce.Message}\n{ce}");
 
-                return new ObjectResult(Constants.MoviesControllerException)
+                return new ContentResult
                 {
+                    Content = Constants.MoviesControllerException,
                     StatusCode = (int)ce.StatusCode
                 };
             }
@@ -95,8 +94,9 @@ namespace Helium.Controllers
                 // log and return 500
                 _logger.LogError($"AggregateException|{method}|{root.GetType()}|{root.Message}|{root.Source}|{root.TargetSite}");
 
-                return new ObjectResult(Constants.MoviesControllerException)
+                return new ContentResult
                 {
+                    Content = Constants.MoviesControllerException,
                     StatusCode = (int)System.Net.HttpStatusCode.InternalServerError
                 };
             }
@@ -105,8 +105,9 @@ namespace Helium.Controllers
             {
                 _logger.LogError($"{method}\n{ex}");
 
-                return new ObjectResult(Constants.MoviesControllerException)
+                return new ContentResult
                 {
+                    Content = Constants.MoviesControllerException,
                     StatusCode = (int)System.Net.HttpStatusCode.InternalServerError
                 };
             }
@@ -120,10 +121,22 @@ namespace Helium.Controllers
         [HttpGet("{movieId}")]
         [Produces("application/json")]
         [ProducesResponseType(typeof(Movie), 200)]
+        [ProducesResponseType(typeof(string), 400)]
         [ProducesResponseType(typeof(void), 404)]
         public async System.Threading.Tasks.Task<IActionResult> GetMovieByIdAsync(string movieId)
         {
             _logger.LogInformation($"GetMovieByIdAsync {movieId}");
+
+            if (!ParameterValidator.MovieId(movieId, out string message))
+            {
+                _logger.LogWarning($"GetMovieByIdAsync|{movieId}|{message}");
+
+                return new ContentResult
+                {
+                    Content = message,
+                    StatusCode = (int)System.Net.HttpStatusCode.BadRequest
+                };
+            }
 
             try
             {
@@ -158,8 +171,9 @@ namespace Helium.Controllers
                     // log and return Cosmos status code
                     _logger.LogError($"CosmosException:MovieByIdAsync:{ce.StatusCode}:{ce.ActivityId}:{ce.Message}\n{ce}");
 
-                    return new ObjectResult(Constants.MoviesControllerException)
+                    return new ContentResult
                     {
+                        Content = Constants.MoviesControllerException,
                         StatusCode = (int)ce.StatusCode
                     };
                 }
@@ -177,8 +191,9 @@ namespace Helium.Controllers
                 // log and return 500
                 _logger.LogError($"AggregateException|MovieByIdAsync|{root.GetType()}|{root.Message}|{root.Source}|{root.TargetSite}");
 
-                return new ObjectResult(Constants.MoviesControllerException)
+                return new ContentResult
                 {
+                    Content = Constants.MoviesControllerException,
                     StatusCode = (int)System.Net.HttpStatusCode.InternalServerError
                 };
             }
@@ -188,8 +203,9 @@ namespace Helium.Controllers
                 // log and return 500
                 _logger.LogError($"Exception:GetActorByIdAsync:{e.Message}\n{e}");
 
-                return new ObjectResult(Constants.MoviesControllerException)
+                return new ContentResult
                 {
+                    Content = Constants.MoviesControllerException,
                     StatusCode = (int)System.Net.HttpStatusCode.InternalServerError
                 };
             }
@@ -202,12 +218,11 @@ namespace Helium.Controllers
         /// <param name="genre"></param>
         /// <param name="year"></param>
         /// <param name="rating"></param>
-        /// <param name="topRated"></param>
         /// <param name="actorId"></param>
         /// <param name="pageNumber"></param>
         /// <param name="pageSize"></param>
         /// <returns></returns>
-        private string GetMethod(string q, string genre, int year, double rating, bool topRated, string actorId, int pageNumber, int pageSize)
+        private string GetMethod(string q, string genre, int year, double rating, string actorId, int pageNumber, int pageSize)
         {
             string method = "GetMovies";
 
@@ -232,11 +247,6 @@ namespace Helium.Controllers
                 if (HttpContext.Request.Query.ContainsKey("rating"))
                 {
                     method = string.Format(CultureInfo.InvariantCulture, $"{method}:rating:{rating}");
-                }
-
-                if (HttpContext.Request.Query.ContainsKey("topRated") && topRated)
-                {
-                    method = string.Format(CultureInfo.InvariantCulture, $"{method}:topRated:true");
                 }
 
                 if (HttpContext.Request.Query.ContainsKey("actorId"))

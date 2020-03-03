@@ -16,8 +16,7 @@ namespace Helium.DataAccessLayer
         public int CosmosTimeout { get; set; } = 60;
         public int CosmosMaxRetries { get; set; } = 10;
 
-        private CosmosDetails _cosmosDetails = null;
-
+        private CosmosConfig _cosmosDetails = null;
 
         /// <summary>
         /// Data Access Layer Constructor
@@ -33,7 +32,7 @@ namespace Helium.DataAccessLayer
                 throw new ArgumentNullException(nameof(cosmosUrl));
             }
 
-            _cosmosDetails = new CosmosDetails
+            _cosmosDetails = new CosmosConfig
             {
                 MaxRows = MaxPageSize,
                 Retries = CosmosMaxRetries,
@@ -47,16 +46,6 @@ namespace Helium.DataAccessLayer
             // create the CosmosDB client and container
             _cosmosDetails.Client = OpenAndTestCosmosClient(cosmosUrl, cosmosKey, cosmosDatabase, cosmosCollection).GetAwaiter().GetResult();
             _cosmosDetails.Container = _cosmosDetails.Client.GetContainer(cosmosDatabase, cosmosCollection);
-        }
-
-        /// <summary>
-        /// Worker method that executes a query
-        /// </summary>
-        /// <param name="sql">the select statement to execute</param>
-        /// <returns>results of the query</returns>
-        public FeedIterator<dynamic> QueryWorker(string sql)
-        {
-            return _cosmosDetails.Container.GetItemQueryIterator<dynamic>(sql, requestOptions: _cosmosDetails.QueryRequestOptions);
         }
 
         /// <summary>
@@ -81,7 +70,7 @@ namespace Helium.DataAccessLayer
                 _cosmosDetails.CosmosKey != cosmosKey ||
                 _cosmosDetails.CosmosUrl != cosmosUrl.AbsoluteUri)
             {
-                CosmosDetails d = new CosmosDetails
+                CosmosConfig d = new CosmosConfig
                 {
                     CosmosCollection = cosmosCollection,
                     CosmosDatabase = cosmosDatabase,
@@ -137,7 +126,6 @@ namespace Helium.DataAccessLayer
             return c;
         }
 
-
         /// <summary>
         /// Compute the partition key based on the movieId or actorId
         /// 
@@ -182,55 +170,6 @@ namespace Helium.DataAccessLayer
                 }
             }
             return results;
-        }
-    }
-
-    internal class CosmosDetails
-    {
-        public CosmosClient Client = null;
-        public Container Container = null;
-
-        // default values for Cosmos Options
-        public int MaxRows = 1000;
-        public int Timeout = 60;
-        public int Retries = 10;
-
-        // Cosmos connection fields
-        public string CosmosUrl;
-        public string CosmosKey;
-        public string CosmosDatabase;
-        public string CosmosCollection;
-
-        // member variables
-        private QueryRequestOptions _queryRequestOptions = null;
-        private CosmosClientOptions _cosmosClientOptions = null;
-
-        // CosmosDB query request options
-        public QueryRequestOptions QueryRequestOptions
-        {
-            get
-            {
-                if (_queryRequestOptions == null)
-                {
-                    _queryRequestOptions = new QueryRequestOptions { MaxItemCount = MaxRows };
-                }
-
-                return _queryRequestOptions;
-            }
-        }
-
-        // default protocol is tcp, default connection mode is direct
-        public CosmosClientOptions CosmosClientOptions
-        {
-            get
-            {
-                if (_cosmosClientOptions == null)
-                {
-                    _cosmosClientOptions = new CosmosClientOptions { RequestTimeout = TimeSpan.FromSeconds(Timeout), MaxRetryAttemptsOnRateLimitedRequests = Retries, MaxRetryWaitTimeOnRateLimitedRequests = TimeSpan.FromSeconds(Timeout) };
-                }
-
-                return _cosmosClientOptions;
-            }
         }
     }
 }

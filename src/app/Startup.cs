@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.OpenApi.Models;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -45,16 +44,17 @@ namespace Helium
             services.AddHealthChecks().AddCosmosHealthCheck(CosmosHealthCheck.ServiceId);
 
             // configure Swagger
-            services.ConfigureSwaggerGen(options =>
-            {
-                options.IncludeXmlComments(GetXmlCommentsPath());
-            });
+            // Uncomment this if you want to automatically generate the swagger json from the XML comments
+            //services.ConfigureSwaggerGen(options =>
+            //{
+            //    options.IncludeXmlComments(GetXmlCommentsPath());
+            //});
 
-            // Register the Swagger generator, defining one or more Swagger documents
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc(Constants.SwaggerName, new OpenApiInfo { Title = Constants.SwaggerTitle, Version = Constants.SwaggerVersion });
-            });
+            //// Register the Swagger generator, defining one or more Swagger documents
+            //services.AddSwaggerGen(c =>
+            //{
+            //    c.SwaggerDoc(Constants.SwaggerName, new OpenApiInfo { Title = Constants.SwaggerTitle, Version = Constants.SwaggerVersion });
+            //});
 
             // add App Insights if key set
             string appInsightsKey = Configuration.GetValue<string>(Constants.AppInsightsKey);
@@ -71,7 +71,7 @@ namespace Helium
         /// </summary>
         /// <param name="app"></param>
         /// <param name="env"></param>
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public static void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             // log 4xx and 5xx results to console
             // this should be first as it "wraps" all requests
@@ -88,6 +88,8 @@ namespace Helium
                 app.UseHsts();
             }
 
+            app.UseStaticFiles();
+
             // use routing
             app.UseRouting();
 
@@ -95,7 +97,8 @@ namespace Helium
             app.UseEndpoints(ep => { ep.MapControllers(); });
 
             // Enable middleware to serve generated Swagger as a JSON endpoint.
-            app.UseSwagger();
+            // uncomment this if you want to auto generate swagger json
+            // app.UseSwagger();
 
             // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.), specifying the Swagger JSON endpoint.
             app.UseSwaggerUI(c =>

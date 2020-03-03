@@ -82,21 +82,6 @@ namespace UnitTests
         }
 
         [Fact]
-        public async Task GetMoviesByTopRated()
-        {
-
-            OkObjectResult ok = await _controller.GetMoviesAsync(topRated: true).ConfigureAwait(false) as OkObjectResult;
-
-            Assert.NotNull(ok);
-
-            var ie = ok.Value as IEnumerable<Movie>;
-
-            Assert.NotNull(ie);
-
-            Assert.Equal(6, ie.ToList<Movie>().Count);
-        }
-
-        [Fact]
         public async Task GetMoviesByGenre()
         {
             OkObjectResult ok = await _controller.GetMoviesAsync(genre: "Action").ConfigureAwait(false) as OkObjectResult;
@@ -146,16 +131,21 @@ namespace UnitTests
         public async Task GetMovieByIdFail()
         {
             // this will fail GetPartitionKey
-            NotFoundResult nf = await _controller.GetMovieByIdAsync(AssertValues.BadId).ConfigureAwait(false) as NotFoundResult;
+            NotFoundResult nfRes = await _controller.GetMovieByIdAsync(AssertValues.MovieById + "00").ConfigureAwait(false) as NotFoundResult;
 
-            Assert.NotNull(nf);
-            Assert.Equal((int)System.Net.HttpStatusCode.NotFound, nf.StatusCode);
+            Assert.NotNull(nfRes);
+            Assert.Equal((int)System.Net.HttpStatusCode.NotFound, nfRes.StatusCode);
 
-            // this will fail search
-            nf = await _controller.GetMovieByIdAsync(AssertValues.MovieById + "000").ConfigureAwait(false) as NotFoundResult;
 
-            Assert.NotNull(nf);
-            Assert.Equal((int)System.Net.HttpStatusCode.NotFound, nf.StatusCode);
+            ContentResult badRes = await _controller.GetMovieByIdAsync(AssertValues.BadId).ConfigureAwait(false) as ContentResult;
+
+            Assert.NotNull(badRes);
+            Assert.Equal((int)System.Net.HttpStatusCode.BadRequest, badRes.StatusCode);
+
+            badRes = await _controller.GetMovieByIdAsync(AssertValues.MovieById + "000").ConfigureAwait(false) as ContentResult;
+
+            Assert.NotNull(badRes);
+            Assert.Equal((int)System.Net.HttpStatusCode.BadRequest, badRes.StatusCode);
         }
 
         [Fact]
