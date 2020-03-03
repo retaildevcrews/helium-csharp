@@ -26,7 +26,7 @@
           {
             "name": "genre",
             "in": "query",
-            "description": "Filter by genre<br><br>`valid: 3 - 20 characters`",
+            "description": "Filter by genre in Movie.Genres<br><br>`valid: 3 - 20 characters`",
             "required": false,
             "style": "form",
             "explode": true,
@@ -280,7 +280,7 @@
               "text/plain": {
                 "schema": {
                   "type": "string",
-                  "example": "Invalid search parameter"
+                  "example": "Invalid {queryString} parameter"
                 }
               }
             }
@@ -297,7 +297,7 @@
           {
             "name": "movieId",
             "in": "path",
-            "description": "`valid: begins with tt; followed by 5 - 7 integer digits`<br><br>example: The Matrix",
+            "description": "`valid: begins with tt; followed by 5 - 7 digits`<br><br>example: The Matrix",
             "required": true,
             "style": "simple",
             "explode": false,
@@ -564,7 +564,7 @@
               "text/plain": {
                 "schema": {
                   "type": "string",
-                  "example": "Invalid search parameter"
+                  "example": "Invalid {queryString} parameter"
                 }
               }
             }
@@ -581,7 +581,7 @@
           {
             "name": "actorId",
             "in": "path",
-            "description": "`valid: begins with nm; followed by 5 - 7 integer digits`<br><br>example: Keanu Reeves",
+            "description": "`valid: begins with nm; followed by 5 - 7 digits`<br><br>example: Keanu Reeves",
             "required": true,
             "style": "simple",
             "explode": false,
@@ -593,7 +593,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Success",
+            "description": "`Actor`",
             "content": {
               "application/json": {
                 "schema": {
@@ -793,10 +793,10 @@
       "get": {
         "tags": [ "Healthz" ],
         "summary": "Health Check (simple)",
-        "description": "Returns a text/plain health status (pass, warn or down)",
+        "description": "Returns a text/plain health status (pass, warn or fail)",
         "responses": {
           "200": {
-            "description": "`string` (pass, warn or down)",
+            "description": "`string` (pass, warn or fail)",
             "content": {
               "text/plain": {
                 "schema": {
@@ -813,7 +813,7 @@
       "get": {
         "tags": [ "Healthz" ],
         "summary": "Health Check (IETF)",
-        "description": "Returns an `IetfHealthCheck` document from the full Health Check",
+        "description": "Returns an `IetfHealthCheck` document from the Health Check",
         "responses": {
           "200": {
             "description": "`IetfHealthCheck`",
@@ -881,7 +881,7 @@
       "get": {
         "tags": [ "Healthz" ],
         "summary": "Health Check (dotnet)",
-        "description": "Returns a `DotNetHealthCheck` document from the full Health Check",
+        "description": "Returns a `DotNetHealthCheck` document from the Health Check",
         "responses": {
           "200": {
             "description": "`DotNetHealthCheck`",
