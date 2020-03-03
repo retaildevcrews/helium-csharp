@@ -145,7 +145,7 @@ namespace Helium.DataAccessLayer
 
             var query = await InternalCosmosDBSqlQuery<FeaturedMovie>(sql).ConfigureAwait(false);
 
-            foreach(FeaturedMovie f in query)
+            foreach (FeaturedMovie f in query)
             {
                 // apply weighting
                 for (int i = 0; i < f.Weight; i++)
