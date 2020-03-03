@@ -40,7 +40,7 @@ namespace Helium.Controllers
             // validate page number
             if (query.ContainsKey("pageNumber"))
             {
-                if (pageNumber < 1 || pageNumber > 10000)
+                if (!int.TryParse(query["pageNumber"], out int val) || val != pageNumber || pageNumber < 1 || pageNumber > 10000)
                 {
                     message = "Invalid PageNumber parameter";
                     return false;
@@ -50,7 +50,7 @@ namespace Helium.Controllers
             // validate page size
             if (query.ContainsKey("pageSize"))
             {
-                if (pageSize < 1 || pageSize > 1000)
+                if (!int.TryParse(query["pageSize"], out int val) || val != pageSize || pageSize < 1 || pageSize > 1000)
                 {
                     message = "Invalid PageSize parameter";
                     return false;
@@ -102,7 +102,7 @@ namespace Helium.Controllers
             // validate year
             if (query.ContainsKey("year"))
             {
-                if (year < 1874 || year > DateTime.UtcNow.Year + 5)
+                if (!int.TryParse(query["year"], out int val) || val != year || year < 1874 || year > DateTime.UtcNow.Year + 5)
                 {
                     message = "Invalid Year parameter";
                     return false;
@@ -112,7 +112,7 @@ namespace Helium.Controllers
             // validate rating
             if (query.ContainsKey("rating"))
             {
-                if (rating < 0 || rating > 10)
+                if (!double.TryParse(query["rating"], out double val) || val != rating || rating < 0 || rating > 10)
                 {
                     message = "Invalid Rating parameter";
                     return false;

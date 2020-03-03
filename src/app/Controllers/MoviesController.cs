@@ -45,7 +45,7 @@ namespace Helium.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(Movie[]), 200)]
         [ProducesResponseType(typeof(string), 400)]
-        public async Task<IActionResult> GetMoviesAsync([FromQuery]string q = null, [FromQuery] string genre = null, [FromQuery] int year = -1, [FromQuery] double rating = -1, [FromQuery] string actorId = null, [FromQuery] int pageNumber = -1, [FromQuery] int pageSize = -1)
+        public async Task<IActionResult> GetMoviesAsync([FromQuery]string q = null, [FromQuery] string genre = null, [FromQuery] int year = 0, [FromQuery] double rating = 0, [FromQuery] string actorId = null, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = Constants.DefaultPageSize)
         {
             string method = GetMethod(q, genre, year, rating, actorId, pageNumber, pageSize);
 
