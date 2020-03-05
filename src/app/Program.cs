@@ -49,7 +49,8 @@ namespace Helium
                 if (string.IsNullOrEmpty(kvUrl))
                 {
                     Console.WriteLine("Key Vault name missing");
-                    return(-1);
+                    Usage();
+                    return (-1);
                 }
 
                 // valid authentication types
@@ -61,6 +62,7 @@ namespace Helium
                 if (string.IsNullOrWhiteSpace(authType) || !validAuthTypes.Contains(authType))
                 {
                     Console.WriteLine($"Invalid AuthType specified: {authType}");
+                    Usage();
                     return -1;
                 }
 
@@ -73,6 +75,7 @@ namespace Helium
                 //
                 if (_host == null)
                 {
+                    Usage();
                     return -1;
                 }
 
@@ -424,6 +427,22 @@ namespace Helium
             }
 
             return authType.Trim().ToUpperInvariant();
+        }
+
+        /// <summary>
+        /// Display usage message
+        /// </summary>
+        static void Usage()
+        {
+            Console.WriteLine("\nUsage: ");
+            Console.WriteLine("\tRequired");
+            Console.WriteLine("\t\t--kvname - name or URL of the key vault");
+            Console.WriteLine("\tOptional");
+            Console.WriteLine("\t\t-h --help - display usage help");
+            Console.WriteLine("\t\t--authtype - Authentication Type to use");
+            Console.WriteLine("\t\t\tMSI (default)");
+            Console.WriteLine("\t\t\tCLI");
+            Console.WriteLine("\t\t\tVS");
         }
     }
 }
