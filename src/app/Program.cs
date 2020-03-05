@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration.AzureKeyVault;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -27,6 +28,9 @@ namespace Helium
         // Key Vault configuration
         private static IConfigurationRoot config = null;
 
+        // ctl-C flag
+        private static bool ctlCFlag = false;
+
 
         /// <summary>
         /// Main entry point
@@ -34,7 +38,7 @@ namespace Helium
         /// Configure and run the web server
         /// </summary>
         /// <param name="args">command line args</param>
-        public static async Task Main(string[] args)
+        public static async Task<int> Main(string[] args)
         {
             if (args == null)
             {
@@ -49,8 +53,19 @@ namespace Helium
                 if (string.IsNullOrEmpty(kvUrl))
                 {
                     Console.WriteLine("Key Vault name missing");
+                    return(-1);
+                }
 
-                    Environment.Exit(-1);
+                // valid authentication types
+                List<string> validAuthTypes = new List<string> { "MSI", "CLI", "VS" };
+
+                // get authentication type from env var / cmd line
+                string authType = GetKeyAuthType(args);
+
+                if (string.IsNullOrWhiteSpace(authType) || !validAuthTypes.Contains(authType))
+                {
+                    Console.WriteLine($"Invalid AuthType specified: {authType}");
+                    return -1;
                 }
 
                 // setup ctl c handler
@@ -67,6 +82,8 @@ namespace Helium
 
                 // this doesn't return except on ctl-c
                 await RunKeyRotationCheck(ctCancel).ConfigureAwait(false);
+
+                return ctlCFlag ? 0 : -1;
             }
 
             catch (Exception ex)
@@ -81,7 +98,7 @@ namespace Helium
                     Console.WriteLine($"Error in Main()\n{ex}");
                 }
 
-                Environment.Exit(-1);
+                return -1;
             }
         }
 
@@ -156,6 +173,7 @@ namespace Helium
 
             Console.CancelKeyPress += delegate (object sender, ConsoleCancelEventArgs e)
             {
+                ctlCFlag = true;
                 e.Cancel = true;
                 ctCancel.Cancel();
 
@@ -326,17 +344,58 @@ namespace Helium
             string kvName = Environment.GetEnvironmentVariable(Constants.KeyVaultName);
 
             // command line arg overrides environment variable
-            if (args.Length > 0 && !args[0].StartsWith("-", StringComparison.OrdinalIgnoreCase))
+            if (args.Length > 1)
             {
-                kvName = args[0].Trim();
+                for (int i = 0; i < args.Length - 1; i++)
+                {
+                    if (args[i].ToUpperInvariant() == "--KVNAME")
+                    {
+                        i++;
+                        kvName = args[i].Trim();
+                    }
+                }
+
             }
 
-            if (kvName == null || string.IsNullOrEmpty(kvName.Trim()))
+            if (string.IsNullOrWhiteSpace(kvName))
             {
                 return string.Empty;
             }
 
             return KeyVaultHelper.BuildKeyVaultConnectionString(kvName);
+        }
+
+        /// <summary>
+        /// Get the authentication type from the environment variable or command line
+        /// </summary>
+        /// <param name="args">command line args</param>
+        /// <returns>authentication type (MSI (default), CLI, VS)</returns>
+        static string GetKeyAuthType(string[] args)
+        {
+            // get the auth type from the environment variable
+            string authType = Environment.GetEnvironmentVariable(Constants.AuthType);
+
+            // command line arg overrides environment variable
+            if (args.Length > 1)
+            {
+                for (int i = 0; i < args.Length - 1; i++)
+                {
+                    if (args[i].ToUpperInvariant() == "--AUTHTYPE")
+                    {
+                        i++;
+                        authType = args[i].Trim();
+                    }
+                }
+
+            }
+
+            // default value
+            if (authType == null)
+            {
+                return "MSI";
+            }
+
+            return authType.Trim().ToUpperInvariant();
         }
     }
 }

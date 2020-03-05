@@ -12,6 +12,7 @@
         public const string XmlCommentsPath = SwaggerName + ".xml";
 
         public const string KeyVaultName = "KeyVaultName";
+        public const string AuthType = "AUTH_TYPE";
 
         public const string CosmosCollection = "CosmosCollection";
         public const string CosmosDatabase = "CosmosDatabase";
