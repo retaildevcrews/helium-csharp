@@ -28,10 +28,6 @@ namespace Helium
         // Key Vault configuration
         private static IConfigurationRoot config = null;
 
-        // ctl-C flag
-        private static bool ctlCFlag = false;
-
-
         /// <summary>
         /// Main entry point
         /// 
@@ -72,7 +68,13 @@ namespace Helium
                 using CancellationTokenSource ctCancel = SetupCtlCHandler();
 
                 // build the host
-                _host = await BuildHost(kvUrl).ConfigureAwait(false);
+                _host = await BuildHost(kvUrl, authType).ConfigureAwait(false);
+
+                //
+                if (_host == null)
+                {
+                    return -1;
+                }
 
                 // log startup messages
                 LogStartup();
@@ -83,7 +85,8 @@ namespace Helium
                 // this doesn't return except on ctl-c
                 await RunKeyRotationCheck(ctCancel).ConfigureAwait(false);
 
-                return ctlCFlag ? 0 : -1;
+                // if not cancelled, app exit -1
+                return ctCancel.IsCancellationRequested ? 0 : -1;
             }
 
             catch (Exception ex)
@@ -101,7 +104,6 @@ namespace Helium
                 return -1;
             }
         }
-
 
         /// <summary>
         /// Check for Cosmos key rotation
@@ -173,7 +175,6 @@ namespace Helium
 
             Console.CancelKeyPress += delegate (object sender, ConsoleCancelEventArgs e)
             {
-                ctlCFlag = true;
                 e.Cancel = true;
                 ctCancel.Cancel();
 
@@ -253,19 +254,41 @@ namespace Helium
         ///   we retry for up to 90 seconds
         /// </summary>
         /// <param name="kvUrl">URL of the key vault</param>
+        /// <param name="authType">MSI, CLI or VS</param>
         /// <returns></returns>
-        static async Task<KeyVaultClient> GetKeyVaultClient(string kvUrl)
+        static async Task<KeyVaultClient> GetKeyVaultClient(string kvUrl, string authType)
         {
             // retry Managed Identity for 90 seconds
             //   AKS has to spin up an MI pod which can take a while the first time on the pod
             DateTime timeout = DateTime.Now.AddSeconds(90.0);
 
+            // use MSI as default
+            string authString;
+
+            switch (authType)
+            {
+                case "MSI":
+                    authString = "RunAs=App";
+                    break;
+                case "CLI":
+                    authString = "RunAs=Developer; DeveloperTool=AzureCli";
+                    break;
+                case "VS":
+                    authString = "RunAs=Developer; DeveloperTool=VisualStudio";
+                    break;
+                default:
+                    Console.WriteLine("Invalid Key Vault Authentication Type");
+                    return null;
+            }
+
             while (true)
             {
                 try
                 {
+                    var tokenProvider = new AzureServiceTokenProvider(authString);
+
                     // use Managed Identity (MSI) for secure access to Key Vault
-                    var keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(new AzureServiceTokenProvider().KeyVaultTokenCallback));
+                    var keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(tokenProvider.KeyVaultTokenCallback));
 
                     // read a key to make sure the connection is valid 
                     await keyVaultClient.GetSecretAsync(kvUrl, Constants.CosmosUrl).ConfigureAwait(false);
@@ -275,11 +298,11 @@ namespace Helium
                 }
                 catch (Exception ex)
                 {
-                    if (DateTime.Now <= timeout)
+                    if (DateTime.Now <= timeout && authType == "MSI")
                     {
-                        // log and retry
+                        // retry MSI connections for pod identity
 
-                        Console.WriteLine($"KeyVault:Retry: {ex.Message}");
+                        Console.WriteLine($"KeyVault:Retry");
                         await Task.Delay(1000).ConfigureAwait(false);
                     }
                     else
@@ -287,22 +310,27 @@ namespace Helium
                         // log and fail
 
                         Console.WriteLine($"KeyVault:Exception: {ex.Message}\n{ex}");
-                        Environment.Exit(-1);
+                        return null;
                     }
                 }
             }
         }
 
-
         /// <summary>
         /// Build the web host
         /// </summary>
         /// <param name="kvUrl">URL of the Key Vault</param>
+        /// <param name="authType">MSI, CLI, VS</param>
         /// <returns>Web Host ready to run</returns>
-        static async Task<IWebHost> BuildHost(string kvUrl)
+        static async Task<IWebHost> BuildHost(string kvUrl, string authType)
         {
             // create the Key Vault Client
-            var kvClient = await GetKeyVaultClient(kvUrl).ConfigureAwait(false);
+            var kvClient = await GetKeyVaultClient(kvUrl, authType).ConfigureAwait(false);
+
+            if (kvClient == null)
+            {
+                return null;
+            }
 
             // build the config
             // we need the key vault values for the DAL
