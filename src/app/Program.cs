@@ -58,25 +58,6 @@ namespace Helium
                     return 0;
                 }
 
-                // kvUrl is required
-                if (string.IsNullOrEmpty(kvUrl))
-                {
-                    Console.WriteLine("Key Vault name missing");
-                    Usage();
-                    return 0;
-                }
-
-                // valid authentication types
-                List<string> validAuthTypes = new List<string> { "MSI", "CLI", "VS" };
-
-                // validate authType
-                if (string.IsNullOrWhiteSpace(authType) || !validAuthTypes.Contains(authType))
-                {
-                    Console.WriteLine($"Invalid AuthType specified: {authType}");
-                    Usage();
-                    return -1;
-                }
-
                 // setup ctl c handler
                 using CancellationTokenSource ctCancel = SetupCtlCHandler();
 
@@ -395,14 +376,14 @@ namespace Helium
             authType = Environment.GetEnvironmentVariable(Constants.AuthType);
 
             // handle null
-            if (args == null || args.Length == 0 && (kvName == null))
+            if (args == null || (args.Length == 0 && kvName == null))
             {
                 helpFlag = true;
                 return true;
             }
 
             // handle -h or --help
-            if (args.Length == 1 && (args[0].ToUpperInvariant() == "-H" || args[0].ToUpperInvariant() == "--help"))
+            if (args.Length == 1 && (args[0].ToUpperInvariant() == "-H" || args[0].ToUpperInvariant() == "--HELP"))
             {
                 helpFlag = true;
                 return true;
@@ -418,6 +399,8 @@ namespace Helium
                         if (i >= args.Length)
                         {
                             Console.WriteLine("Missing kvName value");
+                            kvUrl = null;
+                            authType = null;
                             return false;
                         }
 
@@ -429,6 +412,8 @@ namespace Helium
                         if (i >= args.Length)
                         {
                             Console.WriteLine("Missing kvName value");
+                            kvUrl = null;
+                            authType = null;
                             return false;
                         }
                         authType = args[i].Trim();
@@ -436,6 +421,8 @@ namespace Helium
 
                     default:
                         Console.Write($"Invalid command line parameter: {args[i]}");
+                        kvUrl = null;
+                        authType = null;
                         return false;
                 }
             }
@@ -446,11 +433,33 @@ namespace Helium
             if (string.IsNullOrWhiteSpace(kvName))
             {
                 kvUrl = null;
+                authType = null;
+                Console.WriteLine("Key Vault name missing");
+                return false;
             }
-            else
+
+            // convert kv name to kv URL
+            kvUrl = KeyVaultHelper.BuildKeyVaultConnectionString(kvName);
+
+            // kvUrl is required
+            if (string.IsNullOrEmpty(kvUrl))
             {
-                // convert kv name to kv URL
-                kvUrl = KeyVaultHelper.BuildKeyVaultConnectionString(kvName);
+                kvUrl = null;
+                authType = null;
+                Console.WriteLine("Key Vault name missing");
+                return false;
+            }
+
+            // valid authentication types
+            List<string> validAuthTypes = new List<string> { "MSI", "CLI", "VS" };
+
+            // validate authType
+            if (string.IsNullOrWhiteSpace(authType) || !validAuthTypes.Contains(authType))
+            {
+                Console.WriteLine($"Invalid AuthType specified: {authType}");
+                kvUrl = null;
+                authType = null;
+                return false;
             }
 
             return true;
