@@ -75,7 +75,7 @@ namespace UnitTests
         public void EnvVarValuesTest()
         {
             string[] args = Array.Empty<string>();
-            Environment.SetEnvironmentVariable("KeyvaultName", "testkv");
+            Environment.SetEnvironmentVariable("KeyVaultName", "testkv");
 
             // test kvname env var
             bool flag = App.ProcessArgs(args, out string kvUrl, out string authType, out bool helpFlag);
@@ -109,7 +109,7 @@ namespace UnitTests
             Assert.Equal("https://testkv2.vault.azure.net/", kvUrl);
             Assert.Equal("VS", authType);
 
-            Environment.SetEnvironmentVariable("KeyvaultName", null);
+            Environment.SetEnvironmentVariable("KeyVaultName", null);
             Environment.SetEnvironmentVariable("AUTH_TYPE", null);
         }
 
