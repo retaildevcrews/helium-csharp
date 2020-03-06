@@ -83,7 +83,7 @@ docker build -t helium-dev -f Dockerfile-Dev .
 # run the container
 # mount your ~/.azure directory to container root/.azure directory
 # you can also run the container and run az login from a bash shell
-docker run -d -p 4120:4120 --name helium-dev -v ~/.azure:/root/.azure helium-dev dotnet run -- --kvname $He_Name --authtype CLI
+docker run -d -p 4120:4120 --name helium-dev -v ~/.azure:/root/.azure helium-dev dotnet run -- --authtype CLI --kvname $He_Name
 
 # check the logs
 # re-run until the application started message appears
