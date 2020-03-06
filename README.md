@@ -53,7 +53,8 @@ cd src/app
 
 # run in the background
 # $He_Name is set to the name of your key vault
-dotnet run $He_Name &
+# this will use CLI cached credentials
+dotnet run -- --keyvaultname $He_Name --authtype CLI &
 
 # test the application
 # the application takes about 10 seconds to start
@@ -82,7 +83,7 @@ docker build -t helium-dev -f Dockerfile-Dev .
 # run the container
 # mount your ~/.azure directory to container root/.azure directory
 # you can also run the container and run az login from a bash shell
-docker run -d -p 4120:4120 --name helium-dev -v ~/.azure:/root/.azure helium-dev "dotnet" "run" "${He_Name}"
+docker run -d -p 4120:4120 --name helium-dev -v ~/.azure:/root/.azure helium-dev dotnet run -- --keyvaultname $He_Name --authtype CLI
 
 # check the logs
 # re-run until the application started message appears
