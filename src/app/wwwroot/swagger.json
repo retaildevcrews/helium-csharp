@@ -1,8 +1,8 @@
 {
   "openapi": "3.0.1",
   "info": {
-    "title": "Helium (C#)",
-    "version": "1.0.1.0"
+    "title": "Helium",
+    "version": "1.6.0.0"
   },
   "paths": {
     "/api/movies": {
