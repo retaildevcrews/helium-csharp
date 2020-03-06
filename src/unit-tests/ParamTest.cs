@@ -1,11 +1,5 @@
-using System;
 using Helium;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using Moq;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System;
 using Xunit;
 
 namespace UnitTests
@@ -14,7 +8,7 @@ namespace UnitTests
     public class ParamTest
     {
         [Fact]
-        public void NoParams()
+        public void NoParamsTest()
         {
             string[] args = Array.Empty<string>();
 
