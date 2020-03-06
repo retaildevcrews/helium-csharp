@@ -36,29 +36,40 @@ namespace Helium
         /// <param name="args">command line args</param>
         public static async Task<int> Main(string[] args)
         {
-            if (args == null)
-            {
-                args = Array.Empty<string>();
-            }
             try
             {
-                // get the Key Vault URL
-                string kvUrl = GetKeyVaultUrl(args);
+                // check for null
+                if (args == null)
+                {
+                    args = Array.Empty<string>();
+                }
+
+                // get key vault config from env vars / command line
+                if (!ProcessArgs(args, out string kvUrl, out string authType, out bool helpFlag))
+                {
+                    Usage();
+                    return -1;
+                }
+
+                // display usage
+                if (helpFlag)
+                {
+                    Usage();
+                    return 0;
+                }
 
                 // kvUrl is required
                 if (string.IsNullOrEmpty(kvUrl))
                 {
                     Console.WriteLine("Key Vault name missing");
                     Usage();
-                    return (-1);
+                    return 0;
                 }
 
                 // valid authentication types
                 List<string> validAuthTypes = new List<string> { "MSI", "CLI", "VS" };
 
-                // get authentication type from env var / cmd line
-                string authType = GetKeyAuthType(args);
-
+                // validate authType
                 if (string.IsNullOrWhiteSpace(authType) || !validAuthTypes.Contains(authType))
                 {
                     Console.WriteLine($"Invalid AuthType specified: {authType}");
@@ -365,68 +376,84 @@ namespace Helium
         }
 
         /// <summary>
-        /// Get the Key Vault URL from the environment variable or command line
+        /// Get the Key Vault config from the environment variable or command line
         /// </summary>
         /// <param name="args">command line args</param>
-        /// <returns>URL to Key Vault</returns>
-        static string GetKeyVaultUrl(string[] args)
+        /// <param name="kvUrl">out Key Vault URL</param>
+        /// <param name="authType">out Authentication Type</param>
+        /// <param name="helpFlag">out Display Usage</param>
+        /// <returns>authentication type (MSI (default), CLI, VS)</returns>
+        public static bool ProcessArgs(string[] args, out string kvUrl, out string authType, out bool helpFlag)
         {
+            kvUrl = null;
+            helpFlag = false;
+
             // get the key vault name from the environment variable
             string kvName = Environment.GetEnvironmentVariable(Constants.KeyVaultName);
 
-            // command line arg overrides environment variable
-            if (args.Length > 1)
-            {
-                for (int i = 0; i < args.Length - 1; i++)
-                {
-                    if (args[i].ToUpperInvariant() == "--KVNAME")
-                    {
-                        i++;
-                        kvName = args[i].Trim();
-                    }
-                }
-
-            }
-
-            if (string.IsNullOrWhiteSpace(kvName))
-            {
-                return string.Empty;
-            }
-
-            return KeyVaultHelper.BuildKeyVaultConnectionString(kvName);
-        }
-
-        /// <summary>
-        /// Get the authentication type from the environment variable or command line
-        /// </summary>
-        /// <param name="args">command line args</param>
-        /// <returns>authentication type (MSI (default), CLI, VS)</returns>
-        static string GetKeyAuthType(string[] args)
-        {
             // get the auth type from the environment variable
-            string authType = Environment.GetEnvironmentVariable(Constants.AuthType);
+            authType = Environment.GetEnvironmentVariable(Constants.AuthType);
+
+            // handle null
+            if (args == null || args.Length == 0 && (kvName == null))
+            {
+                helpFlag = true;
+                return true;
+            }
+
+            // handle -h or --help
+            if (args.Length == 1 && (args[0].ToUpperInvariant() == "-H" || args[0].ToUpperInvariant() == "--help"))
+            {
+                helpFlag = true;
+                return true;
+            }
 
             // command line arg overrides environment variable
-            if (args.Length > 1)
+            for (int i = 0; i < args.Length; i++)
             {
-                for (int i = 0; i < args.Length - 1; i++)
+                switch (args[i].ToUpperInvariant())
                 {
-                    if (args[i].ToUpperInvariant() == "--AUTHTYPE")
-                    {
+                    case "--KVNAME":
                         i++;
-                        authType = args[i].Trim();
-                    }
-                }
+                        if (i >= args.Length)
+                        {
+                            Console.WriteLine("Missing kvName value");
+                            return false;
+                        }
 
+                        kvName = args[i].Trim();
+                        break;
+
+                    case "--AUTHTYPE":
+                        i++;
+                        if (i >= args.Length)
+                        {
+                            Console.WriteLine("Missing kvName value");
+                            return false;
+                        }
+                        authType = args[i].Trim();
+                        break;
+
+                    default:
+                        Console.Write($"Invalid command line parameter: {args[i]}");
+                        return false;
+                }
             }
 
             // default value
-            if (authType == null)
+            authType = authType == null ? "MSI" : authType.Trim().ToUpperInvariant();
+
+            if (string.IsNullOrWhiteSpace(kvName))
             {
-                return "MSI";
+                kvUrl = null;
+            }
+            else
+            {
+                // convert kv name to kv URL
+                kvUrl = KeyVaultHelper.BuildKeyVaultConnectionString(kvName);
             }
 
-            return authType.Trim().ToUpperInvariant();
+            return true;
         }
 
         /// <summary>
