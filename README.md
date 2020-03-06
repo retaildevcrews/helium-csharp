@@ -3,7 +3,6 @@
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Docker Image Build](https://github.com/retaildevcrews/helium-csharp/workflows/Docker%20Image%20Build/badge.svg)
 
-
 This is an ASP.NET Core Web API reference application designed to "fork and code" with the following features:
 
 - Securely build, deploy and run an Azure App Service (Web App for Containers) application
@@ -19,7 +18,7 @@ This is an ASP.NET Core Web API reference application designed to "fork and code
 
 - Docker CLI ([download](https://docs.docker.com/install/))
 - .NET Core SDK 3.1 ([download](https://dotnet.microsoft.com/download))
-- Azure CLI 2.0.72+ ([download](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest))
+- Azure CLI 2.1.0 ([download](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest))
 - Visual Studio Code (optional) ([download](https://code.visualstudio.com/download))
 
 ## Setup
@@ -36,15 +35,15 @@ Build the container using Docker
 
 # make sure you are in the root of the repo
 # build the image
-docker build -t helium-csharp -f Dockerfile .
-
-# Tag and push the image to your Docker repo
+docker build . -t helium-csharp
 
 ```
 
 Run the application locally
 
 - The application requires Key Vault and Cosmos DB to be setup per the Helium [readme](https://github.com/retaildevcrews/helium)
+  - You can run the application locally by using Azure CLI cached credentials
+    - You must run az login before this will work
 
 ```bash
 
@@ -53,7 +52,7 @@ cd src/app
 
 # run in the background
 # $He_Name is set to the name of your key vault
-# this will use CLI cached credentials
+# this will use Azure CLI cached credentials
 dotnet run -- --kvname $He_Name --authtype CLI &
 
 # test the application
@@ -78,7 +77,7 @@ cd ../..
 # docker-dev builds a full .NET Core SDK image with Azure CLI installed in the container
 # you may see red warnings in the build output, they are safe to ignore
 # examples: "debconf: ..." or "dpkg-preconfigure: ..."
-docker build -t helium-dev -f Dockerfile-Dev .
+docker build . -t helium-dev -f Dockerfile-Dev
 
 # run the container
 # mount your ~/.azure directory to container root/.azure directory
