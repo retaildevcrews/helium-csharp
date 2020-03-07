@@ -1,6 +1,14 @@
 # Change Log
 
-## v0.4.0
+## v1.6.0
+
+- March 12, 2020
+- added authentication type environment varible and command line requirements
+  - supports MSI, Azure CLI or Visual Studio credentials
+- converted Swagger to not auto-generate swagger.json for fidelity
+
+## v1.0.0
+
 - Dec 18, 2019
 - converted /healthz to use dotnet HealthCheck
 - added IETF draft render to /healthz/ietf

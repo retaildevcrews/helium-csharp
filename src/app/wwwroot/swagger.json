@@ -1,11 +1,11 @@
 {
   "openapi": "3.0.1",
   "info": {
-    "title": "Helium (C#)",
-    "version": "1.0.1.0"
+    "title": "Helium",
+    "version": "1.6.0.0"
   },
   "paths": {
-    "/api/Movies": {
+    "/api/movies": {
       "get": {
         "tags": [ "Movies" ],
         "summary": "Search Movies",
@@ -288,7 +288,7 @@
         }
       }
     },
-    "/api/Movies/{movieId}": {
+    "/api/movies/{movieId}": {
       "get": {
         "tags": [ "Movies" ],
         "summary": "Get Movie by ID",
@@ -382,7 +382,7 @@
         }
       }
     },
-    "/api/Actors": {
+    "/api/actors": {
       "get": {
         "tags": [ "Actors" ],
         "summary": "Search Actors",
@@ -572,7 +572,7 @@
         }
       }
     },
-    "/api/Actors/{actorId}": {
+    "/api/actors/{actorId}": {
       "get": {
         "tags": [ "Actors" ],
         "summary": "Get Actor by ID",
@@ -686,7 +686,7 @@
         }
       }
     },
-    "/api/Featured/movie": {
+    "/api/featured/movie": {
       "get": {
         "tags": [ "Featured" ],
         "summary": "Get a random Movie from the featured list",
@@ -744,7 +744,7 @@
         }
       }
     },
-    "/api/Genres": {
+    "/api/genres": {
       "get": {
         "tags": [ "Genres" ],
         "summary": "Array of Genres",
@@ -789,7 +789,7 @@
         }
       }
     },
-    "/Healthz": {
+    "/healthz": {
       "get": {
         "tags": [ "Healthz" ],
         "summary": "Health Check (simple)",
@@ -809,7 +809,7 @@
         }
       }
     },
-    "/Healthz/ietf": {
+    "/healthz/ietf": {
       "get": {
         "tags": [ "Healthz" ],
         "summary": "Health Check (IETF)",
@@ -877,7 +877,7 @@
         }
       }
     },
-    "/Healthz/dotnet": {
+    "/healthz/dotnet": {
       "get": {
         "tags": [ "Healthz" ],
         "summary": "Health Check (dotnet)",

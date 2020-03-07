@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration.AzureKeyVault;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -27,37 +28,48 @@ namespace Helium
         // Key Vault configuration
         private static IConfigurationRoot config = null;
 
-
         /// <summary>
         /// Main entry point
         /// 
         /// Configure and run the web server
         /// </summary>
         /// <param name="args">command line args</param>
-        public static async Task Main(string[] args)
+        public static async Task<int> Main(string[] args)
         {
-            if (args == null)
-            {
-                args = Array.Empty<string>();
-            }
             try
             {
-                // get the Key Vault URL
-                string kvUrl = GetKeyVaultUrl(args);
-
-                // kvUrl is required
-                if (string.IsNullOrEmpty(kvUrl))
+                // check for null
+                if (args == null)
                 {
-                    Console.WriteLine("Key Vault name missing");
+                    args = Array.Empty<string>();
+                }
 
-                    Environment.Exit(-1);
+                // get key vault config from env vars / command line
+                if (!ProcessArgs(args, out string kvUrl, out string authType, out bool helpFlag))
+                {
+                    Usage();
+                    return -1;
+                }
+
+                // display usage
+                if (helpFlag)
+                {
+                    Usage();
+                    return 0;
                 }
 
                 // setup ctl c handler
                 using CancellationTokenSource ctCancel = SetupCtlCHandler();
 
                 // build the host
-                _host = await BuildHost(kvUrl).ConfigureAwait(false);
+                _host = await BuildHost(kvUrl, authType).ConfigureAwait(false);
+
+                //
+                if (_host == null)
+                {
+                    Usage();
+                    return -1;
+                }
 
                 // log startup messages
                 LogStartup();
@@ -67,6 +79,9 @@ namespace Helium
 
                 // this doesn't return except on ctl-c
                 await RunKeyRotationCheck(ctCancel).ConfigureAwait(false);
+
+                // if not cancelled, app exit -1
+                return ctCancel.IsCancellationRequested ? 0 : -1;
             }
 
             catch (Exception ex)
@@ -81,10 +96,9 @@ namespace Helium
                     Console.WriteLine($"Error in Main()\n{ex}");
                 }
 
-                Environment.Exit(-1);
+                return -1;
             }
         }
-
 
         /// <summary>
         /// Check for Cosmos key rotation
@@ -235,19 +249,41 @@ namespace Helium
         ///   we retry for up to 90 seconds
         /// </summary>
         /// <param name="kvUrl">URL of the key vault</param>
+        /// <param name="authType">MSI, CLI or VS</param>
         /// <returns></returns>
-        static async Task<KeyVaultClient> GetKeyVaultClient(string kvUrl)
+        static async Task<KeyVaultClient> GetKeyVaultClient(string kvUrl, string authType)
         {
             // retry Managed Identity for 90 seconds
             //   AKS has to spin up an MI pod which can take a while the first time on the pod
             DateTime timeout = DateTime.Now.AddSeconds(90.0);
 
+            // use MSI as default
+            string authString;
+
+            switch (authType)
+            {
+                case "MSI":
+                    authString = "RunAs=App";
+                    break;
+                case "CLI":
+                    authString = "RunAs=Developer; DeveloperTool=AzureCli";
+                    break;
+                case "VS":
+                    authString = "RunAs=Developer; DeveloperTool=VisualStudio";
+                    break;
+                default:
+                    Console.WriteLine("Invalid Key Vault Authentication Type");
+                    return null;
+            }
+
             while (true)
             {
                 try
                 {
+                    var tokenProvider = new AzureServiceTokenProvider(authString);
+
                     // use Managed Identity (MSI) for secure access to Key Vault
-                    var keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(new AzureServiceTokenProvider().KeyVaultTokenCallback));
+                    var keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(tokenProvider.KeyVaultTokenCallback));
 
                     // read a key to make sure the connection is valid 
                     await keyVaultClient.GetSecretAsync(kvUrl, Constants.CosmosUrl).ConfigureAwait(false);
@@ -257,11 +293,11 @@ namespace Helium
                 }
                 catch (Exception ex)
                 {
-                    if (DateTime.Now <= timeout)
+                    if (DateTime.Now <= timeout && authType == "MSI")
                     {
-                        // log and retry
+                        // retry MSI connections for pod identity
 
-                        Console.WriteLine($"KeyVault:Retry: {ex.Message}");
+                        Console.WriteLine($"KeyVault:Retry");
                         await Task.Delay(1000).ConfigureAwait(false);
                     }
                     else
@@ -269,22 +305,27 @@ namespace Helium
                         // log and fail
 
                         Console.WriteLine($"KeyVault:Exception: {ex.Message}\n{ex}");
-                        Environment.Exit(-1);
+                        return null;
                     }
                 }
             }
         }
 
-
         /// <summary>
         /// Build the web host
         /// </summary>
         /// <param name="kvUrl">URL of the Key Vault</param>
+        /// <param name="authType">MSI, CLI, VS</param>
         /// <returns>Web Host ready to run</returns>
-        static async Task<IWebHost> BuildHost(string kvUrl)
+        static async Task<IWebHost> BuildHost(string kvUrl, string authType)
         {
             // create the Key Vault Client
-            var kvClient = await GetKeyVaultClient(kvUrl).ConfigureAwait(false);
+            var kvClient = await GetKeyVaultClient(kvUrl, authType).ConfigureAwait(false);
+
+            if (kvClient == null)
+            {
+                return null;
+            }
 
             // build the config
             // we need the key vault values for the DAL
@@ -316,27 +357,128 @@ namespace Helium
         }
 
         /// <summary>
-        /// Get the Key Vault URL from the environment variable or command line
+        /// Get the Key Vault config from the environment variable or command line
         /// </summary>
         /// <param name="args">command line args</param>
-        /// <returns>URL to Key Vault</returns>
-        static string GetKeyVaultUrl(string[] args)
+        /// <param name="kvUrl">out Key Vault URL</param>
+        /// <param name="authType">out Authentication Type</param>
+        /// <param name="helpFlag">out Display Usage</param>
+        /// <returns>authentication type (MSI (default), CLI, VS)</returns>
+        public static bool ProcessArgs(string[] args, out string kvUrl, out string authType, out bool helpFlag)
         {
+            kvUrl = null;
+            helpFlag = false;
+
             // get the key vault name from the environment variable
             string kvName = Environment.GetEnvironmentVariable(Constants.KeyVaultName);
 
+            // get the auth type from the environment variable
+            authType = Environment.GetEnvironmentVariable(Constants.AuthType);
+
+            // handle null
+            if (args == null || (args.Length == 0 && kvName == null))
+            {
+                helpFlag = true;
+                return true;
+            }
+
+            // handle -h or --help
+            if (args.Length == 1 && (args[0].ToUpperInvariant() == "-H" || args[0].ToUpperInvariant() == "--HELP"))
+            {
+                helpFlag = true;
+                return true;
+            }
+
             // command line arg overrides environment variable
-            if (args.Length > 0 && !args[0].StartsWith("-", StringComparison.OrdinalIgnoreCase))
+            for (int i = 0; i < args.Length; i++)
             {
-                kvName = args[0].Trim();
+                switch (args[i].ToUpperInvariant())
+                {
+                    case "--KVNAME":
+                        i++;
+                        if (i >= args.Length)
+                        {
+                            Console.WriteLine("Missing kvName value");
+                            kvUrl = null;
+                            authType = null;
+                            return false;
+                        }
+
+                        kvName = args[i].Trim();
+                        break;
+
+                    case "--AUTHTYPE":
+                        i++;
+                        if (i >= args.Length)
+                        {
+                            Console.WriteLine("Missing kvName value");
+                            kvUrl = null;
+                            authType = null;
+                            return false;
+                        }
+                        authType = args[i].Trim();
+                        break;
+
+                    default:
+                        Console.Write($"Invalid command line parameter: {args[i]}");
+                        kvUrl = null;
+                        authType = null;
+                        return false;
+                }
             }
 
-            if (kvName == null || string.IsNullOrEmpty(kvName.Trim()))
+            // default value
+            authType = authType == null ? "MSI" : authType.Trim().ToUpperInvariant();
+
+            if (string.IsNullOrWhiteSpace(kvName))
             {
-                return string.Empty;
+                kvUrl = null;
+                authType = null;
+                Console.WriteLine("Key Vault name missing");
+                return false;
             }
 
-            return KeyVaultHelper.BuildKeyVaultConnectionString(kvName);
+            // convert kv name to kv URL
+            kvUrl = KeyVaultHelper.BuildKeyVaultConnectionString(kvName);
+
+            // kvUrl is required
+            if (string.IsNullOrEmpty(kvUrl))
+            {
+                kvUrl = null;
+                authType = null;
+                Console.WriteLine("Key Vault name missing");
+                return false;
+            }
+
+            // valid authentication types
+            List<string> validAuthTypes = new List<string> { "MSI", "CLI", "VS" };
+
+            // validate authType
+            if (string.IsNullOrWhiteSpace(authType) || !validAuthTypes.Contains(authType))
+            {
+                Console.WriteLine($"Invalid AuthType specified: {authType}");
+                kvUrl = null;
+                authType = null;
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Display usage message
+        /// </summary>
+        static void Usage()
+        {
+            Console.WriteLine("\nUsage: ");
+            Console.WriteLine("\tRequired");
+            Console.WriteLine("\t\t--kvname - name or URL of the key vault");
+            Console.WriteLine("\tOptional");
+            Console.WriteLine("\t\t-h --help - display usage help");
+            Console.WriteLine("\t\t--authtype - Authentication Type to use");
+            Console.WriteLine("\t\t\tMSI (default)");
+            Console.WriteLine("\t\t\tCLI");
+            Console.WriteLine("\t\t\tVS");
         }
     }
 }

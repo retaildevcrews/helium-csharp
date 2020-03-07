@@ -19,4 +19,4 @@
 [assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2227:Collection properties should be read only", Justification = "needed for json deserialization", Scope = "namespaceanddescendants", Target = "Helium.Model")]
 
 [assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("IDE", "IDE0051:Private member GetXmlCommentsPath is unused", Justification = "can be used if configured", Scope = "type", Target = "Helium.Startup")]
-
+[assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1054:Uri parameters should not be strings", Justification = "KeyVault SDK expects string", Scope = "type", Target = "Helium.App")]
