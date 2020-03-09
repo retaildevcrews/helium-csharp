@@ -21,7 +21,7 @@ namespace Helium
 
                     var aVer = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
 
-                    _version = string.Format(CultureInfo.InvariantCulture, $"{aVer.Major}.{aVer.Minor}.{dt.ToString("MMdd.HHmm", CultureInfo.InvariantCulture)}");
+                    _version = string.Format(CultureInfo.InvariantCulture, $"{aVer.Major}.{aVer.Minor}.{aVer.Build}+{dt.ToString("MMdd.HHmm", CultureInfo.InvariantCulture)}");
                 }
 
                 return _version;
