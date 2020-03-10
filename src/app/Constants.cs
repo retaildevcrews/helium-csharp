@@ -5,7 +5,7 @@
     /// </summary>
     public sealed class Constants
     {
-        public static readonly string SwaggerVersion = "v " + Version.AssemblyVersion;
+        public static readonly string SwaggerVersion = "1.0.0";
         public const string SwaggerName = "helium";
         public const string SwaggerTitle = "Helium";
         public const string SwaggerPath = "/swagger.json";
