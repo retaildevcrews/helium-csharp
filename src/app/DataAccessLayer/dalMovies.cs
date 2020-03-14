@@ -14,7 +14,7 @@ namespace Helium.DataAccessLayer
     {
         // select template for Movies
         const string _movieSelect = "select m.id, m.partitionKey, m.movieId, m.type, m.textSearch, m.title, m.year, m.runtime, m.rating, m.votes, m.totalScore, m.genres, m.roles from m where m.type = 'Movie' ";
-        const string _movieOrderBy = " order by m.title";
+        const string _movieOrderBy = " order by m.textSearch ASC, m.movieId ASC";
         const string _movieOffset = " offset {0} limit {1}";
 
         /// <summary>
