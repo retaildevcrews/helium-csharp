@@ -141,7 +141,7 @@ namespace Helium.DataAccessLayer
         {
             List<string> list = new List<string>();
 
-            string sql = "select m.movieId, m.weight from m where m.type = 'Featured' order by m.weight desc";
+            string sql = "select m.movieId, m.weight from m where m.type = 'Featured'";
 
             var query = await InternalCosmosDBSqlQuery<FeaturedMovie>(sql).ConfigureAwait(false);
 
