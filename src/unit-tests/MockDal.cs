@@ -1,5 +1,6 @@
 using Helium.DataAccessLayer;
 using Helium.Model;
+using Microsoft.Azure.Cosmos;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System;
@@ -76,7 +77,7 @@ namespace UnitTests
                 }
             }
 
-            throw new ArgumentException("NotFound");
+            throw new CosmosException("Not found", System.Net.HttpStatusCode.NotFound, 404, "mock", 0);
         }
 
         public Task<IEnumerable<Actor>> GetActorsAsync(int offset = 0, int limit = 0)
@@ -89,7 +90,7 @@ namespace UnitTests
             // string.empty is valid, but null is not
             if (q == null)
             {
-                throw new ArgumentNullException(nameof(q));
+                q = string.Empty;
             }
 
             List<Actor> res = new List<Actor>();
@@ -122,7 +123,7 @@ namespace UnitTests
                 }
             }
 
-            throw new ArgumentException("NotFound");
+            throw new CosmosException("Not found", System.Net.HttpStatusCode.NotFound, 404, "mock", 0);
         }
 
         public Task<IEnumerable<Movie>> GetMoviesAsync(int offset = 0, int limit = 0)
