@@ -19,7 +19,6 @@ namespace Helium.Controllers
         private readonly ILogger _logger;
         private readonly IDAL _dal;
         private readonly Random _rand = new Random(DateTime.Now.Millisecond);
-        private List<string> _featuredMovies;
 
         /// <summary>
         ///  Constructor
@@ -43,64 +42,20 @@ namespace Helium.Controllers
         public async Task<IActionResult> GetFeaturedMovieAsync()
         {
             string method = nameof(GetFeaturedMovieAsync);
-            string notFound = "NotFound:" + method;
-
             _logger.LogInformation(method);
 
-            try
+            List<string> featuredMovies= await _dal.GetFeaturedMovieListAsync().ConfigureAwait(false);
+
+            if (featuredMovies != null && featuredMovies.Count > 0)
             {
-                // get a random movie from the featured movie list
-                if (_featuredMovies == null || _featuredMovies.Count == 0)
-                {
-                    _featuredMovies = await _dal.GetFeaturedMovieListAsync().ConfigureAwait(false);
-                }
+                // get random featured movie by movieId
+                string movieId = featuredMovies[_rand.Next(0, featuredMovies.Count - 1)];
 
-                if (_featuredMovies != null && _featuredMovies.Count > 0)
-                {
-                    // get random featured movie by movieId
-                    // CosmosDB API will throw an exception on a bad movieId
-                    Movie m = await _dal.GetMovieAsync(_featuredMovies[_rand.Next(0, _featuredMovies.Count - 1)]).ConfigureAwait(false);
-
-                    return Ok(m);
-                }
-
-                return NotFound();
+                // get movie by movieId
+                return await ResultHandler.Handle(_dal.GetMovieAsync(movieId), method, Constants.FeaturedControllerException, _logger).ConfigureAwait(false);
             }
 
-            catch (CosmosException ce)
-            {
-                // CosmosDB API will throw an exception on an movieId not found
-                if (ce.StatusCode == System.Net.HttpStatusCode.NotFound)
-                {
-                    _logger.LogInformation(notFound);
-
-                    // return a 404
-                    return NotFound();
-                }
-                else
-                {
-                    // log and return Cosmos status code
-                    _logger.LogError($"CosmosException:{method}:{ce.StatusCode}:{ce.ActivityId}:{ce.Message}\n{ce}");
-
-                    return new ContentResult
-                    {
-                        Content = Constants.FeaturedControllerException,
-                        StatusCode = (int)ce.StatusCode
-                    };
-                }
-            }
-
-            catch (Exception e)
-            {
-                // log and return 500
-                _logger.LogError($"Exception:{method}:{e.Message}\n{e}");
-
-                return new ContentResult
-                {
-                    Content = Constants.FeaturedControllerException,
-                    StatusCode = (int)System.Net.HttpStatusCode.InternalServerError
-                };
-            }
+            return NotFound();
         }
     }
 }

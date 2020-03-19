@@ -1,5 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Cosmos;
+using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Helium.Controllers
 {
@@ -17,9 +22,9 @@ namespace Helium.Controllers
         /// <param name="pageSize">Page Size</param>
         /// <param name="message">error message</param>
         /// <returns></returns>
-        public static bool Common(IQueryCollection query, string q, int pageNumber, int pageSize, out string message)
+        public static bool Common(IQueryCollection query, string q, int pageNumber, int pageSize, string method, ILogger logger, out ContentResult result)
         {
-            message = string.Empty;
+            result = null;
 
             // no query string
             if (query == null)
@@ -32,7 +37,7 @@ namespace Helium.Controllers
             {
                 if (q == null || q.Length < 2 || q.Length > 20)
                 {
-                    message = "Invalid q (search) parameter";
+                    result = GetAndLogBadParam("Invalid q (search) parameter", method, logger);
                     return false;
                 }
             }
@@ -42,7 +47,7 @@ namespace Helium.Controllers
             {
                 if (!int.TryParse(query["pageNumber"], out int val) || val != pageNumber || pageNumber < 1 || pageNumber > 10000)
                 {
-                    message = "Invalid PageNumber parameter";
+                    result = GetAndLogBadParam("Invalid PageNumber parameter", method, logger);
                     return false;
                 }
             }
@@ -52,12 +57,23 @@ namespace Helium.Controllers
             {
                 if (!int.TryParse(query["pageSize"], out int val) || val != pageSize || pageSize < 1 || pageSize > 1000)
                 {
-                    message = "Invalid PageSize parameter";
+                    result = GetAndLogBadParam("Invalid PageSize parameter", method, logger);
                     return false;
                 }
             }
 
             return true;
+        }
+
+        public static ContentResult GetAndLogBadParam(string message, string method, ILogger logger)
+        {
+            logger.LogWarning($"InvalidParameter|{method}|{message}");
+
+            return new ContentResult
+            {
+                Content = message,
+                StatusCode = (int)System.Net.HttpStatusCode.BadRequest
+            };
         }
 
         /// <summary>
@@ -73,9 +89,9 @@ namespace Helium.Controllers
         /// <param name="pageSize">Page Size</param>
         /// <param name="message">error message</param>
         /// <returns></returns>
-        public static bool Movies(IQueryCollection query, string q, string genre, int year, double rating, string actorId, int pageNumber, int pageSize, out string message)
+        public static bool Movies(IQueryCollection query, string q, string genre, int year, double rating, string actorId, int pageNumber, int pageSize, string method, ILogger logger, out ContentResult result)
         {
-            message = string.Empty;
+            result = null;
 
             // no query string
             if (query == null)
@@ -84,7 +100,7 @@ namespace Helium.Controllers
             }
 
             // validate q, page number and page size
-            if (!Common(query, q, pageNumber, pageSize, out message))
+            if (!Common(query, q, pageNumber, pageSize, method, logger, out result))
             {
                 return false;
             }
@@ -94,7 +110,7 @@ namespace Helium.Controllers
             {
                 if (genre == null || genre.Length < 3 || genre.Length > 20)
                 {
-                    message = "Invalid Genre parameter";
+                    result = GetAndLogBadParam("Invalid Genre parameter", method, logger);
                     return false;
                 }
             }
@@ -104,7 +120,7 @@ namespace Helium.Controllers
             {
                 if (!int.TryParse(query["year"], out int val) || val != year || year < 1874 || year > DateTime.UtcNow.Year + 5)
                 {
-                    message = "Invalid Year parameter";
+                    result = GetAndLogBadParam("Invalid Year parameter", method, logger);
                     return false;
                 }
             }
@@ -114,7 +130,7 @@ namespace Helium.Controllers
             {
                 if (!double.TryParse(query["rating"], out double val) || val != rating || rating < 0 || rating > 10)
                 {
-                    message = "Invalid Rating parameter";
+                    result = GetAndLogBadParam("Invalid Rating parameter", method, logger);
                     return false;
                 }
             }
@@ -122,7 +138,7 @@ namespace Helium.Controllers
             // validate actorId
             if (query.ContainsKey("actorId"))
             {
-                if (!ActorId(actorId, out message))
+                if (!ActorId(actorId, method, logger, out result))
                 {
                     return false;
                 }
@@ -137,9 +153,9 @@ namespace Helium.Controllers
         /// <param name="actorId">actorId</param>
         /// <param name="message">error message</param>
         /// <returns></returns>
-        public static bool ActorId(string actorId, out string message)
+        public static bool ActorId(string actorId, string method, ILogger logger, out ContentResult result)
         {
-            message = string.Empty;
+            result = null;
 
             // validate actorId
             if (actorId == null ||
@@ -149,7 +165,7 @@ namespace Helium.Controllers
                 !int.TryParse(actorId.Substring(2), out int val) ||
                 val <= 0)
             {
-                message = "Invalid Actor ID parameter";
+                result = GetAndLogBadParam("Invalid Actor ID parameter", method, logger);
                 return false;
             }
 
@@ -162,10 +178,8 @@ namespace Helium.Controllers
         /// <param name="movieId">movieId</param>
         /// <param name="message">error message</param>
         /// <returns></returns>
-        public static bool MovieId(string movieId, out string message)
+        public static bool MovieId(string movieId, string method, ILogger logger, out ContentResult result)
         {
-            message = string.Empty;
-
             // validate movieId
             if (movieId == null ||
                 movieId.Length < 7 ||
@@ -174,11 +188,69 @@ namespace Helium.Controllers
                 !int.TryParse(movieId.Substring(2), out int val) ||
                 val <= 0)
             {
-                message = "Invalid Movie ID parameter";
+                result = GetAndLogBadParam("Invalid Movie ID parameter", method, logger);
                 return false;
             }
 
+            result = null;
             return true;
+        }
+    }
+
+    public static class ResultHandler
+    {
+        public static async Task<IActionResult> Handle<T>(Task<T> task, string method, string errorMessage, ILogger logger)
+        {
+            logger.LogInformation(method);
+
+            if (task == null)
+            {
+                logger.LogError($"Exception:{method}\ntask is null");
+
+                return new ContentResult
+                {
+                    Content = errorMessage,
+                    StatusCode = (int)System.Net.HttpStatusCode.InternalServerError
+                };
+            }
+
+            try
+            {
+                return new OkObjectResult(await task.ConfigureAwait(false));
+            }
+
+            catch (CosmosException ce)
+            {
+                // log and return Cosmos status code
+                logger.LogError($"CosmosException:{method}:{ce.StatusCode}:{ce.ActivityId}:{ce.Message}\n{ce}");
+
+                return new ContentResult
+                {
+                    Content = errorMessage,
+                    StatusCode = (int)ce.StatusCode
+                };
+            }
+
+            catch (Exception ex)
+            {
+                // log and return exception
+                logger.LogError($"Exception:{method}\n{ex}");
+
+                return new ContentResult
+                {
+                    Content = errorMessage,
+                    StatusCode = (int)System.Net.HttpStatusCode.InternalServerError
+                };
+            }
+        }
+
+        public static ContentResult CreateResult(string message, int statusCode)
+        {
+            return new ContentResult
+            {
+                Content = message,
+                StatusCode = statusCode
+            };
         }
     }
 }

@@ -37,36 +37,7 @@ namespace Helium.Controllers
         public async Task<IActionResult> GetGenresAsync()
         {
             // get list of genres as list of string
-            _logger.LogInformation(nameof(GetGenresAsync));
-
-            try
-            {
-                return Ok(await _dal.GetGenresAsync().ConfigureAwait(false));
-            }
-
-            catch (CosmosException ce)
-            {
-                // log and return Cosmos status code
-                _logger.LogError($"CosmosException:GetGenres:{ce.StatusCode}:{ce.ActivityId}:{ce.Message}\n{ce}");
-
-                return new ContentResult
-                {
-                    Content = Constants.GenresControllerException,
-                    StatusCode = (int)ce.StatusCode
-                };
-            }
-
-            catch (Exception ex)
-            {
-                // log and return 500
-                _logger.LogError($"Exception:GetGenres\n{ex}");
-
-                return new ContentResult
-                {
-                    Content = Constants.GenresControllerException,
-                    StatusCode = (int)System.Net.HttpStatusCode.InternalServerError
-                };
-            }
+            return await ResultHandler.Handle(_dal.GetGenresAsync(), nameof(GetGenresAsync), Constants.GenresControllerException, _logger).ConfigureAwait(false);
         }
     }
 }
