@@ -1,7 +1,6 @@
 @echo off
 
 dotnet clean
-dotnet build
 
 dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput="./TestResults/"
 
