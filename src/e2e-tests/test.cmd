@@ -7,7 +7,7 @@ dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:Coverle
 
 //coverlet bin\Debug\netcoreapp3.1\helium.dll --target "dotnet" --targetargs "test --no-build" --output "./coverage-reports/"
 
-reportgenerator "-reports:testresults\coverage.cobertura.xml" "-targetdir:coverage-reports\html" -reporttypes:HTML;
+dotnet reportgenerator "-reports:testresults\coverage.cobertura.xml" "-targetdir:./TestResults/html" -reporttypes:HTML;
 
 coverage-reports\html\index.htm
 

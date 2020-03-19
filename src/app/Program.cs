@@ -28,6 +28,16 @@ namespace Helium
         // Key Vault configuration
         private static IConfigurationRoot config = null;
 
+        private static CancellationTokenSource ctCancel;
+
+        public static void Stop()
+        {
+            if (ctCancel != null)
+            {
+                ctCancel.Cancel(false);
+            }
+        }
+
         /// <summary>
         /// Main entry point
         /// 
@@ -59,7 +69,7 @@ namespace Helium
                 }
 
                 // setup ctl c handler
-                using CancellationTokenSource ctCancel = SetupCtlCHandler();
+                ctCancel = SetupCtlCHandler();
 
                 // build the host
                 _host = await BuildHost(kvUrl, authType).ConfigureAwait(false);
