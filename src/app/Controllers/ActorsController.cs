@@ -61,12 +61,7 @@ namespace Helium.Controllers
 
             try
             {
-                pageNumber--;
-
-                if (pageNumber < 0)
-                {
-                    pageNumber = 0;
-                }
+                pageNumber = pageNumber > 1 ? pageNumber - 1 : 0;
 
                 return Ok(await _dal.GetActorsByQueryAsync(q, pageNumber * pageSize, pageSize).ConfigureAwait(false));
             }
@@ -239,6 +234,5 @@ namespace Helium.Controllers
 
             return method;
         }
-
     }
 }

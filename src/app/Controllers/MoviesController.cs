@@ -65,7 +65,7 @@ namespace Helium.Controllers
 
             try
             {
-                pageNumber--;
+                pageNumber = pageNumber > 1 ? pageNumber - 1 : 0;
 
                 return Ok(await _dal.GetMoviesByQueryAsync(q, genre, year, rating, actorId, pageNumber * pageSize, pageSize).ConfigureAwait(false));
             }
