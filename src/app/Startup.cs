@@ -113,17 +113,5 @@ namespace Helium
             // use the version middleware to handle /version
             app.UseVersion();
         }
-
-        /// <summary>
-        /// Get the path to the XML docs generated at compile time
-        /// 
-        /// Swagger uses this to annotate the documentation
-        /// </summary>
-        /// <returns>string - path to xml file</returns>
-        private static string GetXmlCommentsPath()
-        {
-            var app = Microsoft.Extensions.PlatformAbstractions.PlatformServices.Default.Application;
-            return System.IO.Path.Combine(app.ApplicationBasePath, Constants.XmlCommentsPath);
-        }
     }
 }
