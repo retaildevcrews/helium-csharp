@@ -22,14 +22,12 @@ namespace Helium.Controllers
         /// <param name="pageSize">Page Size</param>
         /// <param name="message">error message</param>
         /// <returns></returns>
-        public static bool Common(IQueryCollection query, string q, int pageNumber, int pageSize, string method, ILogger logger, out ContentResult result)
+        public static ContentResult Common(IQueryCollection query, string q, int pageNumber, int pageSize, string method, ILogger logger)
         {
-            result = null;
-
             // no query string
             if (query == null)
             {
-                return true;
+                return null;
             }
 
             // validate q (search)
@@ -37,8 +35,7 @@ namespace Helium.Controllers
             {
                 if (q == null || q.Length < 2 || q.Length > 20)
                 {
-                    result = GetAndLogBadParam("Invalid q (search) parameter", method, logger);
-                    return false;
+                    return GetAndLogBadParam("Invalid q (search) parameter", method, logger);
                 }
             }
 
@@ -47,8 +44,7 @@ namespace Helium.Controllers
             {
                 if (!int.TryParse(query["pageNumber"], out int val) || val != pageNumber || pageNumber < 1 || pageNumber > 10000)
                 {
-                    result = GetAndLogBadParam("Invalid PageNumber parameter", method, logger);
-                    return false;
+                    return GetAndLogBadParam("Invalid PageNumber parameter", method, logger);
                 }
             }
 
@@ -57,12 +53,11 @@ namespace Helium.Controllers
             {
                 if (!int.TryParse(query["pageSize"], out int val) || val != pageSize || pageSize < 1 || pageSize > 1000)
                 {
-                    result = GetAndLogBadParam("Invalid PageSize parameter", method, logger);
-                    return false;
+                    return GetAndLogBadParam("Invalid PageSize parameter", method, logger);
                 }
             }
 
-            return true;
+            return null;
         }
 
         public static ContentResult GetAndLogBadParam(string message, string method, ILogger logger)
@@ -89,20 +84,19 @@ namespace Helium.Controllers
         /// <param name="pageSize">Page Size</param>
         /// <param name="message">error message</param>
         /// <returns></returns>
-        public static bool Movies(IQueryCollection query, string q, string genre, int year, double rating, string actorId, int pageNumber, int pageSize, string method, ILogger logger, out ContentResult result)
+        public static ContentResult Movies(IQueryCollection query, string q, string genre, int year, double rating, string actorId, int pageNumber, int pageSize, string method, ILogger logger)
         {
-            result = null;
-
             // no query string
             if (query == null)
             {
-                return true;
+                return null;
             }
 
             // validate q, page number and page size
-            if (!Common(query, q, pageNumber, pageSize, method, logger, out result))
+            ContentResult result = Common(query, q, pageNumber, pageSize, method, logger);
+            if (result != null)
             {
-                return false;
+                return result;
             }
 
             // validate genre
@@ -110,8 +104,7 @@ namespace Helium.Controllers
             {
                 if (genre == null || genre.Length < 3 || genre.Length > 20)
                 {
-                    result = GetAndLogBadParam("Invalid Genre parameter", method, logger);
-                    return false;
+                    return GetAndLogBadParam("Invalid Genre parameter", method, logger);
                 }
             }
 
@@ -120,8 +113,7 @@ namespace Helium.Controllers
             {
                 if (!int.TryParse(query["year"], out int val) || val != year || year < 1874 || year > DateTime.UtcNow.Year + 5)
                 {
-                    result = GetAndLogBadParam("Invalid Year parameter", method, logger);
-                    return false;
+                    return GetAndLogBadParam("Invalid Year parameter", method, logger);
                 }
             }
 
@@ -130,21 +122,21 @@ namespace Helium.Controllers
             {
                 if (!double.TryParse(query["rating"], out double val) || val != rating || rating < 0 || rating > 10)
                 {
-                    result = GetAndLogBadParam("Invalid Rating parameter", method, logger);
-                    return false;
+                    return GetAndLogBadParam("Invalid Rating parameter", method, logger);
                 }
             }
 
             // validate actorId
             if (query.ContainsKey("actorId"))
             {
-                if (!ActorId(actorId, method, logger, out result))
+                result = ActorId(actorId, method, logger);
+                if (result != null)
                 {
-                    return false;
+                    return result;
                 }
             }
 
-            return true;
+            return null;
         }
 
         /// <summary>
@@ -153,10 +145,8 @@ namespace Helium.Controllers
         /// <param name="actorId">actorId</param>
         /// <param name="message">error message</param>
         /// <returns></returns>
-        public static bool ActorId(string actorId, string method, ILogger logger, out ContentResult result)
+        public static ContentResult ActorId(string actorId, string method, ILogger logger)
         {
-            result = null;
-
             // validate actorId
             if (actorId == null ||
                 actorId.Length < 7 ||
@@ -165,11 +155,10 @@ namespace Helium.Controllers
                 !int.TryParse(actorId.Substring(2), out int val) ||
                 val <= 0)
             {
-                result = GetAndLogBadParam("Invalid Actor ID parameter", method, logger);
-                return false;
+                return GetAndLogBadParam("Invalid Actor ID parameter", method, logger);
             }
 
-            return true;
+            return null;
         }
 
         /// <summary>
@@ -178,7 +167,7 @@ namespace Helium.Controllers
         /// <param name="movieId">movieId</param>
         /// <param name="message">error message</param>
         /// <returns></returns>
-        public static bool MovieId(string movieId, string method, ILogger logger, out ContentResult result)
+        public static ContentResult MovieId(string movieId, string method, ILogger logger)
         {
             // validate movieId
             if (movieId == null ||
@@ -188,12 +177,10 @@ namespace Helium.Controllers
                 !int.TryParse(movieId.Substring(2), out int val) ||
                 val <= 0)
             {
-                result = GetAndLogBadParam("Invalid Movie ID parameter", method, logger);
-                return false;
+                return GetAndLogBadParam("Invalid Movie ID parameter", method, logger);
             }
 
-            result = null;
-            return true;
+            return null;
         }
     }
 

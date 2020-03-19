@@ -46,7 +46,8 @@ namespace Helium.Controllers
             string method = GetMethodText(q, pageNumber, pageSize);
 
             // validate query string parameters
-            if (!ParameterValidator.Common(HttpContext?.Request?.Query, q, pageNumber, pageSize, method, _logger, out ContentResult result))
+            ContentResult result = ParameterValidator.Common(HttpContext?.Request?.Query, q, pageNumber, pageSize, method, _logger);
+            if (result != null)
             {
                 return result;
             }
@@ -72,7 +73,8 @@ namespace Helium.Controllers
             string method = "GetActorByIdAsync " + actorId;
 
             // validate actorId
-            if (!ParameterValidator.ActorId(actorId, method, _logger, out ContentResult result))
+            ContentResult result = ParameterValidator.ActorId(actorId, method, _logger);
+            if (result != null)
             {
                 return result;
             }
