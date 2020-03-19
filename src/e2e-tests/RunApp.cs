@@ -43,18 +43,18 @@ namespace UnitTests
                 res = await client.GetStringAsync("/robots.txt");
                 res = await client.GetStringAsync("/api/genres");
 
-                res = await client.GetStringAsync("/api/actors");
-                res = await client.GetStringAsync("/api/actors?q=nicole");
+                res = await client.GetStringAsync("/api/actors?pageNumber=2&pageSize=10");
+                res = await client.GetStringAsync("/api/actors?q=nicole&pageNumber=1&pageSize=10");
                 res = await client.GetStringAsync("/api/actors/nm0000173");
 
                 res = await client.GetStringAsync("/healthz");
 
-                res = await client.GetStringAsync("/api/movies");
+                res = await client.GetStringAsync("/api/movies?pageNumber=2&pageSize=10");
+                res = await client.GetStringAsync("/api/movies?q=ring&pageNumber=1&pageSize=10");
                 res = await client.GetStringAsync("/api/featured/movie");
                 res = await client.GetStringAsync("/api/movies/tt0133093");
                 res = await client.GetStringAsync("/api/movies?actorId=nm0000206");
                 res = await client.GetStringAsync("/api/movies?rating=8.5");
-                res = await client.GetStringAsync("/api/movies?q=ring");
                 res = await client.GetStringAsync("/api/movies?year=1999");
                 res = await client.GetStringAsync("/api/movies?genre=action");
                 res = await client.GetStringAsync("/healthz/ietf");
