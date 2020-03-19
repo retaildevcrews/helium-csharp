@@ -56,25 +56,6 @@ namespace Helium.Controllers
                 };
             }
 
-            catch (System.AggregateException age)
-            {
-                var root = age.GetBaseException();
-
-                if (root == null)
-                {
-                    root = age;
-                }
-
-                // log and return 500
-                _logger.LogError($"AggregateException|GetGenres|{root.GetType()}|{root.Message}|{root.Source}|{root.TargetSite}");
-
-                return new ContentResult
-                {
-                    Content = Constants.GenresControllerException,
-                    StatusCode = (int)System.Net.HttpStatusCode.InternalServerError
-                };
-            }
-
             catch (Exception ex)
             {
                 // log and return 500

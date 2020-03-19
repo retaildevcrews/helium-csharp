@@ -67,15 +67,6 @@ namespace Helium.Controllers
                 return NotFound();
             }
 
-            // movieId isn't well formed
-            catch (ArgumentException)
-            {
-                _logger.LogInformation(notFound);
-
-                // return a 404
-                return NotFound();
-            }
-
             catch (CosmosException ce)
             {
                 // CosmosDB API will throw an exception on an movieId not found
@@ -97,25 +88,6 @@ namespace Helium.Controllers
                         StatusCode = (int)ce.StatusCode
                     };
                 }
-            }
-
-            catch (System.AggregateException age)
-            {
-                var root = age.GetBaseException();
-
-                if (root == null)
-                {
-                    root = age;
-                }
-
-                // log and return 500
-                _logger.LogError($"AggregateException|{method}|{root.GetType()}|{root.Message}|{root.Source}|{root.TargetSite}");
-
-                return new ContentResult
-                {
-                    Content = Constants.FeaturedControllerException,
-                    StatusCode = (int)System.Net.HttpStatusCode.InternalServerError
-                };
             }
 
             catch (Exception e)
