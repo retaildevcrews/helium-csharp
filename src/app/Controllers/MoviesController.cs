@@ -82,25 +82,6 @@ namespace Helium.Controllers
                 };
             }
 
-            catch (AggregateException age)
-            {
-                var root = age.GetBaseException();
-
-                if (root == null)
-                {
-                    root = age;
-                }
-
-                // log and return 500
-                _logger.LogError($"AggregateException|{method}|{root.GetType()}|{root.Message}|{root.Source}|{root.TargetSite}");
-
-                return new ContentResult
-                {
-                    Content = Constants.MoviesControllerException,
-                    StatusCode = (int)System.Net.HttpStatusCode.InternalServerError
-                };
-            }
-
             catch (Exception ex)
             {
                 _logger.LogError($"{method}\n{ex}");
@@ -147,15 +128,6 @@ namespace Helium.Controllers
                 return Ok(m);
             }
 
-            // movieId isn't well formed
-            catch (ArgumentException)
-            {
-                _logger.LogInformation($"NotFound:GetMovieByIdAsync:{movieId}");
-
-                // return a 404
-                return NotFound();
-            }
-
             catch (CosmosException ce)
             {
                 // CosmosDB API will throw an exception on an movieId not found
@@ -177,25 +149,6 @@ namespace Helium.Controllers
                         StatusCode = (int)ce.StatusCode
                     };
                 }
-            }
-
-            catch (AggregateException age)
-            {
-                var root = age.GetBaseException();
-
-                if (root == null)
-                {
-                    root = age;
-                }
-
-                // log and return 500
-                _logger.LogError($"AggregateException|MovieByIdAsync|{root.GetType()}|{root.Message}|{root.Source}|{root.TargetSite}");
-
-                return new ContentResult
-                {
-                    Content = Constants.MoviesControllerException,
-                    StatusCode = (int)System.Net.HttpStatusCode.InternalServerError
-                };
             }
 
             catch (Exception e)
