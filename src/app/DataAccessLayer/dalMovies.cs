@@ -143,16 +143,21 @@ namespace Helium.DataAccessLayer
 
             string sql = "select m.movieId, m.weight from m where m.type = 'Featured'";
 
-            var query = await InternalCosmosDBSqlQuery<FeaturedMovie>(sql).ConfigureAwait(false);
-
-            foreach (FeaturedMovie f in query)
+            try
             {
-                // apply weighting
-                for (int i = 0; i < f.Weight; i++)
+                var query = await InternalCosmosDBSqlQuery<FeaturedMovie>(sql).ConfigureAwait(false);
+
+                foreach (FeaturedMovie f in query)
                 {
-                    list.Add(f.MovieId);
+                    // apply weighting
+                    for (int i = 0; i < f.Weight; i++)
+                    {
+                        list.Add(f.MovieId);
+                    }
                 }
             }
+            // ignore error and return default
+            catch { }
 
             // default to The Matrix
             if (list.Count == 0)
