@@ -46,6 +46,7 @@ namespace UnitTests
                 res = await client.GetStringAsync("/api/actors?pageNumber=2&pageSize=10");
                 res = await client.GetStringAsync("/api/actors?q=nicole&pageNumber=1&pageSize=10");
                 res = await client.GetStringAsync("/api/actors/nm0000173");
+                res = await client.GetStringAsync("/api/actors/nm0000031");
 
                 res = await client.GetStringAsync("/healthz");
 
