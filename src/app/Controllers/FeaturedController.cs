@@ -12,7 +12,6 @@ namespace Helium.Controllers
     /// <summary>
     /// Handle /api/featured/movie requests
     /// </summary>
-    [Produces("application/json")]
     [Route("api/[controller]")]
     public class FeaturedController : Controller
     {
@@ -21,7 +20,7 @@ namespace Helium.Controllers
         private readonly Random _rand = new Random(DateTime.Now.Millisecond);
 
         /// <summary>
-        ///  Constructor
+        /// Constructor
         /// </summary>
         /// <param name="logger">log instance</param>
         /// <param name="dal">data access layer instance</param>
@@ -32,13 +31,10 @@ namespace Helium.Controllers
         }
 
         /// <summary>
+        /// Returns a random movie from the featured movie list as a JSON Movie
         /// </summary>
-        /// <remarks>Returns a random movie from the featured movie list as a JSON Movie</remarks>
         /// <response code="200">OK</response>
         [HttpGet("movie")]
-        [Produces("application/json")]
-        [ProducesResponseType(typeof(Movie), 200)]
-        [ProducesResponseType(typeof(void), 404)]
         public async Task<IActionResult> GetFeaturedMovieAsync()
         {
             string method = nameof(GetFeaturedMovieAsync);

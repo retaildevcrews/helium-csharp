@@ -13,7 +13,6 @@ namespace Helium.Controllers
     /// <summary>
     /// Handle all of the /api/movies requests
     /// </summary>
-    [Produces("application/json")]
     [Route("api/[controller]")]
     public class MoviesController : Controller
     {
@@ -32,8 +31,8 @@ namespace Helium.Controllers
         }
 
         /// <summary>
+        /// Returns a JSON array of Movie objects
         /// </summary>
-        /// <remarks>Returns a JSON array of Movie objects</remarks>
         /// <param name="q">(optional) The term used to search by movie title (rings)</param>
         /// <param name="genre">(optional) Movies of a genre (Action)</param>
         /// <param name="year">(optional) Get movies by year (2005)</param>
@@ -41,10 +40,7 @@ namespace Helium.Controllers
         /// <param name="actorId">(optional) Get movies by Actor Id (nm0000704)</param>
         /// <param name="pageNumber">1 based page index</param>
         /// <param name="pageSize">page size (1000 max)</param>
-        /// <response code="200">JSON array of Movie objects or empty array if not found</response>
         [HttpGet]
-        [ProducesResponseType(typeof(Movie[]), 200)]
-        [ProducesResponseType(typeof(string), 400)]
         public async Task<IActionResult> GetMoviesAsync([FromQuery]string q = null, [FromQuery] string genre = null, [FromQuery] int year = 0, [FromQuery] double rating = 0, [FromQuery] string actorId = null, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = Constants.DefaultPageSize)
         {
             string method = GetMethodText(q, genre, year, rating, actorId, pageNumber, pageSize);
@@ -63,15 +59,11 @@ namespace Helium.Controllers
         }
 
         /// <summary>
+        /// Returns a single JSON Movie by movieId
         /// </summary>
-        /// <remarks>Returns a single JSON Movie by movieId</remarks>
         /// <param name="movieId">The movieId</param>
         /// <response code="404">movieId not found</response>
         [HttpGet("{movieId}")]
-        [Produces("application/json")]
-        [ProducesResponseType(typeof(Movie), 200)]
-        [ProducesResponseType(typeof(string), 400)]
-        [ProducesResponseType(typeof(void), 404)]
         public async System.Threading.Tasks.Task<IActionResult> GetMovieByIdAsync(string movieId)
         {
             string method = "GetMovieByIdAsync " + movieId;

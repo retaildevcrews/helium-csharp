@@ -17,7 +17,7 @@ namespace Helium.Controllers
         private readonly IDAL _dal;
 
         /// <summary>
-        ///  Constructor
+        /// Constructor
         /// </summary>
         /// <param name="logger">log instance</param>
         /// <param name="dal">data access layer instance</param>
@@ -28,12 +28,10 @@ namespace Helium.Controllers
         }
 
         /// <summary>
+        /// Returns a JSON string array of Genre
         /// </summary>
-        /// <remarks>Returns a JSON string array of Genre</remarks>
         /// <response code="200">JSON array of strings or empty array if not found</response>
         [HttpGet]
-        [Produces("application/json")]
-        [ProducesResponseType(typeof(string[]), 200)]
         public async Task<IActionResult> GetGenresAsync()
         {
             // get list of genres as list of string

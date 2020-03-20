@@ -31,16 +31,13 @@ namespace Helium.Controllers
         }
 
         /// <summary>
+        /// Returns a JSON array of Actor objects
         /// </summary>
-        /// <remarks>Returns a JSON array of Actor objects</remarks>
         /// <param name="q">(optional) The term used to search Actor name</param>
         /// <param name="pageNumber">1 based page index</param>
         /// <param name="pageSize">page size (1000 max)</param>
         /// <response code="200">JSON array of Actor objects or empty array if not found</response>
         [HttpGet]
-        [Produces("application/json")]
-        [ProducesResponseType(typeof(Actor[]), 200)]
-        [ProducesResponseType(typeof(string), 400)]
         public async Task<IActionResult> GetActorsAsync([FromQuery] string q, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = Constants.DefaultPageSize)
         {
             string method = GetMethodText(q, pageNumber, pageSize);
@@ -59,15 +56,11 @@ namespace Helium.Controllers
         }
 
         /// <summary>
+        /// Returns a single JSON Actor by actorId
         /// </summary>
-        /// <remarks>Returns a single JSON Actor by actorId</remarks>
         /// <param name="actorId">The actorId</param>
         /// <response code="404">actorId not found</response>
         [HttpGet("{actorId}")]
-        [Produces("application/json")]
-        [ProducesResponseType(typeof(Actor), 200)]
-        [ProducesResponseType(typeof(string), 400)]
-        [ProducesResponseType(typeof(void), 404)]
         public async Task<IActionResult> GetActorByIdAsync(string actorId)
         {
             string method = "GetActorByIdAsync " + actorId;
