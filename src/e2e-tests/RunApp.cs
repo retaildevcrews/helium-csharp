@@ -21,7 +21,7 @@ namespace UnitTests
         [Fact]
         public async Task RunApp()
         {
-            string[] args = new string[] { "--kvname", "bluebell-kv", "--authtype", "CLI"  };
+            string[] args = new string[] { "--kvname", "heliumtest-kv", "--authtype", "CLI"  };
 
             await Helium.App.Main(null);
             await Helium.App.Main(new string[] { "--help" });
