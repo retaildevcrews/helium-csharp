@@ -80,7 +80,7 @@ namespace UnitTests
             Assert.NotNull(badRes);
             Assert.Equal((int)System.Net.HttpStatusCode.BadRequest, badRes.StatusCode);
 
-            NotFoundResult nfRes = await _controller.GetActorByIdAsync(AssertValues.ActorById + "00").ConfigureAwait(false) as NotFoundResult;
+            ContentResult nfRes = await _controller.GetActorByIdAsync(AssertValues.ActorById + "00").ConfigureAwait(false) as ContentResult;
             Assert.NotNull(nfRes);
             Assert.Equal((int)System.Net.HttpStatusCode.NotFound, nfRes.StatusCode);
 
