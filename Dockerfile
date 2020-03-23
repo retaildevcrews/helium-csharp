@@ -1,4 +1,4 @@
-### Build and Unit Test the App
+### Build and Test the App
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS build
 
 ### Optional: Set Proxy Variables
@@ -9,13 +9,12 @@ FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS build
 # ENV no_proxy {value}
 # ENV NO_PROXY {value}
 
-### copy the source and unit tests code 
+### copy the source and tests
 COPY src /src
 
-### Run the unit tests
-# WORKDIR /src/unit-tests
-WORKDIR /src/e2e-tests
-RUN dotnet test --logger:trx
+### Run the tests
+WORKDIR /src/tests
+RUN dotnet test /p:collectcoverage=true
 
 ### Build the release app
 WORKDIR /src/app
