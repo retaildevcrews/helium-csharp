@@ -39,4 +39,5 @@ jobs:
         # testing az
         echo $PATH
         
+        az login -u ${{ secrets.DOCKER_USER }} -p ${{ secrets.DOCKER_PAT }}
         az account show -o table
