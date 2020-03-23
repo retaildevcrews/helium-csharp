@@ -13,7 +13,8 @@ FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS build
 COPY src /src
 
 ### Run the unit tests
-WORKDIR /src/unit-tests
+# WORKDIR /src/unit-tests
+WORKDIR /src/e2e-tests
 RUN dotnet test --logger:trx
 
 ### Build the release app
