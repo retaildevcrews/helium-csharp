@@ -32,13 +32,13 @@ jobs:
        
 
         ## login to dockerhub
-        echo "${{ secrets.DOCKER_PAT }}" | docker login -u ${{ secrets.DOCKER_USER }} --password-stdin -p 
+        echo "${{ secrets.DOCKER_PAT }}" | docker login -u ${{ secrets.DOCKER_USER }} --password-stdin
 
     - name: Build Container
       run: |
         # testing az
         echo $PATH
         
-        echo "${{ secrets.DOCKER_PAT }}" | az login --service-principal  -u http://helium-githubci --tenant 72f988bf-86f1-41af-91ab-2d7cd011db47
+        echo "${{ secrets.DOCKER_PAT }}" | az login --service-principal  -u http://helium-githubci --tenant 72f988bf-86f1-41af-91ab-2d7cd011db47 -p 
         az account show -o table
         az account get-access-token --output json --resource https://vault.azure.net
