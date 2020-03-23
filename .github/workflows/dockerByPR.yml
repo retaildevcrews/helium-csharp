@@ -22,23 +22,10 @@ jobs:
     steps:
     - uses: actions/checkout@v1
 
-    - name: Login to registry
-      run: |
-        # Login to registry
-
-        #    You must add the following secrets to github
-        #    DOCKER_USER  - your dockerhub user name
-        #    DOCKER_PAT   - the personal access token for dockerhub
-       
-
-        ## login to dockerhub
-        echo "${{ secrets.DOCKER_PAT }}" | docker login -u ${{ secrets.DOCKER_USER }} --password-stdin
-
     - name: Build Container
       run: |
         # testing az
         echo $PATH
         
-        az login --service-principal  -u http://helium-githubci --tenant 72f988bf-86f1-41af-91ab-2d7cd011db47 -p ${{ secrets.SERVICE_PRINCIPAL_SECRET }}
-        az account show -o table
+        az login --service-principal  -u http://helium-githubci --tenant ${{ secrets.TENANT }} -p ${{ secrets.SERVICE_PRINCIPAL_SECRET }}
         az account get-access-token --output json --resource https://vault.azure.net
