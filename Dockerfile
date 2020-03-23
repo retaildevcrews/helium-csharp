@@ -13,6 +13,9 @@ FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS build
 COPY src /src
 
 ### Run the tests
+### Our tests rely on Managed Identity
+### In order to run in the docker file, you have to setup managed identity
+### The tests run as part of CI-CD instead as part of docker build
 #WORKDIR /src/tests
 #RUN dotnet test /p:collectcoverage=true
 
