@@ -42,4 +42,5 @@ USER helium
 ### copy the app
 COPY --from=build /app .
 
+
 ENTRYPOINT [ "dotnet",  "helium.dll" ]

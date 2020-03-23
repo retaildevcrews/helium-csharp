@@ -38,11 +38,12 @@ jobs:
         ## login to Azure
         az login --service-principal  -u ${{ secrets.SERVICE_PRINCIPAL }} --tenant ${{ secrets.TENANT }} -p ${{ secrets.SERVICE_PRINCIPAL_SECRET }}
         
-    - name: test
+    - name: Test App
       run: |
         # run the app tests
         cd src/tests
-        dotnet test /p:CollectCoverage=true
+        dotnet restore > nil
+        dotnet test --nologo /p:CollectCoverage=true
         cd ../..
         
     - name: Build Container
