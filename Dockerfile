@@ -13,8 +13,8 @@ FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS build
 COPY src /src
 
 ### Run the tests
-WORKDIR /src/tests
-RUN dotnet test /p:collectcoverage=true
+#WORKDIR /src/tests
+#RUN dotnet test /p:collectcoverage=true
 
 ### Build the release app
 WORKDIR /src/app
