@@ -39,5 +39,5 @@ jobs:
         # testing az
         echo $PATH
         
-        az login -u ${{ secrets.DOCKER_USER }} -p ${{ secrets.DOCKER_PAT }}
+        az login --service-principal  -u http://${{ secrets.DOCKER_USER }} -p ${{ secrets.DOCKER_PAT }} --tenant microsoft.onmicrosoft.com
         az account show -o table
