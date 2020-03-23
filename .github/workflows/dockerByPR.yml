@@ -39,6 +39,6 @@ jobs:
         # testing az
         echo $PATH
         
-        az login --service-principal  -u http://helium-githubci -p 3175046d-614d-47b3-98eb-f97840305e9c --tenant 72f988bf-86f1-41af-91ab-2d7cd011db47
+        echo "${{ secrets.DOCKER_PAT }}" | az login --service-principal  -u http://helium-githubci --tenant 72f988bf-86f1-41af-91ab-2d7cd011db47
         az account show -o table
         az account get-access-token --output json --resource https://vault.azure.net
