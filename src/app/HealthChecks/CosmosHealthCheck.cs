@@ -106,18 +106,6 @@ namespace Helium
                 return new HealthCheckResult(HealthStatus.Unhealthy, Description, ce, data);
             }
 
-            catch (System.AggregateException age)
-            {
-                var root = age.GetBaseException() ?? age;
-
-                data.Add("AggregateException", root.Message);
-
-                // log and return unhealthy
-                _logger.LogError($"AggregateException|Healthz|{root.GetType()}|{root.Message}|{root.Source}|{root.TargetSite}");
-
-                return new HealthCheckResult(HealthStatus.Unhealthy, Description, root, data);
-            }
-
             catch (Exception ex)
             {
                 // log and return unhealthy

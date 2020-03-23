@@ -10,6 +10,7 @@ namespace Helium.Model
     public class IetfCheck
     {
         public string Status { get; set; }
+        public string ComponentId { get; set; }
         public string ComponentType { get; set; }
         public string ObservedUnit { get; set; }
         public double ObservedValue { get; set; }
@@ -35,6 +36,7 @@ namespace Helium.Model
             }
 
             Status = ToIetfStatus(hzCheck.Status);
+            ComponentId = hzCheck.ComponentId;
             ComponentType = hzCheck.ComponentType;
             ObservedValue = Math.Round(hzCheck.Duration.TotalMilliseconds, 2);
             TargetValue = Math.Round(hzCheck.TargetDuration.TotalMilliseconds, 0);
