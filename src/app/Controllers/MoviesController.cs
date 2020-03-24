@@ -73,7 +73,7 @@ namespace Helium.Controllers
             }
 
             // get movie by movieId
-            return await ResultHandler.Handle(_dal.GetMovieAsync(movieId), method, Constants.MoviesControllerException, _logger).ConfigureAwait(false);
+            return await ResultHandler.Handle(_dal.GetMovieAsync(movieId), method, "Movie Not Found", _logger).ConfigureAwait(false);
         }
 
         /// <summary>

@@ -46,7 +46,14 @@ namespace Helium.Controllers
             catch (CosmosException ce)
             {
                 // log and return Cosmos status code
-                logger.LogError($"CosmosException:{method}:{ce.StatusCode}:{ce.ActivityId}:{ce.Message}\n{ce}");
+                if (ce.StatusCode == System.Net.HttpStatusCode.NotFound)
+                {
+                    logger.LogWarning($"CosmosNotFound:{method}");
+                }
+                else
+                {
+                    logger.LogError($"CosmosException:{method}:{ce.StatusCode}:{ce.ActivityId}:{ce.Message}\n{ce}");
+                }
 
                 return CreateResult(errorMessage, (int)ce.StatusCode);
             }
@@ -57,7 +64,7 @@ namespace Helium.Controllers
                 logger.LogError($"Exception:{method}\n{ex}");
 
                 // return 500 error
-                return CreateResult(errorMessage, (int)System.Net.HttpStatusCode.InternalServerError);
+                return CreateResult("Internal Server Error", (int)System.Net.HttpStatusCode.InternalServerError);
             }
         }
 
