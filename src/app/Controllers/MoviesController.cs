@@ -1,10 +1,7 @@
 ﻿using Helium.DataAccessLayer;
-using Helium.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
-using System;
 using System.Globalization;
 using System.Threading.Tasks;
 

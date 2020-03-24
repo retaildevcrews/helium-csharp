@@ -1,8 +1,6 @@
 ﻿using Helium.DataAccessLayer;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
-using System;
 using System.Threading.Tasks;
 
 namespace Helium.Controllers

@@ -1,7 +1,5 @@
 ﻿using Helium.DataAccessLayer;
-using Helium.Model;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -40,7 +38,7 @@ namespace Helium.Controllers
             string method = nameof(GetFeaturedMovieAsync);
             _logger.LogInformation(method);
 
-            List<string> featuredMovies= await _dal.GetFeaturedMovieListAsync().ConfigureAwait(false);
+            List<string> featuredMovies = await _dal.GetFeaturedMovieListAsync().ConfigureAwait(false);
 
             if (featuredMovies != null && featuredMovies.Count > 0)
             {
