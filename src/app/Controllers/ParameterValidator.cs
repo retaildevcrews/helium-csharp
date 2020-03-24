@@ -1,10 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Helium.Controllers
 {
@@ -181,63 +178,6 @@ namespace Helium.Controllers
             }
 
             return null;
-        }
-    }
-
-    public static class ResultHandler
-    {
-        public static async Task<IActionResult> Handle<T>(Task<T> task, string method, string errorMessage, ILogger logger)
-        {
-            logger.LogInformation(method);
-
-            if (task == null)
-            {
-                logger.LogError($"Exception:{method}\ntask is null");
-
-                return new ContentResult
-                {
-                    Content = errorMessage,
-                    StatusCode = (int)System.Net.HttpStatusCode.InternalServerError
-                };
-            }
-
-            try
-            {
-                return new OkObjectResult(await task.ConfigureAwait(false));
-            }
-
-            catch (CosmosException ce)
-            {
-                // log and return Cosmos status code
-                logger.LogError($"CosmosException:{method}:{ce.StatusCode}:{ce.ActivityId}:{ce.Message}\n{ce}");
-
-                return new ContentResult
-                {
-                    Content = errorMessage,
-                    StatusCode = (int)ce.StatusCode
-                };
-            }
-
-            catch (Exception ex)
-            {
-                // log and return exception
-                logger.LogError($"Exception:{method}\n{ex}");
-
-                return new ContentResult
-                {
-                    Content = errorMessage,
-                    StatusCode = (int)System.Net.HttpStatusCode.InternalServerError
-                };
-            }
-        }
-
-        public static ContentResult CreateResult(string message, int statusCode)
-        {
-            return new ContentResult
-            {
-                Content = message,
-                StatusCode = statusCode
-            };
         }
     }
 }
