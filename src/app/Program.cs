@@ -217,7 +217,7 @@ namespace Helium
                 _logger.LogInformation("Web Server Started");
             }
 
-            Console.WriteLine($"Version: {Version.AssemblyVersion}");
+            Console.WriteLine($"Version: {Middleware.VersionExtensions.Version}");
         }
 
         /// <summary>

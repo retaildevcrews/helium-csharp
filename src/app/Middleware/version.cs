@@ -1,11 +1,12 @@
 using Microsoft.AspNetCore.Builder;
+using System.Globalization;
 
-namespace Helium
+namespace Middleware
 {
     /// <summary>
     /// Registers aspnet middleware handler that handles /version
     /// </summary>
-    public static class VersionMiddlewareExtensions
+    public static class VersionExtensions
     {
         // cached response
         static byte[] _responseBytes = null;
@@ -26,7 +27,7 @@ namespace Helium
                     // cache the version info for performance
                     if (_responseBytes == null)
                     {
-                        _responseBytes = System.Text.Encoding.UTF8.GetBytes(Version.AssemblyVersion);
+                        _responseBytes = System.Text.Encoding.UTF8.GetBytes(Middleware.VersionExtensions.Version);
                     }
 
                     // return the version info
@@ -41,6 +42,33 @@ namespace Helium
             });
 
             return builder;
+        }
+
+        // cache version info as it doesn't change
+        static string _version = string.Empty;
+
+        /// <summary>
+        /// Get the app version
+        /// </summary>
+        public static string Version
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_version))
+                {
+                    // get assembly version
+                    var aVer = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+
+                    // get file creation date time
+                    string file = System.Reflection.Assembly.GetExecutingAssembly().Location;
+                    System.DateTime dt = System.IO.File.GetCreationTime(file);
+
+                    // build semver from assembly version and file creation date
+                    _version = string.Format(CultureInfo.InvariantCulture, $"{aVer.Major}.{aVer.Minor}.{aVer.Build}+{dt.ToString("MMdd.HHmm", CultureInfo.InvariantCulture)}");
+                }
+
+                return _version;
+            }
         }
     }
 }

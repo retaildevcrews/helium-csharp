@@ -69,7 +69,7 @@ namespace Helium
 
                 // add instance and version
                 data.Add("Instance", System.Environment.GetEnvironmentVariable("WEBSITE_ROLE_INSTANCE_ID") ?? "unknown");
-                data.Add("Version", Helium.Version.AssemblyVersion);
+                data.Add("Version", Middleware.VersionExtensions.Version);
 
                 // Run each health check
                 await GetGenresAsync(data).ConfigureAwait(false);
