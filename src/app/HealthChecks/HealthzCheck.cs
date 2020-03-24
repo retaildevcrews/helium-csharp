@@ -10,6 +10,7 @@ namespace Helium.Model
     public class HealthzCheck
     {
         public HealthStatus Status { get; set; }
+        public string ComponentId { get; set; }
         public string ComponentType { get; set; }
         public TimeSpan Duration { get; set; }
         public TimeSpan TargetDuration { get; set; }

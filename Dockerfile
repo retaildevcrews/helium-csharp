@@ -1,4 +1,4 @@
-### Build and Unit Test the App
+### Build and Test the App
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS build
 
 ### Optional: Set Proxy Variables
@@ -9,12 +9,15 @@ FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS build
 # ENV no_proxy {value}
 # ENV NO_PROXY {value}
 
-### copy the source and unit tests code 
+### copy the source and tests
 COPY src /src
 
-### Run the unit tests
-WORKDIR /src/unit-tests
-RUN dotnet test --logger:trx
+### Run the tests
+### Our tests rely on Managed Identity
+### In order to run in the docker file, you have to setup managed identity
+### The tests run as part of CI-CD instead as part of docker build
+#WORKDIR /src/tests
+#RUN dotnet test /p:collectcoverage=true
 
 ### Build the release app
 WORKDIR /src/app
@@ -41,5 +44,6 @@ USER helium
 
 ### copy the app
 COPY --from=build /app .
+
 
 ENTRYPOINT [ "dotnet",  "helium.dll" ]

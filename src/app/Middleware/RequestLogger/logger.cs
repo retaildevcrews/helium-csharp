@@ -1,5 +1,4 @@
 ﻿using Helium.Model;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
@@ -7,40 +6,8 @@ using System;
 using System.Globalization;
 using System.Threading.Tasks;
 
-namespace Helium
+namespace Middleware
 {
-    /// <summary>
-    /// Logger options used to configure DI
-    /// </summary>
-    public class LoggerOptions
-    {
-        public bool Log2xx { get; set; } = true;
-        public bool Log3xx { get; set; } = true;
-        public bool Log4xx { get; set; } = true;
-        public bool Log5xx { get; set; } = true;
-        public double TargetMs { get; set; } = 250;
-    }
-
-    /// <summary>
-    /// Middleware extension to make registering Logger easy
-    /// 
-    /// Note: Logger should be one of the first things registered in DI
-    /// </summary>
-    public static class LoggerMiddlewareExtensions
-    {
-        public static IApplicationBuilder UseLogger(this IApplicationBuilder builder, LoggerOptions options = null)
-        {
-            // extension - use app.UseMyLogger();
-
-            if (options == null)
-            {
-                options = new LoggerOptions();
-            }
-
-            return builder.UseMiddleware<Logger>(Options.Create<LoggerOptions>(options));
-        }
-    }
-
     /// <summary>
     /// Simple aspnet core middleware that logs requests to the console
     /// </summary>

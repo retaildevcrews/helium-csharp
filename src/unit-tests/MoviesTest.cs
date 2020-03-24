@@ -131,7 +131,7 @@ namespace UnitTests
         public async Task GetMovieByIdFail()
         {
             // this will fail GetPartitionKey
-            NotFoundResult nfRes = await _controller.GetMovieByIdAsync(AssertValues.MovieById + "00").ConfigureAwait(false) as NotFoundResult;
+            ContentResult nfRes = await _controller.GetMovieByIdAsync(AssertValues.MovieById + "00").ConfigureAwait(false) as ContentResult;
 
             Assert.NotNull(nfRes);
             Assert.Equal((int)System.Net.HttpStatusCode.NotFound, nfRes.StatusCode);

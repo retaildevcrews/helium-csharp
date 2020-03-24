@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Middleware;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -31,6 +32,7 @@ namespace Helium
         /// <param name="services">The services in the web host</param>
         public void ConfigureServices(IServiceCollection services)
         {
+            // set json serialization defaults
             services.AddControllers().AddJsonOptions(options =>
             {
                 options.JsonSerializerOptions.IgnoreNullValues = true;
@@ -42,19 +44,6 @@ namespace Helium
 
             // add healthcheck service
             services.AddHealthChecks().AddCosmosHealthCheck(CosmosHealthCheck.ServiceId);
-
-            // configure Swagger
-            // Uncomment this if you want to automatically generate the swagger json from the XML comments
-            //services.ConfigureSwaggerGen(options =>
-            //{
-            //    options.IncludeXmlComments(GetXmlCommentsPath());
-            //});
-
-            //// Register the Swagger generator, defining one or more Swagger documents
-            //services.AddSwaggerGen(c =>
-            //{
-            //    c.SwaggerDoc(Constants.SwaggerName, new OpenApiInfo { Title = Constants.SwaggerTitle, Version = Constants.SwaggerVersion });
-            //});
 
             // add App Insights if key set
             string appInsightsKey = Configuration.GetValue<string>(Constants.AppInsightsKey);
@@ -75,7 +64,7 @@ namespace Helium
         {
             // log 4xx and 5xx results to console
             // this should be first as it "wraps" all requests
-            app.UseLogger(new LoggerOptions { TargetMs = 800, Log2xx = false, Log3xx = false });
+            app.UseLogger(new LoggerOptions { TargetMs = 800, Log2xx = false, Log3xx = false, Log4xx = true, Log5xx = true });
 
             // differences based on dev or prod
             if (env.IsDevelopment())
@@ -96,10 +85,6 @@ namespace Helium
             // map the controllers
             app.UseEndpoints(ep => { ep.MapControllers(); });
 
-            // Enable middleware to serve generated Swagger as a JSON endpoint.
-            // uncomment this if you want to auto generate swagger json
-            // app.UseSwagger();
-
             // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.), specifying the Swagger JSON endpoint.
             app.UseSwaggerUI(c =>
             {
@@ -112,18 +97,6 @@ namespace Helium
 
             // use the version middleware to handle /version
             app.UseVersion();
-        }
-
-        /// <summary>
-        /// Get the path to the XML docs generated at compile time
-        /// 
-        /// Swagger uses this to annotate the documentation
-        /// </summary>
-        /// <returns>string - path to xml file</returns>
-        private static string GetXmlCommentsPath()
-        {
-            var app = Microsoft.Extensions.PlatformAbstractions.PlatformServices.Default.Application;
-            return System.IO.Path.Combine(app.ApplicationBasePath, Constants.XmlCommentsPath);
         }
     }
 }

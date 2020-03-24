@@ -69,7 +69,7 @@ namespace Helium
 
                 // add instance and version
                 data.Add("Instance", System.Environment.GetEnvironmentVariable("WEBSITE_ROLE_INSTANCE_ID") ?? "unknown");
-                data.Add("Version", Helium.Version.AssemblyVersion);
+                data.Add("Version", Middleware.VersionExtensions.Version);
 
                 // Run each health check
                 await GetGenresAsync(data).ConfigureAwait(false);
@@ -104,18 +104,6 @@ namespace Helium
                 data.Add("CosmosException", ce.Message);
 
                 return new HealthCheckResult(HealthStatus.Unhealthy, Description, ce, data);
-            }
-
-            catch (System.AggregateException age)
-            {
-                var root = age.GetBaseException() ?? age;
-
-                data.Add("AggregateException", root.Message);
-
-                // log and return unhealthy
-                _logger.LogError($"AggregateException|Healthz|{root.GetType()}|{root.Message}|{root.Source}|{root.TargetSite}");
-
-                return new HealthCheckResult(HealthStatus.Unhealthy, Description, root, data);
             }
 
             catch (Exception ex)

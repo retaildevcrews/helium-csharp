@@ -37,7 +37,7 @@ FROM helium-dev-base
 ### if port is changed, also update value in Constants.cs
 EXPOSE 4120
 
-### copy the source and unit tests
+### copy the source and tests
 COPY src /src
 
 WORKDIR /src/app

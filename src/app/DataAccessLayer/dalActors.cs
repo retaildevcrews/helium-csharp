@@ -13,8 +13,7 @@ namespace Helium.DataAccessLayer
     {
         // select template for Actors
         const string _actorSelect = "select m.id, m.partitionKey, m.actorId, m.type, m.name, m.birthYear, m.deathYear, m.profession, m.textSearch, m.movies from m where m.type = 'Actor' ";
-//        const string _actorOrderBy = " order by m.textSearch ASC, m.actorId ASC";
-        const string _actorOrderBy = " order by m.textSearch";
+        const string _actorOrderBy = " order by m.textSearch ASC, m.actorId ASC";
         const string _actorOffset = " offset {0} limit {1}";
 
         /// <summary>

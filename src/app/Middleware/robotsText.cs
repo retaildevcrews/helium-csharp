@@ -1,12 +1,12 @@
 using Microsoft.AspNetCore.Builder;
 using System;
 
-namespace Helium
+namespace Middleware
 {
     /// <summary>
     /// Register robots middleware
     /// </summary>
-    public static class RobotsMiddlewareExtensions
+    public static class RobotsExtensions
     {
         // response that prevents all indexing
         static readonly byte[] _responseBytes = System.Text.Encoding.UTF8.GetBytes("# Prevent indexing\r\nUser-agent: *\r\nDisallow: /\r\n");

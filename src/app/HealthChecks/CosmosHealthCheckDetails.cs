@@ -33,7 +33,8 @@ namespace Helium
                 Status = HealthStatus.Healthy,
                 Duration = stopwatch.Elapsed,
                 TargetDuration = new System.TimeSpan(0, 0, 0, 0, (int)targetDurationMs),
-                ComponentType = "CosmosDB"
+                ComponentId = testName,
+                ComponentType = "datastore"
             };
 
             // check duration
@@ -53,7 +54,7 @@ namespace Helium
             // add the results to the dictionary
             if (data != null && !string.IsNullOrEmpty(testName))
             {
-                data.Add(testName, result);
+                data.Add(testName + ":responseTime", result);
             }
 
             return result;

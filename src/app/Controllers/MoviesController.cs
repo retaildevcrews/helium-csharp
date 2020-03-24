@@ -1,10 +1,7 @@
 ﻿using Helium.DataAccessLayer;
-using Helium.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
-using System;
 using System.Globalization;
 using System.Threading.Tasks;
 
@@ -13,7 +10,6 @@ namespace Helium.Controllers
     /// <summary>
     /// Handle all of the /api/movies requests
     /// </summary>
-    [Produces("application/json")]
     [Route("api/[controller]")]
     public class MoviesController : Controller
     {
@@ -32,8 +28,8 @@ namespace Helium.Controllers
         }
 
         /// <summary>
+        /// Returns a JSON array of Movie objects
         /// </summary>
-        /// <remarks>Returns a JSON array of Movie objects</remarks>
         /// <param name="q">(optional) The term used to search by movie title (rings)</param>
         /// <param name="genre">(optional) Movies of a genre (Action)</param>
         /// <param name="year">(optional) Get movies by year (2005)</param>
@@ -41,174 +37,43 @@ namespace Helium.Controllers
         /// <param name="actorId">(optional) Get movies by Actor Id (nm0000704)</param>
         /// <param name="pageNumber">1 based page index</param>
         /// <param name="pageSize">page size (1000 max)</param>
-        /// <response code="200">JSON array of Movie objects or empty array if not found</response>
         [HttpGet]
-        [ProducesResponseType(typeof(Movie[]), 200)]
-        [ProducesResponseType(typeof(string), 400)]
         public async Task<IActionResult> GetMoviesAsync([FromQuery]string q = null, [FromQuery] string genre = null, [FromQuery] int year = 0, [FromQuery] double rating = 0, [FromQuery] string actorId = null, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = Constants.DefaultPageSize)
         {
-            string method = GetMethod(q, genre, year, rating, actorId, pageNumber, pageSize);
+            string method = GetMethodText(q, genre, year, rating, actorId, pageNumber, pageSize);
 
             // validate query string parameters
-            if (!ParameterValidator.Movies(HttpContext?.Request?.Query, q, genre, year, rating, actorId, pageNumber, pageSize, out string message))
+            ContentResult result = ParameterValidator.Movies(HttpContext?.Request?.Query, q, genre, year, rating, actorId, pageNumber, pageSize, method, _logger);
+            if (result != null)
             {
-                _logger.LogWarning($"InvalidParameter|{method}|{message}");
-
-                return new ContentResult
-                {
-                    Content = message,
-                    StatusCode = (int)System.Net.HttpStatusCode.BadRequest
-                };
+                return result;
             }
 
-            _logger.LogInformation(method);
+            // convert to zero based page index
+            pageNumber = pageNumber > 1 ? pageNumber - 1 : 0;
 
-            try
-            {
-                pageNumber--;
-
-                return Ok(await _dal.GetMoviesByQueryAsync(q, genre, year, rating, actorId, pageNumber * pageSize, pageSize).ConfigureAwait(false));
-            }
-
-            catch (CosmosException ce)
-            {
-                // log and return Cosmos status code
-                _logger.LogError($"CosmosException:{method}:{ce.StatusCode}:{ce.ActivityId}:{ce.Message}\n{ce}");
-
-                return new ContentResult
-                {
-                    Content = Constants.MoviesControllerException,
-                    StatusCode = (int)ce.StatusCode
-                };
-            }
-
-            catch (AggregateException age)
-            {
-                var root = age.GetBaseException();
-
-                if (root == null)
-                {
-                    root = age;
-                }
-
-                // log and return 500
-                _logger.LogError($"AggregateException|{method}|{root.GetType()}|{root.Message}|{root.Source}|{root.TargetSite}");
-
-                return new ContentResult
-                {
-                    Content = Constants.MoviesControllerException,
-                    StatusCode = (int)System.Net.HttpStatusCode.InternalServerError
-                };
-            }
-
-            catch (Exception ex)
-            {
-                _logger.LogError($"{method}\n{ex}");
-
-                return new ContentResult
-                {
-                    Content = Constants.MoviesControllerException,
-                    StatusCode = (int)System.Net.HttpStatusCode.InternalServerError
-                };
-            }
+            return await ResultHandler.Handle(_dal.GetMoviesByQueryAsync(q, genre, year, rating, actorId, pageNumber * pageSize, pageSize), method, Constants.MoviesControllerException, _logger).ConfigureAwait(false);
         }
 
         /// <summary>
+        /// Returns a single JSON Movie by movieId
         /// </summary>
-        /// <remarks>Returns a single JSON Movie by movieId</remarks>
         /// <param name="movieId">The movieId</param>
         /// <response code="404">movieId not found</response>
         [HttpGet("{movieId}")]
-        [Produces("application/json")]
-        [ProducesResponseType(typeof(Movie), 200)]
-        [ProducesResponseType(typeof(string), 400)]
-        [ProducesResponseType(typeof(void), 404)]
         public async System.Threading.Tasks.Task<IActionResult> GetMovieByIdAsync(string movieId)
         {
-            _logger.LogInformation($"GetMovieByIdAsync {movieId}");
+            string method = "GetMovieByIdAsync " + movieId;
 
-            if (!ParameterValidator.MovieId(movieId, out string message))
+            // validate movieId
+            ContentResult result = ParameterValidator.MovieId(movieId, method, _logger);
+            if (result != null)
             {
-                _logger.LogWarning($"GetMovieByIdAsync|{movieId}|{message}");
-
-                return new ContentResult
-                {
-                    Content = message,
-                    StatusCode = (int)System.Net.HttpStatusCode.BadRequest
-                };
+                return result;
             }
 
-            try
-            {
-                // get movie by movieId
-                // CosmosDB API will throw an exception on a bad movieId
-                Movie m = await _dal.GetMovieAsync(movieId).ConfigureAwait(false);
-
-                return Ok(m);
-            }
-
-            // movieId isn't well formed
-            catch (ArgumentException)
-            {
-                _logger.LogInformation($"NotFound:GetMovieByIdAsync:{movieId}");
-
-                // return a 404
-                return NotFound();
-            }
-
-            catch (CosmosException ce)
-            {
-                // CosmosDB API will throw an exception on an movieId not found
-                if (ce.StatusCode == System.Net.HttpStatusCode.NotFound)
-                {
-                    _logger.LogInformation($"NotFound:GetMovieByIdAsync:{movieId}");
-
-                    // return a 404
-                    return NotFound();
-                }
-                else
-                {
-                    // log and return Cosmos status code
-                    _logger.LogError($"CosmosException:MovieByIdAsync:{ce.StatusCode}:{ce.ActivityId}:{ce.Message}\n{ce}");
-
-                    return new ContentResult
-                    {
-                        Content = Constants.MoviesControllerException,
-                        StatusCode = (int)ce.StatusCode
-                    };
-                }
-            }
-
-            catch (AggregateException age)
-            {
-                var root = age.GetBaseException();
-
-                if (root == null)
-                {
-                    root = age;
-                }
-
-                // log and return 500
-                _logger.LogError($"AggregateException|MovieByIdAsync|{root.GetType()}|{root.Message}|{root.Source}|{root.TargetSite}");
-
-                return new ContentResult
-                {
-                    Content = Constants.MoviesControllerException,
-                    StatusCode = (int)System.Net.HttpStatusCode.InternalServerError
-                };
-            }
-
-            catch (Exception e)
-            {
-                // log and return 500
-                _logger.LogError($"Exception:GetActorByIdAsync:{e.Message}\n{e}");
-
-                return new ContentResult
-                {
-                    Content = Constants.MoviesControllerException,
-                    StatusCode = (int)System.Net.HttpStatusCode.InternalServerError
-                };
-            }
+            // get movie by movieId
+            return await ResultHandler.Handle(_dal.GetMovieAsync(movieId), method, "Movie Not Found", _logger).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -222,7 +87,7 @@ namespace Helium.Controllers
         /// <param name="pageNumber"></param>
         /// <param name="pageSize"></param>
         /// <returns></returns>
-        private string GetMethod(string q, string genre, int year, double rating, string actorId, int pageNumber, int pageSize)
+        private string GetMethodText(string q, string genre, int year, double rating, string actorId, int pageNumber, int pageSize)
         {
             string method = "GetMovies";
 

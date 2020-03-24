@@ -1,9 +1,6 @@
 ﻿using Helium.DataAccessLayer;
-using Helium.Model;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
-using System;
 using System.Globalization;
 using System.Threading.Tasks;
 
@@ -31,182 +28,49 @@ namespace Helium.Controllers
         }
 
         /// <summary>
+        /// Returns a JSON array of Actor objects
         /// </summary>
-        /// <remarks>Returns a JSON array of Actor objects</remarks>
         /// <param name="q">(optional) The term used to search Actor name</param>
         /// <param name="pageNumber">1 based page index</param>
         /// <param name="pageSize">page size (1000 max)</param>
         /// <response code="200">JSON array of Actor objects or empty array if not found</response>
         [HttpGet]
-        [Produces("application/json")]
-        [ProducesResponseType(typeof(Actor[]), 200)]
-        [ProducesResponseType(typeof(string), 400)]
         public async Task<IActionResult> GetActorsAsync([FromQuery] string q, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = Constants.DefaultPageSize)
         {
-            string method = GetMethod(q, pageNumber, pageSize);
+            string method = GetMethodText(q, pageNumber, pageSize);
 
             // validate query string parameters
-            if (!ParameterValidator.Common(HttpContext?.Request?.Query, q, pageNumber, pageSize, out string message))
+            ContentResult result = ParameterValidator.Common(HttpContext?.Request?.Query, q, pageNumber, pageSize, method, _logger);
+            if (result != null)
             {
-                _logger.LogWarning($"InvalidParameter|{method}|{message}");
-
-                return new ContentResult
-                {
-                    Content = message,
-                    StatusCode = (int)System.Net.HttpStatusCode.BadRequest
-                };
+                return result;
             }
 
-            _logger.LogInformation(method);
+            // convert to zero based index
+            pageNumber = pageNumber > 1 ? pageNumber - 1 : 0;
 
-            try
-            {
-                pageNumber--;
-
-                if (pageNumber < 0)
-                {
-                    pageNumber = 0;
-                }
-
-                return Ok(await _dal.GetActorsByQueryAsync(q, pageNumber * pageSize, pageSize).ConfigureAwait(false));
-            }
-
-            catch (CosmosException ce)
-            {
-                // log and return Cosmos status code
-                _logger.LogError($"CosmosException:{method}:{ce.StatusCode}:{ce.ActivityId}:{ce.Message}\n{ce}");
-
-                return new ContentResult
-                {
-                    Content = Constants.ActorsControllerException,
-                    StatusCode = (int)ce.StatusCode
-                };
-            }
-
-            catch (System.AggregateException age)
-            {
-                var root = age.GetBaseException();
-
-                if (root == null)
-                {
-                    root = age;
-                }
-
-                // log and return 500
-                _logger.LogError($"AggregateException|{method}|{root.GetType()}|{root.Message}|{root.Source}|{root.TargetSite}");
-
-                return new ContentResult
-                {
-                    Content = Constants.ActorsControllerException,
-                    StatusCode = (int)System.Net.HttpStatusCode.InternalServerError
-                };
-            }
-
-            catch (Exception ex)
-            {
-                _logger.LogError($"Exception:{method}\n{ex}");
-
-                return new ContentResult
-                {
-                    Content = Constants.ActorsControllerException,
-                    StatusCode = (int)System.Net.HttpStatusCode.InternalServerError
-                };
-            }
+            return await ResultHandler.Handle(_dal.GetActorsByQueryAsync(q, pageNumber * pageSize, pageSize), method, Constants.ActorsControllerException, _logger).ConfigureAwait(false);
         }
 
         /// <summary>
+        /// Returns a single JSON Actor by actorId
         /// </summary>
-        /// <remarks>Returns a single JSON Actor by actorId</remarks>
         /// <param name="actorId">The actorId</param>
         /// <response code="404">actorId not found</response>
         [HttpGet("{actorId}")]
-        [Produces("application/json")]
-        [ProducesResponseType(typeof(Actor), 200)]
-        [ProducesResponseType(typeof(string), 400)]
-        [ProducesResponseType(typeof(void), 404)]
         public async Task<IActionResult> GetActorByIdAsync(string actorId)
         {
-            _logger.LogInformation($"GetActorByIdAsync {actorId}");
+            string method = "GetActorByIdAsync " + actorId;
 
-            if (!ParameterValidator.ActorId(actorId, out string message))
+            // validate actorId
+            ContentResult result = ParameterValidator.ActorId(actorId, method, _logger);
+            if (result != null)
             {
-                _logger.LogWarning($"GetActorByIdAsync|{actorId}|{message}");
-
-                return new ContentResult
-                {
-                    Content = message,
-                    StatusCode = (int)System.Net.HttpStatusCode.BadRequest
-                };
+                return result;
             }
 
-            try
-            {
-                // get a single actor
-                return Ok(await _dal.GetActorAsync(actorId).ConfigureAwait(false));
-            }
-
-            // actorId isn't well formed
-            catch (ArgumentException)
-            {
-                _logger.LogInformation($"NotFound:GetActorByIdAsync:{actorId}");
-
-                // return a 404
-                return NotFound();
-            }
-
-            catch (CosmosException ce)
-            {
-                // CosmosDB API will throw an exception on an actorId not found
-                if (ce.StatusCode == System.Net.HttpStatusCode.NotFound)
-                {
-                    _logger.LogInformation($"NotFound:GetActorByIdAsync:{actorId}");
-
-                    // return a 404
-                    return NotFound();
-                }
-                else
-                {
-                    // log and return Cosmos status code
-                    _logger.LogError($"CosmosException:GetActorByIdAsync:{ce.StatusCode}:{ce.ActivityId}:{ce.Message}\n{ce}");
-
-                    return new ContentResult
-                    {
-                        Content = Constants.ActorsControllerException,
-                        StatusCode = (int)ce.StatusCode
-                    };
-                }
-            }
-
-            catch (System.AggregateException age)
-            {
-                var root = age.GetBaseException();
-
-                if (root == null)
-                {
-                    root = age;
-                }
-
-                // log and return 500
-                _logger.LogError($"AggregateException|GetActorByIdAsync|{root.GetType()}|{root.Message}|{root.Source}|{root.TargetSite}");
-
-                return new ContentResult
-                {
-                    Content = Constants.ActorsControllerException,
-                    StatusCode = (int)System.Net.HttpStatusCode.InternalServerError
-                };
-            }
-
-            // log and return 500
-            catch (Exception e)
-            {
-                _logger.LogError($"Exception:GetActorByIdAsync:{e.Message}\n{e}");
-
-                return new ContentResult
-                {
-                    Content = Constants.ActorsControllerException,
-                    StatusCode = (int)System.Net.HttpStatusCode.InternalServerError
-                };
-            }
+            // return result
+            return await ResultHandler.Handle(_dal.GetActorAsync(actorId), method, "Actor Not Found", _logger).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -216,7 +80,7 @@ namespace Helium.Controllers
         /// <param name="pageNumber"></param>
         /// <param name="pageSize"></param>
         /// <returns></returns>
-        private string GetMethod(string q, int pageNumber, int pageSize)
+        private string GetMethodText(string q, int pageNumber, int pageSize)
         {
             string method = "GetActorsAsync";
 
@@ -239,6 +103,5 @@ namespace Helium.Controllers
 
             return method;
         }
-
     }
 }

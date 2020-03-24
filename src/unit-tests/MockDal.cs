@@ -1,5 +1,6 @@
 using Helium.DataAccessLayer;
 using Helium.Model;
+using Microsoft.Azure.Cosmos;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System;
@@ -64,7 +65,7 @@ namespace UnitTests
             }
         }
 
-        public Task<Actor> GetActorAsync(string actorId)
+        public async Task<Actor> GetActorAsync(string actorId)
         {
             string pk = Helium.DataAccessLayer.DAL.GetPartitionKey(actorId);
 
@@ -72,11 +73,13 @@ namespace UnitTests
             {
                 if (a.ActorId == actorId)
                 {
-                    return Task<Actor>.Factory.StartNew(() => { return a; });
+                    return a;
                 }
             }
 
-            throw new ArgumentException("NotFound");
+            // throw not found exception
+            await Task.Delay(100);
+            throw new CosmosException("Not found", System.Net.HttpStatusCode.NotFound, 404, "mock", 0);
         }
 
         public Task<IEnumerable<Actor>> GetActorsAsync(int offset = 0, int limit = 0)
@@ -89,7 +92,7 @@ namespace UnitTests
             // string.empty is valid, but null is not
             if (q == null)
             {
-                throw new ArgumentNullException(nameof(q));
+                q = string.Empty;
             }
 
             List<Actor> res = new List<Actor>();
@@ -110,7 +113,7 @@ namespace UnitTests
             return Task<IEnumerable<string>>.Factory.StartNew(() => { return Genres; });
         }
 
-        public Task<Movie> GetMovieAsync(string movieId)
+        public async Task<Movie> GetMovieAsync(string movieId)
         {
             string pk = Helium.DataAccessLayer.DAL.GetPartitionKey(movieId);
 
@@ -118,11 +121,13 @@ namespace UnitTests
             {
                 if (m.MovieId == movieId)
                 {
-                    return Task<Movie>.Factory.StartNew(() => { return m; });
+                    return m;
                 }
             }
 
-            throw new ArgumentException("NotFound");
+            // throw an exception
+            await Task.Delay(100);
+            throw new CosmosException("Not found", System.Net.HttpStatusCode.NotFound, 404, "mock", 0);
         }
 
         public Task<IEnumerable<Movie>> GetMoviesAsync(int offset = 0, int limit = 0)
