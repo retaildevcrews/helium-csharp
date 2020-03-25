@@ -1,5 +1,5 @@
 ### Build and Test the App
-FROM mcr.microsoft.com/dotnet/core/sdk:3.1-alpine AS build
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS build
 
 ### Optional: Set Proxy Variables
 # ENV http_proxy {value}
@@ -33,8 +33,9 @@ EXPOSE 4120
 WORKDIR /app
 
 ### create a user
-RUN adduser -S helium && \
-    ### dotnet needs a home directory
+### dotnet needs a home directory
+RUN addgroup -S helium && \
+    adduser -S helium -G helium && \
     mkdir -p /home/helium && \
     chown -R helium:helium /home/helium
 
