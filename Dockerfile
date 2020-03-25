@@ -1,5 +1,5 @@
 ### Build and Test the App
-FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS build
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1-alpine AS build
 
 ### Optional: Set Proxy Variables
 # ENV http_proxy {value}
@@ -26,16 +26,15 @@ RUN dotnet publish -c Release -o /app
 ###########################################################
 
 ### Build the runtime container
-FROM mcr.microsoft.com/dotnet/core/aspnet:3.1 AS runtime
+FROM mcr.microsoft.com/dotnet/core/aspnet:3.1-alpine AS runtime
 
 ### if port is changed, also update value in Constants.cs
 EXPOSE 4120
 WORKDIR /app
 
 ### create a user
-RUN groupadd -g 4120 helium && \
-    useradd -r  -u 4120 -g helium helium && \
-    ### dotnet needs a home directory for the secret store
+RUN adduser -S helium && \
+    ### dotnet needs a home directory
     mkdir -p /home/helium && \
     chown -R helium:helium /home/helium
 
@@ -44,6 +43,5 @@ USER helium
 
 ### copy the app
 COPY --from=build /app .
-
 
 ENTRYPOINT [ "dotnet",  "helium.dll" ]
