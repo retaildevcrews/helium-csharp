@@ -26,16 +26,16 @@ RUN dotnet publish -c Release -o /app
 ###########################################################
 
 ### Build the runtime container
-FROM mcr.microsoft.com/dotnet/core/aspnet:3.1 AS runtime
+FROM mcr.microsoft.com/dotnet/core/aspnet:3.1-alpine AS runtime
 
 ### if port is changed, also update value in Constants.cs
 EXPOSE 4120
 WORKDIR /app
 
 ### create a user
-RUN groupadd -g 4120 helium && \
-    useradd -r  -u 4120 -g helium helium && \
-    ### dotnet needs a home directory for the secret store
+### dotnet needs a home directory
+RUN addgroup -S helium && \
+    adduser -S helium -G helium && \
     mkdir -p /home/helium && \
     chown -R helium:helium /home/helium
 
@@ -44,6 +44,5 @@ USER helium
 
 ### copy the app
 COPY --from=build /app .
-
 
 ENTRYPOINT [ "dotnet",  "helium.dll" ]

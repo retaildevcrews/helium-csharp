@@ -39,6 +39,17 @@ jobs:
         ## login to dockerhub
         echo "${{ secrets.DOCKER_PAT }}" | docker login -u ${{ secrets.DOCKER_USER }} --password-stdin
 
+        ## login to Azure
+        az login --service-principal  -u ${{ secrets.SERVICE_PRINCIPAL }} --tenant ${{ secrets.TENANT }} -p ${{ secrets.SERVICE_PRINCIPAL_SECRET }}
+        
+    - name: Test App
+      run: |
+        # run the app tests
+        cd src/tests
+        dotnet restore > nil
+        dotnet test --nologo /p:CollectCoverage=true
+        cd ../..
+        
     - name: Build Container
       run: docker build . --file Dockerfile --tag image
 
