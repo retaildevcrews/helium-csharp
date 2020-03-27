@@ -71,10 +71,15 @@ namespace Helium
                 // setup ctl c handler
                 ctCancel = SetupCtlCHandler();
 
+                // don't start the web server
+                if (dryRun)
+                {
+                    return 0;
+                }
+
                 // build the host
                 _host = await BuildHost(kvUrl, authType).ConfigureAwait(false);
 
-                //
                 if (_host == null)
                 {
                     Usage();
@@ -83,12 +88,6 @@ namespace Helium
 
                 // log startup messages
                 LogStartup();
-
-                // don't start the web server
-                if (dryRun)
-                {
-                    return 0;
-                }
 
                 // start the webserver
                 var w = _host.RunAsync();
