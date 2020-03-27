@@ -55,7 +55,7 @@ namespace Helium
                 }
 
                 // get key vault config from env vars / command line
-                if (!ProcessArgs(args, out string kvUrl, out string authType, out bool helpFlag))
+                if (!ProcessArgs(args, out string kvUrl, out string authType, out bool helpFlag, out bool dryRun))
                 {
                     Usage();
                     return -1;
@@ -83,6 +83,12 @@ namespace Helium
 
                 // log startup messages
                 LogStartup();
+
+                // don't start the web server
+                if (dryRun)
+                {
+                    return 0;
+                }
 
                 // start the webserver
                 var w = _host.RunAsync();
@@ -374,10 +380,11 @@ namespace Helium
         /// <param name="authType">out Authentication Type</param>
         /// <param name="helpFlag">out Display Usage</param>
         /// <returns>authentication type (MSI (default), CLI, VS)</returns>
-        public static bool ProcessArgs(string[] args, out string kvUrl, out string authType, out bool helpFlag)
+        public static bool ProcessArgs(string[] args, out string kvUrl, out string authType, out bool helpFlag, out bool dryRun)
         {
             kvUrl = null;
             helpFlag = false;
+            dryRun = false;
 
             // get the key vault name from the environment variable
             string kvName = Environment.GetEnvironmentVariable(Constants.KeyVaultName);
@@ -427,6 +434,10 @@ namespace Helium
                             return false;
                         }
                         authType = args[i].Trim();
+                        break;
+
+                    case "--DRY-RUN":
+                        dryRun = true;
                         break;
 
                     default:
@@ -485,6 +496,7 @@ namespace Helium
             Console.WriteLine("\t\t--kvname - name or URL of the key vault");
             Console.WriteLine("\tOptional");
             Console.WriteLine("\t\t-h --help - display usage help");
+            Console.WriteLine("\t\t--dry-run - validate config but do not start web server");
             Console.WriteLine("\t\t--authtype - Authentication Type to use");
             Console.WriteLine("\t\t\tMSI (default)");
             Console.WriteLine("\t\t\tCLI");
