@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace KeyVault.Extensions
 {
@@ -12,33 +13,52 @@ namespace KeyVault.Extensions
         /// </summary>
         /// <param name="name">Key Vault Name</param>
         /// <returns>URL to Key Vault</returns>
-        public static string BuildKeyVaultConnectionString(string name)
+        public static bool BuildKeyVaultConnectionString(string name, out string keyvaultConnection)
         {
-            string kvUrl = name?.Trim();
+            keyvaultConnection = name?.Trim();
 
             // name is required
-            if (string.IsNullOrEmpty(kvUrl))
+            if (string.IsNullOrEmpty(keyvaultConnection))
             {
-                throw new System.ArgumentNullException(nameof(name));
+                return false;
             }
 
             // build the URL
-            if (!kvUrl.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+            if (!keyvaultConnection.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
             {
-                kvUrl = "https://" + kvUrl;
+                keyvaultConnection = "https://" + keyvaultConnection;
             }
 
-            if (!kvUrl.EndsWith(".vault.azure.net/", StringComparison.OrdinalIgnoreCase) && !kvUrl.EndsWith(".vault.azure.net", StringComparison.OrdinalIgnoreCase))
+            if (!keyvaultConnection.EndsWith(".vault.azure.net/", StringComparison.OrdinalIgnoreCase) && !keyvaultConnection.EndsWith(".vault.azure.net", StringComparison.OrdinalIgnoreCase))
             {
-                kvUrl += ".vault.azure.net/";
+                keyvaultConnection += ".vault.azure.net/";
             }
 
-            if (!kvUrl.EndsWith("/", StringComparison.OrdinalIgnoreCase))
+            if (!keyvaultConnection.EndsWith("/", StringComparison.OrdinalIgnoreCase))
             {
-                kvUrl += "/";
+                keyvaultConnection += "/";
             }
 
-            return kvUrl;
+            return true;
+        }
+
+        /// <summary>
+        /// Get the Key Vault config from the environment variable or command line
+        /// </summary>
+        /// <param name="authType">out Authentication Type</param>
+        /// <returns>bool</returns>
+        public static bool ValidateAuthType(string authType)
+        {
+            // valid authentication types
+            List<string> validAuthTypes = new List<string> { "MSI", "CLI", "VS" };
+
+            // validate authType
+            if (string.IsNullOrWhiteSpace(authType) || !validAuthTypes.Contains(authType))
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }

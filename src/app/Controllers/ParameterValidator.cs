@@ -17,7 +17,8 @@ namespace Helium.Controllers
         /// <param name="q">search</param>
         /// <param name="pageNumber">Page Number</param>
         /// <param name="pageSize">Page Size</param>
-        /// <param name="message">error message</param>
+        /// <param name="method">current method</param>
+        /// <param name="logger">ILogger</param>
         /// <returns></returns>
         public static ContentResult Common(IQueryCollection query, string q, int pageNumber, int pageSize, string method, ILogger logger)
         {
@@ -79,7 +80,8 @@ namespace Helium.Controllers
         /// <param name="actorId">actorId</param>
         /// <param name="pageNumber">Page Number</param>
         /// <param name="pageSize">Page Size</param>
-        /// <param name="message">error message</param>
+        /// <param name="method">current method</param>
+        /// <param name="logger">ILogger</param>
         /// <returns></returns>
         public static ContentResult Movies(IQueryCollection query, string q, string genre, int year, double rating, string actorId, int pageNumber, int pageSize, string method, ILogger logger)
         {
@@ -140,7 +142,8 @@ namespace Helium.Controllers
         /// validate actorId
         /// </summary>
         /// <param name="actorId">actorId</param>
-        /// <param name="message">error message</param>
+        /// <param name="method">current method</param>
+        /// <param name="logger">ILogger</param>
         /// <returns></returns>
         public static ContentResult ActorId(string actorId, string method, ILogger logger)
         {
@@ -162,7 +165,8 @@ namespace Helium.Controllers
         /// validate movieId
         /// </summary>
         /// <param name="movieId">movieId</param>
-        /// <param name="message">error message</param>
+        /// <param name="method">current method</param>
+        /// <param name="logger">ILogger</param>
         /// <returns></returns>
         public static ContentResult MovieId(string movieId, string method, ILogger logger)
         {

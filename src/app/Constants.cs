@@ -8,7 +8,7 @@
         public const string SwaggerTitle = "Helium";
         public const string SwaggerPath = "/swagger.json";
 
-        public const string KeyVaultName = "KeyVaultName";
+        public const string KeyVaultName = "KEYVAULT_NAME";
         public const string AuthType = "AUTH_TYPE";
 
         public const string CosmosCollection = "CosmosCollection";
