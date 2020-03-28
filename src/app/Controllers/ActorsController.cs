@@ -49,7 +49,7 @@ namespace Helium.Controllers
             // convert to zero based index
             pageNumber = pageNumber > 1 ? pageNumber - 1 : 0;
 
-            return await ResultHandler.Handle(_dal.GetActorsByQueryAsync(q, pageNumber * pageSize, pageSize), method, Constants.ActorsControllerException, _logger).ConfigureAwait(false);
+            return await ResultHandler.Handle(_dal.GetActorsAsync(q, pageNumber * pageSize, pageSize), method, Constants.ActorsControllerException, _logger).ConfigureAwait(false);
         }
 
         /// <summary>
