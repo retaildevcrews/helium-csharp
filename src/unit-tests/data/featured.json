@@ -1,9 +1,0 @@
-[
-  {"id":"ff0133093","movieId":"tt0133093","weight":5,"partitionKey":"0","type":"Featured"},
-  {"id":"ff0120737","movieId":"tt0120737","weight":5,"partitionKey":"0","type":"Featured"},
-  {"id":"ff0167260","movieId":"tt0167260","weight":3,"partitionKey":"0","type":"Featured"},
-  {"id":"ff0167261","movieId":"tt0167261","weight":3,"partitionKey":"0","type":"Featured"},
-  {"id":"ff0372784","movieId":"tt0372784","weight":1,"partitionKey":"0","type":"Featured"},
-  {"id":"ff0172495","movieId":"tt0172495","weight":1,"partitionKey":"0","type":"Featured"},
-  {"id":"ff0317705","movieId":"tt0317705","weight":1,"partitionKey":"0","type":"Featured"}
-]
