@@ -43,9 +43,9 @@ namespace KeyVault.Extensions
         }
 
         /// <summary>
-        /// Get the Key Vault config from the environment variable or command line
+        /// Validate the authentication type
         /// </summary>
-        /// <param name="authType">out Authentication Type</param>
+        /// <param name="authType">string</param>
         /// <returns>bool</returns>
         public static bool ValidateAuthType(string authType)
         {
@@ -53,12 +53,7 @@ namespace KeyVault.Extensions
             List<string> validAuthTypes = new List<string> { "MSI", "CLI", "VS" };
 
             // validate authType
-            if (string.IsNullOrWhiteSpace(authType) || !validAuthTypes.Contains(authType))
-            {
-                return false;
-            }
-
-            return true;
+            return !string.IsNullOrWhiteSpace(authType) && validAuthTypes.Contains(authType);
         }
     }
 }
