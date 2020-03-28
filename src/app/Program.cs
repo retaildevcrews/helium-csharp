@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;
+using System.CommandLine.Parsing;
 using System.Globalization;
 using System.IO;
 using System.Threading;
@@ -40,7 +41,6 @@ namespace Helium
             }
         }
 
-
         /// <summary>
         /// Main entry point
         /// 
@@ -49,7 +49,39 @@ namespace Helium
         /// <param name="args">command line args</param>
         public static async Task<int> Main(string[] args)
         {
-            if (args == null) args = Array.Empty<string>();
+            // combine environment variables and command line args
+            string cmd = GetCommandString(args);
+
+            // build the System.CommandLine.RootCommand
+            RootCommand root = BuildRootCommand();
+
+            // parse the command line
+            ParseResult parse = root.Parse(cmd);
+
+            if (parse.Errors.Count > 0)
+            {
+                // dummy handler to display error messages and usage
+                root.Handler = CommandHandler.Create<string, string, bool>((kevaultName, authType, dryRun) =>{ });
+
+                return root.Invoke(cmd);
+            }
+
+            // run the app
+            root.Handler = CommandHandler.Create<string, string, bool>(RunApp);
+            return await root.InvokeAsync(cmd).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Combine env vars and command line values
+        /// </summary>
+        /// <param name="args">command line args</param>
+        /// <returns>string</returns>
+        public static string GetCommandString(string[] args)
+        {
+            if (args == null)
+            {
+                args = Array.Empty<string>();
+            }
 
             string cmd = string.Join(' ', args);
 
@@ -66,6 +98,15 @@ namespace Helium
                 cmd += " --auth-type " + auth;
             }
 
+            return cmd;
+        }
+
+        /// <summary>
+        /// Build the RootCommand for parsing
+        /// </summary>
+        /// <returns>RootCommand</returns>
+        public static RootCommand BuildRootCommand()
+        {
             RootCommand root = new RootCommand
             {
                 Name = "helium",
@@ -73,15 +114,21 @@ namespace Helium
                 TreatUnmatchedTokensAsErrors = true
             };
 
+            // add options
             root.AddOption(new Option(new string[] { "-k", "--keyvault-name" }, "The name or URL of the Azure Keyvault") { Argument = new Argument<string>(), Required = true });
             root.AddOption(new Option(new string[] { "-a", "--auth-type" }, "Authentication type - MSI or CLI") { Argument = new Argument<string>(() => "MSI") });
             root.AddOption(new Option(new string[] { "-d", "--dry-run" }, "Validate configuration but does not run web server"));
 
-            root.Handler = CommandHandler.Create<string, string, bool>(RunApp);
-
-            return await root.InvokeAsync(cmd).ConfigureAwait(false);
+            return root;
         }
 
+        /// <summary>
+        /// Run the app
+        /// </summary>
+        /// <param name="keyvaultName">Keyvault Name</param>
+        /// <param name="authType">Authentication Type</param>
+        /// <param name="dryRun">Dry Run flag</param>
+        /// <returns></returns>
         public static async Task<int> RunApp(string keyvaultName, string authType, bool dryRun)
         {
             // validate keyvaultName and convert to URL
@@ -132,7 +179,7 @@ namespace Helium
                 var w = _host.RunAsync();
 
                 // this doesn't return except on ctl-c
-                await RunKeyRotationCheck(ctCancel).ConfigureAwait(false);
+                await RunKeyRotationCheck(ctCancel, Constants.KeyVaultChangeCheckSeconds).ConfigureAwait(false);
 
                 // if not cancelled, app exit -1
                 return ctCancel.IsCancellationRequested ? 0 : -1;
@@ -159,7 +206,7 @@ namespace Helium
         /// </summary>
         /// <param name="ctCancel">CancellationTokenSource</param>
         /// <returns>Only returns when ctl-c is pressed and cancellation token is cancelled</returns>
-        static async Task RunKeyRotationCheck(CancellationTokenSource ctCancel)
+        static async Task RunKeyRotationCheck(CancellationTokenSource ctCancel, int checkEverySeconds)
         {
             string key = config[Constants.CosmosKey];
 
@@ -168,7 +215,7 @@ namespace Helium
             {
                 try
                 {
-                    await Task.Delay(Constants.KeyVaultChangeCheckSeconds * 1000, ctCancel.Token).ConfigureAwait(false);
+                    await Task.Delay(checkEverySeconds * 1000, ctCancel.Token).ConfigureAwait(false);
 
                     if (!ctCancel.IsCancellationRequested)
                     {
