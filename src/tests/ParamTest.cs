@@ -1,5 +1,8 @@
 using Helium;
 using System;
+using System.CommandLine;
+using System.CommandLine.Parsing;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace UnitTests
@@ -8,69 +11,64 @@ namespace UnitTests
 
     public class ParamTest
     {
-        //[Fact]
-        //public void NoParamsTest()
-        //{
-        //    string[] args = Array.Empty<string>();
+        [Fact]
+        public async Task NoParamsTest()
+        {
+            string[] args = Array.Empty<string>();
 
-        //    bool flag = App.ProcessArgs(args, out string kvUrl, out string authType, out bool helpFlag);
+            int i = await App.Main(args);
 
-        //    Assert.True(flag);
-        //    Assert.True(helpFlag);
-        //    Assert.Null(kvUrl);
-        //    Assert.Null(authType);
-        //}
+            Assert.Equal(1, i);
 
-        //[Fact]
-        //public void HelpParamTest()
-        //{
-        //    string[] args = Array.Empty<string>();
+            args = new string[] { "--help" };
+            i = await App.Main(args);
+            Assert.Equal(0, i);
 
-        //    bool flag = App.ProcessArgs(args, out string kvUrl, out string authType, out bool helpFlag);
-        //    Assert.True(flag);
-        //    Assert.True(helpFlag);
-        //    Assert.Null(kvUrl);
-        //    Assert.Null(authType);
+            args = new string[] { "-k", "heliumtest-kv", "-a", "FOO" };
+            i = await App.Main(args);
+            Assert.Equal(-1, i);
 
-        //    args = new string[] { "-h" };
-        //    flag = App.ProcessArgs(args, out kvUrl, out authType, out helpFlag);
-        //    Assert.True(flag);
-        //    Assert.True(helpFlag);
-        //    Assert.Null(kvUrl);
-        //    Assert.Null(authType);
-        //}
+            Assert.Empty(App.GetCommandString(null));
 
-        //[Fact]
-        //public void KeyVaultNameTest()
-        //{
-        //    string[] args = new string[] { "--kvname", "testkv" };
+            Environment.SetEnvironmentVariable("KEYVAULT_NAME", "heliumtest-kv");
+            Environment.SetEnvironmentVariable("AUTH_TYPE", "CLI");
 
-        //    bool flag = App.ProcessArgs(args, out string kvUrl, out string authType, out bool helpFlag);
+            Assert.Equal(" --keyvault-name heliumtest-kv --auth-type CLI", App.GetCommandString(Array.Empty<string>()));
 
-        //    Assert.True(flag);
-        //    Assert.False(helpFlag);
-        //    Assert.Equal("https://testkv.vault.azure.net/", kvUrl);
-        //    Assert.Equal("MSI", authType);
-        //}
+            Environment.SetEnvironmentVariable("KEYVAULT_NAME", null);
+            Environment.SetEnvironmentVariable("AUTH_TYPE", null);
+        }
 
-        //[Fact]
-        //public void KeyVaultNameAuthTypeTest()
-        //{
-        //    string[] args = new string[] { "--kvname", "testkv", "--authtype", "CLI" };
+        [Fact]
+        public void CommandLineTest()
+        {
+            ParseResult parse;
+            string cmd;
 
-        //    bool flag = App.ProcessArgs(args, out string kvUrl, out string authType, out bool helpFlag);
+            RootCommand root = App.BuildRootCommand();
 
-        //    Assert.True(flag);
-        //    Assert.False(helpFlag);
-        //    Assert.Equal("https://testkv.vault.azure.net/", kvUrl);
-        //    Assert.Equal("CLI", authType);
-        //}
+            Assert.Empty(root.Parse("-k heliumtest-kv -a CLI").Errors);
+            Assert.Empty(root.Parse("-k heliumtest-kv -a MSI").Errors);
+            Assert.Empty(root.Parse("-k heliumtest-kv -a VS").Errors);
+
+            Assert.Empty(root.Parse("-k heliumtest-kv -a CLI -d").Errors);
+            Assert.Equal(1, root.Parse("-k heliumtest-kv -a CLI -h").Errors.Count);
+
+            Assert.Equal(1, root.Parse("-k heliumtest-kv -a CLI -foo").Errors.Count);
+            Assert.Equal(2, root.Parse("-k heliumtest-kv -a CLI -foo bar").Errors.Count);
+
+            Assert.Equal(1, root.Parse("-k").Errors.Count);
+            Assert.Equal(1, root.Parse("-k heliumtest-kv -a").Errors.Count);
+
+
+            parse = root.Parse("-k heliumtest-kv -a MSI");
+
+        }
 
         //[Fact]
         //public void EnvVarValuesTest()
         //{
         //    string[] args = Array.Empty<string>();
-        //    Environment.SetEnvironmentVariable("KeyVaultName", "testkv");
 
         //    // test kvname env var
         //    bool flag = App.ProcessArgs(args, out string kvUrl, out string authType, out bool helpFlag);
@@ -80,7 +78,6 @@ namespace UnitTests
         //    Assert.Equal("MSI", authType);
 
         //    // test both env var
-        //    Environment.SetEnvironmentVariable("AUTH_TYPE", "CLI");
         //    flag = App.ProcessArgs(args, out kvUrl, out authType, out helpFlag);
         //    Assert.True(flag);
         //    Assert.False(helpFlag);
@@ -104,48 +101,6 @@ namespace UnitTests
         //    Assert.Equal("https://testkv2.vault.azure.net/", kvUrl);
         //    Assert.Equal("VS", authType);
 
-        //    Environment.SetEnvironmentVariable("KeyVaultName", null);
-        //    Environment.SetEnvironmentVariable("AUTH_TYPE", null);
         //}
-
-        //[Fact]
-        //public void InvalidCommandLineTest()
-        //{
-        //    string[] args = new string[] { "--foo" };
-        //    bool flag = App.ProcessArgs(args, out string kvUrl, out string authType, out bool helpFlag);
-        //    Assert.False(flag);
-        //    Assert.False(helpFlag);
-        //    Assert.Null(kvUrl);
-        //    Assert.Null(authType);
-
-        //    args = new string[] { "--kvname" };
-        //    flag = App.ProcessArgs(args, out kvUrl, out authType, out helpFlag);
-        //    Assert.False(flag);
-        //    Assert.False(helpFlag);
-        //    Assert.Null(kvUrl);
-        //    Assert.Null(authType);
-
-        //    args = new string[] { "--kvname", "testkv", "--authtype" };
-        //    flag = App.ProcessArgs(args, out kvUrl, out authType, out helpFlag);
-        //    Assert.False(flag);
-        //    Assert.False(helpFlag);
-        //    Assert.Null(kvUrl);
-        //    Assert.Null(authType);
-
-        //    args = new string[] { "--kvname", "testkv", "--authtype", "CLI", "foo" };
-        //    flag = App.ProcessArgs(args, out kvUrl, out authType, out helpFlag);
-        //    Assert.False(flag);
-        //    Assert.False(helpFlag);
-        //    Assert.Null(kvUrl);
-        //    Assert.Null(authType);
-
-        //    args = new string[] { "--kvname", "testkv", "--authtype", "CLI", "--foo" };
-        //    flag = App.ProcessArgs(args, out kvUrl, out authType, out helpFlag);
-        //    Assert.False(flag);
-        //    Assert.False(helpFlag);
-        //    Assert.Null(kvUrl);
-        //    Assert.Null(authType);
-        //}
-
     }
 }
