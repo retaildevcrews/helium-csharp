@@ -7,8 +7,6 @@ using Xunit;
 
 namespace UnitTests
 {
-    // TODO - fix after refactor is complete
-
     public class ParamTest
     {
         [Fact]
