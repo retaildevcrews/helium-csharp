@@ -61,7 +61,7 @@ namespace Helium
             if (parse.Errors.Count > 0)
             {
                 // dummy handler to display error messages and usage
-                root.Handler = CommandHandler.Create<string, string, bool>((kevaultName, authType, dryRun) =>{ });
+                root.Handler = CommandHandler.Create<string, string, bool>((kevaultName, authType, dryRun) => { });
 
                 return root.Invoke(cmd);
             }
