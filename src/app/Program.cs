@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration.AzureKeyVault;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
@@ -50,52 +51,52 @@ namespace Helium
         public static async Task<int> Main(string[] args)
         {
             // combine environment variables and command line args
-            string cmd = GetCommandString(args);
+            List<string> cmd = CombineEnvVarsWithCommandLine(args);
 
             // build the System.CommandLine.RootCommand
             RootCommand root = BuildRootCommand();
 
             // parse the command line
-            ParseResult parse = root.Parse(cmd);
+            ParseResult parse = root.Parse(cmd.ToArray());
 
+            // display errors / help
             if (parse.Errors.Count > 0)
             {
-                // dummy handler to display error messages and usage
-                root.Handler = CommandHandler.Create<string, string, bool>((kevaultName, authType, dryRun) => { });
-
-                return root.Invoke(cmd);
+                return root.Invoke(cmd.ToArray());
             }
 
             // run the app
             root.Handler = CommandHandler.Create<string, string, bool>(RunApp);
-            return await root.InvokeAsync(cmd).ConfigureAwait(false);
+            return await root.InvokeAsync(cmd.ToArray()).ConfigureAwait(false);
         }
 
         /// <summary>
         /// Combine env vars and command line values
         /// </summary>
         /// <param name="args">command line args</param>
-        /// <returns>string</returns>
-        public static string GetCommandString(string[] args)
+        /// <returns>string List</returns>
+        public static List<string> CombineEnvVarsWithCommandLine(string[] args)
         {
             if (args == null)
             {
                 args = Array.Empty<string>();
             }
 
-            string cmd = string.Join(' ', args);
+            List<string> cmd = new List<string>(args);
 
             string kv = Environment.GetEnvironmentVariable(Constants.KeyVaultName);
             string auth = Environment.GetEnvironmentVariable(Constants.AuthType);
 
-            if (!string.IsNullOrEmpty(kv) && !cmd.Contains("--keyvault-name", StringComparison.Ordinal) && !cmd.Contains("-k", StringComparison.Ordinal))
+            if (!string.IsNullOrEmpty(kv) && !cmd.Contains("--keyvault-name") && !cmd.Contains("-k"))
             {
-                cmd += " --keyvault-name " + kv;
+                cmd.Add("--keyvault-name");
+                cmd.Add(kv);
             }
 
-            if (!string.IsNullOrEmpty(auth) && !cmd.Contains("--auth-type", StringComparison.Ordinal) && !cmd.Contains("-a", StringComparison.Ordinal))
+            if (!string.IsNullOrEmpty(auth) && !cmd.Contains("--auth-type") && !cmd.Contains("-a"))
             {
-                cmd += " --auth-type " + auth;
+                cmd.Add("--auth-type");
+                cmd.Add(auth);
             }
 
             return cmd;
@@ -160,16 +161,7 @@ namespace Helium
                 // don't start the web server
                 if (dryRun)
                 {
-                    Console.WriteLine($"Version            {Middleware.VersionExtensions.Version}");
-                    Console.WriteLine($"Keyvault           {kvUrl}");
-                    Console.WriteLine($"Auth Type          {authType}");
-                    Console.WriteLine($"Cosmos Server      {config.GetValue<string>(Constants.CosmosUrl)}");
-                    Console.WriteLine($"Cosmos Key         Length({config.GetValue<string>(Constants.CosmosUrl).Length})");
-                    Console.WriteLine($"Cosmos Database    {config.GetValue<string>(Constants.CosmosDatabase)}");
-                    Console.WriteLine($"Cosmos Collection  {config.GetValue<string>(Constants.CosmosCollection)}");
-                    Console.WriteLine($"App Insights Key   {(string.IsNullOrEmpty(config.GetValue<string>(Constants.AppInsightsKey)) ? "(not set" : "Length(" + config.GetValue<string>(Constants.AppInsightsKey).Length.ToString(CultureInfo.InvariantCulture))})");
-
-                    return 0;
+                    return DoDryRun(kvUrl, authType);
                 }
 
                 // log startup messages
@@ -199,6 +191,27 @@ namespace Helium
 
                 return -1;
             }
+        }
+
+        /// <summary>
+        /// Display the dry run message
+        /// </summary>
+        /// <param name="kvUrl">keyvault url</param>
+        /// <param name="authType">authentication type</param>
+        /// <returns>0</returns>
+        static int DoDryRun(string kvUrl, string authType)
+        {
+            Console.WriteLine($"Version            {Middleware.VersionExtensions.Version}");
+            Console.WriteLine($"Keyvault           {kvUrl}");
+            Console.WriteLine($"Auth Type          {authType}");
+            Console.WriteLine($"Cosmos Server      {config.GetValue<string>(Constants.CosmosUrl)}");
+            Console.WriteLine($"Cosmos Key         Length({config.GetValue<string>(Constants.CosmosUrl).Length})");
+            Console.WriteLine($"Cosmos Database    {config.GetValue<string>(Constants.CosmosDatabase)}");
+            Console.WriteLine($"Cosmos Collection  {config.GetValue<string>(Constants.CosmosCollection)}");
+            Console.WriteLine($"App Insights Key   {(string.IsNullOrEmpty(config.GetValue<string>(Constants.AppInsightsKey)) ? "(not set" : "Length(" + config.GetValue<string>(Constants.AppInsightsKey).Length.ToString(CultureInfo.InvariantCulture))})");
+
+            // always return 0 (success)
+            return 0;
         }
 
         /// <summary>

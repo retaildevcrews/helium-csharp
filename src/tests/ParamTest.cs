@@ -1,5 +1,6 @@
 using Helium;
 using System;
+using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Parsing;
 using System.Threading.Tasks;
@@ -10,13 +11,13 @@ namespace UnitTests
     public class ParamTest
     {
         [Fact]
-        public async Task NoParamsTest()
+        public async Task AppMainTest ()
         {
             string[] args = Array.Empty<string>();
 
             int i = await App.Main(args);
 
-            Assert.Equal(1, i);
+            Assert.NotEqual(0, i);
 
             args = new string[] { "--help" };
             i = await App.Main(args);
@@ -26,12 +27,16 @@ namespace UnitTests
             i = await App.Main(args);
             Assert.Equal(-1, i);
 
-            Assert.Empty(App.GetCommandString(null));
+            Assert.Empty(App.CombineEnvVarsWithCommandLine(null));
 
             Environment.SetEnvironmentVariable("KEYVAULT_NAME", "heliumtest-kv");
             Environment.SetEnvironmentVariable("AUTH_TYPE", "CLI");
 
-            Assert.Equal(" --keyvault-name heliumtest-kv --auth-type CLI", App.GetCommandString(Array.Empty<string>()));
+            List<string> cmd = App.CombineEnvVarsWithCommandLine(Array.Empty<string>());
+            Assert.Contains("--keyvault-name", cmd);
+            Assert.Contains("heliumtest-kv", cmd);
+            Assert.Contains("--auth-type", cmd);
+            Assert.Contains("CLI", cmd);
 
             Environment.SetEnvironmentVariable("KEYVAULT_NAME", null);
             Environment.SetEnvironmentVariable("AUTH_TYPE", null);
@@ -40,9 +45,6 @@ namespace UnitTests
         [Fact]
         public void CommandLineTest()
         {
-            ParseResult parse;
-            string cmd;
-
             RootCommand root = App.BuildRootCommand();
 
             Assert.Empty(root.Parse("-k heliumtest-kv -a CLI").Errors);
@@ -57,9 +59,6 @@ namespace UnitTests
 
             Assert.Equal(1, root.Parse("-k").Errors.Count);
             Assert.Equal(1, root.Parse("-k heliumtest-kv -a").Errors.Count);
-
-
-            parse = root.Parse("-k heliumtest-kv -a MSI");
         }
     }
 }
