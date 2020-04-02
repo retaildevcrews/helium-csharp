@@ -53,7 +53,28 @@ namespace KeyVault.Extensions
             List<string> validAuthTypes = new List<string> { "MSI", "CLI", "VS" };
 
             // validate authType
-            return !string.IsNullOrWhiteSpace(authType) && validAuthTypes.Contains(authType);
+            return !string.IsNullOrWhiteSpace(authType) && validAuthTypes.Contains(authType.ToUpperInvariant());
+        }
+
+        /// <summary>
+        /// Validate the keyvault name
+        /// </summary>
+        /// <param name="name">string</param>
+        /// <returns>bool</returns>
+        public static bool ValidateName(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                return false;
+            }
+            name = name.Trim();
+
+            if (name.Length < 3 || name.Length > 24)
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }

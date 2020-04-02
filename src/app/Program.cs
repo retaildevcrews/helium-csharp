@@ -56,13 +56,12 @@ namespace Helium
             // build the System.CommandLine.RootCommand
             RootCommand root = BuildRootCommand();
 
-            // parse the command line
-            ParseResult parse = root.Parse(cmd.ToArray());
-
-            // display errors / help
-            if (parse.Errors.Count > 0)
+            // handle version
+            // ignore all parameters except help
+            if (cmd.Contains("--version"))
             {
-                return root.Invoke(cmd.ToArray());
+                Console.WriteLine(Middleware.VersionExtensions.Version);
+                return 0;
             }
 
             // run the app
@@ -93,10 +92,11 @@ namespace Helium
                 cmd.Add(kv);
             }
 
-            if (!string.IsNullOrEmpty(auth) && !cmd.Contains("--auth-type") && !cmd.Contains("-a"))
+            // add --auth-type value or default
+            if (!cmd.Contains("--auth-type") && !cmd.Contains("-a"))
             {
                 cmd.Add("--auth-type");
-                cmd.Add(auth);
+                cmd.Add(string.IsNullOrEmpty(auth) ? "MSI" : auth);
             }
 
             return cmd;
@@ -111,14 +111,62 @@ namespace Helium
             RootCommand root = new RootCommand
             {
                 Name = "helium",
-                Description = "A web app",
+                Description = "helium-csharp web app",
                 TreatUnmatchedTokensAsErrors = true
             };
 
             // add options
-            root.AddOption(new Option(new string[] { "-k", "--keyvault-name" }, "The name or URL of the Azure Keyvault") { Argument = new Argument<string>(), Required = true });
-            root.AddOption(new Option(new string[] { "-a", "--auth-type" }, "Authentication type - MSI or CLI") { Argument = new Argument<string>(() => "MSI") });
-            root.AddOption(new Option(new string[] { "-d", "--dry-run" }, "Validate configuration but does not run web server"));
+            Option optKv = new Option(new string[] { "-k", "--keyvault-name" }, "The name or URL of the Azure Keyvault")
+            {
+                Argument = new Argument<string>(),
+                Required = true
+            };
+
+            optKv.AddValidator(v =>
+            {
+                if (v.Tokens == null ||
+                v.Tokens.Count != 1 ||
+                !KeyVaultHelper.ValidateName(v.Tokens[0].Value))
+                {
+                    return "--keyvault-name must be 3-20 characters [a-z][0-9]";
+                }
+
+                return string.Empty;
+            });
+
+            Option optAuth = new Option(new string[] { "-a", "--auth-type" }, "Authentication type - MSI CLI VS")
+            {
+                Argument = new Argument<string>(() => "MSI")
+            };
+
+            optAuth.AddValidator(v =>
+            {
+                const string errorMessage = "--auth-type must be MSI CLI or VS";
+
+                if (v.Tokens == null)
+                {
+                    return errorMessage;
+                }
+
+                // use default value
+                if (v.Tokens.Count != 1 && v.Option.Argument.HasDefaultValue)
+                {
+                    return string.Empty;
+                }
+
+                // validate using helper
+                if (v.Tokens.Count != 1 || !KeyVaultHelper.ValidateAuthType(v.Tokens[0].Value))
+                {
+                    return errorMessage;
+                }
+
+                return string.Empty;
+            });
+
+            // add the options
+            root.AddOption(optKv);
+            root.AddOption(optAuth);
+            root.AddOption(new Option(new string[] { "-d", "--dry-run" }, "Validates configuration"));
 
             return root;
         }
@@ -374,7 +422,7 @@ namespace Helium
             // use MSI as default
             string authString;
 
-            switch (authType)
+            switch (authType.ToUpperInvariant())
             {
                 case "MSI":
                     authString = "RunAs=App";
