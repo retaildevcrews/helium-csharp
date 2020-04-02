@@ -36,19 +36,6 @@ namespace Helium.DataAccessLayer
         }
 
         /// <summary>
-        /// Get all Movies from CosmosDB
-        /// </summary>
-        /// <param name="offset">zero based offset for paging</param>
-        /// <param name="limit">number of documents for paging</param>
-        /// <returns>List of Movies</returns>
-        public async Task<IEnumerable<Movie>> GetMoviesAsync(int offset = 0, int limit = 0)
-        {
-            // get all movies
-            return await GetMoviesByQueryAsync(string.Empty, offset: offset, limit: limit).ConfigureAwait(false);
-        }
-
-
-        /// <summary>
         /// Get a list of Movies by search and/or filter terms
         /// </summary>
         /// <param name="q">search term</param>
@@ -59,7 +46,7 @@ namespace Helium.DataAccessLayer
         /// <param name="offset">zero based offset for paging</param>
         /// <param name="limit">number of documents for paging</param>
         /// <returns>List of Movies or an empty list</returns>
-        public async Task<IEnumerable<Movie>> GetMoviesByQueryAsync(string q, string genre = "", int year = 0, double rating = 0, string actorId = "", int offset = 0, int limit = Constants.DefaultPageSize)
+        public async Task<IEnumerable<Movie>> GetMoviesAsync(string q, string genre = "", int year = 0, double rating = 0, string actorId = "", int offset = 0, int limit = Constants.DefaultPageSize)
         {
             string sql = _movieSelect;
             string orderby = _movieOrderBy;

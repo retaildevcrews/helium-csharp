@@ -21,15 +21,14 @@ namespace UnitTests
         [Fact]
         public async Task RunApp()
         {
-            string[] args = new string[] { "--kvname", "heliumtest-kv", "--authtype", "CLI"  };
-
-            await Helium.App.Main(null);
-            await Helium.App.Main(new string[] { "--help" });
-            await Helium.App.Main(new string[] { "--kvname", " " });
+            string[] args = new string[] { "-k", "heliumtest-kv", "-a", "CLI", "-d"  };
 
             Task<int> t = Helium.App.Main(args);
 
-            await Task.Delay(10000);
+            args = new string[] { "-k", "heliumtest-kv", "-a", "CLI" };
+            t = Helium.App.Main(args);
+
+            await Task.Delay(5000);
 
 
             using HttpClient client = new HttpClient { BaseAddress = new System.Uri("http://localhost:4120") };

@@ -11,6 +11,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.CommandLine;
+using System.CommandLine.Invocation;
+using System.CommandLine.Parsing;
+using System.Globalization;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -46,39 +50,166 @@ namespace Helium
         /// <param name="args">command line args</param>
         public static async Task<int> Main(string[] args)
         {
+            // combine environment variables and command line args
+            List<string> cmd = CombineEnvVarsWithCommandLine(args);
+
+            // build the System.CommandLine.RootCommand
+            RootCommand root = BuildRootCommand();
+
+            // handle version
+            // ignore all parameters except help
+            if (cmd.Contains("--version"))
+            {
+                Console.WriteLine(Middleware.VersionExtensions.Version);
+                return 0;
+            }
+
+            // run the app
+            root.Handler = CommandHandler.Create<string, string, bool>(RunApp);
+            return await root.InvokeAsync(cmd.ToArray()).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Combine env vars and command line values
+        /// </summary>
+        /// <param name="args">command line args</param>
+        /// <returns>string List</returns>
+        public static List<string> CombineEnvVarsWithCommandLine(string[] args)
+        {
+            if (args == null)
+            {
+                args = Array.Empty<string>();
+            }
+
+            List<string> cmd = new List<string>(args);
+
+            string kv = Environment.GetEnvironmentVariable(Constants.KeyVaultName);
+            string auth = Environment.GetEnvironmentVariable(Constants.AuthType);
+
+            if (!string.IsNullOrEmpty(kv) && !cmd.Contains("--keyvault-name") && !cmd.Contains("-k"))
+            {
+                cmd.Add("--keyvault-name");
+                cmd.Add(kv);
+            }
+
+            // add --auth-type value or default
+            if (!cmd.Contains("--auth-type") && !cmd.Contains("-a"))
+            {
+                cmd.Add("--auth-type");
+                cmd.Add(string.IsNullOrEmpty(auth) ? "MSI" : auth);
+            }
+
+            return cmd;
+        }
+
+        /// <summary>
+        /// Build the RootCommand for parsing
+        /// </summary>
+        /// <returns>RootCommand</returns>
+        public static RootCommand BuildRootCommand()
+        {
+            RootCommand root = new RootCommand
+            {
+                Name = "helium",
+                Description = "helium-csharp web app",
+                TreatUnmatchedTokensAsErrors = true
+            };
+
+            // add options
+            Option optKv = new Option(new string[] { "-k", "--keyvault-name" }, "The name or URL of the Azure Keyvault")
+            {
+                Argument = new Argument<string>(),
+                Required = true
+            };
+
+            optKv.AddValidator(v =>
+            {
+                if (v.Tokens == null ||
+                v.Tokens.Count != 1 ||
+                !KeyVaultHelper.ValidateName(v.Tokens[0].Value))
+                {
+                    return "--keyvault-name must be 3-20 characters [a-z][0-9]";
+                }
+
+                return string.Empty;
+            });
+
+            Option optAuth = new Option(new string[] { "-a", "--auth-type" }, "Authentication type - MSI CLI VS")
+            {
+                Argument = new Argument<string>(() => "MSI")
+            };
+
+            optAuth.AddValidator(v =>
+            {
+                const string errorMessage = "--auth-type must be MSI CLI or VS";
+
+                if (v.Tokens == null)
+                {
+                    return errorMessage;
+                }
+
+                // use default value
+                if (v.Tokens.Count != 1 && v.Option.Argument.HasDefaultValue)
+                {
+                    return string.Empty;
+                }
+
+                // validate using helper
+                if (v.Tokens.Count != 1 || !KeyVaultHelper.ValidateAuthType(v.Tokens[0].Value))
+                {
+                    return errorMessage;
+                }
+
+                return string.Empty;
+            });
+
+            // add the options
+            root.AddOption(optKv);
+            root.AddOption(optAuth);
+            root.AddOption(new Option(new string[] { "-d", "--dry-run" }, "Validates configuration"));
+
+            return root;
+        }
+
+        /// <summary>
+        /// Run the app
+        /// </summary>
+        /// <param name="keyvaultName">Keyvault Name</param>
+        /// <param name="authType">Authentication Type</param>
+        /// <param name="dryRun">Dry Run flag</param>
+        /// <returns></returns>
+        public static async Task<int> RunApp(string keyvaultName, string authType, bool dryRun)
+        {
+            // validate keyvaultName and convert to URL
+            if (!KeyVaultHelper.BuildKeyVaultConnectionString(keyvaultName, out string kvUrl))
+            {
+                return -1;
+            }
+
+            // validate auth type
+            if (!KeyVaultHelper.ValidateAuthType(authType))
+            {
+                Console.WriteLine($"Invalid AuthType specified: {authType}");
+                return -1;
+            }
+
             try
             {
-                // check for null
-                if (args == null)
-                {
-                    args = Array.Empty<string>();
-                }
-
-                // get key vault config from env vars / command line
-                if (!ProcessArgs(args, out string kvUrl, out string authType, out bool helpFlag))
-                {
-                    Usage();
-                    return -1;
-                }
-
-                // display usage
-                if (helpFlag)
-                {
-                    Usage();
-                    return 0;
-                }
-
                 // setup ctl c handler
                 ctCancel = SetupCtlCHandler();
 
                 // build the host
                 _host = await BuildHost(kvUrl, authType).ConfigureAwait(false);
 
-                //
                 if (_host == null)
                 {
-                    Usage();
                     return -1;
+                }
+
+                // don't start the web server
+                if (dryRun)
+                {
+                    return DoDryRun(kvUrl, authType);
                 }
 
                 // log startup messages
@@ -88,7 +219,7 @@ namespace Helium
                 var w = _host.RunAsync();
 
                 // this doesn't return except on ctl-c
-                await RunKeyRotationCheck(ctCancel).ConfigureAwait(false);
+                await RunKeyRotationCheck(ctCancel, Constants.KeyVaultChangeCheckSeconds).ConfigureAwait(false);
 
                 // if not cancelled, app exit -1
                 return ctCancel.IsCancellationRequested ? 0 : -1;
@@ -111,11 +242,32 @@ namespace Helium
         }
 
         /// <summary>
+        /// Display the dry run message
+        /// </summary>
+        /// <param name="kvUrl">keyvault url</param>
+        /// <param name="authType">authentication type</param>
+        /// <returns>0</returns>
+        static int DoDryRun(string kvUrl, string authType)
+        {
+            Console.WriteLine($"Version            {Middleware.VersionExtensions.Version}");
+            Console.WriteLine($"Keyvault           {kvUrl}");
+            Console.WriteLine($"Auth Type          {authType}");
+            Console.WriteLine($"Cosmos Server      {config.GetValue<string>(Constants.CosmosUrl)}");
+            Console.WriteLine($"Cosmos Key         Length({config.GetValue<string>(Constants.CosmosUrl).Length})");
+            Console.WriteLine($"Cosmos Database    {config.GetValue<string>(Constants.CosmosDatabase)}");
+            Console.WriteLine($"Cosmos Collection  {config.GetValue<string>(Constants.CosmosCollection)}");
+            Console.WriteLine($"App Insights Key   {(string.IsNullOrEmpty(config.GetValue<string>(Constants.AppInsightsKey)) ? "(not set" : "Length(" + config.GetValue<string>(Constants.AppInsightsKey).Length.ToString(CultureInfo.InvariantCulture))})");
+
+            // always return 0 (success)
+            return 0;
+        }
+
+        /// <summary>
         /// Check for Cosmos key rotation
         /// </summary>
         /// <param name="ctCancel">CancellationTokenSource</param>
         /// <returns>Only returns when ctl-c is pressed and cancellation token is cancelled</returns>
-        static async Task RunKeyRotationCheck(CancellationTokenSource ctCancel)
+        static async Task RunKeyRotationCheck(CancellationTokenSource ctCancel, int checkEverySeconds)
         {
             string key = config[Constants.CosmosKey];
 
@@ -124,7 +276,7 @@ namespace Helium
             {
                 try
                 {
-                    await Task.Delay(Constants.KeyVaultChangeCheckSeconds * 1000, ctCancel.Token).ConfigureAwait(false);
+                    await Task.Delay(checkEverySeconds * 1000, ctCancel.Token).ConfigureAwait(false);
 
                     if (!ctCancel.IsCancellationRequested)
                     {
@@ -270,7 +422,7 @@ namespace Helium
             // use MSI as default
             string authString;
 
-            switch (authType)
+            switch (authType.ToUpperInvariant())
             {
                 case "MSI":
                     authString = "RunAs=App";
@@ -364,131 +516,6 @@ namespace Helium
 
             // build the host
             return builder.Build();
-        }
-
-        /// <summary>
-        /// Get the Key Vault config from the environment variable or command line
-        /// </summary>
-        /// <param name="args">command line args</param>
-        /// <param name="kvUrl">out Key Vault URL</param>
-        /// <param name="authType">out Authentication Type</param>
-        /// <param name="helpFlag">out Display Usage</param>
-        /// <returns>authentication type (MSI (default), CLI, VS)</returns>
-        public static bool ProcessArgs(string[] args, out string kvUrl, out string authType, out bool helpFlag)
-        {
-            kvUrl = null;
-            helpFlag = false;
-
-            // get the key vault name from the environment variable
-            string kvName = Environment.GetEnvironmentVariable(Constants.KeyVaultName);
-
-            // get the auth type from the environment variable
-            authType = Environment.GetEnvironmentVariable(Constants.AuthType);
-
-            // handle null
-            if (args == null || (args.Length == 0 && kvName == null))
-            {
-                helpFlag = true;
-                return true;
-            }
-
-            // handle -h or --help
-            if (args.Length == 1 && (args[0].ToUpperInvariant() == "-H" || args[0].ToUpperInvariant() == "--HELP"))
-            {
-                helpFlag = true;
-                return true;
-            }
-
-            // command line arg overrides environment variable
-            for (int i = 0; i < args.Length; i++)
-            {
-                switch (args[i].ToUpperInvariant())
-                {
-                    case "--KVNAME":
-                        i++;
-                        if (i >= args.Length)
-                        {
-                            Console.WriteLine("Missing kvName value");
-                            kvUrl = null;
-                            authType = null;
-                            return false;
-                        }
-
-                        kvName = args[i].Trim();
-                        break;
-
-                    case "--AUTHTYPE":
-                        i++;
-                        if (i >= args.Length)
-                        {
-                            Console.WriteLine("Missing kvName value");
-                            kvUrl = null;
-                            authType = null;
-                            return false;
-                        }
-                        authType = args[i].Trim();
-                        break;
-
-                    default:
-                        Console.Write($"Invalid command line parameter: {args[i]}");
-                        kvUrl = null;
-                        authType = null;
-                        return false;
-                }
-            }
-
-            // default value
-            authType = authType == null ? "MSI" : authType.Trim().ToUpperInvariant();
-
-            if (string.IsNullOrWhiteSpace(kvName))
-            {
-                kvUrl = null;
-                authType = null;
-                Console.WriteLine("Key Vault name missing");
-                return false;
-            }
-
-            // convert kv name to kv URL
-            kvUrl = KeyVaultHelper.BuildKeyVaultConnectionString(kvName);
-
-            // kvUrl is required
-            if (string.IsNullOrEmpty(kvUrl))
-            {
-                kvUrl = null;
-                authType = null;
-                Console.WriteLine("Key Vault name missing");
-                return false;
-            }
-
-            // valid authentication types
-            List<string> validAuthTypes = new List<string> { "MSI", "CLI", "VS" };
-
-            // validate authType
-            if (string.IsNullOrWhiteSpace(authType) || !validAuthTypes.Contains(authType))
-            {
-                Console.WriteLine($"Invalid AuthType specified: {authType}");
-                kvUrl = null;
-                authType = null;
-                return false;
-            }
-
-            return true;
-        }
-
-        /// <summary>
-        /// Display usage message
-        /// </summary>
-        static void Usage()
-        {
-            Console.WriteLine("\nUsage: ");
-            Console.WriteLine("\tRequired");
-            Console.WriteLine("\t\t--kvname - name or URL of the key vault");
-            Console.WriteLine("\tOptional");
-            Console.WriteLine("\t\t-h --help - display usage help");
-            Console.WriteLine("\t\t--authtype - Authentication Type to use");
-            Console.WriteLine("\t\t\tMSI (default)");
-            Console.WriteLine("\t\t\tCLI");
-            Console.WriteLine("\t\t\tVS");
         }
     }
 }

@@ -35,19 +35,6 @@ namespace Helium.DataAccessLayer
         }
 
         /// <summary>
-        /// Get all Actors from CosmosDB
-        /// </summary>
-        /// <param name="offset">zero based offset for paging</param>
-        /// <param name="limit">number of documents for paging</param>
-        /// <returns>List of Actors</returns>
-        public async Task<IEnumerable<Actor>> GetActorsAsync(int offset = 0, int limit = 0)
-        {
-            // get all actors
-            return await GetActorsByQueryAsync(string.Empty, offset, limit).ConfigureAwait(false);
-        }
-
-
-        /// <summary>
         /// Get a list of Actors by search string
         /// 
         /// The search is a "contains" search on actor name
@@ -57,7 +44,7 @@ namespace Helium.DataAccessLayer
         /// <param name="offset">zero based offset for paging</param>
         /// <param name="limit">number of documents for paging</param>
         /// <returns>List of Actors or an empty list</returns>
-        public async Task<IEnumerable<Actor>> GetActorsByQueryAsync(string q, int offset = 0, int limit = Constants.DefaultPageSize)
+        public async Task<IEnumerable<Actor>> GetActorsAsync(string q, int offset = 0, int limit = Constants.DefaultPageSize)
         {
             string sql = _actorSelect;
             string orderby = _actorOrderBy;

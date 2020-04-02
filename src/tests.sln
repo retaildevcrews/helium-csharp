@@ -2,7 +2,7 @@
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29409.12
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "e2e-tests", "e2e-tests\e2e-tests.csproj", "{8780B4B5-FD88-43DE-BDB4-2E4DBC5F3F83}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "tests", "tests\tests.csproj", "{8780B4B5-FD88-43DE-BDB4-2E4DBC5F3F83}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "helium", "app\helium.csproj", "{414E6BFE-ED27-4BD5-9944-67F634B27627}"
 EndProject

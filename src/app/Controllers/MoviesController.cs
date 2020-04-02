@@ -52,7 +52,7 @@ namespace Helium.Controllers
             // convert to zero based page index
             pageNumber = pageNumber > 1 ? pageNumber - 1 : 0;
 
-            return await ResultHandler.Handle(_dal.GetMoviesByQueryAsync(q, genre, year, rating, actorId, pageNumber * pageSize, pageSize), method, Constants.MoviesControllerException, _logger).ConfigureAwait(false);
+            return await ResultHandler.Handle(_dal.GetMoviesAsync(q, genre, year, rating, actorId, pageNumber * pageSize, pageSize), method, Constants.MoviesControllerException, _logger).ConfigureAwait(false);
         }
 
         /// <summary>

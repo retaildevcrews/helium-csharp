@@ -128,7 +128,7 @@ namespace Helium
 
             try
             {
-                (await _dal.GetMoviesByQueryAsync(query).ConfigureAwait(false)).ToList<Movie>();
+                (await _dal.GetMoviesAsync(query).ConfigureAwait(false)).ToList<Movie>();
 
                 return BuildHealthzCheck(path, maxMilliseconds, null, data, name);
             }
@@ -181,7 +181,7 @@ namespace Helium
 
             try
             {
-                (await _dal.GetActorsByQueryAsync(query).ConfigureAwait(false)).ToList<Actor>();
+                (await _dal.GetActorsAsync(query).ConfigureAwait(false)).ToList<Actor>();
 
                 return BuildHealthzCheck(path, maxMilliseconds, null, data, name);
             }
