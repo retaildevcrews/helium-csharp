@@ -25,9 +25,9 @@ namespace UnitTests
 
             args = new string[] { "-k", "heliumtest-kv", "-a", "FOO" };
             i = await App.Main(args);
-            Assert.Equal(-1, i);
+            Assert.Equal(1, i);
 
-            Assert.Empty(App.CombineEnvVarsWithCommandLine(null));
+            Assert.Equal(2, App.CombineEnvVarsWithCommandLine(null).Count);
 
             Environment.SetEnvironmentVariable("KEYVAULT_NAME", "heliumtest-kv");
             Environment.SetEnvironmentVariable("AUTH_TYPE", "CLI");
@@ -57,7 +57,7 @@ namespace UnitTests
             Assert.Equal(1, root.Parse("-k heliumtest-kv -a CLI -foo").Errors.Count);
             Assert.Equal(2, root.Parse("-k heliumtest-kv -a CLI -foo bar").Errors.Count);
 
-            Assert.Equal(1, root.Parse("-k").Errors.Count);
+            Assert.Equal(2, root.Parse("-k").Errors.Count);
             Assert.Equal(1, root.Parse("-k heliumtest-kv -a").Errors.Count);
         }
     }
