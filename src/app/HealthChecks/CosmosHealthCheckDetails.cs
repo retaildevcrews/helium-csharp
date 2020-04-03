@@ -94,7 +94,7 @@ namespace Helium
         private async Task<HealthzCheck> GetMovieByIdAsync(string movieId, Dictionary<string, object> data = null)
         {
             const string name = "getMovieById";
-            const int maxMilliseconds = 400;
+            const int maxMilliseconds = 250;
             string path = "/api/movies/" + movieId;
 
             stopwatch.Restart();
