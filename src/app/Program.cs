@@ -253,7 +253,7 @@ namespace Helium
             Console.WriteLine($"Keyvault           {kvUrl}");
             Console.WriteLine($"Auth Type          {authType}");
             Console.WriteLine($"Cosmos Server      {config.GetValue<string>(Constants.CosmosUrl)}");
-            Console.WriteLine($"Cosmos Key         Length({config.GetValue<string>(Constants.CosmosUrl).Length})");
+            Console.WriteLine($"Cosmos Key         Length({config.GetValue<string>(Constants.CosmosKey).Length})");
             Console.WriteLine($"Cosmos Database    {config.GetValue<string>(Constants.CosmosDatabase)}");
             Console.WriteLine($"Cosmos Collection  {config.GetValue<string>(Constants.CosmosCollection)}");
             Console.WriteLine($"App Insights Key   {(string.IsNullOrEmpty(config.GetValue<string>(Constants.AppInsightsKey)) ? "(not set" : "Length(" + config.GetValue<string>(Constants.AppInsightsKey).Length.ToString(CultureInfo.InvariantCulture))})");
