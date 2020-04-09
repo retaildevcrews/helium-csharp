@@ -1,6 +1,7 @@
 using Microsoft.Azure.Cosmos;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Threading.Tasks;
 
@@ -153,12 +154,42 @@ namespace Helium.DataAccessLayer
         /// Generic function to be used by subclasses to execute arbitrary queries and return type T.
         /// </summary>
         /// <typeparam name="T">POCO type to which results are serialized and returned.</typeparam>
+        /// <param name="queryDefinition">Query to be executed.</param>
+        /// /// <param name="sql">Query to be executed.</param>
+        /// <returns>Enumerable list of objects of type T.</returns>
+        private async Task<IEnumerable<T>> InternalCosmosDBSqlQuery<T>(QueryDefinition queryDefinition)
+        {
+            // run query
+            var query = _cosmosDetails.Container.GetItemQueryIterator<T>(queryDefinition, requestOptions: _cosmosDetails.QueryRequestOptions);
+
+            List<T> results = new List<T>();
+            try
+            {
+                while (query.HasMoreResults)
+                {
+                    foreach (var doc in await query.ReadNextAsync().ConfigureAwait(false))
+                    {
+                        results.Add(doc);
+                    }
+                }
+            } catch(Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+            }
+            return results;
+        }
+
+        //TODO: Will remove original sql query once all callers are converted
+        /// <summary>
+        /// Generic function to be used by subclasses to execute arbitrary queries and return type T.
+        /// </summary>
+        /// <typeparam name="T">POCO type to which results are serialized and returned.</typeparam>
         /// <param name="sql">Query to be executed.</param>
         /// <returns>Enumerable list of objects of type T.</returns>
         private async Task<IEnumerable<T>> InternalCosmosDBSqlQuery<T>(string sql)
         {
             // run query
-            var query = _cosmosDetails.Container.GetItemQueryIterator<T>(sql,requestOptions: _cosmosDetails.QueryRequestOptions);
+            var query = _cosmosDetails.Container.GetItemQueryIterator<T>(sql, requestOptions: _cosmosDetails.QueryRequestOptions);
 
             List<T> results = new List<T>();
 

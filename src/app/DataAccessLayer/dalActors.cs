@@ -36,36 +36,6 @@ namespace Helium.DataAccessLayer
             return await _cosmosDetails.Container.ReadItemAsync<Actor>(actorId, new PartitionKey(GetPartitionKey(actorId))).ConfigureAwait(false);
         }
 
-        ///// <summary>
-        ///// Parameterize Actors to avoid sql injection attacks
-        ///// </summary>
-        ///// <param name="q">search term</param>
-        ///// <param name="parameters">parameter check</param>
-        ///// <returns>parameterized results</returns>
-        //public async Task<IEnumerable<Actor>> GetMyEntriesAsync(string q, Dictionary<string, object> parameters)
-        //{
-        //    if ((parameters?.Count ?? 0) < 1)
-        //    {
-        //        throw new ArgumentException("Parameters required to prevent SQL injection attacks");
-        //    }
-
-        //    var queryDef = new QueryDefinition(q);
-        //    foreach (var p in parameters)
-        //    {
-        //        queryDef.WithParameter(p.Key, p.Value);
-        //    }
-
-        //    var query = this._cosmosDetails.Container.GetItemQueryIterator<Actor>(queryDef);
-        //    List<Actor> results = new List<Actor>();
-        //    while (query.HasMoreResults)
-        //    {
-        //        var response = await query.ReadNextAsync().ConfigureAwait(false);
-        //        results.AddRange(response.ToList());
-        //    }
-
-        //    return results;
-        //}
-
         /// <summary>
         /// Get a list of Actors by search string
         /// 
@@ -79,9 +49,6 @@ namespace Helium.DataAccessLayer
         public async Task<IEnumerable<Actor>> GetActorsAsync(string q, int offset = 0, int limit = Constants.DefaultPageSize)
         {
             string sql = _actorSelect;
-            string orderby = _actorOrderBy;
-
-            Dictionary<string, string> queryParams = new Dictionary<string, string>();
 
             if (limit < 1)
             {
@@ -94,9 +61,6 @@ namespace Helium.DataAccessLayer
 
             // string offsetLimit = string.Format(CultureInfo.InvariantCulture, _actorOffset, offset, limit);
 
-            queryParams.Add("@offset", offset.ToString());
-            queryParams.Add("@limit", limit.ToString());
-
             if (!string.IsNullOrEmpty(q))
             {
                 // convert to lower and escape embedded '
@@ -107,22 +71,21 @@ namespace Helium.DataAccessLayer
                     // get actors by a "like" search on name
                     //sql += string.Format(CultureInfo.InvariantCulture, $" and contains(m.textSearch, '{q}') ");
                     sql += " and contains(m.textSearch, @q) ";
-                    queryParams.Add("@q", q);
                 }
             }
 
-            sql += orderby + _actorOffset;
+            sql += _actorOrderBy + _actorOffset;
 
-            QueryDefinition queryDef = new QueryDefinition(sql);
-            if(queryParams.Count > 0)
-            {
-                foreach(string param in queryParams.Keys)
-                {
-                    queryDef.WithParameter(param, queryParams[param]);
-                }
-            }
+            QueryDefinition queryDefinition = new QueryDefinition(sql);
 
-            return await InternalCosmosDBSqlQuery<Actor>(queryDef).ConfigureAwait(false);
+            queryDefinition.WithParameter("@offset", offset.ToString());
+            queryDefinition.WithParameter("@limit", limit.ToString());
+
+            if(!string.IsNullOrEmpty(q)) 
+                queryDefinition.WithParameter("@q", q);
+            
+
+            return await InternalCosmosDBSqlQuery<Actor>(queryDefinition).ConfigureAwait(false);
         }
 
     }
