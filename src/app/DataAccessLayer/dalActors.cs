@@ -1,7 +1,9 @@
 using Helium.Model;
 using Microsoft.Azure.Cosmos;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Helium.DataAccessLayer
@@ -14,7 +16,7 @@ namespace Helium.DataAccessLayer
         // select template for Actors
         const string _actorSelect = "select m.id, m.partitionKey, m.actorId, m.type, m.name, m.birthYear, m.deathYear, m.profession, m.textSearch, m.movies from m where m.type = 'Actor' ";
         const string _actorOrderBy = " order by m.textSearch ASC, m.actorId ASC";
-        const string _actorOffset = " offset {0} limit {1}";
+        const string _actorOffset = " offset @offset limit @limit";
 
         /// <summary>
         /// Retrieve a single Actor from CosmosDB by actorId
@@ -34,6 +36,36 @@ namespace Helium.DataAccessLayer
             return await _cosmosDetails.Container.ReadItemAsync<Actor>(actorId, new PartitionKey(GetPartitionKey(actorId))).ConfigureAwait(false);
         }
 
+        ///// <summary>
+        ///// Parameterize Actors to avoid sql injection attacks
+        ///// </summary>
+        ///// <param name="q">search term</param>
+        ///// <param name="parameters">parameter check</param>
+        ///// <returns>parameterized results</returns>
+        //public async Task<IEnumerable<Actor>> GetMyEntriesAsync(string q, Dictionary<string, object> parameters)
+        //{
+        //    if ((parameters?.Count ?? 0) < 1)
+        //    {
+        //        throw new ArgumentException("Parameters required to prevent SQL injection attacks");
+        //    }
+
+        //    var queryDef = new QueryDefinition(q);
+        //    foreach (var p in parameters)
+        //    {
+        //        queryDef.WithParameter(p.Key, p.Value);
+        //    }
+
+        //    var query = this._cosmosDetails.Container.GetItemQueryIterator<Actor>(queryDef);
+        //    List<Actor> results = new List<Actor>();
+        //    while (query.HasMoreResults)
+        //    {
+        //        var response = await query.ReadNextAsync().ConfigureAwait(false);
+        //        results.AddRange(response.ToList());
+        //    }
+
+        //    return results;
+        //}
+
         /// <summary>
         /// Get a list of Actors by search string
         /// 
@@ -49,6 +81,8 @@ namespace Helium.DataAccessLayer
             string sql = _actorSelect;
             string orderby = _actorOrderBy;
 
+            Dictionary<string, string> queryParams = new Dictionary<string, string>();
+
             if (limit < 1)
             {
                 limit = Constants.DefaultPageSize;
@@ -58,7 +92,10 @@ namespace Helium.DataAccessLayer
                 limit = Constants.MaxPageSize;
             }
 
-            string offsetLimit = string.Format(CultureInfo.InvariantCulture, _actorOffset, offset, limit);
+            // string offsetLimit = string.Format(CultureInfo.InvariantCulture, _actorOffset, offset, limit);
+
+            queryParams.Add("@offset", offset.ToString());
+            queryParams.Add("@limit", limit.ToString());
 
             if (!string.IsNullOrEmpty(q))
             {
@@ -68,14 +105,26 @@ namespace Helium.DataAccessLayer
                 if (!string.IsNullOrEmpty(q))
                 {
                     // get actors by a "like" search on name
-                    sql += string.Format(CultureInfo.InvariantCulture, $" and contains(m.textSearch, '{q}') ");
+                    //sql += string.Format(CultureInfo.InvariantCulture, $" and contains(m.textSearch, '{q}') ");
+                    sql += " and contains(m.textSearch, @q) ";
+                    queryParams.Add("@q", q);
                 }
             }
 
-            sql += orderby + offsetLimit;
+            sql += orderby + _actorOffset;
 
-            return await InternalCosmosDBSqlQuery<Actor>(sql).ConfigureAwait(false);
+            QueryDefinition queryDef = new QueryDefinition(sql);
+            if(queryParams.Count > 0)
+            {
+                foreach(string param in queryParams.Keys)
+                {
+                    queryDef.WithParameter(param, queryParams[param]);
+                }
+            }
+
+            return await InternalCosmosDBSqlQuery<Actor>(queryDef).ConfigureAwait(false);
         }
+
     }
 
 }

@@ -158,7 +158,7 @@ namespace Helium.DataAccessLayer
         private async Task<IEnumerable<T>> InternalCosmosDBSqlQuery<T>(string sql)
         {
             // run query
-            var query = _cosmosDetails.Container.GetItemQueryIterator<T>(sql, requestOptions: _cosmosDetails.QueryRequestOptions);
+            var query = _cosmosDetails.Container.GetItemQueryIterator<T>(sql,requestOptions: _cosmosDetails.QueryRequestOptions);
 
             List<T> results = new List<T>();
 

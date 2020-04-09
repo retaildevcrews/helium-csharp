@@ -20,3 +20,4 @@
 
 [assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("IDE", "IDE0051:Private member GetXmlCommentsPath is unused", Justification = "can be used if configured", Scope = "type", Target = "Helium.Startup")]
 [assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1054:Uri parameters should not be strings", Justification = "KeyVault SDK expects string", Scope = "type", Target = "Helium.App")]
+[assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1305:Specify IFormatProvider", Justification = "<Pending>", Scope = "member", Target = "~M:Helium.DataAccessLayer.DAL.GetActorsAsync(System.String,System.Int32,System.Int32)~System.Threading.Tasks.Task{System.Collections.Generic.IEnumerable{Helium.Model.Actor}}")]
