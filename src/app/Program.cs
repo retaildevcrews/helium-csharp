@@ -55,17 +55,9 @@ namespace Helium
 
             // build the System.CommandLine.RootCommand
             RootCommand root = BuildRootCommand();
-
-            // handle version
-            // ignore all parameters except help
-            if (cmd.Contains("--version"))
-            {
-                Console.WriteLine(Middleware.VersionExtensions.Version);
-                return 0;
-            }
+            root.Handler = CommandHandler.Create<string, string, bool>(RunApp);
 
             // run the app
-            root.Handler = CommandHandler.Create<string, string, bool>(RunApp);
             return await root.InvokeAsync(cmd.ToArray()).ConfigureAwait(false);
         }
 

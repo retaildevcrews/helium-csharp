@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Builder;
-using System.Globalization;
+using System;
+using System.Reflection;
 
 namespace Middleware
 {
@@ -56,15 +57,10 @@ namespace Middleware
             {
                 if (string.IsNullOrEmpty(_version))
                 {
-                    // get assembly version
-                    var aVer = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
-
-                    // get file creation date time
-                    string file = System.Reflection.Assembly.GetExecutingAssembly().Location;
-                    System.DateTime dt = System.IO.File.GetCreationTime(file);
-
-                    // build semver from assembly version and file creation date
-                    _version = string.Format(CultureInfo.InvariantCulture, $"{aVer.Major}.{aVer.Minor}.{aVer.Build}+{dt.ToString("MMdd.HHmm", CultureInfo.InvariantCulture)}");
+                    if (Attribute.GetCustomAttribute(Assembly.GetEntryAssembly(), typeof(AssemblyInformationalVersionAttribute)) is AssemblyInformationalVersionAttribute v)
+                    {
+                        _version = v.InformationalVersion;
+                    }
                 }
 
                 return _version;
