@@ -4,8 +4,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>Helium</RootNamespace>
     <AssemblyName>helium</AssemblyName>
-    <VersionPrefix>1.0.7</VersionPrefix>
-    <VersionSuffix>$([System.DateTime]::Now.ToString(`MMdd-HHmm`))</VersionSuffix>
+    <Version>1.0.7+$([System.DateTime]::Now.ToString(`MMdd-HHmm`))</Version>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);1591</NoWarn>
     <LangVersion>8.0</LangVersion>
