@@ -1,9 +1,6 @@
 using Helium.Model;
 using Microsoft.Azure.Cosmos;
-using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Helium.DataAccessLayer
@@ -16,7 +13,7 @@ namespace Helium.DataAccessLayer
         // select template for Actors
         const string _actorSelect = "select m.id, m.partitionKey, m.actorId, m.type, m.name, m.birthYear, m.deathYear, m.profession, m.textSearch, m.movies from m where m.type = 'Actor' ";
         const string _actorOrderBy = " order by m.textSearch ASC, m.actorId ASC";
-        const string _actorOffset = " offset @offset limit @limit";
+        const string _actorOffset = " @offset offset @limit limit";
 
         /// <summary>
         /// Retrieve a single Actor from CosmosDB by actorId
@@ -81,9 +78,10 @@ namespace Helium.DataAccessLayer
             queryDefinition.WithParameter("@offset", offset.ToString());
             queryDefinition.WithParameter("@limit", limit.ToString());
 
-            if(!string.IsNullOrEmpty(q)) 
+            if (!string.IsNullOrEmpty(q))
+            {
                 queryDefinition.WithParameter("@q", q);
-            
+            }
 
             return await InternalCosmosDBSqlQuery<Actor>(queryDefinition).ConfigureAwait(false);
         }
