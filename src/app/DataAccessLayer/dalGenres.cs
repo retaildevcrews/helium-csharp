@@ -9,7 +9,7 @@ namespace Helium.DataAccessLayer
     /// </summary>
     public partial class DAL
     {
-        const string _genresSelect = "select value m.genre from m where m.type = 'Genre' order by m.genre";
+        const string genresSelect = "select value m.genre from m where m.type = 'Genre' order by m.genre";
 
         /// <summary>
         /// Read the genres from CosmosDB
@@ -22,7 +22,7 @@ namespace Helium.DataAccessLayer
 
             List<string> results = new List<string>();
 
-            var q = await InternalCosmosDBSqlQuery<string>(_genresSelect).ConfigureAwait(false);
+            var q = await InternalCosmosDBSqlQuery<string>(genresSelect).ConfigureAwait(false);
 
             foreach (string g in q)
             {
@@ -50,7 +50,7 @@ namespace Helium.DataAccessLayer
 
             // read the genre from Cosmos
             // this will throw exception if not found
-            var ir = await _cosmosDetails.Container.ReadItemAsync<IDictionary<string, string>>(key.ToLowerInvariant(), partitionKey).ConfigureAwait(false);
+            var ir = await cosmosDetails.Container.ReadItemAsync<IDictionary<string, string>>(key.ToLowerInvariant(), partitionKey).ConfigureAwait(false);
 
             // return the value
             return ir.Resource["genre"];

@@ -24,10 +24,10 @@ namespace Helium
     public sealed class App
     {
         // ILogger instance
-        private static ILogger<App> _logger;
+        private static ILogger<App> logger;
 
         // web host
-        private static IWebHost _host;
+        private static IWebHost host;
 
         // Key Vault configuration
         private static IConfigurationRoot config = null;
@@ -191,9 +191,9 @@ namespace Helium
                 ctCancel = SetupCtlCHandler();
 
                 // build the host
-                _host = await BuildHost(kvUrl, authType).ConfigureAwait(false);
+                host = await BuildHost(kvUrl, authType).ConfigureAwait(false);
 
-                if (_host == null)
+                if (host == null)
                 {
                     return -1;
                 }
@@ -208,7 +208,7 @@ namespace Helium
                 LogStartup();
 
                 // start the webserver
-                var w = _host.RunAsync();
+                var w = host.RunAsync();
 
                 // this doesn't return except on ctl-c
                 await RunKeyRotationCheck(ctCancel, Constants.KeyVaultChangeCheckSeconds).ConfigureAwait(false);
@@ -220,9 +220,9 @@ namespace Helium
             catch (Exception ex)
             {
                 // end app on error
-                if (_logger != null)
+                if (logger != null)
                 {
-                    _logger.LogError($"Exception: {ex}");
+                    logger.LogError($"Exception: {ex}");
                 }
                 else
                 {
@@ -279,7 +279,7 @@ namespace Helium
                         if (!ctCancel.IsCancellationRequested)
                         {
                             // reconnect the DAL
-                            var dal = _host.Services.GetService<IDAL>();
+                            var dal = host.Services.GetService<IDAL>();
 
                             if (dal != null)
                             {
@@ -294,7 +294,7 @@ namespace Helium
                                     // send a NewKeyLoadedMetric to App Insights
                                     if (!string.IsNullOrEmpty(config[Constants.AppInsightsKey]))
                                     {
-                                        var telemetryClient = _host.Services.GetService<TelemetryClient>();
+                                        var telemetryClient = host.Services.GetService<TelemetryClient>();
 
                                         if (telemetryClient != null)
                                         {
@@ -345,20 +345,20 @@ namespace Helium
         private static void LogStartup()
         {
             // get the logger service
-            _logger = _host.Services.GetRequiredService<ILogger<App>>();
+            logger = host.Services.GetRequiredService<ILogger<App>>();
 
-            if (_logger != null)
+            if (logger != null)
             {
                 // get the IConfigurationRoot from DI
-                var cfg = _host.Services.GetService<IConfigurationRoot>();
+                var cfg = host.Services.GetService<IConfigurationRoot>();
 
                 // log a not using app insights warning
                 if (string.IsNullOrEmpty(cfg.GetValue<string>(Constants.AppInsightsKey)))
                 {
-                    _logger.LogWarning("App Insights Key not set");
+                    logger.LogWarning("App Insights Key not set");
                 }
 
-                _logger.LogInformation("Web Server Started");
+                logger.LogInformation("Web Server Started");
             }
 
             Console.WriteLine($"Version: {Middleware.VersionExtensions.Version}");

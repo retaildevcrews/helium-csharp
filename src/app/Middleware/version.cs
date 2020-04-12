@@ -10,7 +10,7 @@ namespace Middleware
     public static class VersionExtensions
     {
         // cached response
-        static byte[] _responseBytes = null;
+        static byte[] responseBytes = null;
 
         /// <summary>
         /// Middleware extension method to handle /version request
@@ -26,14 +26,14 @@ namespace Middleware
                 if (context.Request.Path.Value.Equals("/version", System.StringComparison.OrdinalIgnoreCase))
                 {
                     // cache the version info for performance
-                    if (_responseBytes == null)
+                    if (responseBytes == null)
                     {
-                        _responseBytes = System.Text.Encoding.UTF8.GetBytes(Middleware.VersionExtensions.Version);
+                        responseBytes = System.Text.Encoding.UTF8.GetBytes(Middleware.VersionExtensions.Version);
                     }
 
                     // return the version info
                     context.Response.ContentType = "text/plain";
-                    await context.Response.Body.WriteAsync(_responseBytes, 0, _responseBytes.Length).ConfigureAwait(false);
+                    await context.Response.Body.WriteAsync(responseBytes, 0, responseBytes.Length).ConfigureAwait(false);
                 }
                 else
                 {
@@ -46,7 +46,7 @@ namespace Middleware
         }
 
         // cache version info as it doesn't change
-        static string _version = string.Empty;
+        static string version = string.Empty;
 
         /// <summary>
         /// Get the app version
@@ -55,15 +55,15 @@ namespace Middleware
         {
             get
             {
-                if (string.IsNullOrEmpty(_version))
+                if (string.IsNullOrEmpty(version))
                 {
                     if (Attribute.GetCustomAttribute(Assembly.GetEntryAssembly(), typeof(AssemblyInformationalVersionAttribute)) is AssemblyInformationalVersionAttribute v)
                     {
-                        _version = v.InformationalVersion;
+                        version = v.InformationalVersion;
                     }
                 }
 
-                return _version;
+                return version;
             }
         }
     }
