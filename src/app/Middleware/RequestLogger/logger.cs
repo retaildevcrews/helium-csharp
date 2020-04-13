@@ -15,10 +15,10 @@ namespace Middleware
     {
 
         // next action to Invoke
-        private readonly RequestDelegate _next;
-        private readonly LoggerOptions _options;
+        private readonly RequestDelegate next;
+        private readonly LoggerOptions options;
 
-        private const string _ipHeader = "X-Client-IP";
+        private const string ipHeader = "X-Client-IP";
 
         /// <summary>
         /// Constructor
@@ -28,13 +28,13 @@ namespace Middleware
         public Logger(RequestDelegate next, IOptions<LoggerOptions> options)
         {
             // save for later
-            _next = next;
-            _options = options?.Value;
+            this.next = next;
+            this.options = options?.Value;
 
-            if (_options == null)
+            if (this.options == null)
             {
                 // use default
-                _options = new LoggerOptions();
+                this.options = new LoggerOptions();
             }
         }
 
@@ -49,9 +49,9 @@ namespace Middleware
             DateTime dtStart = DateTime.Now;
 
             // Invoke next handler
-            if (_next != null)
+            if (next != null)
             {
-                await _next.Invoke(context).ConfigureAwait(false);
+                await next.Invoke(context).ConfigureAwait(false);
             }
 
             // compute request duration
@@ -72,7 +72,7 @@ namespace Middleware
             // write the results to the console
             if (ShouldLogRequest(context.Response))
             {
-                Console.WriteLine($"{context.Response.StatusCode}\t{duration,6:0}\t{context.Request.Headers[_ipHeader]}\t{GetPathAndQuerystring(context.Request)}");
+                Console.WriteLine($"{context.Response.StatusCode}\t{duration,6:0}\t{context.Request.Headers[ipHeader]}\t{GetPathAndQuerystring(context.Request)}");
             }
         }
 
@@ -87,28 +87,28 @@ namespace Middleware
             // check for logging by response level
             if (response.StatusCode < 300)
             {
-                if (!_options.Log2xx)
+                if (!options.Log2xx)
                 {
                     return false;
                 }
             }
             else if (response.StatusCode < 400)
             {
-                if (!_options.Log3xx)
+                if (!options.Log3xx)
                 {
                     return false;
                 }
             }
             else if (response.StatusCode < 500)
             {
-                if (!_options.Log4xx)
+                if (!options.Log4xx)
                 {
                     return false;
                 }
             }
             else
             {
-                if (!_options.Log5xx)
+                if (!options.Log5xx)
                 {
                     return false;
                 }
@@ -142,7 +142,7 @@ namespace Middleware
                     string log = string.Empty;
 
                     // build the log message
-                    log += string.Format(CultureInfo.InvariantCulture, $"{IetfCheck.ToIetfStatus(hcr.Status)}\t{duration,6:0}\t{context.Request.Headers[_ipHeader]}\t{GetPathAndQuerystring(context.Request)}\n");
+                    log += string.Format(CultureInfo.InvariantCulture, $"{IetfCheck.ToIetfStatus(hcr.Status)}\t{duration,6:0}\t{context.Request.Headers[ipHeader]}\t{GetPathAndQuerystring(context.Request)}\n");
 
 
                     // add each not healthy check to the log message
@@ -150,7 +150,7 @@ namespace Middleware
                     {
                         if (d is HealthzCheck h && h.Status != HealthStatus.Healthy)
                         {
-                            log += string.Format(CultureInfo.InvariantCulture, $"{IetfCheck.ToIetfStatus(h.Status)}\t{(long)h.Duration.TotalMilliseconds,6}\t{context.Request.Headers[_ipHeader]}\t{h.Endpoint}\t({h.TargetDuration.TotalMilliseconds,1:0})\n");
+                            log += string.Format(CultureInfo.InvariantCulture, $"{IetfCheck.ToIetfStatus(h.Status)}\t{(long)h.Duration.TotalMilliseconds,6}\t{context.Request.Headers[ipHeader]}\t{h.Endpoint}\t({h.TargetDuration.TotalMilliseconds,1:0})\n");
                         }
                     }
 

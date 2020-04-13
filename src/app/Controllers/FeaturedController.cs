@@ -13,9 +13,9 @@ namespace Helium.Controllers
     [Route("api/[controller]")]
     public class FeaturedController : Controller
     {
-        private readonly ILogger _logger;
-        private readonly IDAL _dal;
-        private readonly Random _rand = new Random(DateTime.Now.Millisecond);
+        private readonly ILogger logger;
+        private readonly IDAL dal;
+        private readonly Random rand = new Random(DateTime.Now.Millisecond);
 
         /// <summary>
         /// Constructor
@@ -24,8 +24,8 @@ namespace Helium.Controllers
         /// <param name="dal">data access layer instance</param>
         public FeaturedController(ILogger<FeaturedController> logger, IDAL dal)
         {
-            _logger = logger;
-            _dal = dal;
+            this.logger = logger;
+            this.dal = dal;
         }
 
         /// <summary>
@@ -36,17 +36,17 @@ namespace Helium.Controllers
         public async Task<IActionResult> GetFeaturedMovieAsync()
         {
             string method = nameof(GetFeaturedMovieAsync);
-            _logger.LogInformation(method);
+            logger.LogInformation(method);
 
-            List<string> featuredMovies = await _dal.GetFeaturedMovieListAsync().ConfigureAwait(false);
+            List<string> featuredMovies = await dal.GetFeaturedMovieListAsync().ConfigureAwait(false);
 
             if (featuredMovies != null && featuredMovies.Count > 0)
             {
                 // get random featured movie by movieId
-                string movieId = featuredMovies[_rand.Next(0, featuredMovies.Count - 1)];
+                string movieId = featuredMovies[rand.Next(0, featuredMovies.Count - 1)];
 
                 // get movie by movieId
-                return await ResultHandler.Handle(_dal.GetMovieAsync(movieId), method, Constants.FeaturedControllerException, _logger).ConfigureAwait(false);
+                return await ResultHandler.Handle(dal.GetMovieAsync(movieId), method, Constants.FeaturedControllerException, logger).ConfigureAwait(false);
             }
 
             return NotFound();

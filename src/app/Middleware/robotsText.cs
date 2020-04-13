@@ -9,7 +9,7 @@ namespace Middleware
     public static class RobotsExtensions
     {
         // response that prevents all indexing
-        static readonly byte[] _responseBytes = System.Text.Encoding.UTF8.GetBytes("# Prevent indexing\r\nUser-agent: *\r\nDisallow: /\r\n");
+        static readonly byte[] responseBytes = System.Text.Encoding.UTF8.GetBytes("# Prevent indexing\r\nUser-agent: *\r\nDisallow: /\r\n");
 
         /// <summary>
         /// aspnet middleware extension method to handle /robots*.txt request
@@ -33,7 +33,7 @@ namespace Middleware
                 {
                     // return the content
                     context.Response.ContentType = "text/plain";
-                    await context.Response.Body.WriteAsync(_responseBytes, 0, _responseBytes.Length).ConfigureAwait(false);
+                    await context.Response.Body.WriteAsync(responseBytes, 0, responseBytes.Length).ConfigureAwait(false);
                 }
                 else
                 {

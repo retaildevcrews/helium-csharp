@@ -14,9 +14,9 @@ namespace Helium.Controllers
     [Route("[controller]")]
     public class HealthzController : Controller
     {
-        private readonly ILogger _logger;
-        private readonly ILogger<CosmosHealthCheck> _hcLogger;
-        private readonly IDAL _dal;
+        private readonly ILogger logger;
+        private readonly ILogger<CosmosHealthCheck> hcLogger;
+        private readonly IDAL dal;
 
         /// <summary>
         /// Constructor
@@ -26,9 +26,9 @@ namespace Helium.Controllers
         /// <param name="hcLogger">HealthCheck logger</param>
         public HealthzController(ILogger<HealthzController> logger, IDAL dal, ILogger<CosmosHealthCheck> hcLogger)
         {
-            _logger = logger;
-            _hcLogger = hcLogger;
-            _dal = dal;
+            this.logger = logger;
+            this.hcLogger = hcLogger;
+            this.dal = dal;
         }
 
         /// <summary>
@@ -40,7 +40,7 @@ namespace Helium.Controllers
         public async Task<IActionResult> RunHealthzAsync()
         {
             // get list of genres as list of string
-            _logger.LogInformation(nameof(RunHealthzAsync));
+            logger.LogInformation(nameof(RunHealthzAsync));
 
             HealthCheckResult res = await RunCosmosHealthCheck().ConfigureAwait(false);
 
@@ -61,7 +61,7 @@ namespace Helium.Controllers
         [ProducesResponseType(typeof(CosmosHealthCheck), 200)]
         public async System.Threading.Tasks.Task RunIetfAsync()
         {
-            _logger.LogInformation(nameof(RunHealthzAsync));
+            logger.LogInformation(nameof(RunHealthzAsync));
 
             DateTime dt = DateTime.UtcNow;
 
@@ -80,7 +80,7 @@ namespace Helium.Controllers
         [ProducesResponseType(typeof(CosmosHealthCheck), 200)]
         public async System.Threading.Tasks.Task<IActionResult> RunHealthzJsonAsync()
         {
-            _logger.LogInformation(nameof(RunHealthzAsync));
+            logger.LogInformation(nameof(RunHealthzAsync));
 
             HealthCheckResult res = await RunCosmosHealthCheck().ConfigureAwait(false);
 
@@ -98,7 +98,7 @@ namespace Helium.Controllers
         /// <returns>HealthCheckResult</returns>
         private async Task<HealthCheckResult> RunCosmosHealthCheck()
         {
-            CosmosHealthCheck chk = new CosmosHealthCheck(_hcLogger, _dal);
+            CosmosHealthCheck chk = new CosmosHealthCheck(hcLogger, dal);
 
             return await chk.CheckHealthAsync(new HealthCheckContext()).ConfigureAwait(false);
         }
