@@ -1,6 +1,7 @@
 using Helium.Model;
 using Microsoft.Azure.Cosmos;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Threading.Tasks;
 
 namespace Helium.DataAccessLayer
@@ -12,8 +13,8 @@ namespace Helium.DataAccessLayer
     {
         // select template for Actors
         const string _actorSelect = "select m.id, m.partitionKey, m.actorId, m.type, m.name, m.birthYear, m.deathYear, m.profession, m.textSearch, m.movies from m where m.type = 'Actor' ";
-        const string _actorOrderBy = " order by m.textSearch ASC, m.actorId ASC";
-        const string _actorOffset = " @offset offset @limit limit";
+        const string _actorOrderBy = " order by m.textSearch ASC "; //, m.actorId ASC";
+        const string _actorOffset = " offset {0} limit {1}";
 
         /// <summary>
         /// Retrieve a single Actor from CosmosDB by actorId
@@ -47,6 +48,8 @@ namespace Helium.DataAccessLayer
         {
             string sql = _actorSelect;
 
+
+
             if (limit < 1)
             {
                 limit = Constants.DefaultPageSize;
@@ -56,12 +59,14 @@ namespace Helium.DataAccessLayer
                 limit = Constants.MaxPageSize;
             }
 
-            // string offsetLimit = string.Format(CultureInfo.InvariantCulture, _actorOffset, offset, limit);
+            string offsetLimit = string.Format(CultureInfo.InvariantCulture, _actorOffset, offset, limit);
 
             if (!string.IsNullOrEmpty(q))
             {
                 // convert to lower and escape embedded '
                 q = q.Trim().ToLowerInvariant().Replace("'", "''", System.StringComparison.OrdinalIgnoreCase);
+
+
 
                 if (!string.IsNullOrEmpty(q))
                 {
@@ -71,12 +76,9 @@ namespace Helium.DataAccessLayer
                 }
             }
 
-            sql += _actorOrderBy + _actorOffset;
+            sql += _actorOrderBy + offsetLimit;
 
             QueryDefinition queryDefinition = new QueryDefinition(sql);
-
-            queryDefinition.WithParameter("@offset", offset.ToString());
-            queryDefinition.WithParameter("@limit", limit.ToString());
 
             if (!string.IsNullOrEmpty(q))
             {
@@ -87,5 +89,4 @@ namespace Helium.DataAccessLayer
         }
 
     }
-
 }

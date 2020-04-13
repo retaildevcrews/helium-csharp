@@ -1,7 +1,6 @@
 using Microsoft.Azure.Cosmos;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.Threading.Tasks;
 
@@ -162,20 +161,15 @@ namespace Helium.DataAccessLayer
             var query = _cosmosDetails.Container.GetItemQueryIterator<T>(queryDefinition, requestOptions: _cosmosDetails.QueryRequestOptions);
 
             List<T> results = new List<T>();
-            try
+
+            while (query.HasMoreResults)
             {
-                while (query.HasMoreResults)
+                foreach (var doc in await query.ReadNextAsync().ConfigureAwait(false))
                 {
-                    foreach (var doc in await query.ReadNextAsync().ConfigureAwait(false))
-                    {
-                        results.Add(doc);
-                    }
+                    results.Add(doc);
                 }
             }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex.Message);
-            }
+
             return results;
         }
 
