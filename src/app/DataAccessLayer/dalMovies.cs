@@ -98,7 +98,7 @@ namespace Helium.DataAccessLayer
                     //sql += " and array_contains(m.roles, { actorId: '";
                     //sql += actorId;
                     //sql += "' }, true) ";
-                    sql += " and array_contains(m.roles, { actorId: '@actorId' }, true) ";
+                    sql += " and array_contains(m.roles, { actorId: @actorId }, true) ";
                 }
             }
 
