@@ -173,7 +173,7 @@ namespace Helium.DataAccessLayer
             return results;
         }
 
-        //TODO: Will remove original sql query once all callers are converted
+        // TODO: Will remove original sql query once all callers are converted
         /// <summary>
         /// Generic function to be used by subclasses to execute arbitrary queries and return type T.
         /// </summary>

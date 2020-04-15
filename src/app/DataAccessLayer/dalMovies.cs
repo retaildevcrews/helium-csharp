@@ -49,7 +49,7 @@ namespace Helium.DataAccessLayer
         public async Task<IEnumerable<Movie>> GetMoviesAsync(string q, string genre = "", int year = 0, double rating = 0, string actorId = "", int offset = 0, int limit = Constants.DefaultPageSize)
         {
             string sql = _movieSelect;
-            string orderby = _movieOrderBy;
+            // string orderby = _movieOrderBy;
 
             if (limit < 1)
             {
@@ -70,18 +70,21 @@ namespace Helium.DataAccessLayer
                 if (!string.IsNullOrEmpty(q))
                 {
                     // get movies by a "like" search on title
-                    sql += string.Format(CultureInfo.InvariantCulture, $" and contains(m.textSearch, '{q}') ");
+                    // sql += string.Format(CultureInfo.InvariantCulture, $" and contains(m.textSearch, '{q}') ");
+                    sql += " and contains(m.textSearch, @q) ";
                 }
             }
 
             if (year > 0)
             {
-                sql += string.Format(CultureInfo.InvariantCulture, $" and m.year = {year} ");
+                // sql += string.Format(CultureInfo.InvariantCulture, $" and m.year = {year} ");
+                sql += " and m.year = '{@year}' ";
             }
 
             if (rating > 0)
             {
-                sql += string.Format(CultureInfo.InvariantCulture, $" and m.rating >= {rating} ");
+                //  sql += string.Format(CultureInfo.InvariantCulture, $" and m.rating >= {rating} ");
+                sql += " and m.rating >= '{@rating}' ";
             }
 
             if (!string.IsNullOrEmpty(actorId))
@@ -92,9 +95,10 @@ namespace Helium.DataAccessLayer
                 if (!string.IsNullOrEmpty(actorId))
                 {
                     // get movies for an actor
-                    sql += " and array_contains(m.roles, { actorId: '";
-                    sql += actorId;
-                    sql += "' }, true) ";
+                    //sql += " and array_contains(m.roles, { actorId: '";
+                    //sql += actorId;
+                    //sql += "' }, true) ";
+                    sql += " and array_contains(m.roles, { actorId: '@actorId' }, true) ";
                 }
             }
 
@@ -112,12 +116,37 @@ namespace Helium.DataAccessLayer
                 }
 
                 // get movies by genre
-                sql += string.Format(CultureInfo.InvariantCulture, $" and array_contains(m.genres, '{genre}') ");
+                //sql += string.Format(CultureInfo.InvariantCulture, $" and array_contains(m.genres, '{genre}') ");
+                sql += " and array_contains(m.genres, '{@genre}') ";
             }
 
-            sql += orderby + offsetLimit;
+            // sql += orderby + offsetLimit;
+            sql += _movieOrderBy + offsetLimit;
 
-            return await InternalCosmosDBSqlQuery<Movie>(sql).ConfigureAwait(false);
+            QueryDefinition queryDefinition = new QueryDefinition(sql);
+
+            if (!string.IsNullOrEmpty(q))
+            {
+                queryDefinition.WithParameter("@q", q);
+            }
+            if (!string.IsNullOrEmpty(actorId))
+            {
+                queryDefinition.WithParameter("@actorId", actorId);
+            }
+            if (!string.IsNullOrEmpty(genre))
+            {
+                queryDefinition.WithParameter("@genre", genre);
+            }
+            if (year > 0)
+            {
+                queryDefinition.WithParameter("@year", year);
+            }
+            if (rating > 0)
+            {
+                queryDefinition.WithParameter("@rating", rating);
+            }
+
+            return await InternalCosmosDBSqlQuery<Movie>(queryDefinition).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -154,5 +183,7 @@ namespace Helium.DataAccessLayer
 
             return list;
         }
+
     }
+
 }
