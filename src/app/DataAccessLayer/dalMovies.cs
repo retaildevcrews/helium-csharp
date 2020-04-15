@@ -78,13 +78,13 @@ namespace Helium.DataAccessLayer
             if (year > 0)
             {
                 // sql += string.Format(CultureInfo.InvariantCulture, $" and m.year = {year} ");
-                sql += " and m.year = '{@year}' ";
+                sql += " and m.year = @year ";
             }
 
             if (rating > 0)
             {
                 //  sql += string.Format(CultureInfo.InvariantCulture, $" and m.rating >= {rating} ");
-                sql += " and m.rating >= '{@rating}' ";
+                sql += " and m.rating >= @rating ";
             }
 
             if (!string.IsNullOrEmpty(actorId))
@@ -117,7 +117,7 @@ namespace Helium.DataAccessLayer
 
                 // get movies by genre
                 //sql += string.Format(CultureInfo.InvariantCulture, $" and array_contains(m.genres, '{genre}') ");
-                sql += " and array_contains(m.genres, '{@genre}') ";
+                sql += " and array_contains(m.genres, @genre) ";
             }
 
             // sql += orderby + offsetLimit;
