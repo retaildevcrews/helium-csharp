@@ -13,9 +13,9 @@ namespace Helium.DataAccessLayer
     public partial class DAL
     {
         // select template for Movies
-        const string _movieSelect = "select m.id, m.partitionKey, m.movieId, m.type, m.textSearch, m.title, m.year, m.runtime, m.rating, m.votes, m.totalScore, m.genres, m.roles from m where m.type = 'Movie' ";
-        const string _movieOrderBy = " order by m.textSearch ASC, m.movieId ASC";
-        const string _movieOffset = " offset {0} limit {1}";
+        const string movieSelect = "select m.id, m.partitionKey, m.movieId, m.type, m.textSearch, m.title, m.year, m.runtime, m.rating, m.votes, m.totalScore, m.genres, m.roles from m where m.type = 'Movie' ";
+        const string movieOrderBy = " order by m.textSearch ASC, m.movieId ASC";
+        const string movieOffset = " offset {0} limit {1}";
 
         /// <summary>
         /// Retrieve a single Movie from CosmosDB by movieId
@@ -32,7 +32,7 @@ namespace Helium.DataAccessLayer
             // note: if the key cannot be determined from the ID, ReadDocumentAsync cannot be used.
             // GetPartitionKey will throw an ArgumentException if the movieId isn't valid
             // get a movie by ID
-            return await _cosmosDetails.Container.ReadItemAsync<Movie>(movieId, new PartitionKey(GetPartitionKey(movieId))).ConfigureAwait(false);
+            return await cosmosDetails.Container.ReadItemAsync<Movie>(movieId, new PartitionKey(GetPartitionKey(movieId))).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -48,7 +48,13 @@ namespace Helium.DataAccessLayer
         /// <returns>List of Movies or an empty list</returns>
         public async Task<IEnumerable<Movie>> GetMoviesAsync(string q, string genre = "", int year = 0, double rating = 0, string actorId = "", int offset = 0, int limit = Constants.DefaultPageSize)
         {
+
             string sql = _movieSelect;
+<<<<<<< HEAD
+=======
+            
+
+>>>>>>> 4b7b33c9ed8f428835e51d04eed8cc9e01476ca3
 
             if (limit < 1)
             {
@@ -59,7 +65,7 @@ namespace Helium.DataAccessLayer
                 limit = Constants.MaxPageSize;
             }
 
-            string offsetLimit = string.Format(CultureInfo.InvariantCulture, _movieOffset, offset, limit);
+            string offsetLimit = string.Format(CultureInfo.InvariantCulture, movieOffset, offset, limit);
 
             if (!string.IsNullOrEmpty(q))
             {

@@ -19,8 +19,8 @@ namespace Helium
 
         private static JsonSerializerOptions jsonOptions = null;
 
-        private readonly ILogger _logger;
-        private readonly IDAL _dal;
+        private readonly ILogger logger;
+        private readonly IDAL dal;
 
         /// <summary>
         /// Constructor
@@ -30,8 +30,8 @@ namespace Helium
         public CosmosHealthCheck(ILogger<CosmosHealthCheck> logger, IDAL dal)
         {
             // save to member vars
-            _logger = logger;
-            _dal = dal;
+            this.logger = logger;
+            this.dal = dal;
 
             // setup serialization options
             if (jsonOptions == null)
@@ -99,7 +99,7 @@ namespace Helium
             catch (CosmosException ce)
             {
                 // log and return Unhealthy
-                _logger.LogError($"CosmosException:Healthz:{ce.StatusCode}:{ce.ActivityId}:{ce.Message}\n{ce}");
+                logger.LogError($"CosmosException:Healthz:{ce.StatusCode}:{ce.ActivityId}:{ce.Message}\n{ce}");
 
                 data.Add("CosmosException", ce.Message);
 
@@ -109,7 +109,7 @@ namespace Helium
             catch (Exception ex)
             {
                 // log and return unhealthy
-                _logger.LogError($"Exception:Healthz\n{ex}");
+                logger.LogError($"Exception:Healthz\n{ex}");
 
                 data.Add("Exception", ex.Message);
 

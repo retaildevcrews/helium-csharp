@@ -74,7 +74,7 @@ namespace Helium
 
             try
             {
-                (await _dal.GetGenresAsync().ConfigureAwait(false)).ToList<string>();
+                (await dal.GetGenresAsync().ConfigureAwait(false)).ToList<string>();
 
                 return BuildHealthzCheck(path, maxMilliseconds, null, data, name);
             }
@@ -101,7 +101,7 @@ namespace Helium
 
             try
             {
-                await _dal.GetMovieAsync(movieId).ConfigureAwait(false);
+                await dal.GetMovieAsync(movieId).ConfigureAwait(false);
 
                 return BuildHealthzCheck(path, maxMilliseconds, null, data, name);
             }
@@ -128,7 +128,7 @@ namespace Helium
 
             try
             {
-                (await _dal.GetMoviesAsync(query).ConfigureAwait(false)).ToList<Movie>();
+                (await dal.GetMoviesAsync(query).ConfigureAwait(false)).ToList<Movie>();
 
                 return BuildHealthzCheck(path, maxMilliseconds, null, data, name);
             }
@@ -155,7 +155,7 @@ namespace Helium
 
             try
             {
-                await _dal.GetActorAsync(actorId).ConfigureAwait(false);
+                await dal.GetActorAsync(actorId).ConfigureAwait(false);
                 return BuildHealthzCheck(path, maxMilliseconds, null, data, name);
             }
             catch (Exception ex)
@@ -181,7 +181,7 @@ namespace Helium
 
             try
             {
-                (await _dal.GetActorsAsync(query).ConfigureAwait(false)).ToList<Actor>();
+                (await dal.GetActorsAsync(query).ConfigureAwait(false)).ToList<Actor>();
 
                 return BuildHealthzCheck(path, maxMilliseconds, null, data, name);
             }

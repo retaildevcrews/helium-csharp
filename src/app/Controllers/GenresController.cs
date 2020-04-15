@@ -11,8 +11,8 @@ namespace Helium.Controllers
     [Route("api/[controller]")]
     public class GenresController : Controller
     {
-        private readonly ILogger _logger;
-        private readonly IDAL _dal;
+        private readonly ILogger logger;
+        private readonly IDAL dal;
 
         /// <summary>
         /// Constructor
@@ -21,8 +21,8 @@ namespace Helium.Controllers
         /// <param name="dal">data access layer instance</param>
         public GenresController(ILogger<GenresController> logger, IDAL dal)
         {
-            _logger = logger;
-            _dal = dal;
+            this.logger = logger;
+            this.dal = dal;
         }
 
         /// <summary>
@@ -33,7 +33,7 @@ namespace Helium.Controllers
         public async Task<IActionResult> GetGenresAsync()
         {
             // get list of genres as list of string
-            return await ResultHandler.Handle(_dal.GetGenresAsync(), nameof(GetGenresAsync), Constants.GenresControllerException, _logger).ConfigureAwait(false);
+            return await ResultHandler.Handle(dal.GetGenresAsync(), nameof(GetGenresAsync), Constants.GenresControllerException, logger).ConfigureAwait(false);
         }
     }
 }

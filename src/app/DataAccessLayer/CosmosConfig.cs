@@ -23,20 +23,20 @@ namespace Helium.DataAccessLayer
         public string CosmosCollection;
 
         // member variables
-        private QueryRequestOptions _queryRequestOptions = null;
-        private CosmosClientOptions _cosmosClientOptions = null;
+        private QueryRequestOptions queryRequestOptions = null;
+        private CosmosClientOptions cosmosClientOptions = null;
 
         // CosmosDB query request options
         public QueryRequestOptions QueryRequestOptions
         {
             get
             {
-                if (_queryRequestOptions == null)
+                if (queryRequestOptions == null)
                 {
-                    _queryRequestOptions = new QueryRequestOptions { MaxItemCount = MaxRows };
+                    queryRequestOptions = new QueryRequestOptions { MaxItemCount = MaxRows };
                 }
 
-                return _queryRequestOptions;
+                return queryRequestOptions;
             }
         }
 
@@ -45,12 +45,12 @@ namespace Helium.DataAccessLayer
         {
             get
             {
-                if (_cosmosClientOptions == null)
+                if (cosmosClientOptions == null)
                 {
-                    _cosmosClientOptions = new CosmosClientOptions { RequestTimeout = TimeSpan.FromSeconds(Timeout), MaxRetryAttemptsOnRateLimitedRequests = Retries, MaxRetryWaitTimeOnRateLimitedRequests = TimeSpan.FromSeconds(Timeout) };
+                    cosmosClientOptions = new CosmosClientOptions { RequestTimeout = TimeSpan.FromSeconds(Timeout), MaxRetryAttemptsOnRateLimitedRequests = Retries, MaxRetryWaitTimeOnRateLimitedRequests = TimeSpan.FromSeconds(Timeout) };
                 }
 
-                return _cosmosClientOptions;
+                return cosmosClientOptions;
             }
         }
     }

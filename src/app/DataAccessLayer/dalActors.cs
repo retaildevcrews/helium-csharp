@@ -12,9 +12,9 @@ namespace Helium.DataAccessLayer
     public partial class DAL
     {
         // select template for Actors
-        const string _actorSelect = "select m.id, m.partitionKey, m.actorId, m.type, m.name, m.birthYear, m.deathYear, m.profession, m.textSearch, m.movies from m where m.type = 'Actor' ";
-        const string _actorOrderBy = " order by m.textSearch ASC, m.actorId ASC";
-        const string _actorOffset = " offset {0} limit {1}";
+        const string actorSelect = "select m.id, m.partitionKey, m.actorId, m.type, m.name, m.birthYear, m.deathYear, m.profession, m.textSearch, m.movies from m where m.type = 'Actor' ";
+        const string actorOrderBy = " order by m.textSearch ASC, m.actorId ASC";
+        const string actorOffset = " offset {0} limit {1}";
 
         /// <summary>
         /// Retrieve a single Actor from CosmosDB by actorId
@@ -31,7 +31,7 @@ namespace Helium.DataAccessLayer
             // note: if the key cannot be determined from the ID, ReadDocumentAsync cannot be used.
             // GetPartitionKey will throw an ArgumentException if the actorId isn't valid
             // get an actor by ID
-            return await _cosmosDetails.Container.ReadItemAsync<Actor>(actorId, new PartitionKey(GetPartitionKey(actorId))).ConfigureAwait(false);
+            return await cosmosDetails.Container.ReadItemAsync<Actor>(actorId, new PartitionKey(GetPartitionKey(actorId))).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -46,7 +46,9 @@ namespace Helium.DataAccessLayer
         /// <returns>List of Actors or an empty list</returns>
         public async Task<IEnumerable<Actor>> GetActorsAsync(string q, int offset = 0, int limit = Constants.DefaultPageSize)
         {
+
             string sql = _actorSelect;
+
 
             if (limit < 1)
             {
@@ -57,7 +59,7 @@ namespace Helium.DataAccessLayer
                 limit = Constants.MaxPageSize;
             }
 
-            string offsetLimit = string.Format(CultureInfo.InvariantCulture, _actorOffset, offset, limit);
+            string offsetLimit = string.Format(CultureInfo.InvariantCulture, actorOffset, offset, limit);
 
             if (!string.IsNullOrEmpty(q))
             {
