@@ -16,7 +16,7 @@ namespace Helium.DataAccessLayer
         public int CosmosTimeout { get; set; } = 60;
         public int CosmosMaxRetries { get; set; } = 10;
 
-        private CosmosConfig _cosmosDetails = null;
+        private CosmosConfig cosmosDetails = null;
 
         /// <summary>
         /// Data Access Layer Constructor
@@ -32,7 +32,7 @@ namespace Helium.DataAccessLayer
                 throw new ArgumentNullException(nameof(cosmosUrl));
             }
 
-            _cosmosDetails = new CosmosConfig
+            cosmosDetails = new CosmosConfig
             {
                 MaxRows = MaxPageSize,
                 Retries = CosmosMaxRetries,
@@ -44,8 +44,8 @@ namespace Helium.DataAccessLayer
             };
 
             // create the CosmosDB client and container
-            _cosmosDetails.Client = OpenAndTestCosmosClient(cosmosUrl, cosmosKey, cosmosDatabase, cosmosCollection).GetAwaiter().GetResult();
-            _cosmosDetails.Container = _cosmosDetails.Client.GetContainer(cosmosDatabase, cosmosCollection);
+            cosmosDetails.Client = OpenAndTestCosmosClient(cosmosUrl, cosmosKey, cosmosDatabase, cosmosCollection).GetAwaiter().GetResult();
+            cosmosDetails.Container = cosmosDetails.Client.GetContainer(cosmosDatabase, cosmosCollection);
         }
 
         /// <summary>
@@ -65,10 +65,10 @@ namespace Helium.DataAccessLayer
             }
 
             if (force ||
-                _cosmosDetails.CosmosCollection != cosmosCollection ||
-                _cosmosDetails.CosmosDatabase != cosmosDatabase ||
-                _cosmosDetails.CosmosKey != cosmosKey ||
-                _cosmosDetails.CosmosUrl != cosmosUrl.AbsoluteUri)
+                cosmosDetails.CosmosCollection != cosmosCollection ||
+                cosmosDetails.CosmosDatabase != cosmosDatabase ||
+                cosmosDetails.CosmosKey != cosmosKey ||
+                cosmosDetails.CosmosUrl != cosmosUrl.AbsoluteUri)
             {
                 CosmosConfig d = new CosmosConfig
                 {
@@ -83,7 +83,7 @@ namespace Helium.DataAccessLayer
                 d.Container = d.Client.GetContainer(cosmosDatabase, cosmosCollection);
 
                 // set the current CosmosDetail
-                _cosmosDetails = d;
+                cosmosDetails = d;
             }
         }
 
@@ -119,7 +119,7 @@ namespace Helium.DataAccessLayer
             }
 
             // open and test a new client / container
-            var c = new CosmosClient(cosmosUrl.AbsoluteUri, cosmosKey, _cosmosDetails.CosmosClientOptions);
+            var c = new CosmosClient(cosmosUrl.AbsoluteUri, cosmosKey, cosmosDetails.CosmosClientOptions);
             var con = c.GetContainer(cosmosDatabase, cosmosCollection);
             await con.ReadItemAsync<dynamic>("action", new PartitionKey("0")).ConfigureAwait(false);
 
@@ -183,7 +183,7 @@ namespace Helium.DataAccessLayer
         private async Task<IEnumerable<T>> InternalCosmosDBSqlQuery<T>(string sql)
         {
             // run query
-            var query = _cosmosDetails.Container.GetItemQueryIterator<T>(sql, requestOptions: _cosmosDetails.QueryRequestOptions);
+            var query = cosmosDetails.Container.GetItemQueryIterator<T>(sql, requestOptions: cosmosDetails.QueryRequestOptions);
 
             List<T> results = new List<T>();
 

@@ -12,8 +12,8 @@ namespace Helium.Controllers
     [Route("api/[controller]")]
     public class ActorsController : Controller
     {
-        private readonly ILogger _logger;
-        private readonly IDAL _dal;
+        private readonly ILogger logger;
+        private readonly IDAL dal;
 
         /// <summary>
         ///  Constructor
@@ -23,8 +23,8 @@ namespace Helium.Controllers
         public ActorsController(ILogger<ActorsController> logger, IDAL dal)
         {
             // save to local for use in handlers
-            _logger = logger;
-            _dal = dal;
+            this.logger = logger;
+            this.dal = dal;
         }
 
         /// <summary>
@@ -40,7 +40,7 @@ namespace Helium.Controllers
             string method = GetMethodText(q, pageNumber, pageSize);
 
             // validate query string parameters
-            ContentResult result = ParameterValidator.Common(HttpContext?.Request?.Query, q, pageNumber, pageSize, method, _logger);
+            ContentResult result = ParameterValidator.Common(HttpContext?.Request?.Query, q, pageNumber, pageSize, method, logger);
             if (result != null)
             {
                 return result;
@@ -49,7 +49,7 @@ namespace Helium.Controllers
             // convert to zero based index
             pageNumber = pageNumber > 1 ? pageNumber - 1 : 0;
 
-            return await ResultHandler.Handle(_dal.GetActorsAsync(q, pageNumber * pageSize, pageSize), method, Constants.ActorsControllerException, _logger).ConfigureAwait(false);
+            return await ResultHandler.Handle(dal.GetActorsAsync(q, pageNumber * pageSize, pageSize), method, Constants.ActorsControllerException, logger).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -63,14 +63,14 @@ namespace Helium.Controllers
             string method = "GetActorByIdAsync " + actorId;
 
             // validate actorId
-            ContentResult result = ParameterValidator.ActorId(actorId, method, _logger);
+            ContentResult result = ParameterValidator.ActorId(actorId, method, logger);
             if (result != null)
             {
                 return result;
             }
 
             // return result
-            return await ResultHandler.Handle(_dal.GetActorAsync(actorId), method, "Actor Not Found", _logger).ConfigureAwait(false);
+            return await ResultHandler.Handle(dal.GetActorAsync(actorId), method, "Actor Not Found", logger).ConfigureAwait(false);
         }
 
         /// <summary>

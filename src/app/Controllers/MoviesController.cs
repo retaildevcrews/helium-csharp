@@ -13,8 +13,8 @@ namespace Helium.Controllers
     [Route("api/[controller]")]
     public class MoviesController : Controller
     {
-        private readonly ILogger _logger;
-        private readonly IDAL _dal;
+        private readonly ILogger logger;
+        private readonly IDAL dal;
 
         /// <summary>
         ///  Constructor
@@ -23,8 +23,8 @@ namespace Helium.Controllers
         /// <param name="dal">data access layer instance</param>
         public MoviesController(ILogger<MoviesController> logger, IDAL dal)
         {
-            _logger = logger;
-            _dal = dal;
+            this.logger = logger;
+            this.dal = dal;
         }
 
         /// <summary>
@@ -43,7 +43,7 @@ namespace Helium.Controllers
             string method = GetMethodText(q, genre, year, rating, actorId, pageNumber, pageSize);
 
             // validate query string parameters
-            ContentResult result = ParameterValidator.Movies(HttpContext?.Request?.Query, q, genre, year, rating, actorId, pageNumber, pageSize, method, _logger);
+            ContentResult result = ParameterValidator.Movies(HttpContext?.Request?.Query, q, genre, year, rating, actorId, pageNumber, pageSize, method, logger);
             if (result != null)
             {
                 return result;
@@ -52,7 +52,7 @@ namespace Helium.Controllers
             // convert to zero based page index
             pageNumber = pageNumber > 1 ? pageNumber - 1 : 0;
 
-            return await ResultHandler.Handle(_dal.GetMoviesAsync(q, genre, year, rating, actorId, pageNumber * pageSize, pageSize), method, Constants.MoviesControllerException, _logger).ConfigureAwait(false);
+            return await ResultHandler.Handle(dal.GetMoviesAsync(q, genre, year, rating, actorId, pageNumber * pageSize, pageSize), method, Constants.MoviesControllerException, logger).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -66,14 +66,14 @@ namespace Helium.Controllers
             string method = "GetMovieByIdAsync " + movieId;
 
             // validate movieId
-            ContentResult result = ParameterValidator.MovieId(movieId, method, _logger);
+            ContentResult result = ParameterValidator.MovieId(movieId, method, logger);
             if (result != null)
             {
                 return result;
             }
 
             // get movie by movieId
-            return await ResultHandler.Handle(_dal.GetMovieAsync(movieId), method, "Movie Not Found", _logger).ConfigureAwait(false);
+            return await ResultHandler.Handle(dal.GetMovieAsync(movieId), method, "Movie Not Found", logger).ConfigureAwait(false);
         }
 
         /// <summary>
