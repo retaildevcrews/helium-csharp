@@ -12,9 +12,9 @@ namespace Helium.DataAccessLayer
     public partial class DAL
     {
         // select template for Actors
-        const string _actorSelect = "select m.id, m.partitionKey, m.actorId, m.type, m.name, m.birthYear, m.deathYear, m.profession, m.textSearch, m.movies from m where m.type = 'Actor' ";
-        const string _actorOrderBy = " order by m.textSearch ASC, m.actorId ASC";
-        const string _actorOffset = " offset {0} limit {1}";
+        const string actorSelect = "select m.id, m.partitionKey, m.actorId, m.type, m.name, m.birthYear, m.deathYear, m.profession, m.textSearch, m.movies from m where m.type = 'Actor' ";
+        const string actorOrderBy = " order by m.textSearch ASC, m.actorId ASC";
+        const string actorOffset = " offset {0} limit {1}";
 
         /// <summary>
         /// Retrieve a single Actor from CosmosDB by actorId
@@ -47,7 +47,7 @@ namespace Helium.DataAccessLayer
         public async Task<IEnumerable<Actor>> GetActorsAsync(string q, int offset = 0, int limit = Constants.DefaultPageSize)
         {
 
-            string sql = _actorSelect;
+            string sql = actorSelect;
 
 
             if (limit < 1)
@@ -59,7 +59,7 @@ namespace Helium.DataAccessLayer
                 limit = Constants.MaxPageSize;
             }
 
-            string offsetLimit = string.Format(CultureInfo.InvariantCulture, _actorOffset, offset, limit);
+            string offsetLimit = string.Format(CultureInfo.InvariantCulture, actorOffset, offset, limit);
 
             if (!string.IsNullOrEmpty(q))
             {
@@ -74,7 +74,7 @@ namespace Helium.DataAccessLayer
                 }
             }
 
-            sql += _actorOrderBy + offsetLimit;
+            sql += actorOrderBy + offsetLimit;
 
             QueryDefinition queryDefinition = new QueryDefinition(sql);
 

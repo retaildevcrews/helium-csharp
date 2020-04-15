@@ -13,9 +13,9 @@ namespace Helium.DataAccessLayer
     public partial class DAL
     {
         // select template for Movies
-        const string _movieSelect = "select m.id, m.partitionKey, m.movieId, m.type, m.textSearch, m.title, m.year, m.runtime, m.rating, m.votes, m.totalScore, m.genres, m.roles from m where m.type = 'Movie' ";
-        const string _movieOrderBy = " order by m.textSearch ASC, m.movieId ASC";
-        const string _movieOffset = " offset {0} limit {1}";
+        const string movieSelect = "select m.id, m.partitionKey, m.movieId, m.type, m.textSearch, m.title, m.year, m.runtime, m.rating, m.votes, m.totalScore, m.genres, m.roles from m where m.type = 'Movie' ";
+        const string movieOrderBy = " order by m.textSearch ASC, m.movieId ASC";
+        const string movieOffset = " offset {0} limit {1}";
 
         /// <summary>
         /// Retrieve a single Movie from CosmosDB by movieId
@@ -49,7 +49,7 @@ namespace Helium.DataAccessLayer
         public async Task<IEnumerable<Movie>> GetMoviesAsync(string q, string genre = "", int year = 0, double rating = 0, string actorId = "", int offset = 0, int limit = Constants.DefaultPageSize)
         {
 
-            string sql = _movieSelect;
+            string sql = movieSelect;
 
             if (limit < 1)
             {
@@ -60,7 +60,7 @@ namespace Helium.DataAccessLayer
                 limit = Constants.MaxPageSize;
             }
 
-            string offsetLimit = string.Format(CultureInfo.InvariantCulture, _movieOffset, offset, limit);
+            string offsetLimit = string.Format(CultureInfo.InvariantCulture, movieOffset, offset, limit);
 
             if (!string.IsNullOrEmpty(q))
             {
@@ -113,7 +113,7 @@ namespace Helium.DataAccessLayer
                 sql += " and array_contains(m.genres, @genre) ";
             }
 
-            sql += _movieOrderBy + offsetLimit;
+            sql += movieOrderBy + offsetLimit;
 
             // Parameterize fields
             QueryDefinition queryDefinition = new QueryDefinition(sql);
