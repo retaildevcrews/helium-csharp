@@ -49,7 +49,7 @@ namespace Helium.DataAccessLayer
         public async Task<IEnumerable<Movie>> GetMoviesAsync(string q, string genre = "", int year = 0, double rating = 0, string actorId = "", int offset = 0, int limit = Constants.DefaultPageSize)
         {
             string sql = _movieSelect;
-            
+
             if (limit < 1)
             {
                 limit = Constants.DefaultPageSize;
