@@ -13,9 +13,9 @@ namespace Helium.DataAccessLayer
     public partial class DAL
     {
         // select template for Movies
-        const string movieSelect = "select m.id, m.partitionKey, m.movieId, m.type, m.textSearch, m.title, m.year, m.runtime, m.rating, m.votes, m.totalScore, m.genres, m.roles from m where m.type = 'Movie' ";
-        const string movieOrderBy = " order by m.textSearch ASC, m.movieId ASC";
-        const string movieOffset = " offset {0} limit {1}";
+        const string _movieSelect = "select m.id, m.partitionKey, m.movieId, m.type, m.textSearch, m.title, m.year, m.runtime, m.rating, m.votes, m.totalScore, m.genres, m.roles from m where m.type = 'Movie' ";
+        const string _movieOrderBy = " order by m.textSearch ASC, m.movieId ASC";
+        const string _movieOffset = " offset {0} limit {1}";
 
         /// <summary>
         /// Retrieve a single Movie from CosmosDB by movieId
@@ -50,11 +50,6 @@ namespace Helium.DataAccessLayer
         {
 
             string sql = _movieSelect;
-<<<<<<< HEAD
-=======
-            
-
->>>>>>> 4b7b33c9ed8f428835e51d04eed8cc9e01476ca3
 
             if (limit < 1)
             {
@@ -65,7 +60,7 @@ namespace Helium.DataAccessLayer
                 limit = Constants.MaxPageSize;
             }
 
-            string offsetLimit = string.Format(CultureInfo.InvariantCulture, movieOffset, offset, limit);
+            string offsetLimit = string.Format(CultureInfo.InvariantCulture, _movieOffset, offset, limit);
 
             if (!string.IsNullOrEmpty(q))
             {

@@ -158,7 +158,7 @@ namespace Helium.DataAccessLayer
         private async Task<IEnumerable<T>> InternalCosmosDBSqlQuery<T>(QueryDefinition queryDefinition)
         {
             // run query
-            var query = _cosmosDetails.Container.GetItemQueryIterator<T>(queryDefinition, requestOptions: _cosmosDetails.QueryRequestOptions);
+            var query = cosmosDetails.Container.GetItemQueryIterator<T>(queryDefinition, requestOptions: cosmosDetails.QueryRequestOptions);
 
             List<T> results = new List<T>();
 
@@ -173,7 +173,6 @@ namespace Helium.DataAccessLayer
             return results;
         }
 
-        // TODO: Will remove original sql query once all callers are converted
         /// <summary>
         /// Generic function to be used by subclasses to execute arbitrary queries and return type T.
         /// </summary>
