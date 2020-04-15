@@ -1,0 +1,16 @@
+name: Move assigned pull requests into PR Submitted / Review
+
+on: [pull_request]
+
+jobs:
+  automate-project-columns:
+    runs-on: ubuntu-latest
+    steps:
+    - name: add-new-issues-to-repository-based-project-column
+      uses: docker://takanabe/github-actions-automate-projects:latest
+      if: github.event_name == 'pull_request' && github.event.action == 'opened'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GIT_PAT_AUTO }}
+        GITHUB_PROJECT_URL: https://github.com/orgs/retaildevcrews/projects/1
+        GITHUB_PROJECT_COLUMN_NAME: PR Submitted / Review
+        DEBUG: true
