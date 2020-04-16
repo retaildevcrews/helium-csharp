@@ -35,7 +35,8 @@ namespace Helium.DataAccessLayer
             cosmosDetails = new CosmosConfig
             {
                 MaxRows = MaxPageSize,
-                Retries = CosmosMaxRetries,
+
+
                 Timeout = CosmosTimeout,
                 CosmosCollection = cosmosCollection,
                 CosmosDatabase = cosmosDatabase,

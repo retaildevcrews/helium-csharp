@@ -86,6 +86,8 @@ namespace Helium.DataAccessLayer
 
             if (!string.IsNullOrEmpty(actorId))
             {
+
+
                 // convert to lower and escape embedded '
                 actorId = actorId.Trim().ToLowerInvariant().Replace("'", "''", System.StringComparison.OrdinalIgnoreCase);
 

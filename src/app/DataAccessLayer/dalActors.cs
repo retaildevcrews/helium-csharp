@@ -69,8 +69,8 @@ namespace Helium.DataAccessLayer
                 if (!string.IsNullOrEmpty(q))
                 {
                     // get actors by a "like" search on name
-                    //sql += string.Format(CultureInfo.InvariantCulture, $" and contains(m.textSearch, '{q}') ");
-                    sql += " and contains(m.textSearch, @q) ";
+                    sql += string.Format(CultureInfo.InvariantCulture, $" and contains(m.textSearch, @q) ");
+
                 }
             }
 
