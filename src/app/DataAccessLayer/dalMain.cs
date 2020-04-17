@@ -35,7 +35,8 @@ namespace Helium.DataAccessLayer
             cosmosDetails = new CosmosConfig
             {
                 MaxRows = MaxPageSize,
-                Retries = CosmosMaxRetries,
+
+
                 Timeout = CosmosTimeout,
                 CosmosCollection = cosmosCollection,
                 CosmosDatabase = cosmosDatabase,
@@ -147,6 +148,30 @@ namespace Helium.DataAccessLayer
             }
 
             throw new ArgumentException("Invalid Partition Key");
+        }
+
+        /// <summary>
+        /// Generic function to be used by subclasses to execute arbitrary queries and return type T.
+        /// </summary>
+        /// <typeparam name="T">POCO type to which results are serialized and returned.</typeparam>
+        /// <param name="queryDefinition">Query to be executed.</param>
+        /// <returns>Enumerable list of objects of type T.</returns>
+        private async Task<IEnumerable<T>> InternalCosmosDBSqlQuery<T>(QueryDefinition queryDefinition)
+        {
+            // run query
+            var query = cosmosDetails.Container.GetItemQueryIterator<T>(queryDefinition, requestOptions: cosmosDetails.QueryRequestOptions);
+
+            List<T> results = new List<T>();
+
+            while (query.HasMoreResults)
+            {
+                foreach (var doc in await query.ReadNextAsync().ConfigureAwait(false))
+                {
+                    results.Add(doc);
+                }
+            }
+
+            return results;
         }
 
         /// <summary>

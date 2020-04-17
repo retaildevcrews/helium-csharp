@@ -46,8 +46,9 @@ namespace Helium.DataAccessLayer
         /// <returns>List of Actors or an empty list</returns>
         public async Task<IEnumerable<Actor>> GetActorsAsync(string q, int offset = 0, int limit = Constants.DefaultPageSize)
         {
+
             string sql = actorSelect;
-            string orderby = actorOrderBy;
+
 
             if (limit < 1)
             {
@@ -68,14 +69,22 @@ namespace Helium.DataAccessLayer
                 if (!string.IsNullOrEmpty(q))
                 {
                     // get actors by a "like" search on name
-                    sql += string.Format(CultureInfo.InvariantCulture, $" and contains(m.textSearch, '{q}') ");
+                    sql += string.Format(CultureInfo.InvariantCulture, $" and contains(m.textSearch, @q) ");
+
                 }
             }
 
-            sql += orderby + offsetLimit;
+            sql += actorOrderBy + offsetLimit;
 
-            return await InternalCosmosDBSqlQuery<Actor>(sql).ConfigureAwait(false);
+            QueryDefinition queryDefinition = new QueryDefinition(sql);
+
+            if (!string.IsNullOrEmpty(q))
+            {
+                queryDefinition.WithParameter("@q", q);
+            }
+
+            return await InternalCosmosDBSqlQuery<Actor>(queryDefinition).ConfigureAwait(false);
         }
-    }
 
+    }
 }
