@@ -34,13 +34,7 @@ namespace Helium
 
         private static CancellationTokenSource ctCancel;
 
-        public static void Stop()
-        {
-            if (ctCancel != null)
-            {
-                ctCancel.Cancel(false);
-            }
-        }
+        public static LogLevel HeliumLogLevel { get; set; } = LogLevel.Warning;
 
         /// <summary>
         /// Main entry point
@@ -164,6 +158,8 @@ namespace Helium
                 // setup ctl c handler
                 ctCancel = SetupCtlCHandler();
 
+                HeliumLogLevel = logLevel;
+
                 // build the host
                 host = await BuildHost(kvUrl, authType).ConfigureAwait(false);
 
@@ -175,7 +171,7 @@ namespace Helium
                 // don't start the web server
                 if (dryRun)
                 {
-                    return DoDryRun(kvUrl, authType, logLevel);
+                    return DoDryRun(kvUrl, authType);
                 }
 
                 // log startup messages
@@ -213,12 +209,12 @@ namespace Helium
         /// <param name="kvUrl">keyvault url</param>
         /// <param name="authType">authentication type</param>
         /// <returns>0</returns>
-        static int DoDryRun(string kvUrl, AuthenticationType authType, LogLevel loglevel)
+        static int DoDryRun(string kvUrl, AuthenticationType authType)
         {
             Console.WriteLine($"Version            {Middleware.VersionExtensions.Version}");
             Console.WriteLine($"Keyvault           {kvUrl}");
             Console.WriteLine($"Auth Type          {authType}");
-            Console.WriteLine($"Log Level          {loglevel}");
+            Console.WriteLine($"Log Level          {HeliumLogLevel}");
             Console.WriteLine($"Cosmos Server      {config.GetValue<string>(Constants.CosmosUrl)}");
             Console.WriteLine($"Cosmos Key         Length({config.GetValue<string>(Constants.CosmosKey).Length})");
             Console.WriteLine($"Cosmos Database    {config.GetValue<string>(Constants.CosmosDatabase)}");
@@ -286,6 +282,17 @@ namespace Helium
                     // continue running with existing key
                     Console.WriteLine($"Cosmos Key Rotate Exception - using existing connection");
                 }
+            }
+        }
+
+        /// <summary>
+        /// Stop the web server via code
+        /// </summary>
+        public static void Stop()
+        {
+            if (ctCancel != null)
+            {
+                ctCancel.Cancel(false);
             }
         }
 
@@ -479,6 +486,15 @@ namespace Helium
 
                     // add IConfigurationRoot
                     services.AddSingleton<IConfigurationRoot>(config);
+                })
+                // configure logger based on command line
+                .ConfigureLogging(logger =>
+                {
+                    logger.ClearProviders();
+                    logger.AddConsole()
+                    .AddFilter("Microsoft", HeliumLogLevel)
+                    .AddFilter("System", HeliumLogLevel)
+                    .AddFilter("Default", HeliumLogLevel);
                 });
 
             // build the host
