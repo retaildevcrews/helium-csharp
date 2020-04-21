@@ -25,21 +25,25 @@ namespace UnitTests
 
             args = new string[] { "-k", "heliumtest-kv", "-a", "FOO" };
             i = await App.Main(args);
-            Assert.Equal(1, i);
+            Assert.NotEqual(0, i);
 
-            Assert.Equal(2, App.CombineEnvVarsWithCommandLine(null).Count);
+            Assert.Equal(4, App.CombineEnvVarsWithCommandLine(null).Count);
 
             Environment.SetEnvironmentVariable("KEYVAULT_NAME", "heliumtest-kv");
             Environment.SetEnvironmentVariable("AUTH_TYPE", "CLI");
+            Environment.SetEnvironmentVariable("LOG_LEVEL", "Information");
 
             List<string> cmd = App.CombineEnvVarsWithCommandLine(Array.Empty<string>());
             Assert.Contains("--keyvault-name", cmd);
             Assert.Contains("heliumtest-kv", cmd);
             Assert.Contains("--auth-type", cmd);
             Assert.Contains("CLI", cmd);
+            Assert.Contains("--log-level", cmd);
+            Assert.Contains("Information", cmd);
 
             Environment.SetEnvironmentVariable("KEYVAULT_NAME", null);
             Environment.SetEnvironmentVariable("AUTH_TYPE", null);
+            Environment.SetEnvironmentVariable("LOG_LEVEL", null);
         }
 
         [Fact]
