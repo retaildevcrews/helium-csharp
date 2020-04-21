@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Middleware;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -54,7 +55,6 @@ namespace Helium
             }
         }
 
-
         /// <summary>
         /// Configure the application builder
         /// </summary>
@@ -62,10 +62,18 @@ namespace Helium
         /// <param name="env"></param>
         public static void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            // log 4xx and 5xx results to console
+            // log http responses to the console
             // this should be first as it "wraps" all requests
-            app.UseLogger(new LoggerOptions { TargetMs = 800, Log2xx = false, Log3xx = false, Log4xx = true, Log5xx = true });
-
+            if (App.HeliumLogLevel != LogLevel.None)
+            {
+                app.UseLogger(new LoggerOptions
+                {
+                    Log2xx = App.HeliumLogLevel <= LogLevel.Information,
+                    Log3xx = App.HeliumLogLevel <= LogLevel.Information,
+                    Log4xx = App.HeliumLogLevel <= LogLevel.Warning,
+                    Log5xx = true
+                });
+            }
             // differences based on dev or prod
             if (env.IsDevelopment())
             {

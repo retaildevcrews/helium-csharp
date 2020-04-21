@@ -34,13 +34,7 @@ namespace Helium
 
         private static CancellationTokenSource ctCancel;
 
-        public static void Stop()
-        {
-            if (ctCancel != null)
-            {
-                ctCancel.Cancel(false);
-            }
-        }
+        public static LogLevel HeliumLogLevel { get; set; } = LogLevel.Warning;
 
         /// <summary>
         /// Main entry point
@@ -55,7 +49,7 @@ namespace Helium
 
             // build the System.CommandLine.RootCommand
             RootCommand root = BuildRootCommand();
-            root.Handler = CommandHandler.Create<string, string, bool>(RunApp);
+            root.Handler = CommandHandler.Create<string, AuthenticationType, LogLevel, bool>(RunApp);
 
             // run the app
             return await root.InvokeAsync(cmd.ToArray()).ConfigureAwait(false);
@@ -77,18 +71,27 @@ namespace Helium
 
             string kv = Environment.GetEnvironmentVariable(Constants.KeyVaultName);
             string auth = Environment.GetEnvironmentVariable(Constants.AuthType);
+            string logLevel = Environment.GetEnvironmentVariable(Constants.LogLevel);
 
+            // add --keyvault-name from environment
             if (!string.IsNullOrEmpty(kv) && !cmd.Contains("--keyvault-name") && !cmd.Contains("-k"))
             {
                 cmd.Add("--keyvault-name");
                 cmd.Add(kv);
             }
 
-            // add --auth-type value or default
+            // add --auth-type value from environment or default
             if (!cmd.Contains("--auth-type") && !cmd.Contains("-a"))
             {
                 cmd.Add("--auth-type");
                 cmd.Add(string.IsNullOrEmpty(auth) ? "MSI" : auth);
+            }
+
+            // add --log-level value from environment or default
+            if (!cmd.Contains("--log-level") && !cmd.Contains("-l"))
+            {
+                cmd.Add("--log-level");
+                cmd.Add(string.IsNullOrEmpty(logLevel) ? "Warning" : logLevel);
             }
 
             return cmd;
@@ -108,7 +111,7 @@ namespace Helium
             };
 
             // add options
-            Option optKv = new Option(new string[] { "-k", "--keyvault-name" }, "The name or URL of the Azure Keyvault")
+            Option optKv = new Option<string>(new string[] { "-k", "--keyvault-name" }, "The name or URL of the Azure Keyvault")
             {
                 Argument = new Argument<string>(),
                 Required = true
@@ -126,38 +129,10 @@ namespace Helium
                 return string.Empty;
             });
 
-            Option optAuth = new Option(new string[] { "-a", "--auth-type" }, "Authentication type - MSI CLI VS")
-            {
-                Argument = new Argument<string>(() => "MSI")
-            };
-
-            optAuth.AddValidator(v =>
-            {
-                const string errorMessage = "--auth-type must be MSI CLI or VS";
-
-                if (v.Tokens == null)
-                {
-                    return errorMessage;
-                }
-
-                // use default value
-                if (v.Tokens.Count != 1 && v.Option.Argument.HasDefaultValue)
-                {
-                    return string.Empty;
-                }
-
-                // validate using helper
-                if (v.Tokens.Count != 1 || !KeyVaultHelper.ValidateAuthType(v.Tokens[0].Value))
-                {
-                    return errorMessage;
-                }
-
-                return string.Empty;
-            });
-
             // add the options
             root.AddOption(optKv);
-            root.AddOption(optAuth);
+            root.AddOption(new Option<AuthenticationType>(new string[] { "-a", "--auth-type" }, "Authentication type"));
+            root.AddOption(new Option<LogLevel>(new string[] { "-l", "--log-level" }, "Log Level"));
             root.AddOption(new Option(new string[] { "-d", "--dry-run" }, "Validates configuration"));
 
             return root;
@@ -170,7 +145,7 @@ namespace Helium
         /// <param name="authType">Authentication Type</param>
         /// <param name="dryRun">Dry Run flag</param>
         /// <returns></returns>
-        public static async Task<int> RunApp(string keyvaultName, string authType, bool dryRun)
+        public static async Task<int> RunApp(string keyvaultName, AuthenticationType authType, LogLevel logLevel, bool dryRun)
         {
             // validate keyvaultName and convert to URL
             if (!KeyVaultHelper.BuildKeyVaultConnectionString(keyvaultName, out string kvUrl))
@@ -178,17 +153,12 @@ namespace Helium
                 return -1;
             }
 
-            // validate auth type
-            if (!KeyVaultHelper.ValidateAuthType(authType))
-            {
-                Console.WriteLine($"Invalid AuthType specified: {authType}");
-                return -1;
-            }
-
             try
             {
                 // setup ctl c handler
                 ctCancel = SetupCtlCHandler();
+
+                HeliumLogLevel = logLevel;
 
                 // build the host
                 host = await BuildHost(kvUrl, authType).ConfigureAwait(false);
@@ -239,11 +209,12 @@ namespace Helium
         /// <param name="kvUrl">keyvault url</param>
         /// <param name="authType">authentication type</param>
         /// <returns>0</returns>
-        static int DoDryRun(string kvUrl, string authType)
+        static int DoDryRun(string kvUrl, AuthenticationType authType)
         {
             Console.WriteLine($"Version            {Middleware.VersionExtensions.Version}");
             Console.WriteLine($"Keyvault           {kvUrl}");
             Console.WriteLine($"Auth Type          {authType}");
+            Console.WriteLine($"Log Level          {HeliumLogLevel}");
             Console.WriteLine($"Cosmos Server      {config.GetValue<string>(Constants.CosmosUrl)}");
             Console.WriteLine($"Cosmos Key         Length({config.GetValue<string>(Constants.CosmosKey).Length})");
             Console.WriteLine($"Cosmos Database    {config.GetValue<string>(Constants.CosmosDatabase)}");
@@ -311,6 +282,17 @@ namespace Helium
                     // continue running with existing key
                     Console.WriteLine($"Cosmos Key Rotate Exception - using existing connection");
                 }
+            }
+        }
+
+        /// <summary>
+        /// Stop the web server via code
+        /// </summary>
+        public static void Stop()
+        {
+            if (ctCancel != null)
+            {
+                ctCancel.Cancel(false);
             }
         }
 
@@ -405,7 +387,7 @@ namespace Helium
         /// <param name="kvUrl">URL of the key vault</param>
         /// <param name="authType">MSI, CLI or VS</param>
         /// <returns></returns>
-        static async Task<KeyVaultClient> GetKeyVaultClient(string kvUrl, string authType)
+        static async Task<KeyVaultClient> GetKeyVaultClient(string kvUrl, AuthenticationType authType)
         {
             // retry Managed Identity for 90 seconds
             //   AKS has to spin up an MI pod which can take a while the first time on the pod
@@ -414,15 +396,15 @@ namespace Helium
             // use MSI as default
             string authString;
 
-            switch (authType.ToUpperInvariant())
+            switch (authType)
             {
-                case "MSI":
+                case AuthenticationType.MSI:
                     authString = "RunAs=App";
                     break;
-                case "CLI":
+                case AuthenticationType.CLI:
                     authString = "RunAs=Developer; DeveloperTool=AzureCli";
                     break;
-                case "VS":
+                case AuthenticationType.VS:
                     authString = "RunAs=Developer; DeveloperTool=VisualStudio";
                     break;
                 default:
@@ -447,7 +429,7 @@ namespace Helium
                 }
                 catch (Exception ex)
                 {
-                    if (DateTime.Now <= timeout && authType == "MSI")
+                    if (DateTime.Now <= timeout && authType == AuthenticationType.MSI)
                     {
                         // retry MSI connections for pod identity
 
@@ -471,7 +453,7 @@ namespace Helium
         /// <param name="kvUrl">URL of the Key Vault</param>
         /// <param name="authType">MSI, CLI, VS</param>
         /// <returns>Web Host ready to run</returns>
-        static async Task<IWebHost> BuildHost(string kvUrl, string authType)
+        static async Task<IWebHost> BuildHost(string kvUrl, AuthenticationType authType)
         {
             // create the Key Vault Client
             var kvClient = await GetKeyVaultClient(kvUrl, authType).ConfigureAwait(false);
@@ -504,6 +486,15 @@ namespace Helium
 
                     // add IConfigurationRoot
                     services.AddSingleton<IConfigurationRoot>(config);
+                })
+                // configure logger based on command line
+                .ConfigureLogging(logger =>
+                {
+                    logger.ClearProviders();
+                    logger.AddConsole()
+                    .AddFilter("Microsoft", HeliumLogLevel)
+                    .AddFilter("System", HeliumLogLevel)
+                    .AddFilter("Default", HeliumLogLevel);
                 });
 
             // build the host
