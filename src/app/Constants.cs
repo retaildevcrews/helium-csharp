@@ -10,6 +10,7 @@
 
         public const string KeyVaultName = "KEYVAULT_NAME";
         public const string AuthType = "AUTH_TYPE";
+        public const string LogLevel = "LOG_LEVEL";
 
         public const string CosmosCollection = "CosmosCollection";
         public const string CosmosDatabase = "CosmosDatabase";
@@ -33,4 +34,5 @@
         public const int DefaultPageSize = 100;
         public const int MaxPageSize = 1000;
     }
+    public enum AuthenticationType { MSI, CLI, VS }
 }
