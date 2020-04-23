@@ -6,11 +6,15 @@
 - [ ] CI-CD changes
 - [ ] GitHub Template changes
 
-## Purpose of PR
+### Purpose of PR
 
-## Review notes
-
-## Issues Closed or Referenced
+### Validation
+- [ ] Unit tests updated and ran successfully
+- [ ] Update documentation or issue referenced above
+ 
+### Issues Closed or Referenced
 
 - Closes #<issue number> (this will automatically close the issue when the PR closes)
 - References #<issue number> (this references the issue but does not close with PR)
+
+ 
