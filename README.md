@@ -1,4 +1,6 @@
-# Build a Docker containerized ASP.NET Core web application using Managed Identity, Key Vault, and Cosmos DB that is designed to be deployed to Azure App Service or Azure Kubernetes Service (AKS)
+# Managed Identity and Key Vault with dotnet core
+
+Build an ASP.NET Core Web API using Managed Identity, Key Vault, and Cosmos DB that is designed to be deployed to Azure App Service or Azure Kubernetes Service (AKS) as a Docker container
 
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Docker Image Build](https://github.com/retaildevcrews/helium-csharp/workflows/Docker%20Image%20Build/badge.svg)
@@ -16,9 +18,12 @@ This is an ASP.NET Core Web API reference application designed to "fork and code
 
 ## Prerequisites
 
+- Bash shell (tested on Mac, Ubuntu, Windows with WSL2)
+  - Will not work with WSL1
+  - Will not work in Cloud Shell unless you have a remote dockerd
 - Docker CLI ([download](https://docs.docker.com/install/))
 - .NET Core SDK 3.1 ([download](https://dotnet.microsoft.com/download))
-- Azure CLI 2.1.0 ([download](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest))
+- Azure CLI 2.4+ ([download](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest))
 - Visual Studio Code (optional) ([download](https://code.visualstudio.com/download))
 
 ## Setup
@@ -53,7 +58,7 @@ cd src/app
 # run in the background
 # $He_Name is set to the name of your key vault
 # this will use Azure CLI cached credentials
-dotnet run -- --kvname $He_Name --authtype CLI &
+dotnet run -- -k $He_Name -a CLI &
 
 # test the application
 # the application takes about 10 seconds to start
@@ -71,24 +76,27 @@ Run the application as a local container instead
 ```bash
 
 # make sure you are in the root of the repo
-cd ../..
 
 # build the dev image
 # docker-dev builds a full .NET Core SDK image with Azure CLI installed in the container
 # you may see red warnings in the build output, they are safe to ignore
 # examples: "debconf: ..." or "dpkg-preconfigure: ..."
+
 docker build . -t helium-dev -f Dockerfile-Dev
 
 # run the container
 # mount your ~/.azure directory to container root/.azure directory
 # you can also run the container and run az login from a bash shell
-docker run -d -p 4120:4120 --name helium-dev -v ~/.azure:/root/.azure helium-dev dotnet run -- --authtype CLI --kvname $He_Name
+
+docker run -d -p 4120:4120 --name helium-dev -v ~/.azure:/root/.azure helium-dev dotnet run -- -a CLI -k $He_Name
 
 # check the logs
 # re-run until the application started message appears
+
 docker logs helium-dev
 
 # curl the health check endpoint
+
 curl http://localhost:4120/healthz
 
 
