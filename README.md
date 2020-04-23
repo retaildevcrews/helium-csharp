@@ -1,6 +1,6 @@
-# Managed Identity and Key Vault with dotnet core
+# Managed Identity and Key Vault with ASP.NET Core
 
-Build an ASP.NET Core Web API using Managed Identity, Key Vault, and Cosmos DB that is designed to be deployed to Azure App Service or Azure Kubernetes Service (AKS) as a Docker container
+> Build an ASP.NET Core Web API using Managed Identity, Key Vault, and Cosmos DB that is designed to be deployed to Azure App Service or Azure Kubernetes Service (AKS) as a Docker container
 
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Docker Image Build](https://github.com/retaildevcrews/helium-csharp/workflows/Docker%20Image%20Build/badge.svg)
@@ -14,16 +14,17 @@ This is an ASP.NET Core Web API reference application designed to "fork and code
 - Securely build and deploy the Docker container from Azure Container Registry (ACR)
 - Connect to and query Cosmos DB
 - Automatically send telemetry and logs to Azure Monitor
-- Instructions for setting up Key Vault, ACR, Azure Monitor and Cosmos DB are in the Helium [readme](https://github.com/retaildevcrews/helium)
+
+> Instructions for setting up Key Vault, ACR, Azure Monitor and Cosmos DB are in the Helium [readme](https://github.com/retaildevcrews/helium)
 
 ## Prerequisites
 
 - Bash shell (tested on Mac, Ubuntu, Windows with WSL2)
   - Will not work with WSL1
   - Will not work in Cloud Shell unless you have a remote dockerd
-- Docker CLI ([download](https://docs.docker.com/install/))
 - .NET Core SDK 3.1 ([download](https://dotnet.microsoft.com/download))
-- Azure CLI 2.4+ ([download](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest))
+- Docker CLI ([download](https://docs.docker.com/install/))
+- Azure CLI ([download](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest))
 - Visual Studio Code (optional) ([download](https://code.visualstudio.com/download))
 
 ## Setup
@@ -31,7 +32,7 @@ This is an ASP.NET Core Web API reference application designed to "fork and code
 - Fork this repo and clone to your local machine
   - All instructions assume starting from the root of the repo
 
-Build the container using Docker
+### Build the container using Docker
 
 - The unit tests run as part of the Docker build process. You can also run the unit tests manually.
 - For instructions on building the container with ACR, please see the Helium [readme](https://github.com/retaildevcrews/helium)
@@ -44,7 +45,7 @@ docker build . -t helium-csharp
 
 ```
 
-Run the application locally
+### Run the application locally
 
 - The application requires Key Vault and Cosmos DB to be setup per the Helium [readme](https://github.com/retaildevcrews/helium)
   - You can run the application locally by using Azure CLI cached credentials
@@ -71,7 +72,7 @@ fg
 
 ```
 
-Run the application as a local container instead
+### Run the application as a local container instead
 
 ```bash
 
