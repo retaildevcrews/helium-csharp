@@ -1,4 +1,4 @@
-using Helium.Model;
+using CSE.Helium.Model;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System;
 using System.Collections.Generic;
@@ -6,7 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Helium
+namespace CSE.Helium
 {
     public partial class CosmosHealthCheck : IHealthCheck
     {

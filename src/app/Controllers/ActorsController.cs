@@ -1,10 +1,10 @@
-﻿using Helium.DataAccessLayer;
+﻿using CSE.Helium.DataAccessLayer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Globalization;
 using System.Threading.Tasks;
 
-namespace Helium.Controllers
+namespace CSE.Helium.Controllers
 {
     /// <summary>
     /// Handle all of the /api/actors requests

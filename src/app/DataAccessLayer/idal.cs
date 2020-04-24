@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Helium.DataAccessLayer
+namespace CSE.Helium.DataAccessLayer
 {
     /// <summary>
     /// Data Access Layer for CosmosDB Interface

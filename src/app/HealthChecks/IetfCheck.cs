@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Helium.Model
+namespace CSE.Helium.Model
 {
     /// <summary>
     /// Health Check that supports IETF json

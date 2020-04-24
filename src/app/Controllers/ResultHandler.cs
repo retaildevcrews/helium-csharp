@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 
-namespace Helium.Controllers
+namespace CSE.Helium.Controllers
 {
     /// <summary>
     /// Handles query requests from the controllers

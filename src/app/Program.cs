@@ -1,4 +1,4 @@
-﻿using Helium.DataAccessLayer;
+﻿using CSE.Helium.DataAccessLayer;
 using KeyVault.Extensions;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore;
@@ -19,7 +19,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Helium
+namespace CSE.Helium
 {
     public sealed class App
     {

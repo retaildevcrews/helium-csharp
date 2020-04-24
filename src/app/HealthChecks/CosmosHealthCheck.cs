@@ -1,5 +1,5 @@
-using Helium.DataAccessLayer;
-using Helium.Model;
+using CSE.Helium.DataAccessLayer;
+using CSE.Helium.Model;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
@@ -10,7 +10,7 @@ using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Helium
+namespace CSE.Helium
 {
     public partial class CosmosHealthCheck : IHealthCheck
     {

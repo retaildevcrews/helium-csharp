@@ -1,12 +1,12 @@
-﻿using Helium.DataAccessLayer;
-using Helium.Model;
+﻿using CSE.Helium.DataAccessLayer;
+using CSE.Helium.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 
-namespace Helium.Controllers
+namespace CSE.Helium.Controllers
 {
     /// <summary>
     /// Handle the /healthz* requests

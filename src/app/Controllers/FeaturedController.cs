@@ -1,11 +1,11 @@
-﻿using Helium.DataAccessLayer;
+﻿using CSE.Helium.DataAccessLayer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Helium.Controllers
+namespace CSE.Helium.Controllers
 {
     /// <summary>
     /// Handle /api/featured/movie requests
