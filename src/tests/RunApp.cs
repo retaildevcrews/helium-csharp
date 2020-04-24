@@ -1,11 +1,3 @@
-using CSE.Helium.Controllers;
-using CSE.Helium.Model;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Xunit;
@@ -18,7 +10,7 @@ namespace CSE.Helium.Tests
         [Fact]
         public async Task RunApp()
         {
-            string[] args = new string[] { "-k", "heliumtest-kv", "-a", "CLI", "-d"  };
+            string[] args = new string[] { "-k", "heliumtest-kv", "-a", "CLI", "-d" };
 
             int i = await CSE.Helium.App.Main(args).ConfigureAwait(false);
             Assert.Equal(0, i);
