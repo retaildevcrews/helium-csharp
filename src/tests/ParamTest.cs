@@ -1,4 +1,4 @@
-using Helium;
+using CSE.Helium;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
@@ -6,7 +6,7 @@ using System.CommandLine.Parsing;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace UnitTests
+namespace CSE.Helium.Tests
 {
     public class ParamTest
     {

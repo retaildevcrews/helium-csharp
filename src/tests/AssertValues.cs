@@ -1,4 +1,4 @@
-﻿namespace UnitTests
+﻿namespace CSE.Helium.Tests
 {
     public sealed class AssertValues
     {
