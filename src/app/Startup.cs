@@ -8,7 +8,7 @@ using Middleware;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Helium
+namespace CSE.Helium
 {
     /// <summary>
     /// WebHostBuilder Startup

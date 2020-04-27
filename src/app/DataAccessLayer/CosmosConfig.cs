@@ -1,7 +1,7 @@
 using Microsoft.Azure.Cosmos;
 using System;
 
-namespace Helium.DataAccessLayer
+namespace CSE.Helium.DataAccessLayer
 {
     /// <summary>
     /// Internal class for Cosmos config

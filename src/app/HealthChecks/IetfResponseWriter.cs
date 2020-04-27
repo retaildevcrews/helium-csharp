@@ -1,4 +1,4 @@
-using Helium.Model;
+using CSE.Helium.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System;
@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace Helium
+namespace CSE.Helium
 {
     public partial class CosmosHealthCheck : IHealthCheck
     {

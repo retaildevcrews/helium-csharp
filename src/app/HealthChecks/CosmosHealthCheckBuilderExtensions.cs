@@ -2,7 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System.Collections.Generic;
 
-namespace Helium
+namespace CSE.Helium
 {
     public static class CosmosHealthCheckBuilderExtensions
     {

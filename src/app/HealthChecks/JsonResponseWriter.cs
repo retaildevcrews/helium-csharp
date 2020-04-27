@@ -4,7 +4,7 @@ using System;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace Helium
+namespace CSE.Helium
 {
     public partial class CosmosHealthCheck : IHealthCheck
     {

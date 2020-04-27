@@ -2,7 +2,7 @@
 using System;
 using System.Globalization;
 
-namespace Helium.Model
+namespace CSE.Helium.Model
 {
     /// <summary>
     /// Health Check that supports dotnet IHeathCheck

@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 
-namespace Helium.Controllers
+namespace CSE.Helium.Controllers
 {
     /// <summary>
     /// Validate the query string parameters

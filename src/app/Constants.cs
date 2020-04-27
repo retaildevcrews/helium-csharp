@@ -1,4 +1,4 @@
-﻿namespace Helium
+﻿namespace CSE.Helium
 {
     /// <summary>
     /// String constants

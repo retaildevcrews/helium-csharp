@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Helium.Model
+namespace CSE.Helium.Model
 {
     public class Movie
     {

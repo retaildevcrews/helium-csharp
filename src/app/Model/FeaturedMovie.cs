@@ -1,4 +1,4 @@
-﻿namespace Helium.Model
+﻿namespace CSE.Helium.Model
 {
     public class FeaturedMovie
     {
