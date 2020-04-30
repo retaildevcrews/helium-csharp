@@ -38,21 +38,22 @@ RUN useradd -u 1001 -U -m -s /bin/bash helium && \
     gpasswd -a helium sudo &&  \
     echo "helium ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/90-helium-users
 
-USER helium
-
 
 ### build the app image
 FROM helium-dev-base
+
+# run as helium user
+USER helium
 
 # set auth type to use cached CLI credentials
 ENV AUTH_TYPE CLI
 
 ### if port is changed, also update value in Constants.cs
 EXPOSE 4120
-WORKDIR /home/helium/src/app
+WORKDIR /home/helium/helium-csharp/src/app
 
 ### copy the source and tests
-COPY src /home/helium/src
+COPY . /home/helium/helium-csharp
 
 RUN sudo chown -R helium:helium /home/helium && \
     dotnet restore
