@@ -50,10 +50,10 @@ ENV AUTH_TYPE CLI
 
 ### if port is changed, also update value in Constants.cs
 EXPOSE 4120
-WORKDIR /home/helium/helium-csharp/src/app
+WORKDIR /home/helium/helium-csharp
 
 ### copy the source and tests
 COPY . /home/helium/helium-csharp
 
 RUN sudo chown -R helium:helium /home/helium && \
-    dotnet restore
+    dotnet --version
