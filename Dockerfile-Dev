@@ -1,13 +1,11 @@
 ### to build the base image so it's cached
-#docker build --target helium-dev-base -t helium-dev-base -f Dockerfile-Dev .
+# docker build . --target helium-dev-base -t helium-dev-base -f Dockerfile-Dev
 
 ### to build the full image
-#docker build -t helium-dev -f Dockerfile-Dev .
+# docker build . -t helium-dev -f Dockerfile-Dev
 
 ### run the image interactively mounting your .azure directory into the container
-#docker run -it --rm -p 4120:4120 -v ~/.azure:/root/.azure helium-dev
-
-
+# docker run -it --rm -p 4120:4120 -v ~/.azure:/home/helium/.azure helium-dev
 
 ### Build the developer base image
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1 as helium-dev-base
@@ -20,24 +18,41 @@ FROM mcr.microsoft.com/dotnet/core/sdk:3.1 as helium-dev-base
 # ENV no_proxy {value}
 # ENV NO_PROXY {value}
 
-### install azure cli
+ENV DEBIAN_FRONTEND=noninteractive
+
+### install dependencies
 RUN apt-get update && \
-    apt-get install -y apt-transport-https ca-certificates curl software-properties-common libssl-dev git wget nano lsb-release jq && \
-    curl -sL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > /etc/apt/trusted.gpg.d/microsoft.asc.gpg && \
+    apt-get install -y sudo apt-utils apt-transport-https ca-certificates curl gnupg software-properties-common libssl-dev git wget nano lsb-release jq && \
+    apt-get upgrade -y
+
+### install azure cli
+RUN curl -sL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > /etc/apt/trusted.gpg.d/microsoft.asc.gpg && \
     CLI_REPO=$(lsb_release -cs) && \
     echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ ${CLI_REPO} main" > /etc/apt/sources.list.d/azure-cli.list && \
     apt-get update && \
     apt-get install -y azure-cli
 
-RUN mkdir -p /root/.azure
+### add helium user
+RUN useradd -u 1001 -U -m -s /bin/bash helium && \
+    usermod -aG sudo helium && \
+    gpasswd -a helium sudo &&  \
+    echo "helium ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/90-helium-users
+
+USER helium
+
 
 ### build the app image
 FROM helium-dev-base
 
+# set auth type to use cached CLI credentials
+ENV AUTH_TYPE CLI
+
 ### if port is changed, also update value in Constants.cs
 EXPOSE 4120
+WORKDIR /home/helium/src/app
 
 ### copy the source and tests
-COPY src /src
+COPY src /home/helium/src
 
-WORKDIR /src/app
+RUN sudo chown -R helium:helium /home/helium && \
+    dotnet restore
