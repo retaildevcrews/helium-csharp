@@ -33,7 +33,7 @@ RUN curl -sL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor >
     apt-get install -y azure-cli
 
 ### add helium user
-RUN useradd -u 1001 -U -m -s /bin/bash helium && \
+RUN useradd -u 1000 -U -m -s /bin/bash helium && \
     usermod -aG sudo helium && \
     gpasswd -a helium sudo &&  \
     echo "helium ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/90-helium-users
