@@ -54,5 +54,6 @@ WORKDIR /home/helium/helium-csharp/src/app
 
 ### copy the source and tests
 COPY . /home/helium/helium-csharp
+COPY ./dotFiles /home/helium
 
 RUN sudo chown -R helium:helium /home/helium
