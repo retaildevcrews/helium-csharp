@@ -45,6 +45,9 @@ FROM helium-dev-base
 # run as helium user
 USER helium
 
+# set to dev mode
+ENV ASPNETCORE_ENVIRONMENT Development
+
 # set auth type to use cached CLI credentials
 ENV AUTH_TYPE CLI
 
