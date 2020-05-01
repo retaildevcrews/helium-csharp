@@ -791,7 +791,7 @@
     },
     "/healthz": {
       "get": {
-        "tags": [ "Healthz" ],
+        "tags": [ "Health Check" ],
         "summary": "Health Check (simple)",
         "description": "Returns a text/plain health status (pass, warn or fail)",
         "responses": {
@@ -811,7 +811,7 @@
     },
     "/healthz/ietf": {
       "get": {
-        "tags": [ "Healthz" ],
+        "tags": [ "Health Check" ],
         "summary": "Health Check (IETF)",
         "description": "Returns an `IetfHealthCheck` document from the Health Check",
         "responses": {
@@ -824,117 +824,55 @@
                 },
                 "example": {
                   "status": "pass",
-                  "serviceId": "helium-csharp",
-                  "description": "Helium C# Health Check",
+                  "serviceId": "helium",
+                  "description": "Helium Health Check",
                   "instance": "0",
-                  "version": "1.0.0302.0026",
+                  "version": "1.0.0502.0026",
                   "checks": {
-                    "getGenres": {
+                    "getGenres:responseTime": {
                       "status": "pass",
-                      "componentType": "CosmosDB",
+                      "compontentId": "getGenres",
+                      "componentType": "datastore",
                       "observedUnit": "ms",
                       "observedValue": 6.17,
                       "targetValue": 400,
                       "time": "2020-03-02T01:49:17Z"
                     },
-                    "getActorById": {
+                    "getActorById:responseTime": {
                       "status": "pass",
-                      "componentType": "CosmosDB",
+                      "compontentId": "getActorById",
+                      "componentType": "datastore",
                       "observedUnit": "ms",
                       "observedValue": 3.78,
                       "targetValue": 250,
                       "time": "2020-03-02T01:49:17Z"
                     },
-                    "getMovieById": {
+                    "getMovieById:responseTime": {
                       "status": "pass",
-                      "componentType": "CosmosDB",
+                      "compontentId": "getMovieById",
+                      "componentType": "datastore",
                       "observedUnit": "ms",
                       "observedValue": 1.4,
                       "targetValue": 400,
                       "time": "2020-03-02T01:49:17Z"
                     },
-                    "searchMovies": {
+                    "searchMovies:responseTime": {
                       "status": "pass",
-                      "componentType": "CosmosDB",
+                      "compontentId": "searchMovies",
+                      "componentType": "datastore",
                       "observedUnit": "ms",
                       "observedValue": 38.11,
                       "targetValue": 400,
                       "time": "2020-03-02T01:49:17Z"
                     },
-                    "searchActors": {
+                    "searchActors:responseTime": {
                       "status": "pass",
-                      "componentType": "CosmosDB",
+                      "compontentId": "searchActors",
+                      "componentType": "datastore",
                       "observedUnit": "ms",
                       "observedValue": 57.27,
                       "targetValue": 400,
                       "time": "2020-03-02T01:49:17Z"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/healthz/dotnet": {
-      "get": {
-        "tags": [ "Healthz" ],
-        "summary": "Health Check (dotnet)",
-        "description": "Returns a `DotNetHealthCheck` document from the Health Check",
-        "responses": {
-          "200": {
-            "description": "`DotNetHealthCheck`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/DotNetHealthCheck"
-                },
-                "example": {
-                  "description": "Helium C# Health Check",
-                  "status": "Healthy",
-                  "data": {
-                    "instance": "0",
-                    "version": "1.0.0302.0026",
-                    "getGenres": {
-                      "status": "Healthy",
-                      "componentType": "CosmosDB",
-                      "duration": "00:00:00.010",
-                      "targetDuration": "00:00:00.400",
-                      "time": "2020-03-02T01:50:47Z",
-                      "endpoint": "/api/genres"
-                    },
-                    "getActorById": {
-                      "status": "Healthy",
-                      "componentType": "CosmosDB",
-                      "duration": "00:00:00.001",
-                      "targetDuration": "00:00:00.250",
-                      "time": "2020-03-02T01:50:47Z",
-                      "endpoint": "/api/actors/nm0000173"
-                    },
-                    "getMovieById": {
-                      "status": "Healthy",
-                      "componentType": "CosmosDB",
-                      "duration": "00:00:00.002",
-                      "targetDuration": "00:00:00.400",
-                      "time": "2020-03-02T01:50:47Z",
-                      "endpoint": "/api/movies/tt0133093"
-                    },
-                    "searchMovies": {
-                      "status": "Healthy",
-                      "componentType": "CosmosDB",
-                      "duration": "00:00:00.023",
-                      "targetDuration": "00:00:00.400",
-                      "time": "2020-03-02T01:50:47Z",
-                      "endpoint": "/api/movies?q=ring"
-                    },
-                    "searchActors": {
-                      "status": "Healthy",
-                      "componentType": "CosmosDB",
-                      "duration": "00:00:00.046",
-                      "targetDuration": "00:00:00.400",
-                      "time": "2020-03-02T01:50:47Z",
-                      "endpoint": "/api/actors?q=nicole"
                     }
                   }
                 }
@@ -1110,7 +1048,7 @@
           "checks": {
             "type": "object",
             "properties": {
-              "getGenres": {
+              "getGenres:responseTime": {
                 "type": "object",
                 "properties": {
                   "status": {
@@ -1119,9 +1057,8 @@
                   "componentId": {
                     "type": "string"
                   },
-                  "message": {
-                    "type": "string",
-                    "nullable": true
+                  "componentType": {
+                    "type": "string"
                   },
                   "observedUnit": {
                     "type": "string"
@@ -1136,6 +1073,10 @@
                     "type": "string",
                     "format": "datetime"
                   },
+                  "message": {
+                    "type": "string",
+                    "nullable": true
+                  },
                   "endPoints": {
                     "type": "array",
                     "nullable": true,
@@ -1145,7 +1086,7 @@
                   }
                 }
               },
-              "getActorById": {
+              "getActorById:responseTime": {
                 "type": "object",
                 "properties": {
                   "status": {
@@ -1154,9 +1095,8 @@
                   "componentId": {
                     "type": "string"
                   },
-                  "message": {
-                    "type": "string",
-                    "nullable": true
+                  "componentType": {
+                    "type": "string"
                   },
                   "observedUnit": {
                     "type": "string"
@@ -1171,6 +1111,10 @@
                     "type": "string",
                     "format": "datetime"
                   },
+                  "message": {
+                    "type": "string",
+                    "nullable": true
+                  },
                   "endPoints": {
                     "type": "array",
                     "nullable": true,
@@ -1180,7 +1124,7 @@
                   }
                 }
               },
-              "getMovieById": {
+              "getMovieById:responseTime": {
                 "type": "object",
                 "properties": {
                   "status": {
@@ -1189,9 +1133,8 @@
                   "componentId": {
                     "type": "string"
                   },
-                  "message": {
-                    "type": "string",
-                    "nullable": true
+                  "componentType": {
+                    "type": "string"
                   },
                   "observedUnit": {
                     "type": "string"
@@ -1206,6 +1149,10 @@
                     "type": "string",
                     "format": "datetime"
                   },
+                  "message": {
+                    "type": "string",
+                    "nullable": true
+                  },
                   "endPoints": {
                     "type": "array",
                     "nullable": true,
@@ -1215,7 +1162,7 @@
                   }
                 }
               },
-              "searchMovies": {
+              "searchMovies:responseTime": {
                 "type": "object",
                 "properties": {
                   "status": {
@@ -1224,9 +1171,8 @@
                   "componentId": {
                     "type": "string"
                   },
-                  "message": {
-                    "type": "string",
-                    "nullable": true
+                  "componentType": {
+                    "type": "string"
                   },
                   "observedUnit": {
                     "type": "string"
@@ -1241,6 +1187,10 @@
                     "type": "string",
                     "format": "datetime"
                   },
+                  "message": {
+                    "type": "string",
+                    "nullable": true
+                  },
                   "endPoints": {
                     "type": "array",
                     "nullable": true,
@@ -1250,7 +1200,7 @@
                   }
                 }
               },
-              "searchActors": {
+              "searchActors:responseTime": {
                 "type": "object",
                 "properties": {
                   "status": {
@@ -1259,9 +1209,8 @@
                   "componentId": {
                     "type": "string"
                   },
-                  "message": {
-                    "type": "string",
-                    "nullable": true
+                  "componentType": {
+                    "type": "string"
                   },
                   "observedUnit": {
                     "type": "string"
@@ -1276,190 +1225,16 @@
                     "type": "string",
                     "format": "datetime"
                   },
+                  "message": {
+                    "type": "string",
+                    "nullable": true
+                  },
                   "endPoints": {
                     "type": "array",
                     "nullable": true,
                     "items": {
                       "type": "string"
                     }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "additionalProperties": false
-      },
-      "DotNetHealthCheck": {
-        "type": "object",
-        "properties": {
-          "status": {
-            "type": "string"
-          },
-          "description": {
-            "type": "string"
-          },
-          "data": {
-            "type": "object",
-            "properties": {
-              "instance": {
-                "type": "string"
-              },
-              "version": {
-                "type": "string"
-              },
-              "getGenres": {
-                "type": "object",
-                "properties": {
-                  "status": {
-                    "type": "string"
-                  },
-                  "componentType": {
-                    "type": "string"
-                  },
-                  "message": {
-                    "type": "string",
-                    "nullable": true
-                  },
-                  "duration": {
-                    "type": "string",
-                    "format": "time"
-                  },
-                  "targetDuration": {
-                    "type": "string",
-                    "format": "time"
-                  },
-                  "time": {
-                    "type": "string",
-                    "format": "datetime"
-                  },
-                  "endPoint": {
-                    "type": "string",
-                    "nullable": true
-                  }
-                }
-              },
-              "getActorById": {
-                "type": "object",
-                "properties": {
-                  "status": {
-                    "type": "string"
-                  },
-                  "componentType": {
-                    "type": "string"
-                  },
-                  "message": {
-                    "type": "string",
-                    "nullable": true
-                  },
-                  "duration": {
-                    "type": "string",
-                    "format": "time"
-                  },
-                  "targetDuration": {
-                    "type": "string",
-                    "format": "time"
-                  },
-                  "time": {
-                    "type": "string",
-                    "format": "datetime"
-                  },
-                  "endPoint": {
-                    "type": "string",
-                    "nullable": true
-                  }
-                }
-              },
-              "getMovieById": {
-                "type": "object",
-                "properties": {
-                  "status": {
-                    "type": "string"
-                  },
-                  "componentType": {
-                    "type": "string"
-                  },
-                  "message": {
-                    "type": "string",
-                    "nullable": true
-                  },
-                  "duration": {
-                    "type": "string",
-                    "format": "time"
-                  },
-                  "targetDuration": {
-                    "type": "string",
-                    "format": "time"
-                  },
-                  "time": {
-                    "type": "string",
-                    "format": "datetime"
-                  },
-                  "endPoint": {
-                    "type": "string",
-                    "nullable": true
-                  }
-                }
-              },
-              "searchActors": {
-                "type": "object",
-                "properties": {
-                  "status": {
-                    "type": "string"
-                  },
-                  "componentType": {
-                    "type": "string"
-                  },
-                  "message": {
-                    "type": "string",
-                    "nullable": true
-                  },
-                  "duration": {
-                    "type": "string",
-                    "format": "time"
-                  },
-                  "targetDuration": {
-                    "type": "string",
-                    "format": "time"
-                  },
-                  "time": {
-                    "type": "string",
-                    "format": "datetime"
-                  },
-                  "endPoint": {
-                    "type": "string",
-                    "nullable": true
-                  }
-                }
-              },
-              "searchMovies": {
-                "type": "object",
-                "properties": {
-                  "status": {
-                    "type": "string"
-                  },
-                  "componentType": {
-                    "type": "string"
-                  },
-                  "message": {
-                    "type": "string",
-                    "nullable": true
-                  },
-                  "duration": {
-                    "type": "string",
-                    "format": "time"
-                  },
-                  "targetDuration": {
-                    "type": "string",
-                    "format": "time"
-                  },
-                  "time": {
-                    "type": "string",
-                    "format": "datetime"
-                  },
-                  "endPoint": {
-                    "type": "string",
-                    "nullable": true
                   }
                 }
               }
