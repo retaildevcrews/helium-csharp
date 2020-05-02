@@ -21,7 +21,7 @@ This is an ASP.NET Core Web API reference application designed to "fork and code
 
 - Bash shell (tested on Mac, Ubuntu, Windows with WSL2)
   - Will not work with WSL1
-  - Will not work in Cloud Shell unless you have a remote dockerd
+  - Docker commands will not work in Cloud Shell
 - .NET Core SDK 3.1 ([download](https://dotnet.microsoft.com/download))
 - Docker CLI ([download](https://docs.docker.com/install/))
 - Azure CLI ([download](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest))
@@ -30,40 +30,35 @@ This is an ASP.NET Core Web API reference application designed to "fork and code
 ## Setup
 
 - Fork this repo and clone to your local machine
-  - All instructions assume starting from the root of the repo
-
-### Build the container using Docker
-
-- The unit tests run as part of the Docker build process. You can also run the unit tests manually.
-- For instructions on building the container with ACR, please see the Helium [readme](https://github.com/retaildevcrews/helium)
-
-```bash
-
-# make sure you are in the root of the repo
-# build the image
-docker build . -t helium-csharp
-
-```
+- All instructions assume starting from the root of the repo
 
 ### Run the application locally
 
 - The application requires Key Vault and Cosmos DB to be setup per the Helium [readme](https://github.com/retaildevcrews/helium)
-  - You can run the application locally by using Azure CLI cached credentials
-    - You must run az login before this will work
+- You can run the application locally by using Azure CLI cached credentials
 
 ```bash
 
-# make sure you are in the root of the repo
+# make sure you are logged into Azure
+az account show
+
+# if not log in
+az login
+
+# make sure you are in the root of the repo then
 cd src/app
+dotnet restore
 
 # run in the background
-# $He_Name is set to the name of your key vault
+# $He_Name is set to the name of your key vault during setup
 # this will use Azure CLI cached credentials
+
 dotnet run -- --keyvault-name $He_Name --auth-type CLI &
 
 # test the application
-# the application takes about 10 seconds to start
-curl http://localhost:4120/healthz
+# the application takes about 15 seconds to start
+
+curl http://localhost:4120/healthz/ietf
 
 # Stop the app
 fg
@@ -72,41 +67,88 @@ fg
 
 ```
 
-### Run the application as a local container instead
+### Run the application as a local container
+
+> The docker-dev image should not be pushed to a repo
+
+Build a full .NET Core SDK image with Azure CLI installed in the container to support basic development from the container
+
+- Before building the local image, check your uid and gid using the `id` command
+  - If neither your uid or gid is 1000, you need to edit `Dockerfile-Dev`
+    - change `useradd -u 1000 ...` to use your uid or gid
+- This is necessary in order for the local .azure credentials to work within the container
+  - Mounting the volume (with the -v option) prevents your Azure credentials from accidentally getting pushed to a repo
+
+- We use a multi-stage docker build as installing the prerequisites and Azure CLI takes a while
+  - If you want to build a "permanent cache" of the first stage (so that docker system prune doesn't delete it), you can run this command first
+  - `docker build . --target helium-dev-base -t helium-dev-base -f Dockerfile-Dev`
+
+- Customizing your environment with dotFiles
+  - If you want to use git from within the container, you should copy your `~/.gitconfig` to `dotFiles` before building the container
+  - You can also copy your `~/.bashrc` file to `dotFiles`
+    - Ensure you don't accidentally copy any credentials or secrets!
+  - `.gitignore` will not commit any files in `dotFiles` that begin with `.`
+    - update `.gitignore` for any other files to exclude
+
+- VS Code development within a container
+  - Read more about it [here](https://code.visualstudio.com/docs/remote/containers) It's super cool!
 
 ```bash
 
 # make sure you are in the root of the repo
 
 # build the dev image
-# docker-dev builds a full .NET Core SDK image with Azure CLI installed in the container
-# you may see red warnings in the build output, they are safe to ignore
-# examples: "debconf: ..." or "dpkg-preconfigure: ..."
-
 docker build . -t helium-dev -f Dockerfile-Dev
 
-# run the container
-# mount your ~/.azure directory to container root/.azure directory
-# you can also run the container and run az login from a bash shell
+```
 
-docker run -d -p 4120:4120 --name helium-dev -v ~/.azure:/root/.azure helium-dev dotnet run -- --keyvault-name $He_Name --auth-type CLI
+#### Run the container
 
-# check the logs
-# re-run until the application started message appears
+This will launch a bash shell within the container
 
-docker logs helium-dev
+```bash
 
-# curl the health check endpoint
+docker run -it --rm -p 4120:4120 --name helium-dev \
+--env KEYVAULT_NAME=$He_Name \
+-v ~/.azure:/home/helium/.azure helium-dev
 
-curl http://localhost:4120/healthz
+# make sure AZ CLI works
+az account show
 
+# make sure git works
+git status
 
-# Stop and remove the container
+# run the app
+cd ~/helium-csharp/src/app
 
-docker stop helium-dev
-docker rm helium-dev
+# if you passed your Keyvault name in the env var
+dotnet run
+
+# full command
+dotnet run -- --auth-type CLI --keyvault-name your-keyvault-name
+
+# exit (the container is automatically removed via the --rm option)
+exit
 
 ```
+
+## Build the release container using Docker
+
+> For instructions on building the container with ACR, please see the Helium [readme](https://github.com/retaildevcrews/helium)
+
+```bash
+
+# make sure you are in the root of the repo
+# build the image
+docker build . -t helium-csharp
+
+# run docker tag and docker push to push to your repo
+
+```
+
+## Build the release container using GitHub Actions
+
+- TODO - explain how to update GitHub actions
 
 ## Contributing
 
