@@ -831,7 +831,7 @@
                   "checks": {
                     "getGenres:responseTime": {
                       "status": "pass",
-                      "compontentId": "getGenres",
+                      "componentId": "getGenres",
                       "componentType": "datastore",
                       "observedUnit": "ms",
                       "observedValue": 6.17,
@@ -840,7 +840,7 @@
                     },
                     "getActorById:responseTime": {
                       "status": "pass",
-                      "compontentId": "getActorById",
+                      "componentId": "getActorById",
                       "componentType": "datastore",
                       "observedUnit": "ms",
                       "observedValue": 3.78,
@@ -849,7 +849,7 @@
                     },
                     "getMovieById:responseTime": {
                       "status": "pass",
-                      "compontentId": "getMovieById",
+                      "componentId": "getMovieById",
                       "componentType": "datastore",
                       "observedUnit": "ms",
                       "observedValue": 1.4,
@@ -858,7 +858,7 @@
                     },
                     "searchMovies:responseTime": {
                       "status": "pass",
-                      "compontentId": "searchMovies",
+                      "componentId": "searchMovies",
                       "componentType": "datastore",
                       "observedUnit": "ms",
                       "observedValue": 38.11,
@@ -867,7 +867,7 @@
                     },
                     "searchActors:responseTime": {
                       "status": "pass",
-                      "compontentId": "searchActors",
+                      "componentId": "searchActors",
                       "componentType": "datastore",
                       "observedUnit": "ms",
                       "observedValue": 57.27,
