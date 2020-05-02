@@ -148,6 +148,26 @@ exit
 
 ```
 
+## Run the app in Azure Cloud Shell
+
+- Possible TODO
+
+```bash
+
+cd ~
+mkdir -p dotnet
+
+curl -O dotnet-sdk-3.1.201-linux-x64.tar.gz https://download.visualstudio.microsoft.com/download/pr/f65a8eb0-4537-4e69-8ff3-1a80a80d9341/cc0ca9ff8b9634f3d9780ec5915c1c66/dotnet-sdk-3.1.201-linux-x64.tar.gz
+
+tar zxf dotnet-sdk-3.1.201-linux-x64.tar.gz -C dotnet
+
+echo 'export DOTNET_ROOT=$HOME/dotnet' >> .bashrc
+echo 'export PATH=$HOME/dotnet:$PATH' >> .bashrc
+
+. .bashrc
+
+```
+
 ## Build the release container using Docker
 
 > For instructions on building the container with ACR, please see the Helium [readme](https://github.com/retaildevcrews/helium)
