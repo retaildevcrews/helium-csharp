@@ -32,10 +32,16 @@ This is an ASP.NET Core Web API reference application designed to "fork and code
 - Fork this repo and clone to your local machine
 - All instructions assume starting from the root of the repo
 
-### Run the application locally
+## CI-CD using GitHub Actions
+
+Instructions for setting up (or turning off) CI-CD are [here](https://github.com/retaildevcrews/helium/blob/master/docs/CI-CD/GithubActions.md)
+
+## Run the application locally
 
 - The application requires Key Vault and Cosmos DB to be setup per the Helium [readme](https://github.com/retaildevcrews/helium)
 - You can run the application locally by using Azure CLI cached credentials
+
+### Validate az CLI works
 
 ```bash
 
@@ -44,6 +50,12 @@ az account show
 
 # if not log in
 az login
+
+```
+
+### Run the app
+
+```bash
 
 # make sure you are in the root of the repo then
 cd src/app
@@ -67,7 +79,7 @@ fg
 
 ```
 
-### Run the application as a local container
+## Run the application as a local container
 
 > The docker-dev image should not be pushed to a repo
 
@@ -102,7 +114,7 @@ docker build . -t helium-dev -f Dockerfile-Dev
 
 ```
 
-#### Run the container
+### Run the container
 
 This will launch a bash shell within the container
 
@@ -111,6 +123,8 @@ This will launch a bash shell within the container
 docker run -it --rm -p 4120:4120 --name helium-dev \
 --env KEYVAULT_NAME=$He_Name \
 -v ~/.azure:/home/helium/.azure helium-dev
+
+### Now in the container shell
 
 # make sure AZ CLI works
 az account show
@@ -130,6 +144,8 @@ dotnet run -- --auth-type CLI --keyvault-name your-keyvault-name
 # exit (the container is automatically removed via the --rm option)
 exit
 
+### Now in machine shell
+
 ```
 
 ## Build the release container using Docker
@@ -145,10 +161,6 @@ docker build . -t helium-csharp
 # run docker tag and docker push to push to your repo
 
 ```
-
-## Build the release container using GitHub Actions
-
-- TODO - explain how to update GitHub actions
 
 ## Contributing
 
