@@ -1,9 +1,5 @@
-test-pipeline.txt
+dotfiles/placeholder
 
-.dockerignore
-.gitignore
-Dockerfile*
-*.sln
 *.suo
 *.user
 *.userosscache
