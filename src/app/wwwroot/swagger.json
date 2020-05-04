@@ -1077,7 +1077,7 @@
                     "type": "string",
                     "nullable": true
                   },
-                  "endPoints": {
+                  "affectedEndPoints": {
                     "type": "array",
                     "nullable": true,
                     "items": {
@@ -1115,7 +1115,7 @@
                     "type": "string",
                     "nullable": true
                   },
-                  "endPoints": {
+                  "affectedEndPoints": {
                     "type": "array",
                     "nullable": true,
                     "items": {
@@ -1153,7 +1153,7 @@
                     "type": "string",
                     "nullable": true
                   },
-                  "endPoints": {
+                  "affectedEndPoints": {
                     "type": "array",
                     "nullable": true,
                     "items": {
@@ -1191,7 +1191,7 @@
                     "type": "string",
                     "nullable": true
                   },
-                  "endPoints": {
+                  "affectedEndPoints": {
                     "type": "array",
                     "nullable": true,
                     "items": {
@@ -1229,7 +1229,7 @@
                     "type": "string",
                     "nullable": true
                   },
-                  "endPoints": {
+                  "affectedEndPoints": {
                     "type": "array",
                     "nullable": true,
                     "items": {
