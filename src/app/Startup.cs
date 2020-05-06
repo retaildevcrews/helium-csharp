@@ -85,6 +85,8 @@ namespace CSE.Helium
                 app.UseHsts();
             }
 
+            app.UseResponseCaching();
+
             app.UseStaticFiles();
 
             // use routing
@@ -92,6 +94,9 @@ namespace CSE.Helium
 
             // map the controllers
             app.UseEndpoints(ep => { ep.MapControllers(); });
+
+            // rewrite root to /index.html
+            app.UseSwaggerRoot();
 
             // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.), specifying the Swagger JSON endpoint.
             app.UseSwaggerUI(c =>

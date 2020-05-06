@@ -486,6 +486,8 @@ namespace CSE.Helium
 
                     // add IConfigurationRoot
                     services.AddSingleton<IConfigurationRoot>(config);
+
+                    services.AddResponseCaching();
                 })
                 // configure logger based on command line
                 .ConfigureLogging(logger =>
