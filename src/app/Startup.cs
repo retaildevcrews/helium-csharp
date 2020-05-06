@@ -85,6 +85,8 @@ namespace CSE.Helium
                 app.UseHsts();
             }
 
+            app.UseResponseCaching();
+
             app.UseStaticFiles();
 
             // use routing

@@ -10,8 +10,11 @@ namespace CSE.Helium.Controllers
 {
     /// <summary>
     /// Handle the /healthz* requests
+    ///
+    /// Cache results to prevent monitoring from overloading service
     /// </summary>
     [Route("[controller]")]
+    [ResponseCache(Duration = Constants.HealthzCacheDuration)]
     public class HealthzController : Controller
     {
         private readonly ILogger logger;
