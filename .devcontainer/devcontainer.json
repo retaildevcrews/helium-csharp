@@ -1,0 +1,15 @@
+{
+  // Open port 4120 by default
+  "appPort": 4120,
+
+  // Install ESLint and Peacock extensions
+  "extensions": [
+    "ms-dotnettools.csharp",
+    "eamodio.gitlens",
+    "davidanson.vscode-markdownlint",
+    "gruntfuggly.todo-tree"
+  ],
+
+  // Run Bash script in .devcontainer directory
+  "postCreateCommand": "/bin/bash echo 'devcontainer done' >> ~/status"
+}
