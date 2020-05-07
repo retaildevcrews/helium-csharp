@@ -33,6 +33,8 @@
 
         public const int DefaultPageSize = 100;
         public const int MaxPageSize = 1000;
+
+        public const int HealthzCacheDuration = 60;
     }
     public enum AuthenticationType { MSI, CLI, VS }
 }
