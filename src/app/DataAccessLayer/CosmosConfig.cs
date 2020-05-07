@@ -33,7 +33,7 @@ namespace CSE.Helium.DataAccessLayer
             {
                 if (queryRequestOptions == null)
                 {
-                    queryRequestOptions = new QueryRequestOptions { MaxItemCount = MaxRows };
+                    queryRequestOptions = new QueryRequestOptions { MaxItemCount = MaxRows, ConsistencyLevel = ConsistencyLevel.Session };
                 }
 
                 return queryRequestOptions;
