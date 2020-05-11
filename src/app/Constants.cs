@@ -6,7 +6,7 @@
     public sealed class Constants
     {
         public const string SwaggerTitle = "Helium";
-        public const string SwaggerPath = "/helium.json";
+        public const string SwaggerPath = "/swagger/helium.json";
 
         public const string KeyVaultName = "KEYVAULT_NAME";
         public const string AuthType = "AUTH_TYPE";
