@@ -27,7 +27,7 @@ namespace CSE.Helium.Tests
             // will throw exceptions on failure so no need to assert
             await client.GetStringAsync("/healthz/dotnet");
             await client.GetStringAsync("/index.html");
-            await client.GetStringAsync("/swagger.json");
+            await client.GetStringAsync("/swagger/helium.json");
             await client.GetStringAsync("/version");
             await client.GetStringAsync("/robots.txt");
             await client.GetStringAsync("/api/genres");
