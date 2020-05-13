@@ -1,0 +1,24 @@
+{
+  "name": "helium-csharp",
+
+	"build": { "dockerFile": "Dockerfile" },
+
+  "settings": { "terminal.integrated.shell.linux": "/bin/bash" },
+
+  // set user
+  "remoteUser": "helium",
+
+	// Open port 4120 by default
+  "forwardPorts": 4120,
+
+  // Install extensions
+  "extensions": [
+    "ms-dotnettools.csharp",
+    "eamodio.gitlens",
+    "davidanson.vscode-markdownlint",
+    "gruntfuggly.todo-tree"
+  ],
+
+  // Run Bash script in .devcontainer directory
+  "postCreateCommand": "echo 'unset DOTNET_ROOT' >> ~.bashrc && dotnet restore ./src/tests.sln"
+}
