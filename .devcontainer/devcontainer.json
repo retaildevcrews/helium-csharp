@@ -1,8 +1,17 @@
 {
-  // Open port 4120 by default
-  "appPort": 4120,
+  "name": "helium-csharp",
 
-  // Install ESLint and Peacock extensions
+	"build": { "dockerFile": "Dockerfile" },
+
+  "settings": { "terminal.integrated.shell.linux": "/bin/bash" },
+
+  // set user
+  "remoteUser": "helium",
+
+	// Open port 4120 by default
+  "forwardPorts": 4120,
+
+  // Install extensions
   "extensions": [
     "ms-dotnettools.csharp",
     "eamodio.gitlens",
@@ -11,5 +20,5 @@
   ],
 
   // Run Bash script in .devcontainer directory
-  "postCreateCommand": "/bin/bash echo 'devcontainer done' >> ~/status"
+  "postCreateCommand": "echo 'unset DOTNET_ROOT' >> ~.bashrc && dotnet restore ./src/tests.sln"
 }
