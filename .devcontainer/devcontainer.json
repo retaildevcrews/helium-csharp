@@ -1,7 +1,7 @@
 {
   "name": "helium-csharp",
 
-	"build": { "dockerFile": "Dockerfile" },
+	"build": { "dockerfile": "Dockerfile" },
 
   "settings": { "terminal.integrated.shell.linux": "/bin/bash" },
 
@@ -9,7 +9,7 @@
   "remoteUser": "helium",
 
 	// Open port 4120 by default
-  "forwardPorts": 4120,
+  "forwardPorts": [4120],
 
   // Install extensions
   "extensions": [
@@ -20,5 +20,5 @@
   ],
 
   // Run Bash script in .devcontainer directory
-  "postCreateCommand": "echo 'unset DOTNET_ROOT' >> ~.bashrc && dotnet restore ./src/tests.sln"
+  "postCreateCommand": "echo 'unset DOTNET_ROOT' >> ~/.bashrc && dotnet restore ./src/tests.sln"
 }
