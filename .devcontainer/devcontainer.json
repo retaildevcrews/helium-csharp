@@ -14,11 +14,12 @@
   // Install extensions
   "extensions": [
     "ms-dotnettools.csharp",
+    "ms-azuretools.vscode-docker",
     "eamodio.gitlens",
     "davidanson.vscode-markdownlint",
     "gruntfuggly.todo-tree"
   ],
 
   // Run Bash script in .devcontainer directory
-  "postCreateCommand": "echo 'unset DOTNET_ROOT' >> ~/.bashrc && dotnet restore ./src/tests.sln"
+  "postCreateCommand": "dotnet restore ./src/tests.sln"
 }
