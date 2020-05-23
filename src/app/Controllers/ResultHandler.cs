@@ -2,10 +2,18 @@
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Globalization;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace CSE.Helium.Controllers
 {
+    public class ErrorResult
+    {
+        public int StatusCode { get; set; }
+        public string Error { get; set; }
+        public string Message { get; set; }
+    }
     /// <summary>
     /// Handles query requests from the controllers
     /// </summary>
@@ -25,16 +33,12 @@ namespace CSE.Helium.Controllers
             // log the request
             logger.LogInformation(method);
 
-            // return exception of task is null
+            // return exception if task is null
             if (task == null)
             {
                 logger.LogError($"Exception:{method}\ntask is null");
 
-                return new ContentResult
-                {
-                    Content = errorMessage,
-                    StatusCode = (int)System.Net.HttpStatusCode.InternalServerError
-                };
+                return CreateResult(errorMessage, HttpStatusCode.InternalServerError);
             }
 
             try
@@ -55,7 +59,7 @@ namespace CSE.Helium.Controllers
                     logger.LogError($"CosmosException:{method}:{ce.StatusCode}:{ce.ActivityId}:{ce.Message}\n{ce}");
                 }
 
-                return CreateResult(errorMessage, (int)ce.StatusCode);
+                return CreateResult(errorMessage, ce.StatusCode);
             }
 
             catch (Exception ex)
@@ -64,7 +68,7 @@ namespace CSE.Helium.Controllers
                 logger.LogError($"Exception:{method}\n{ex}");
 
                 // return 500 error
-                return CreateResult("Internal Server Error", (int)System.Net.HttpStatusCode.InternalServerError);
+                return CreateResult("Internal Server Error", HttpStatusCode.InternalServerError);
             }
         }
 
@@ -74,12 +78,11 @@ namespace CSE.Helium.Controllers
         /// <param name="message">string</param>
         /// <param name="statusCode">int</param>
         /// <returns></returns>
-        public static ContentResult CreateResult(string message, int statusCode)
+        public static JsonResult CreateResult(string message, HttpStatusCode statusCode)
         {
-            return new ContentResult
+            return new JsonResult(new ErrorResult { StatusCode = (int)statusCode, Error = statusCode.ToString(), Message = message})
             {
-                Content = message,
-                StatusCode = statusCode
+                StatusCode = (int)statusCode
             };
         }
     }

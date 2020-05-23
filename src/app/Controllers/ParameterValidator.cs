@@ -20,7 +20,7 @@ namespace CSE.Helium.Controllers
         /// <param name="method">current method</param>
         /// <param name="logger">ILogger</param>
         /// <returns></returns>
-        public static ContentResult Common(IQueryCollection query, string q, int pageNumber, int pageSize, string method, ILogger logger)
+        public static JsonResult Common(IQueryCollection query, string q, int pageNumber, int pageSize, string method, ILogger logger)
         {
             // no query string
             if (query == null)
@@ -58,13 +58,14 @@ namespace CSE.Helium.Controllers
             return null;
         }
 
-        public static ContentResult GetAndLogBadParam(string message, string method, ILogger logger)
+        public static JsonResult GetAndLogBadParam(string message, string method, ILogger logger)
         {
             logger.LogWarning($"InvalidParameter|{method}|{message}");
 
-            return new ContentResult
+
+
+            return new JsonResult(new ErrorResult { StatusCode = (int)System.Net.HttpStatusCode.BadRequest, Error = System.Net.HttpStatusCode.BadRequest.ToString(), Message = message })
             {
-                Content = message,
                 StatusCode = (int)System.Net.HttpStatusCode.BadRequest
             };
         }
@@ -83,7 +84,7 @@ namespace CSE.Helium.Controllers
         /// <param name="method">current method</param>
         /// <param name="logger">ILogger</param>
         /// <returns></returns>
-        public static ContentResult Movies(IQueryCollection query, string q, string genre, int year, double rating, string actorId, int pageNumber, int pageSize, string method, ILogger logger)
+        public static JsonResult Movies(IQueryCollection query, string q, string genre, int year, double rating, string actorId, int pageNumber, int pageSize, string method, ILogger logger)
         {
             // no query string
             if (query == null)
@@ -92,7 +93,7 @@ namespace CSE.Helium.Controllers
             }
 
             // validate q, page number and page size
-            ContentResult result = Common(query, q, pageNumber, pageSize, method, logger);
+            var result = Common(query, q, pageNumber, pageSize, method, logger);
             if (result != null)
             {
                 return result;
@@ -145,7 +146,7 @@ namespace CSE.Helium.Controllers
         /// <param name="method">current method</param>
         /// <param name="logger">ILogger</param>
         /// <returns></returns>
-        public static ContentResult ActorId(string actorId, string method, ILogger logger)
+        public static JsonResult ActorId(string actorId, string method, ILogger logger)
         {
             // validate actorId
             if (actorId == null ||
@@ -168,7 +169,7 @@ namespace CSE.Helium.Controllers
         /// <param name="method">current method</param>
         /// <param name="logger">ILogger</param>
         /// <returns></returns>
-        public static ContentResult MovieId(string movieId, string method, ILogger logger)
+        public static JsonResult MovieId(string movieId, string method, ILogger logger)
         {
             // validate movieId
             if (movieId == null ||
