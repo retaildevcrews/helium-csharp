@@ -64,7 +64,7 @@ namespace CSE.Helium.Controllers
 
 
 
-            return new JsonResult(new ErrorResult { StatusCode = (int)System.Net.HttpStatusCode.BadRequest, Error = System.Net.HttpStatusCode.BadRequest.ToString(), Message = message })
+            return new JsonResult(new ErrorResult { Error = System.Net.HttpStatusCode.BadRequest, Message = message })
             {
                 StatusCode = (int)System.Net.HttpStatusCode.BadRequest
             };

@@ -10,9 +10,9 @@ namespace CSE.Helium.Controllers
 {
     public class ErrorResult
     {
-        public int StatusCode { get; set; }
-        public string Error { get; set; }
+        public int Status { get { return (int)Error; } }
         public string Message { get; set; }
+        public HttpStatusCode Error { get; set; }
     }
     /// <summary>
     /// Handles query requests from the controllers
@@ -80,7 +80,7 @@ namespace CSE.Helium.Controllers
         /// <returns></returns>
         public static JsonResult CreateResult(string message, HttpStatusCode statusCode)
         {
-            return new JsonResult(new ErrorResult { StatusCode = (int)statusCode, Error = statusCode.ToString(), Message = message})
+            return new JsonResult(new ErrorResult { Error = statusCode, Message = message})
             {
                 StatusCode = (int)statusCode
             };
