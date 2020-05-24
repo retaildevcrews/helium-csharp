@@ -20,5 +20,5 @@
   ],
 
   // Run Bash script in .devcontainer directory
-  "postCreateCommand": "echo 'unset DOTNET_ROOT' >> ~/.bashrc && dotnet restore ./src/tests.sln"
+  "postCreateCommand": "dotnet restore ./src/tests.sln"
 }
