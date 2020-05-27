@@ -1,0 +1,126 @@
+name: Docker Image Build
+
+on:
+  push:
+    branches:
+      - master
+
+    paths-ignore:
+      - 'docs/**'
+      - '.github/**'
+      - '**.md'
+
+    tags:
+      - v*
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+    env:
+      # copy the secrets to env vars for if: conditions
+
+      ACR_REG: ${{ secrets.ACR_REG }}
+      ACR_REPO: ${{ secrets.ACR_REPO }}
+      ACR_IMAGE: ${{ secrets.ACR_IMAGE }}
+      TENANT: ${{ secrets.TENANT }}
+      SERVICE_PRINCIPAL: ${{ secrets.SERVICE_PRINCIPAL }}
+      SERVICE_PRINCIPAL_SECRET: ${{ secrets.SERVICE_PRINCIPAL_SECRET }}
+
+      KEYVAULT_NAME: ${{ secrets.KEYVAULT_NAME }}
+
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Docker Pull
+      run: |
+        # Pull the latest images
+        # This doesn't have to be a separate step, but makes the output easier to read and debug
+        docker pull mcr.microsoft.com/dotnet/core/sdk:3.1
+        docker pull mcr.microsoft.com/dotnet/core/aspnet:3.1-alpine
+        docker pull retaildevcrew/webvalidate:beta
+    
+    - name: Validate Azure Access
+      if: ${{ env.SERVICE_PRINCIPAL_SECRET != '' && env.TENANT != '' && env.SERVICE_PRINCIPAL != '' && env.KEYVAULT_NAME != '' }}
+      run: |
+        # login to Azure
+        az login --service-principal -u ${SERVICE_PRINCIPAL} --tenant ${TENANT} -p ${SERVICE_PRINCIPAL_SECRET}
+
+        # verify SP has access to Key Vault
+        az keyvault secret show --name CosmosDatabase --vault-name $KEYVAULT_NAME
+        
+    - name: Docker Build Test
+      if: ${{ env.SERVICE_PRINCIPAL_SECRET != '' && env.TENANT != '' && env.SERVICE_PRINCIPAL != '' && env.KEYVAULT_NAME != '' }}
+      run: |
+        # build test image
+        docker build . -t test --target test
+
+    - name: Run WebValidate
+      if: ${{ env.SERVICE_PRINCIPAL_SECRET != '' && env.TENANT != '' && env.SERVICE_PRINCIPAL != '' && env.KEYVAULT_NAME != '' }}
+      run: |
+        # create network
+        docker network create helium
+    
+        # run the app
+        docker run -d --name hcs -p 4120:4120 --env KEYVAULT_NAME=$KEYVAULT_NAME --network helium -v ~/.azure:/root/.azure test
+
+        echo "Waiting for web server to start ..."
+        sleep 25
+
+        # run web validation test
+        docker run -d --network helium --name webv retaildevcrew/webvalidate:beta -s http://hcs:4120 -f baseline.json bad.json
+        
+        echo "Waiting for web server to shutdown ..."
+        sleep 15
+        
+        echo "WebValidate complete"
+
+    - name: Display coverage results
+      if: ${{ env.SERVICE_PRINCIPAL_SECRET != '' && env.TENANT != '' && env.SERVICE_PRINCIPAL != '' && env.KEYVAULT_NAME != '' }}
+      run: |
+        # display the results
+        docker logs hcs | tail -n 24
+
+    - name: Display Web Validate results
+      if: ${{ env.SERVICE_PRINCIPAL_SECRET != '' && env.TENANT != '' && env.SERVICE_PRINCIPAL != '' && env.KEYVAULT_NAME != '' }}
+      run: |
+        # display the results
+        docker logs webv
+
+    - name: Display full test results
+      if: ${{ env.SERVICE_PRINCIPAL_SECRET != '' && env.TENANT != '' && env.SERVICE_PRINCIPAL != '' && env.KEYVAULT_NAME != '' }}
+      run: |
+        # display the results
+        docker logs hcs
+
+    - name: ACR Build, Tag and Push
+      if: ${{ env.ACR_REG != '' && env.ACR_REPO != '' && env.SERVICE_PRINCIPAL != '' }}
+      run: |
+        # login to acr
+        az acr login -n ${ACR_REG}
+        
+        echo "Logged in to ACR"
+
+        # Tag image based on repo tag if a github label
+        if [[ "${{ github.ref }}" == "refs/tags/"* ]]
+        then
+
+          # Strip git ref prefix from version
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+        
+          # Strip "v" prefix from tag name
+          VERSION=$(echo $VERSION | sed -e 's/^v//')
+          
+          echo $VERSION
+
+          az acr build -r ${ACR_REG} -f Dockerfile -t ${ACR_REPO}/${ACR_IMAGE}:${VERSION} -t ${ACR_REPO}/${ACR_IMAGE}:stable -t ${ACR_REPO}/${ACR_IMAGE}:beta https://github.com/${GITHUB_REPOSITORY}.git#${{ github.ref }}
+          az acr repository show -n ${ACR_REG} --image ${ACR_IMAGE}:${VERSION} -o table
+          az acr repository show -n ${ACR_REG} --image ${ACR_IMAGE}:stable -o table
+          az acr repository show -n ${ACR_REG} --image ${ACR_IMAGE}:beta -o table
+        else
+          az acr build -r ${ACR_REG} -f Dockerfile -t ${ACR_REPO}/${ACR_IMAGE}:beta https://github.com/${GITHUB_REPOSITORY}.git#${{ github.ref }}
+          az acr repository show -n ${ACR_REG} --image ${ACR_IMAGE}:beta -o table
+        fi
+
+        

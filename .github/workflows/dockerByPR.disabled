@@ -1,0 +1,107 @@
+name: DockerCI-PR
+
+on:
+  pull_request:
+    branches:
+      - master
+
+    paths-ignore:
+      - 'docs/**'
+      - '.github/**'
+      - '**.md'
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+    env:
+      # copy the secrets to env vars for if: conditions
+
+      DOCKER_REPO: ${{ secrets.DOCKER_REPO }}
+      DOCKER_USER: ${{ secrets.DOCKER_USER }}
+      DOCKER_PAT: ${{ secrets.DOCKER_PAT }}
+
+      TENANT: ${{ secrets.TENANT }}
+      SERVICE_PRINCIPAL: ${{ secrets.SERVICE_PRINCIPAL }}
+      SERVICE_PRINCIPAL_SECRET: ${{ secrets.SERVICE_PRINCIPAL_SECRET }}
+
+      KEYVAULT_NAME: ${{ secrets.KEYVAULT_NAME }}
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Docker Pull
+      run: |
+        # Pull the latest images
+        # This doesn't have to be a separate step, but makes the output easier to read and debug
+        docker pull mcr.microsoft.com/dotnet/core/sdk:3.1
+        docker pull mcr.microsoft.com/dotnet/core/aspnet:3.1-alpine
+        docker pull retaildevcrew/webvalidate:beta
+    
+    - name: Validate Azure Access
+      if: ${{ env.SERVICE_PRINCIPAL_SECRET != '' && env.TENANT != '' && env.SERVICE_PRINCIPAL != '' && env.KEYVAULT_NAME != '' }}
+      run: |
+        # login to Azure
+        az login --service-principal -u ${SERVICE_PRINCIPAL} --tenant ${TENANT} -p ${SERVICE_PRINCIPAL_SECRET}
+
+        # verify SP has access to Key Vault
+        az keyvault secret show --name CosmosDatabase --vault-name $KEYVAULT_NAME
+        
+    - name: Docker Build Test
+      if: ${{ env.SERVICE_PRINCIPAL_SECRET != '' && env.TENANT != '' && env.SERVICE_PRINCIPAL != '' && env.KEYVAULT_NAME != '' }}
+      run: |
+        # build test image
+        docker build . -t test --target test
+
+    - name: Run WebValidate
+      if: ${{ env.SERVICE_PRINCIPAL_SECRET != '' && env.TENANT != '' && env.SERVICE_PRINCIPAL != '' && env.KEYVAULT_NAME != '' }}
+      run: |
+        # create network
+        docker network create helium
+    
+        # run the app
+        docker run -d --name hcs -p 4120:4120 --env KEYVAULT_NAME=$KEYVAULT_NAME --network helium -v ~/.azure:/root/.azure test
+
+        echo "Waiting for web server to start ..."
+        sleep 25
+
+        # run web validation test
+        docker run -d --network helium --name webv retaildevcrew/webvalidate:beta -s http://hcs:4120 -f baseline.json bad.json
+        
+        echo "Waiting for web server to shutdown ..."
+        sleep 15
+        
+        echo "WebValidate complete"
+
+    - name: Display coverage results
+      if: ${{ env.SERVICE_PRINCIPAL_SECRET != '' && env.TENANT != '' && env.SERVICE_PRINCIPAL != '' && env.KEYVAULT_NAME != '' }}
+      run: |
+        # display the results
+        docker logs hcs | tail -n 24
+
+    - name: Display Web Validate results
+      if: ${{ env.SERVICE_PRINCIPAL_SECRET != '' && env.TENANT != '' && env.SERVICE_PRINCIPAL != '' && env.KEYVAULT_NAME != '' }}
+      run: |
+        # display the results
+        docker logs webv
+
+    - name: Display full test results
+      if: ${{ env.SERVICE_PRINCIPAL_SECRET != '' && env.TENANT != '' && env.SERVICE_PRINCIPAL != '' && env.KEYVAULT_NAME != '' }}
+      run: |
+        # display the results
+        docker logs hcs
+
+    - name: Docker Build, Tag and Push
+      if: ${{ env.DOCKER_PAT != '' && env.DOCKER_REPO != '' && env.DOCKER_USER != '' }}
+      run: |
+        # login to dockerhub
+        echo "${DOCKER_PAT}" | docker login -u ${DOCKER_USER} --password-stdin
+        
+        echo "Logged in to DockerHub"
+
+        # build release image
+        docker build . -t $DOCKER_REPO:beta
+
+        # Push to the repo
+        docker push $DOCKER_REPO:beta
