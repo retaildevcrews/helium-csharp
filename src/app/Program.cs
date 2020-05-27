@@ -181,7 +181,10 @@ namespace CSE.Helium
                 var w = host.RunAsync();
 
                 // this doesn't return except on ctl-c
-                await RunKeyRotationCheck(ctCancel, Constants.KeyVaultChangeCheckSeconds).ConfigureAwait(false);
+                await w.ConfigureAwait(false);
+
+                // use this line instead if you want to re-read the Cosmos connection info on a timer
+                //await RunKeyRotationCheck(ctCancel, Constants.KeyVaultChangeCheckSeconds).ConfigureAwait(false);
 
                 // if not cancelled, app exit -1
                 return ctCancel.IsCancellationRequested ? 0 : -1;

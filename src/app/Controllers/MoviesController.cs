@@ -43,7 +43,7 @@ namespace CSE.Helium.Controllers
             string method = GetMethodText(q, genre, year, rating, actorId, pageNumber, pageSize);
 
             // validate query string parameters
-            ContentResult result = ParameterValidator.Movies(HttpContext?.Request?.Query, q, genre, year, rating, actorId, pageNumber, pageSize, method, logger);
+            var result = ParameterValidator.Movies(HttpContext?.Request?.Query, q, genre, year, rating, actorId, pageNumber, pageSize, method, logger);
             if (result != null)
             {
                 return result;
@@ -66,7 +66,7 @@ namespace CSE.Helium.Controllers
             string method = "GetMovieByIdAsync " + movieId;
 
             // validate movieId
-            ContentResult result = ParameterValidator.MovieId(movieId, method, logger);
+            var result = ParameterValidator.MovieId(movieId, method, logger);
             if (result != null)
             {
                 return result;
