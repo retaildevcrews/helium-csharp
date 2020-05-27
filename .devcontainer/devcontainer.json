@@ -12,6 +12,7 @@
   // Install extensions
   "extensions": [
     "ms-dotnettools.csharp",
+    "ms-azuretools.vscode-docker",
     "eamodio.gitlens",
     "davidanson.vscode-markdownlint",
     "gruntfuggly.todo-tree",
