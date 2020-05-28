@@ -1,4 +1,5 @@
-﻿using CSE.Helium.DataAccessLayer;
+﻿# define MSI
+using CSE.Helium.DataAccessLayer;
 using KeyVault.Extensions;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore;
@@ -401,9 +402,11 @@ namespace CSE.Helium
 
             switch (authType)
             {
+# if MSI
                 case AuthenticationType.MSI:
                     authString = "RunAs=App";
                     break;
+#endif
                 case AuthenticationType.CLI:
                     authString = "RunAs=Developer; DeveloperTool=AzureCli";
                     break;
