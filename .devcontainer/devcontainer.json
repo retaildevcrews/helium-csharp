@@ -3,16 +3,12 @@
 
   "settings": { "terminal.integrated.shell.linux": "/bin/bash" },
 
-  // set user
-  "remoteUser": "helium",
-
 	// Open port 4120 by default
   "forwardPorts": [4120],
 
   // Install extensions
   "extensions": [
     "ms-dotnettools.csharp",
-    "ms-azuretools.vscode-docker",
     "eamodio.gitlens",
     "davidanson.vscode-markdownlint",
     "gruntfuggly.todo-tree",

@@ -1,3 +1,14 @@
+export AUTH_TYPE=CLI
+
+# TODO - remove this
+export KEYVAULT_NAME=heliumtest-kv
+
+# add tools to path
+export PATH="$PATH:~/.dotnet/tools"
+
+# set dotnet root
+export DOTNET_ROOT=~/.dotnet
+
 # set prompt
 PS1='\[\033[01;30m\]\u@helium \[\033[01;34m\]\w/\[\033[00m\] $ '
 
