@@ -12,6 +12,7 @@ on:
       - 'docs/**'
       - '.github/**'
       - '**.md'
+      - '.devcontainer/**'
       - '.github/**/open-*.yml'
 
     tags:
@@ -33,98 +34,109 @@ jobs:
       SERVICE_PRINCIPAL: ${{ secrets.SERVICE_PRINCIPAL }}
       SERVICE_PRINCIPAL_SECRET: ${{ secrets.SERVICE_PRINCIPAL_SECRET }}
 
+      ACR_REG: ${{ secrets.ACR_REG }}
+      ACR_REPO: ${{ secrets.ACR_REPO }}
+      ACR_IMAGE: ${{ secrets.ACR_IMAGE }}
+
       KEYVAULT_NAME: ${{ secrets.KEYVAULT_NAME }}
       AUTH_TYPE: CLI
 
-    steps:
-    - uses: actions/checkout@v2
+      AZURE_SET: false
+      DOCKER_SET: false
+      ACR_SET: false
 
-    - id: "step1"
-      name: Docker Pull
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Set conditions
       run: |
-        # Pull the latest images
-        # This doesn't have to be a separate step, but makes the output easier to read and debug
-        docker pull mcr.microsoft.com/dotnet/core/sdk:3.1
-        docker pull mcr.microsoft.com/dotnet/core/aspnet:3.1-alpine
-        docker pull retaildevcrew/webvalidate:beta
-    
-    - id: "step2"
-      name: Validate Azure Access
-      if: ${{ env.SERVICE_PRINCIPAL_SECRET != '' && env.TENANT != '' && env.SERVICE_PRINCIPAL != '' && env.KEYVAULT_NAME != '' }}
+        echo "::set-env name=AZURE_SET::${{ env.SERVICE_PRINCIPAL_SECRET != '' && env.TENANT != '' && env.SERVICE_PRINCIPAL != '' && env.KEYVAULT_NAME != '' }}"
+        echo "::set-env name=DOCKER_SET::${{ env.DOCKER_PAT != '' && env.DOCKER_REPO != '' && env.DOCKER_USER != '' }}"
+        echo "::set-env name=ACR_SET::${{ env.ACR_REG != '' && env.ACR_REPO != '' && env.ACR_IMAGE !='' }}"
+
+    - name: Validate Azure Access
+      if: ${{ env.AZURE_SET == 'true' }}
       run: |
         # login to Azure
         az login --service-principal -u ${SERVICE_PRINCIPAL} --tenant ${TENANT} -p ${SERVICE_PRINCIPAL_SECRET}
 
         # verify SP has access to Key Vault
         az keyvault secret show --name CosmosDatabase --vault-name $KEYVAULT_NAME
-        
-    - id: "step3"
-      name: Docker Build Test
-      if: ${{ env.SERVICE_PRINCIPAL_SECRET != '' && env.TENANT != '' && env.SERVICE_PRINCIPAL != '' && env.KEYVAULT_NAME != '' }}
+
+    - name: Docker Login
+      if: ${{ env.DOCKER_SET == 'true' }}
+      run: |
+        # login to dockerhub
+        echo "${DOCKER_PAT}" | docker login -u ${DOCKER_USER} --password-stdin
+
+    - name: Docker Pull Test
+      if: ${{ env.AZURE_SET == 'true' || env.DOCKER_SET == 'true' || env.ACR_SET == 'true' }}
+      run: |
+        # Pull the latest image if needed
+        # This doesn't have to be a separate step, but makes the output easier to read and debug
+        docker pull mcr.microsoft.com/dotnet/core/sdk:3.1
+
+    - name: Docker Build Test
+      if: ${{ env.AZURE_SET == 'true' }}
       run: |
         # build test image
         docker build . -t test --target test
 
-    - id: "step4"
-      name: Run Test Container
-      if: ${{ success() && env.KEYVAULT_NAME != '' }}
+    - name: Install WebV
+      if: ${{ env.AZURE_SET == 'true' }}
       run: |
-        # create network
-        docker network create helium
-    
+        dotnet tool install -g webvalidate --version 1.0.7.3
+
+    - name: Start helium container
+      if: ${{ env.AZURE_SET == 'true' }}
+      run: |
         # run the app
-        echo "Running the test image"
-        docker run -d --name hcs -p 4120:4120 --env KEYVAULT_NAME=$KEYVAULT_NAME --env AUTH_TYPE=$AUTH_TYPE --network helium -v ~/.azure:/root/.azure test
+        docker run -d --name hcs -p 4120:4120 --env KEYVAULT_NAME=$KEYVAULT_NAME --env AUTH_TYPE=$AUTH_TYPE -v ~/.azure:/root/.azure test
+        
         docker logs hcs --tail 30
 
-        echo "Waiting for web server to start ..."
+        echo "Waiting for web server to start and run initial tests ..."
         sleep 25
-        
-    - id: "step5"
-      name: Run WebValidate
-      if: ${{ success() }}
+
+    - name: Run WebV
+      if: ${{ env.AZURE_SET == 'true' }}
       run: |
         # run web validation test
-        echo "Running the WebValidate Container"
-        docker run --network helium --name webv retaildevcrew/webvalidate:beta -s http://hcs:4120 -f baseline.json bad.json
-        docker logs webv --tail 30
-        echo "Waiting for web server to shutdown ..."
-        sleep 15
-        
-        echo "WebValidate complete"
+        # fail on any validation errors
+        webv -s localhost:4120 --max-errors 0 -f e2e.json
 
-    - id: "step6"
-      name: Display coverage results
-      if: ${{ success() }}
+    - name: Display coverage results
+      if: ${{ env.AZURE_SET == 'true' }}
       run: |
+        # wait for helium to shutdown
+        sleep 15
+
         # display the results
         docker logs hcs | tail -n 24
 
-    - id: "step7"
-      name: Display Web Validate results
-      if: ${{ success() }}
-      run: |
-        # display the results
-        docker logs webv
-
-    - id: "step8"
-      name: Display full test results
-      if: ${{ success() }}
+    - name: Display full test results
+      if: ${{ env.AZURE_SET == 'true' }}
       run: |
         # display the results
         docker logs hcs
 
-    - id: "step9"
-      name: Docker Build, Tag and Push
-      if: ${{ env.DOCKER_PAT != '' && env.DOCKER_REPO != '' && env.DOCKER_USER != '' && success() }}
+    - name: Docker Pull Release
+      if: ${{ env.DOCKER_SET == 'true' || env.ACR_SET == 'true' }}
       run: |
-        # login to dockerhub
-        echo "${DOCKER_PAT}" | docker login -u ${DOCKER_USER} --password-stdin
-        
-        echo "Logged in to DockerHub"
+        # Pull the latest image if needed
+        docker pull mcr.microsoft.com/dotnet/core/aspnet:3.1-alpine
 
+    - name: Docker Build Release
+      if: ${{ env.DOCKER_SET == 'true' || env.ACR_SET == 'true' }}
+      run: |
         # build release image
-        docker build . -t $DOCKER_REPO:beta
+        docker build . -t helium
+
+    - name: Docker Tag and Push
+      if: ${{ env.DOCKER_SET == 'true' }}
+      run: |
+        # tag the repo with :beta
+        docker tag helium $DOCKER_REPO:beta
 
         # Tag image based on repo tag if a github label
         if [[ "${{ github.ref }}" == "refs/tags/"* ]]
@@ -132,23 +144,21 @@ jobs:
 
           # Strip git ref prefix from version
           VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
-        
+
           # Strip "v" prefix from tag name
           VERSION=$(echo $VERSION | sed -e 's/^v//')
-          
-          echo $VERSION
 
           # tag the image with :version and :stable
-          docker tag $DOCKER_REPO:beta $DOCKER_REPO:$VERSION
-          docker tag $DOCKER_REPO:beta $DOCKER_REPO:stable
+          docker tag helium $DOCKER_REPO:$VERSION
+          docker tag helium $DOCKER_REPO:stable
         fi
 
         # Push to the repo
         docker push $DOCKER_REPO
     
-    - id: "step10"
+    - id: "step11"
       name: ACR Build, Tag and Push
-      if: ${{ env.ACR_REG != '' && env.ACR_REPO != '' && env.SERVICE_PRINCIPAL != '' }}
+      if: ${{ env.ACR_SET == 'true' && env.AZURE_SET == 'true' }}
       run: |
         # login to acr
         az acr login -n ${ACR_REG}
