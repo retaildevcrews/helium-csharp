@@ -1,8 +1,6 @@
 {
   "name": "helium-csharp",
 
-	"build": { "dockerfile": "Dockerfile" },
-
   "settings": { "terminal.integrated.shell.linux": "/bin/bash" },
 
   // set user
@@ -17,9 +15,10 @@
     "ms-azuretools.vscode-docker",
     "eamodio.gitlens",
     "davidanson.vscode-markdownlint",
-    "gruntfuggly.todo-tree"
+    "gruntfuggly.todo-tree",
+    "ms-azuretools.vscode-docker"
   ],
 
   // Run Bash script in .devcontainer directory
-  "postCreateCommand": "dotnet restore ./src/tests.sln"
+  "postCreateCommand": "/bin/bash ./.devcontainer/post-install.sh"
 }
