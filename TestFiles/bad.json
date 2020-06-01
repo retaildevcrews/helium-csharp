@@ -1,0 +1,72 @@
+[
+  {"Path":"/api/actors?q=a",                    "PerfTarget":{"Category": "SearchActors"},"Validation":{"StatusCode":400,"ContentType":"text/plain","ExactMatch":"Invalid q (search) parameter"}},
+  {"Path":"/api/actors?q=123456789012345678901","PerfTarget":{"Category": "SearchActors"},"Validation":{"StatusCode":400,"ContentType":"text/plain","ExactMatch":"Invalid q (search) parameter"}},
+
+  {"Path":"/api/actors?pageSize=0",   "PerfTarget":{"Category": "SearchActors"},"Validation":{"StatusCode":400,"ContentType":"text/plain","ExactMatch":"Invalid PageSize parameter"}},
+  {"Path":"/api/actors?pageSize=-1",  "PerfTarget":{"Category": "SearchActors"},"Validation":{"StatusCode":400,"ContentType":"text/plain","ExactMatch":"Invalid PageSize parameter"}},
+  {"Path":"/api/actors?pageSize=1001","PerfTarget":{"Category": "SearchActors"},"Validation":{"StatusCode":400,"ContentType":"text/plain","ExactMatch":"Invalid PageSize parameter"}},
+  {"Path":"/api/actors?pageSize=10.1","PerfTarget":{"Category": "SearchActors"},"Validation":{"StatusCode":400,"ContentType":"text/plain","ExactMatch":"Invalid PageSize parameter"}},
+  {"Path":"/api/actors?pageSize=foo", "PerfTarget":{"Category": "SearchActors"},"Validation":{"StatusCode":400,"ContentType":"text/plain","ExactMatch":"Invalid PageSize parameter"}},
+
+  {"Path":"/api/actors?pageNumber=0",    "PerfTarget":{"Category": "SearchActors"},"Validation":{"StatusCode":400,"ContentType":"text/plain","ExactMatch":"Invalid PageNumber parameter"}},
+  {"Path":"/api/actors?pageNumber=-1",   "PerfTarget":{"Category": "SearchActors"},"Validation":{"StatusCode":400,"ContentType":"text/plain","ExactMatch":"Invalid PageNumber parameter"}},
+  {"Path":"/api/actors?pageNumber=10001","PerfTarget":{"Category": "SearchActors"},"Validation":{"StatusCode":400,"ContentType":"text/plain","ExactMatch":"Invalid PageNumber parameter"}},
+  {"Path":"/api/actors?pageNumber=10.1", "PerfTarget":{"Category": "SearchActors"},"Validation":{"StatusCode":400,"ContentType":"text/plain","ExactMatch":"Invalid PageNumber parameter"}},
+  {"Path":"/api/actors?pageNumber=foo",  "PerfTarget":{"Category": "SearchActors"},"Validation":{"StatusCode":400,"ContentType":"text/plain","ExactMatch":"Invalid PageNumber parameter"}},
+
+  {"Path":"/api/movies?q=a",                    "PerfTarget":{"Category": "SearchMovies"},"Validation":{"StatusCode":400,"ContentType":"text/plain","ExactMatch":"Invalid q (search) parameter"}},
+  {"Path":"/api/movies?q=123456789012345678901","PerfTarget":{"Category": "SearchMovies"},"Validation":{"StatusCode":400,"ContentType":"text/plain","ExactMatch":"Invalid q (search) parameter"}},
+
+  {"Path":"/api/movies?pageSize=0",   "PerfTarget":{"Category": "SearchMovies"},"Validation":{"StatusCode":400,"ContentType":"text/plain","ExactMatch":"Invalid PageSize parameter"}},
+  {"Path":"/api/movies?pageSize=-1",  "PerfTarget":{"Category": "SearchMovies"},"Validation":{"StatusCode":400,"ContentType":"text/plain","ExactMatch":"Invalid PageSize parameter"}},
+  {"Path":"/api/movies?pageSize=1001","PerfTarget":{"Category": "SearchMovies"},"Validation":{"StatusCode":400,"ContentType":"text/plain","ExactMatch":"Invalid PageSize parameter"}},
+  {"Path":"/api/movies?pageSize=10.1","PerfTarget":{"Category": "SearchMovies"},"Validation":{"StatusCode":400,"ContentType":"text/plain","ExactMatch":"Invalid PageSize parameter"}},
+  {"Path":"/api/movies?pageSize=foo", "PerfTarget":{"Category": "SearchMovies"},"Validation":{"StatusCode":400,"ContentType":"text/plain","ExactMatch":"Invalid PageSize parameter"}},
+
+  {"Path":"/api/movies?pageNumber=0",    "PerfTarget":{"Category": "SearchMovies"},"Validation":{"StatusCode":400,"ContentType":"text/plain","ExactMatch":"Invalid PageNumber parameter"}},
+  {"Path":"/api/movies?pageNumber=-1",   "PerfTarget":{"Category": "SearchMovies"},"Validation":{"StatusCode":400,"ContentType":"text/plain","ExactMatch":"Invalid PageNumber parameter"}},
+  {"Path":"/api/movies?pageNumber=10.1", "PerfTarget":{"Category": "SearchMovies"},"Validation":{"StatusCode":400,"ContentType":"text/plain","ExactMatch":"Invalid PageNumber parameter"}},
+  {"Path":"/api/movies?pageNumber=10001","PerfTarget":{"Category": "SearchMovies"},"Validation":{"StatusCode":400,"ContentType":"text/plain","ExactMatch":"Invalid PageNumber parameter"}},
+  {"Path":"/api/movies?pageNumber=foo",  "PerfTarget":{"Category": "SearchMovies"},"Validation":{"StatusCode":400,"ContentType":"text/plain","ExactMatch":"Invalid PageNumber parameter"}},
+
+  {"Path":"/api/movies?year=foo",   "PerfTarget":{"Category": "SearchMovies"},"Validation":{"StatusCode":400,"ContentType":"text/plain","ExactMatch":"Invalid Year parameter"}},
+  {"Path":"/api/movies?year=-1",    "PerfTarget":{"Category": "SearchMovies"},"Validation":{"StatusCode":400,"ContentType":"text/plain","ExactMatch":"Invalid Year parameter"}},
+  {"Path":"/api/movies?year=0",     "PerfTarget":{"Category": "SearchMovies"},"Validation":{"StatusCode":400,"ContentType":"text/plain","ExactMatch":"Invalid Year parameter"}},
+  {"Path":"/api/movies?year=1",     "PerfTarget":{"Category": "SearchMovies"},"Validation":{"StatusCode":400,"ContentType":"text/plain","ExactMatch":"Invalid Year parameter"}},
+  {"Path":"/api/movies?year=1873",  "PerfTarget":{"Category": "SearchMovies"},"Validation":{"StatusCode":400,"ContentType":"text/plain","ExactMatch":"Invalid Year parameter"}},
+  {"Path":"/api/movies?year=2026",  "PerfTarget":{"Category": "SearchMovies"},"Validation":{"StatusCode":400,"ContentType":"text/plain","ExactMatch":"Invalid Year parameter"}},
+  {"Path":"/api/movies?year=2020.1","PerfTarget":{"Category": "SearchMovies"},"Validation":{"StatusCode":400,"ContentType":"text/plain"}},
+  {"Path":"/api/movies?year=2025",  "PerfTarget":{"Category": "SearchMovies"},"Validation":{"JsonArray":{"Count":0}}},
+  {"Path":"/api/movies?year=1874",  "PerfTarget":{"Category": "SearchMovies"},"Validation":{"JsonArray":{"Count":0}}},
+
+  {"Path":"/api/movies?rating=foo", "PerfTarget":{"Category": "SearchMovies"},"Validation":{"StatusCode":400,"ContentType":"text/plain","ExactMatch":"Invalid Rating parameter"}},
+  {"Path":"/api/movies?rating=-1",  "PerfTarget":{"Category": "SearchMovies"},"Validation":{"StatusCode":400,"ContentType":"text/plain","ExactMatch":"Invalid Rating parameter"}},
+  {"Path":"/api/movies?rating=10.1","PerfTarget":{"Category": "SearchMovies"},"Validation":{"StatusCode":400,"ContentType":"text/plain","ExactMatch":"Invalid Rating parameter"}},
+
+  {"Path":"/api/movies?genre=ab",                   "PerfTarget":{"Category": "SearchMovies"},"Validation":{"StatusCode":400,"ContentType":"text/plain","ExactMatch":"Invalid Genre parameter"}},
+  {"Path":"/api/movies?genre=123456789012345678901","PerfTarget":{"Category": "SearchMovies"},"Validation":{"StatusCode":400,"ContentType":"text/plain","ExactMatch":"Invalid Genre parameter"}},
+
+  {"Path":"/api/movies?actorId=nm123",  "PerfTarget":{"Category": "SearchMovies"},"Validation":{"StatusCode":400,"ContentType":"text/plain"}},
+  {"Path":"/api/movies?actorId=ab12345","PerfTarget":{"Category": "SearchMovies"},"Validation":{"StatusCode":400,"ContentType":"text/plain"}},
+  {"Path":"/api/movies?actorId=tt12345","PerfTarget":{"Category": "SearchMovies"},"Validation":{"StatusCode":400,"ContentType":"text/plain"}},
+  {"Path":"/api/movies?actorId=NM12345","PerfTarget":{"Category": "SearchMovies"},"Validation":{"StatusCode":400,"ContentType":"text/plain"}},
+  {"Path":"/api/movies?actorId=nm12345","PerfTarget":{"Category": "SearchMovies"},"Validation":{"JsonArray":{"Count":0}}},
+
+  {"Path":"/api/actors/ab12345",      "PerfTarget":{"Category": "DirectRead"},"Validation":{"StatusCode":400,"ContentType":"text/plain"}},
+  {"Path":"/api/actors/tt12345",      "PerfTarget":{"Category": "DirectRead"},"Validation":{"StatusCode":400,"ContentType":"text/plain"}},
+  {"Path":"/api/actors/NM12345",      "PerfTarget":{"Category": "DirectRead"},"Validation":{"StatusCode":400,"ContentType":"text/plain"}},
+  {"Path":"/api/actors/nm123",        "PerfTarget":{"Category": "DirectRead"},"Validation":{"StatusCode":400,"ContentType":"text/plain"}},
+  {"Path":"/api/actors/nmabcde",      "PerfTarget":{"Category": "DirectRead"},"Validation":{"StatusCode":400,"ContentType":"text/plain"}},
+  {"Path":"/api/actors/nm00000",      "PerfTarget":{"Category": "DirectRead"},"Validation":{"StatusCode":400,"ContentType":"text/plain"}},
+  {"Path":"/api/actors/nm12345",      "PerfTarget":{"Category": "DirectRead"},"Validation":{"StatusCode":404,"ContentType":"text/plain","ExactMatch":"Actor Not Found"}},
+  {"Path":"/api/actors/nm0000173/foo","PerfTarget":{"Category": "DirectRead"},"Validation":{"StatusCode":404}},
+
+  {"Path":"/api/movies/ab12345",      "PerfTarget":{"Category": "DirectRead"},"Validation":{"StatusCode":400,"ContentType":"text/plain"}},
+  {"Path":"/api/movies/nm12345",      "PerfTarget":{"Category": "DirectRead"},"Validation":{"StatusCode":400,"ContentType":"text/plain"}},
+  {"Path":"/api/movies/TT12345",      "PerfTarget":{"Category": "DirectRead"},"Validation":{"StatusCode":400,"ContentType":"text/plain"}},
+  {"Path":"/api/movies/tt123",        "PerfTarget":{"Category": "DirectRead"},"Validation":{"StatusCode":400,"ContentType":"text/plain"}},
+  {"Path":"/api/movies/ttabcde",      "PerfTarget":{"Category": "DirectRead"},"Validation":{"StatusCode":400,"ContentType":"text/plain"}},
+  {"Path":"/api/movies/tt00000",      "PerfTarget":{"Category": "DirectRead"},"Validation":{"StatusCode":400,"ContentType":"text/plain"}},
+  {"Path":"/api/movies/tt12345",      "PerfTarget":{"Category": "DirectRead"},"Validation":{"StatusCode":404,"ContentType":"text/plain","ExactMatch":"Movie Not Found"}},
+  {"Path":"/api/movies/tt0133093/foo","PerfTarget":{"Category": "DirectRead"},"Validation":{"StatusCode":404}},
+]
