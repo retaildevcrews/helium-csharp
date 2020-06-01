@@ -1,7 +1,5 @@
+# set the authentication type
 export AUTH_TYPE=CLI
-
-# TODO - remove this
-export KEYVAULT_NAME=heliumtest-kv
 
 # add tools to path
 export PATH="$PATH:~/.dotnet/tools"
@@ -16,6 +14,6 @@ PS1='\[\033[01;30m\]\u@helium \[\033[01;34m\]\w/\[\033[00m\] $ '
 alias ls='ls --color=auto'
 alias ll='ls -alF'
 
-# you can add project specific settings to this file and 
+# you can add project specific settings to this file and
 # they will be added for every user that clones the repo with Codespaces
 # including keys or secrets could be a SECURITY RISK
