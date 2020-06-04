@@ -143,10 +143,7 @@ jobs:
         then
 
           # Strip git ref prefix from version
-          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
-
-          # Strip "v" prefix from tag name
-          VERSION=$(echo $VERSION | sed -e 's/^v//')
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,'  | sed -e 's/^v//')
 
           # tag the image with :version and :stable
           docker tag helium $DOCKER_REPO:$VERSION
@@ -156,17 +153,14 @@ jobs:
         # Push to the repo
         docker push $DOCKER_REPO
     
-    - id: "step11"
-      name: ACR Build, Tag and Push
+    - name: ACR Push
       if: ${{ env.ACR_SET == 'true' && env.AZURE_SET == 'true' }}
       run: |
         # login to acr
         az acr login -n ${ACR_REG}
         
-        echo "Logged in to ACR"
-        
         # build release image
-        docker build . -t $ACR_REPO:beta
+        docker tag helium $ACR_REPO:beta
 
         # Tag image based on repo tag if a github label
         if [[ "${{ github.ref }}" == "refs/tags/"* ]]
@@ -178,20 +172,14 @@ jobs:
           # Strip "v" prefix from tag name
           VERSION=$(echo $VERSION | sed -e 's/^v//')
           
-          echo $VERSION
-
           # tag the image with :version and :stable
-          docker tag $ACR_REPO:beta $ACR_REPO:$VERSION
-          docker tag $ACR_REPO:beta $ACR_REPO:stable
-          
-          # Show the ACR repository informaion to confirm SHA
-          echo "${ACR_IMAGE}:${VERSION} info:"
-          az acr repository show -n ${ACR_REG} --image ${ACR_IMAGE}:${VERSION} -o table
-          echo "${ACR_IMAGE}:stable info:"
-          az acr repository show -n ${ACR_REG} --image ${ACR_IMAGE}:stable -o table
-          echo "${ACR_IMAGE}:beta info:"
-          az acr repository show -n ${ACR_REG} --image ${ACR_IMAGE}:beta -o table
-        else
-          echo "${ACR_IMAGE}:beta info:"
-          az acr repository show -n ${ACR_REG} --image ${ACR_IMAGE}:beta -o table
+          docker tag helium $ACR_REPO:$VERSION
+          docker tag helium $ACR_REPO:stable
         fi
+        
+        # push the repo
+        docker push $ACR_REPO
+
+        # display repo info
+        echo "${ACR_IMAGE} info:"
+        az acr repository show -n ${ACR_REG} --image ${ACR_IMAGE}:beta -o table
