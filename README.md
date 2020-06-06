@@ -19,9 +19,8 @@ This is an ASP.NET Core Web API reference application designed to "fork and code
 
 ## Prerequisites
 
-- Bash shell (tested on Mac, Ubuntu, Windows with WSL2)
-  - Will not work with WSL1
-  - Docker commands will not work in Cloud Shell
+- Bash shell (tested on Mac, Ubuntu, Windows with WSL2, CloudSpaces)
+  - Will not work with WSL1 or Cloud Shell
 - .NET Core SDK 3.1 ([download](https://dotnet.microsoft.com/download))
 - Docker CLI ([download](https://docs.docker.com/install/))
 - Azure CLI ([download](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest))
@@ -29,50 +28,22 @@ This is an ASP.NET Core Web API reference application designed to "fork and code
 
 ## Setup
 
-- Fork this repo and clone to your local machine
+### Cloud Spaces
+
+- The easiest way to experiment with helium is using [CloudSpaces](https://visualstudio.microsoft.com/services/visual-studio-codespaces/)
+  - Fork this repo
+  - Create a new CloudSpace pointing to the forked repo
+  - Use the built-in bash shell
+
+### Local Setup
+
+- Fork this repo
+- Clone the forked repo to your local machine
 - All instructions assume starting from the root of the repo
 
-## CI-CD
+## Run helium from bash
 
-This repo uses [GitHub Actions](/.github/workflows/dockerCI.yml) for Continuous Integration.
-
-- CI supports pushing to Azure Container Registry or DockerHub
-- The action is setup to execute on a PR or commit to ```master```
-  - The action does not run on commits to branches other than ```master```
-- The action always publishes an image with the ```:beta``` tag
-- If you tag the repo with a version i.e. ```v1.0.8``` the action will also
-  - Tag the image with ```:1.0.8```
-  - Tag the image with ```:stable```
-  - Note that the ```v``` is case sensitive (lower case)
-
-CD is supported via webhooks in Azure App Services connected to the ACR or DockerHub repository.
-
-### Pushing to Azure Container Registry
-
-In order to push to ACR, you must create a Service Principal that has push permissions to the ACR and set the following ```secrets``` in your GitHub repo:
-
-- Azure Login Information
-  - TENANT
-  - SERVICE_PRINCIPAL
-  - SERVICE_PRINCIPAL_SECRET
-
-- ACR Information
-  - ACR_REG
-  - ACR_REPO
-  - ACR_IMAGE
-
-### Pushing to DockerHub
-
-In order to push to DockerHub, you must set the following ```secrets``` in your GitHub repo:
-
-- DOCKER_REPO
-- DOCKER_USER
-- DOCKER_PAT
-  - Personal Access Token
-
-## Run the application locally
-
-- The application requires Key Vault and Cosmos DB to be setup per the Helium [readme](https://github.com/retaildevcrews/helium)
+- The application requires Key Vault and Cosmos DB to be setup per the Helium setup [instructions](https://github.com/retaildevcrews/helium)
 - You can run the application locally by using Azure CLI cached credentials
 
 ### Validate az CLI works
@@ -82,16 +53,27 @@ In order to push to DockerHub, you must set the following ```secrets``` in your 
 # make sure you are logged into Azure
 az account show
 
-# if not log in
+# if not, log in
 az login
+
+```
+
+### Verify Key Vault Access
+
+```bash
+
+# verify you have access to Key Vault
+az keyvault secret show --name CosmosDatabase --vault-name $He_Name
 
 ```
 
 ### Run the app
 
+> If you are using CodeSpaces, you just need to set the --keyvault-name parameter and press F5
+
 ```bash
 
-# make sure you are in the root of the repo then
+# make sure you are in the root of the repo
 cd src/app
 dotnet restore
 
@@ -99,17 +81,40 @@ dotnet restore
 # $He_Name is set to the name of your key vault during setup
 # this will use Azure CLI cached credentials
 
-dotnet run -- --keyvault-name $He_Name --auth-type CLI &
+dotnet run -- --keyvault-name $He_Name --auth-type CLI
+
+# press ctl-c to stop the app
+
+```
+
+### In a separate terminal
+
+```bash
 
 # test the application
-# the application takes about 15 seconds to start
+curl localhost:4120/version
 
-curl http://localhost:4120/healthz/ietf
+```
 
-# Stop the app
-fg
+### Deep Testing
 
-# press ctl-c
+We use [Web Validate](https://github.com/retaildevcrews/webvalidate) to run deep verification tests on the Web API
+
+```bash
+
+# install Web Validate as a dotnet global tool
+# this is automatically installed in CodeSpaces
+dotnet tool install -g webvalidate
+
+# make sure you are in the root of the repository
+
+# run the validation tests
+# validation tests are located in the TestFiles directory
+webv -s localhost:4120 -f baseline.json
+
+# bad.json tests error conditions that return 4xx codes
+
+# benchmark.json is a 300 request test that covers the entire API
 
 ```
 
@@ -126,6 +131,48 @@ docker build . -t helium-csharp
 # run docker tag and docker push to push to your repo
 
 ```
+
+## CI-CD
+
+This repo uses [GitHub Actions](/.github/workflows/dockerCI.yml) for Continuous Integration. Detailed setup instructions are here: [ACR](https://github.com/retaildevcrews/helium/blob/master/docs/CI-CD/ACR.md) [DockerHub](https://github.com/retaildevcrews/helium/blob/master/docs/CI-CD/DockerHub.md)
+
+- CI supports pushing to Azure Container Registry or DockerHub
+- The action is setup to execute on a PR or commit to ```master```
+  - The action does not run on commits to branches other than ```master```
+- The action always publishes an image with the ```:beta``` tag
+- If you tag the repo with a version i.e. ```v1.0.8``` the action will also
+  - Tag the image with ```:1.0.8```
+  - Tag the image with ```:stable```
+  - Note that the ```v``` is case sensitive (lower case)
+
+CD is supported via webhooks in Azure App Services connected to the ACR or DockerHub repository. See the Helium setup instructions for details.
+
+### Testing
+
+The end-to-end test is executed as part of the CI-CD pipeline and requires the Azure Service Principal be setup per the instructions above and the following `secrets` be set in your GitHub repo:
+
+- Azure Login Information
+  - TENANT
+  - SERVICE_PRINCIPAL
+  - SERVICE_PRINCIPAL_SECRET
+
+### Pushing to Azure Container Registry
+
+In order to push to ACR, you must create a Service Principal that has push permissions to the ACR and set the following `secrets` in your GitHub repo:
+
+- ACR Information
+  - ACR_REG
+  - ACR_REPO
+  - ACR_IMAGE
+
+### Pushing to DockerHub
+
+In order to push to DockerHub, you must set the following `secrets` in your GitHub repo:
+
+- DOCKER_REPO
+- DOCKER_USER
+- DOCKER_PAT
+  - Personal Access Token
 
 ## Contributing
 
