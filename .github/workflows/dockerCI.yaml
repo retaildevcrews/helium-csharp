@@ -10,10 +10,8 @@ on:
 
     paths-ignore:
       - 'docs/**'
-      - '.github/**'
-      - '**.md'
       - '.devcontainer/**'
-      - '.github/**/open-*.yml'
+      - '**.md'
 
     tags:
       - v*
@@ -158,9 +156,12 @@ jobs:
       run: |
         # login to acr
         az acr login -n ${ACR_REG}
-        
+
+        # build the complete image name
+        ACR_IMAGE=$ACR_REG.azurecr.io/$ACR_REPO/$ACR_IMAGE
+
         # build release image
-        docker tag helium $ACR_REPO:beta
+        docker tag helium $ACR_IMAGE:beta
 
         # Tag image based on repo tag if a github label
         if [[ "${{ github.ref }}" == "refs/tags/"* ]]
@@ -173,13 +174,9 @@ jobs:
           VERSION=$(echo $VERSION | sed -e 's/^v//')
           
           # tag the image with :version and :stable
-          docker tag helium $ACR_REPO:$VERSION
-          docker tag helium $ACR_REPO:stable
+          docker tag helium $ACR_IMAGE:$VERSION
+          docker tag helium $ACR_IMAGE:stable
         fi
         
         # push the repo
-        docker push $ACR_REPO
-
-        # display repo info
-        echo "${ACR_IMAGE} info:"
-        az acr repository show -n ${ACR_REG} --image ${ACR_IMAGE}:beta -o table
+        docker push $ACR_IMAGE
