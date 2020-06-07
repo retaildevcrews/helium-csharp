@@ -69,6 +69,7 @@ jobs:
         # temp test
         echo "::set-env name=DOCKER_SET::false"
         echo "::set-env name=ACR_SET::false"
+        echo "::set-env name=AZURE_SET::false"
         
     - name: Test Check
       run: |
