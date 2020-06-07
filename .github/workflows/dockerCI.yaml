@@ -50,7 +50,7 @@ jobs:
         SERVICE_PRINCIPAL_SECRET=${{ secrets.SERVICE_PRINCIPAL_SECRET }}
 
         echo "::set-env name=AZURE_SET::${{ env.SERVICE_PRINCIPAL_SECRET != '' && env.TENANT != '' && env.SERVICE_PRINCIPAL != '' && env.KEYVAULT_NAME != '' }}"
-        echo "::set-env name=DOCKER_SET::$( $DOCKER_PAT != '' && $DOCKER_REPO != '' && $DOCKER_USER != '' )"
+        echo "::set-env name=DOCKER_SET::$DOCKER_PAT != '' && $DOCKER_REPO != '' && $DOCKER_USER != ''"
         echo "::set-env name=ACR_SET::${{ env.ACR_REG != '' && env.ACR_REPO != '' && env.ACR_IMAGE !='' }}"
 
         echo $SERVICE_PRINCIPAL_SECRET
