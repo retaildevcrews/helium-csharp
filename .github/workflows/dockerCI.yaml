@@ -53,6 +53,14 @@ jobs:
         echo "::set-env name=ACR_SET::${{ env.ACR_REG != '' && env.ACR_REPO != '' && env.ACR_IMAGE !='' }}"
 
         echo $SERVICE_PRINCIPAL_SECRET
+        echo $DOCKER_PAT
+
+        echo "::set-env name=SERVICE_PRINCIPAL_SECRET::''"
+        echo "::set-env name=DOCKER_PAT::''"
+
+    - name: Test Check
+      run: |
+        echo $SERVICE_PRINCIPAL_SECRET
         echo $ACR_SET
         
         echo $DOCKER_PAT
@@ -62,9 +70,6 @@ jobs:
         echo "::set-env name=DOCKER_SET::false"
         echo "::set-env name=ACR_SET::false"
         
-        echo "::set-env name=SERVICE_PRINCIPAL_SECRET::''"
-        echo "::set-env name=DOCKER_PAT::''"
-
     - name: Test Check
       run: |
         echo $SERVICE_PRINCIPAL_SECRET
