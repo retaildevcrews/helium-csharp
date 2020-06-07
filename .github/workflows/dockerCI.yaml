@@ -53,29 +53,8 @@ jobs:
         echo "::set-env name=ACR_SET::${{ env.ACR_REG != '' && env.ACR_REPO != '' && env.ACR_IMAGE !='' }}"
 
         # unset the secrets from the env vars to prevent leakage
-        echo "::set-env name=SERVICE_PRINCIPAL_SECRET::''"
-        echo "::set-env name=DOCKER_PAT::''"
-
-    - name: Test Check
-      run: |
-        echo $SERVICE_PRINCIPAL_SECRET
-        echo $ACR_SET
-        
-        echo $DOCKER_PAT
-        echo $DOCKER_SET
-
-        # temp test
-        echo "::set-env name=DOCKER_SET::false"
-        echo "::set-env name=ACR_SET::false"
-        echo "::set-env name=AZURE_SET::false"
-        
-    - name: Test Check
-      run: |
-        echo $SERVICE_PRINCIPAL_SECRET
-        echo $ACR_SET
-        
-        echo $DOCKER_PAT
-        echo $DOCKER_SET
+        echo "::set-env name=SERVICE_PRINCIPAL_SECRET::null"
+        echo "::set-env name=DOCKER_PAT::null"
 
     - name: Validate Azure Access
       if: ${{ env.AZURE_SET == 'true' }}
