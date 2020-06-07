@@ -26,11 +26,9 @@ jobs:
 
       DOCKER_REPO: ${{ secrets.DOCKER_REPO }}
       DOCKER_USER: ${{ secrets.DOCKER_USER }}
-      DOCKER_PAT: ${{ secrets.DOCKER_PAT }}
 
       TENANT: ${{ secrets.TENANT }}
       SERVICE_PRINCIPAL: ${{ secrets.SERVICE_PRINCIPAL }}
-      SERVICE_PRINCIPAL_SECRET: ${{ secrets.SERVICE_PRINCIPAL_SECRET }}
 
       ACR_REG: ${{ secrets.ACR_REG }}
       ACR_REPO: ${{ secrets.ACR_REPO }}
@@ -48,15 +46,39 @@ jobs:
 
     - name: Set conditions
       run: |
+        DOCKER_PAT=${{ secrets.DOCKER_PAT }}
+        SERVICE_PRINCIPAL_SECRET=${{ secrets.SERVICE_PRINCIPAL_SECRET }}
+
         echo "::set-env name=AZURE_SET::${{ env.SERVICE_PRINCIPAL_SECRET != '' && env.TENANT != '' && env.SERVICE_PRINCIPAL != '' && env.KEYVAULT_NAME != '' }}"
         echo "::set-env name=DOCKER_SET::${{ env.DOCKER_PAT != '' && env.DOCKER_REPO != '' && env.DOCKER_USER != '' }}"
         echo "::set-env name=ACR_SET::${{ env.ACR_REG != '' && env.ACR_REPO != '' && env.ACR_IMAGE !='' }}"
+
+        echo $SERVICE_PRINCIPAL_SECRET
+        echo $ACR_SET
+        
+        echo $DOCKER_PAT
+        echo $DOCKER_SET
+
+        # temp test
+        echo "::set-env name=DOCKER_SET::false"
+        echo "::set-env name=ACR_SET::false}"
+        
+        #echo "::set-env name=SERVICE_PRINCIPAL_SECRET::''"
+        #echo "::set-env name=DOCKER_PAT::''"
+
+    - name: Test Check
+      run: |
+        echo $SERVICE_PRINCIPAL_SECRET
+        echo $ACR_SET
+        
+        echo $DOCKER_PAT
+        echo $DOCKER_SET
 
     - name: Validate Azure Access
       if: ${{ env.AZURE_SET == 'true' }}
       run: |
         # login to Azure
-        az login --service-principal -u ${SERVICE_PRINCIPAL} --tenant ${TENANT} -p ${SERVICE_PRINCIPAL_SECRET}
+        az login --service-principal -u ${{ secrets.SERVICE_PRINCIPAL }} --tenant ${{ secrets.TENANT }} -p ${{ secrets.SERVICE_PRINCIPAL_SECRET }}
 
         # verify SP has access to Key Vault
         az keyvault secret show --name CosmosDatabase --vault-name $KEYVAULT_NAME
@@ -65,7 +87,7 @@ jobs:
       if: ${{ env.DOCKER_SET == 'true' }}
       run: |
         # login to dockerhub
-        echo "${DOCKER_PAT}" | docker login -u ${DOCKER_USER} --password-stdin
+        echo "${{ secrets.DOCKER_PAT }}" | docker login -u ${{ secrets.DOCKER_USER }} --password-stdin
 
     - name: Docker Pull Test
       if: ${{ env.AZURE_SET == 'true' || env.DOCKER_SET == 'true' || env.ACR_SET == 'true' }}
@@ -155,7 +177,7 @@ jobs:
       if: ${{ env.ACR_SET == 'true' && env.AZURE_SET == 'true' }}
       run: |
         # login to acr
-        az acr login -n ${ACR_REG}
+        az acr login -n $ACR_REG
 
         # build the complete image name
         ACR_IMAGE=$ACR_REG.azurecr.io/$ACR_REPO/$ACR_IMAGE
