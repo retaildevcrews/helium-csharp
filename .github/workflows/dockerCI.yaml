@@ -52,9 +52,7 @@ jobs:
         echo "::set-env name=DOCKER_SET::${{ env.DOCKER_PAT != '' && env.DOCKER_REPO != '' && env.DOCKER_USER != '' }}"
         echo "::set-env name=ACR_SET::${{ env.ACR_REG != '' && env.ACR_REPO != '' && env.ACR_IMAGE !='' }}"
 
-        echo $SERVICE_PRINCIPAL_SECRET
-        echo $DOCKER_PAT
-
+        # unset the secrets from the env vars to prevent leakage
         echo "::set-env name=SERVICE_PRINCIPAL_SECRET::''"
         echo "::set-env name=DOCKER_PAT::''"
 
