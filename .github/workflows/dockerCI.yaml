@@ -91,7 +91,7 @@ jobs:
     - name: Install WebV
       if: ${{ env.AZURE_SET == 'true' }}
       run: |
-        dotnet tool install -g webvalidate
+        dotnet tool install -g webvalidate --version 1.0.7.4
 
     - name: Start helium container
       if: ${{ env.AZURE_SET == 'true' }}
@@ -109,7 +109,9 @@ jobs:
       run: |
         # run web validation test
         # fail on any validation errors
+        cd TestFiles
         webv -s localhost:4120 --max-errors 0 -f e2e.json
+        cd ..
 
     - name: Display coverage results
       if: ${{ env.AZURE_SET == 'true' }}
