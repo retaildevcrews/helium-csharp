@@ -44,22 +44,20 @@ jobs:
         # check that all Azure secrets are set
         if [[ "${{ secrets.SERVICE_PRINCIPAL_SECRET }}" != "" && "${{ secrets.TENANT }}" != "" && "${{ secrets.SERVICE_PRINCIPAL }}" != "" && "${{ secrets.KEYVAULT_NAME }}" != "" ]];
         then
-          echo "Azure Set"
-          echo "::set-env name=AZURE_SET::${{ true }}"
+          echo "::set-env name=AZURE_SET::true"
         fi
 
         # check that all Docker secrets are set
         if [[ "${{ secrets.DOCKER_PAT }}" != "" && "${{ secrets.DOCKER_REPO }}" != "" && "${{ secrets.DOCKER_USER }}" != "" ]];
         then
-          echo "Docker Set"
-          echo "::set-env name=DOCKER_SET::${{ true }}"
+          echo "::set-env name=DOCKER_SET::true"
         fi
         
         # check that all ACR secrets are set
         if [[ "${{ secrets.ACR_REG }}" != "" && "${{ secrets.ACR_REPO }}" != "" && "${{ secrets.ACR_IMAGE }}" != "" ]];
         then
           echo "ACR Set"
-          echo "::set-env name=ACR_SET::${{ true }}"
+          echo "::set-env name=ACR_SET::true"
         fi
 
     - name: Validate Azure Access
@@ -72,31 +70,31 @@ jobs:
         az keyvault secret show --name CosmosDatabase --vault-name ${{ secrets.KEYVAULT_NAME }}
 
     - name: Docker Login
-      if: ${{ env.DOCKER_SET == true }}
+      if: ${{ env.DOCKER_SET == 'true' }}
       run: |
         # login to dockerhub
         echo "${{ secrets.DOCKER_PAT }}" | docker login -u ${{ secrets.DOCKER_USER }} --password-stdin
 
     - name: Docker Pull Test
-      if: ${{ env.AZURE_SET == true || env.DOCKER_SET == true || env.ACR_SET == true }}
+      if: ${{ env.AZURE_SET == 'true' || env.DOCKER_SET == 'true' || env.ACR_SET == 'true' }}
       run: |
         # Pull the latest image if needed
         # This doesn't have to be a separate step, but makes the output easier to read and debug
         docker pull mcr.microsoft.com/dotnet/core/sdk:3.1
 
     - name: Docker Build Test
-      if: ${{ env.AZURE_SET == true }}
+      if: ${{ env.AZURE_SET == 'true' }}
       run: |
         # build test image
         docker build . -t test --target test
 
     - name: Install WebV
-      if: ${{ env.AZURE_SET == true }}
+      if: ${{ env.AZURE_SET == 'true' }}
       run: |
         dotnet tool install -g webvalidate
 
     - name: Start helium container
-      if: ${{ env.AZURE_SET == true }}
+      if: ${{ env.AZURE_SET == 'true' }}
       run: |
         # run the app
         docker run -d --name hcs -p 4120:4120 --env KEYVAULT_NAME=$KEYVAULT_NAME --env AUTH_TYPE=CLI -v ~/.azure:/root/.azure test
@@ -107,14 +105,14 @@ jobs:
         sleep 25
 
     - name: Run WebV
-      if: ${{ env.AZURE_SET == true }}
+      if: ${{ env.AZURE_SET == 'true' }}
       run: |
         # run web validation test
         # fail on any validation errors
         webv -s localhost:4120 --max-errors 0 -f e2e.json
 
     - name: Display coverage results
-      if: ${{ env.AZURE_SET == true }}
+      if: ${{ env.AZURE_SET == 'true' }}
       run: |
         # wait for helium to shutdown
         sleep 15
@@ -123,25 +121,25 @@ jobs:
         docker logs hcs | tail -n 24
 
     - name: Display full test results
-      if: ${{ env.AZURE_SET == true }}
+      if: ${{ env.AZURE_SET == 'true' }}
       run: |
         # display the results
         docker logs hcs
 
     - name: Docker Pull Release
-      if: ${{ env.DOCKER_SET == true || env.ACR_SET == true }}
+      if: ${{ env.DOCKER_SET == 'true' || env.ACR_SET == 'true' }}
       run: |
         # Pull the latest image if needed
         docker pull mcr.microsoft.com/dotnet/core/aspnet:3.1-alpine
 
     - name: Docker Build Release
-      if: ${{ env.DOCKER_SET == true || env.ACR_SET == true }}
+      if: ${{ env.DOCKER_SET == 'true' || env.ACR_SET == 'true' }}
       run: |
         # build release image
         docker build . -t helium
 
     - name: Docker Tag and Push
-      if: ${{ env.DOCKER_SET == true }}
+      if: ${{ env.DOCKER_SET == 'true' }}
       run: |
         # tag the repo with :beta
         docker tag helium $DOCKER_REPO:beta
@@ -162,7 +160,7 @@ jobs:
         docker push $DOCKER_REPO
     
     - name: ACR Push
-      if: ${{ env.ACR_SET == true && env.AZURE_SET == true }}
+      if: ${{ env.ACR_SET == 'true' && env.AZURE_SET == 'true' }}
       run: |
         # login to acr
         az acr login -n $ACR_REG
