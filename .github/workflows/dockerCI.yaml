@@ -63,7 +63,7 @@ jobs:
         fi
 
     - name: Validate Azure Access
-      if: ${{ env.AZURE_SET == true }}
+      if: ${{ env.AZURE_SET == 'true' }}
       run: |
         # login to Azure
         az login --service-principal -u ${{ secrets.SERVICE_PRINCIPAL }} --tenant ${{ secrets.TENANT }} -p ${{ secrets.SERVICE_PRINCIPAL_SECRET }}
