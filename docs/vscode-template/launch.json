@@ -12,6 +12,8 @@
             // If you have changed target frameworks, make sure to update the program path.
             "program": "${workspaceFolder}/src/app/bin/Debug/netcoreapp3.1/helium.dll",
             "args": [
+                "--keyvault-name",
+                "{your keyvault name}",
                 "--auth-type",
                 "CLI"
             ],

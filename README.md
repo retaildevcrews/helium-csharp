@@ -69,7 +69,9 @@ az keyvault secret show --name CosmosDatabase --vault-name $He_Name
 
 ### Run the app
 
-> If you are using CodeSpaces, you just need to set the --keyvault-name parameter and press F5
+- If you are using CodeSpaces, you just need to set the --keyvault-name parameter and press F5
+  - Open launch.json in the .vscode directory at the root of the repo
+  - Replace `{your keyvault name}`
 
 ```bash
 
