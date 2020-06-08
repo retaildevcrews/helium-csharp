@@ -45,21 +45,21 @@ jobs:
         if [[ "${{ secrets.SERVICE_PRINCIPAL_SECRET }}" != "" && "${{ secrets.TENANT }}" != "" && "${{ secrets.SERVICE_PRINCIPAL }}" != "" && "${{ secrets.KEYVAULT_NAME }}" != "" ]];
         then
           echo "Azure Set"
-          echo "::set-env name=AZURE_SET::true"
+          echo "::set-env name=AZURE_SET::${{ true }}"
         fi
 
         # check that all Docker secrets are set
         if [[ "${{ secrets.DOCKER_PAT }}" != "" && "${{ secrets.DOCKER_REPO }}" != "" && "${{ secrets.DOCKER_USER }}" != "" ]];
         then
           echo "Docker Set"
-          echo "::set-env name=DOCKER_SET::true"
+          echo "::set-env name=DOCKER_SET::${{ true }}"
         fi
         
         # check that all ACR secrets are set
         if [[ "${{ secrets.ACR_REG }}" != "" && "${{ secrets.ACR_REPO }}" != "" && "${{ secrets.ACR_IMAGE }}" != "" ]];
         then
           echo "ACR Set"
-          echo "::set-env name=ACR_SET::true"
+          echo "::set-env name=ACR_SET::${{ true }}"
         fi
 
     - name: Validate Azure Access
