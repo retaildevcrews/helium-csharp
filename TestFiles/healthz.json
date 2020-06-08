@@ -7,10 +7,10 @@
   {"path":"/healthz/fail","perfTarget":{"category":"healthz"},"validation":{"statusCode":503,"contentType":"text/plain","exactMatch":"fail"}},
   {"path":"/healthz/foo","perfTarget":{"category":"healthz"},"validation":{"statusCode":404,"contentType":"text/plain","exactMatch":"Not found"}},
 
-  {"path":"/healthz/ietf","perfTarget":{"category":"Healthz"},"validation":{"contentType":"application/health+json","jsonObject":[{"field":"status","value":"pass"},{"field":"serviceId"},{"field":"description"},{"field":"version"},{"field":"checks"}]}},
-  {"path":"/healthz/ietf/pass","perfTarget":{"category":"Healthz"},"validation":{"contentType":"application/health+json","jsonObject":[{"field":"status","value":"pass"},{"field":"serviceId"},{"field":"description"},{"field":"version"},{"field":"checks"}]}},
-  {"path":"/healthz/ietf/warn","perfTarget":{"category":"Healthz"},"validation":{"contentType":"application/health+json","jsonObject":[{"field":"status","value":"warn"},{"field":"serviceId"},{"field":"description"},{"field":"version"},{"field":"checks"}]}},
-  {"path":"/healthz/ietf/fail","perfTarget":{"category":"Healthz"},"validation":{"statusCode":503,"contentType":"application/health+json","jsonObject":[{"field":"status","value":"fail"},{"field":"serviceId"},{"field":"description"},{"field":"version"},{"field":"checks"}]}},
+  {"path":"/healthz/ietf","perfTarget":{"category":"healthz"},"validation":{"contentType":"application/health+json","jsonObject":[{"field":"status","value":"pass"},{"field":"serviceId"},{"field":"description"},{"field":"version"},{"field":"checks"}]}},
+  {"path":"/healthz/ietf/pass","perfTarget":{"category":"healthz"},"validation":{"contentType":"application/health+json","jsonObject":[{"field":"status","value":"pass"},{"field":"serviceId"},{"field":"description"},{"field":"version"},{"field":"checks"}]}},
+  {"path":"/healthz/ietf/warn","perfTarget":{"category":"healthz"},"validation":{"contentType":"application/health+json","jsonObject":[{"field":"status","value":"warn"},{"field":"serviceId"},{"field":"description"},{"field":"version"},{"field":"checks"}]}},
+  {"path":"/healthz/ietf/fail","perfTarget":{"category":"healthz"},"validation":{"statusCode":503,"contentType":"application/health+json","jsonObject":[{"field":"status","value":"fail"},{"field":"serviceId"},{"field":"description"},{"field":"version"},{"field":"checks"}]}},
 
 
   {"path":"/healthz/ietf/foo","perfTarget":{"category":"healthz"},"validation":{"statusCode":404,"contentType":"text/plain","exactMatch":"Not found"}},
