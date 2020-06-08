@@ -27,7 +27,7 @@ jobs:
 
       KEYVAULT_NAME: ${{ secrets.KEYVAULT_NAME }}
       DOCKER_REPO: ${{ secrets.DOCKER_REPO }}
-      ACR_REPO: ${{ secrets.ACR_REPO
+      ACR_REPO: ${{ secrets.ACR_REPO }}
       ACR_IMAGE: ${{ secrets.ACR_IMAGE }}
       ACR_REG: ${{ secrets.ACR_REG }}
 
@@ -55,7 +55,7 @@ jobs:
         fi
         
         # check that all ACR secrets are set
-        if [[ AZURE_SET == true && "${{ secrets.ACR_REG }}" != "" && "${{ secrets.ACR_REPO }}" != "" && "${{ secrets.ACR_IMAGE }}" != "" ]];
+        if [[ "${{ secrets.ACR_REG }}" != "" && "${{ secrets.ACR_REPO }}" != "" && "${{ secrets.ACR_IMAGE }}" != "" ]];
         then
           echo "::set-env name=ACR_SET::true"
         fi
