@@ -19,7 +19,7 @@ This is an ASP.NET Core Web API reference application designed to "fork and code
 
 ## Prerequisites
 
-- Bash shell (tested on Mac, Ubuntu, Windows with WSL2, CloudSpaces)
+- Bash shell (tested on Mac, Ubuntu, Windows with WSL2, CodeSpaces)
   - Will not work with WSL1 or Cloud Shell
 - .NET Core SDK 3.1 ([download](https://dotnet.microsoft.com/download))
 - Docker CLI ([download](https://docs.docker.com/install/))
@@ -28,11 +28,11 @@ This is an ASP.NET Core Web API reference application designed to "fork and code
 
 ## Setup
 
-### Cloud Spaces
+### Code Spaces
 
-- The easiest way to experiment with helium is using [CloudSpaces](https://visualstudio.microsoft.com/services/visual-studio-codespaces/)
+- The easiest way to experiment with helium is using [CodeSpaces](https://visualstudio.microsoft.com/services/visual-studio-codespaces/)
   - Fork this repo
-  - Create a new CloudSpace pointing to the forked repo
+  - Create a new CodeSpace pointing to the forked repo
   - Use the built-in bash shell
 
 ### Local Setup
