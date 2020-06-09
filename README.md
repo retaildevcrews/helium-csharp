@@ -55,6 +55,8 @@ az login
 
 ### Run the app
 
+> A debug build can connect to Key Vault using MSI, Azure CLI or Visual Studio Credentials
+
 ```bash
 
 # make sure you are in the root of the repo then
@@ -80,6 +82,8 @@ fg
 ```
 
 ## Build the release container using Docker
+
+> A release build requires MSI to connect to Key Vault.
 
 > For instructions on building the container with ACR, please see the Helium [readme](https://github.com/retaildevcrews/helium)
 
