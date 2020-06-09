@@ -10,10 +10,8 @@ on:
 
     paths-ignore:
       - 'docs/**'
-      - '.github/**'
-      - '**.md'
       - '.devcontainer/**'
-      - '.github/**/open-*.yml'
+      - '**.md'
 
     tags:
       - v*
@@ -24,50 +22,58 @@ jobs:
 
     runs-on: ubuntu-latest
     env:
-      # copy the secrets to env vars for if: conditions
-
-      DOCKER_REPO: ${{ secrets.DOCKER_REPO }}
-      DOCKER_USER: ${{ secrets.DOCKER_USER }}
-      DOCKER_PAT: ${{ secrets.DOCKER_PAT }}
-
-      TENANT: ${{ secrets.TENANT }}
-      SERVICE_PRINCIPAL: ${{ secrets.SERVICE_PRINCIPAL }}
-      SERVICE_PRINCIPAL_SECRET: ${{ secrets.SERVICE_PRINCIPAL_SECRET }}
-
-      ACR_REG: ${{ secrets.ACR_REG }}
-      ACR_REPO: ${{ secrets.ACR_REPO }}
-      ACR_IMAGE: ${{ secrets.ACR_IMAGE }}
+      # copy the config value to environment variables
+      # do not copy the actual secrets!
 
       KEYVAULT_NAME: ${{ secrets.KEYVAULT_NAME }}
-      AUTH_TYPE: CLI
+      DOCKER_REPO: ${{ secrets.DOCKER_REPO }}
+      ACR_REPO: ${{ secrets.ACR_REPO }}
+      ACR_IMAGE: ${{ secrets.ACR_IMAGE }}
+      ACR_REG: ${{ secrets.ACR_REG }}
 
+      # These are used in if: conditions
       AZURE_SET: false
       DOCKER_SET: false
       ACR_SET: false
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
 
     - name: Set conditions
       run: |
-        echo "::set-env name=AZURE_SET::${{ env.SERVICE_PRINCIPAL_SECRET != '' && env.TENANT != '' && env.SERVICE_PRINCIPAL != '' && env.KEYVAULT_NAME != '' }}"
-        echo "::set-env name=DOCKER_SET::${{ env.DOCKER_PAT != '' && env.DOCKER_REPO != '' && env.DOCKER_USER != '' }}"
-        echo "::set-env name=ACR_SET::${{ env.ACR_REG != '' && env.ACR_REPO != '' && env.ACR_IMAGE !='' }}"
+        # check that all Azure secrets are set
+        if [[ "${{ secrets.SERVICE_PRINCIPAL_SECRET }}" != "" && "${{ secrets.TENANT }}" != "" && "${{ secrets.SERVICE_PRINCIPAL }}" != "" && "${{ secrets.KEYVAULT_NAME }}" != "" ]];
+        then
+          echo "::set-env name=AZURE_SET::true"
+        fi
+
+        # check that all Docker secrets are set
+        if [[ "${{ secrets.DOCKER_PAT }}" != "" && "${{ secrets.DOCKER_REPO }}" != "" && "${{ secrets.DOCKER_USER }}" != "" ]];
+        then
+          echo "::set-env name=DOCKER_SET::true"
+        fi
+        
+        # check that all ACR secrets are set
+        if [[ "${{ secrets.ACR_REG }}" != "" && "${{ secrets.ACR_REPO }}" != "" && "${{ secrets.ACR_IMAGE }}" != "" ]];
+        then
+          echo "ACR Set"
+          echo "::set-env name=ACR_SET::true"
+        fi
 
     - name: Validate Azure Access
       if: ${{ env.AZURE_SET == 'true' }}
       run: |
         # login to Azure
-        az login --service-principal -u ${SERVICE_PRINCIPAL} --tenant ${TENANT} -p ${SERVICE_PRINCIPAL_SECRET}
+        az login --service-principal -u ${{ secrets.SERVICE_PRINCIPAL }} --tenant ${{ secrets.TENANT }} -p ${{ secrets.SERVICE_PRINCIPAL_SECRET }}
 
         # verify SP has access to Key Vault
-        az keyvault secret show --name CosmosDatabase --vault-name $KEYVAULT_NAME
+        az keyvault secret show --name CosmosDatabase --vault-name ${{ secrets.KEYVAULT_NAME }}
 
     - name: Docker Login
       if: ${{ env.DOCKER_SET == 'true' }}
       run: |
         # login to dockerhub
-        echo "${DOCKER_PAT}" | docker login -u ${DOCKER_USER} --password-stdin
+        echo "${{ secrets.DOCKER_PAT }}" | docker login -u ${{ secrets.DOCKER_USER }} --password-stdin
 
     - name: Docker Pull Test
       if: ${{ env.AZURE_SET == 'true' || env.DOCKER_SET == 'true' || env.ACR_SET == 'true' }}
@@ -85,13 +91,13 @@ jobs:
     - name: Install WebV
       if: ${{ env.AZURE_SET == 'true' }}
       run: |
-        dotnet tool install -g webvalidate --version 1.0.7.3
+        dotnet tool install -g webvalidate --version 1.0.7.4
 
     - name: Start helium container
       if: ${{ env.AZURE_SET == 'true' }}
       run: |
         # run the app
-        docker run -d --name hcs -p 4120:4120 --env KEYVAULT_NAME=$KEYVAULT_NAME --env AUTH_TYPE=$AUTH_TYPE -v ~/.azure:/root/.azure test
+        docker run -d --name hcs -p 4120:4120 --env KEYVAULT_NAME=$KEYVAULT_NAME --env AUTH_TYPE=CLI -v ~/.azure:/root/.azure test
         
         docker logs hcs --tail 30
 
@@ -103,7 +109,9 @@ jobs:
       run: |
         # run web validation test
         # fail on any validation errors
+        cd TestFiles
         webv -s localhost:4120 --max-errors 0 -f e2e.json
+        cd ..
 
     - name: Display coverage results
       if: ${{ env.AZURE_SET == 'true' }}
@@ -157,10 +165,13 @@ jobs:
       if: ${{ env.ACR_SET == 'true' && env.AZURE_SET == 'true' }}
       run: |
         # login to acr
-        az acr login -n ${ACR_REG}
-        
+        az acr login -n $ACR_REG
+
+        # build the complete image name
+        ACR_IMAGE=$ACR_REG.azurecr.io/$ACR_REPO/$ACR_IMAGE
+
         # build release image
-        docker tag helium $ACR_REPO:beta
+        docker tag helium $ACR_IMAGE:beta
 
         # Tag image based on repo tag if a github label
         if [[ "${{ github.ref }}" == "refs/tags/"* ]]
@@ -173,13 +184,9 @@ jobs:
           VERSION=$(echo $VERSION | sed -e 's/^v//')
           
           # tag the image with :version and :stable
-          docker tag helium $ACR_REPO:$VERSION
-          docker tag helium $ACR_REPO:stable
+          docker tag helium $ACR_IMAGE:$VERSION
+          docker tag helium $ACR_IMAGE:stable
         fi
         
         # push the repo
-        docker push $ACR_REPO
-
-        # display repo info
-        echo "${ACR_IMAGE} info:"
-        az acr repository show -n ${ACR_REG} --image ${ACR_IMAGE}:beta -o table
+        docker push $ACR_IMAGE
