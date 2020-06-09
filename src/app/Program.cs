@@ -1,5 +1,4 @@
-﻿# define MSI
-using CSE.Helium.DataAccessLayer;
+﻿using CSE.Helium.DataAccessLayer;
 using KeyVault.Extensions;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore;
@@ -398,25 +397,26 @@ namespace CSE.Helium
             DateTime timeout = DateTime.Now.AddSeconds(90.0);
 
             // use MSI as default
-            string authString;
+            string authString = "RunAs=App";
 
+#if (DEBUG)
+            // Only support CLI and VS credentials in debug mode
             switch (authType)
             {
-# if MSI
-                case AuthenticationType.MSI:
-                    authString = "RunAs=App";
-                    break;
-#endif
                 case AuthenticationType.CLI:
                     authString = "RunAs=Developer; DeveloperTool=AzureCli";
                     break;
                 case AuthenticationType.VS:
                     authString = "RunAs=Developer; DeveloperTool=VisualStudio";
                     break;
-                default:
-                    Console.WriteLine("Invalid Key Vault Authentication Type");
-                    return null;
             }
+#else
+            if (authType != AuthenticationType.MSI)
+            {
+                Console.WriteLine("Release builds require MSI authentication for Key Vault");
+                return null;
+            }
+#endif
 
             while (true)
             {
@@ -439,8 +439,14 @@ namespace CSE.Helium
                     {
                         // retry MSI connections for pod identity
 
+#if (DEBUG)
+                        // Don't retry in debug mode
+                        Console.WriteLine($"KeyVault:Exception: Unable to connect to Key Vault using MSI");
+                        return null;
+#else
                         Console.WriteLine($"KeyVault:Retry");
                         await Task.Delay(1000).ConfigureAwait(false);
+#endif
                     }
                     else
                     {
