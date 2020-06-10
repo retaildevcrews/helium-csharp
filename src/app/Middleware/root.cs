@@ -1,6 +1,4 @@
 using Microsoft.AspNetCore.Builder;
-using Microsoft.Azure.Cosmos.Linq;
-using System;
 
 namespace Middleware
 {
