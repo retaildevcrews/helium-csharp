@@ -131,7 +131,7 @@ namespace CSE.Helium
 
             // add the options
             root.AddOption(optKv);
-            root.AddOption(new Option<AuthenticationType>(new string[] { "-a", "--auth-type" }, "Authentication type"));
+            root.AddOption(new Option<AuthenticationType>(new string[] { "-a", "--auth-type" }, "Authentication type (Release builds require MSI; Debug builds support all 3 options)"));
             root.AddOption(new Option<LogLevel>(new string[] { "-l", "--log-level" }, "Log Level"));
             root.AddOption(new Option(new string[] { "-d", "--dry-run" }, "Validates configuration"));
 
