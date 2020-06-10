@@ -38,7 +38,7 @@ namespace CSE.Helium.Controllers
         /// <param name="pageNumber">1 based page index</param>
         /// <param name="pageSize">page size (1000 max)</param>
         [HttpGet]
-        public async Task<IActionResult> GetMoviesAsync([FromQuery]string q = null, [FromQuery] string genre = null, [FromQuery] int year = 0, [FromQuery] double rating = 0, [FromQuery] string actorId = null, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = Constants.DefaultPageSize)
+        public async Task<IActionResult> GetMoviesAsync([FromQuery] string q = null, [FromQuery] string genre = null, [FromQuery] int year = 0, [FromQuery] double rating = 0, [FromQuery] string actorId = null, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = Constants.DefaultPageSize)
         {
             string method = GetMethodText(q, genre, year, rating, actorId, pageNumber, pageSize);
 

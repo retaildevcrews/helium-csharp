@@ -131,7 +131,7 @@ namespace CSE.Helium
 
             // add the options
             root.AddOption(optKv);
-            root.AddOption(new Option<AuthenticationType>(new string[] { "-a", "--auth-type" }, "Authentication type"));
+            root.AddOption(new Option<AuthenticationType>(new string[] { "-a", "--auth-type" }, "Authentication type (Release builds require MSI; Debug builds support all 3 options)"));
             root.AddOption(new Option<LogLevel>(new string[] { "-l", "--log-level" }, "Log Level"));
             root.AddOption(new Option(new string[] { "-d", "--dry-run" }, "Validates configuration"));
 
@@ -397,23 +397,26 @@ namespace CSE.Helium
             DateTime timeout = DateTime.Now.AddSeconds(90.0);
 
             // use MSI as default
-            string authString;
+            string authString = "RunAs=App";
 
+#if (DEBUG)
+            // Only support CLI and VS credentials in debug mode
             switch (authType)
             {
-                case AuthenticationType.MSI:
-                    authString = "RunAs=App";
-                    break;
                 case AuthenticationType.CLI:
                     authString = "RunAs=Developer; DeveloperTool=AzureCli";
                     break;
                 case AuthenticationType.VS:
                     authString = "RunAs=Developer; DeveloperTool=VisualStudio";
                     break;
-                default:
-                    Console.WriteLine("Invalid Key Vault Authentication Type");
-                    return null;
             }
+#else
+            if (authType != AuthenticationType.MSI)
+            {
+                Console.WriteLine("Release builds require MSI authentication for Key Vault");
+                return null;
+            }
+#endif
 
             while (true)
             {
@@ -436,8 +439,14 @@ namespace CSE.Helium
                     {
                         // retry MSI connections for pod identity
 
+#if (DEBUG)
+                        // Don't retry in debug mode
+                        Console.WriteLine($"KeyVault:Exception: Unable to connect to Key Vault using MSI");
+                        return null;
+#else
                         Console.WriteLine($"KeyVault:Retry");
                         await Task.Delay(1000).ConfigureAwait(false);
+#endif
                     }
                     else
                     {

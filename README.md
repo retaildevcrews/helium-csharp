@@ -69,9 +69,12 @@ az keyvault secret show --name CosmosDatabase --vault-name $He_Name
 
 ### Run the app
 
+> A debug build can connect to Key Vault using MSI, Azure CLI or Visual Studio Credentials
+
 - If you are using CodeSpaces, you just need to set the --keyvault-name parameter and press F5
   - Open launch.json in the .vscode directory at the root of the repo
   - Replace `{your keyvault name}`
+
 
 ```bash
 
@@ -121,6 +124,8 @@ webv -s localhost:4120 -f baseline.json
 ```
 
 ## Build the release container using Docker
+
+> A release build requires MSI to connect to Key Vault.
 
 > For instructions on building the container with ACR, please see the Helium [readme](https://github.com/retaildevcrews/helium)
 

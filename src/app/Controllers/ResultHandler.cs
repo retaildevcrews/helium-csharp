@@ -2,7 +2,6 @@
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Globalization;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -80,7 +79,7 @@ namespace CSE.Helium.Controllers
         /// <returns></returns>
         public static JsonResult CreateResult(string message, HttpStatusCode statusCode)
         {
-            return new JsonResult(new ErrorResult { Error = statusCode, Message = message})
+            return new JsonResult(new ErrorResult { Error = statusCode, Message = message })
             {
                 StatusCode = (int)statusCode
             };
