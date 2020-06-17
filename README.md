@@ -19,34 +19,25 @@ This is an ASP.NET Core Web API reference application designed to "fork and code
 
 ## Prerequisites
 
-- Bash shell (tested on Mac, Ubuntu, Windows with WSL2, CodeSpaces)
+- Bash shell (tested on Visual Studio Codespaces, Mac, Ubuntu, Windows with WSL2)
   - Will not work with WSL1 or Cloud Shell
 - .NET Core SDK 3.1 ([download](https://dotnet.microsoft.com/download))
 - Docker CLI ([download](https://docs.docker.com/install/))
 - Azure CLI ([download](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest))
 - Visual Studio Code (optional) ([download](https://code.visualstudio.com/download))
 
+> Visual Studio Codespaces is the easiest way to evaluate helium
+>
+> Follow the setup steps in the [Helium readme](https://github.com/retaildevcrews/helium) to setup Codespaces
+
 ## Setup
 
-### Code Spaces
-
-- The easiest way to experiment with helium is using [CodeSpaces](https://visualstudio.microsoft.com/services/visual-studio-codespaces/)
-  - Fork this repo
-  - Create a new CodeSpace pointing to the forked repo
-  - Use the built-in bash shell
-
-### Local Setup
-
-- Fork this repo
-- Clone the forked repo to your local machine
-- All instructions assume starting from the root of the repo
-
-## Run helium from bash
-
-- The application requires Key Vault and Cosmos DB to be setup per the Helium setup [instructions](https://github.com/retaildevcrews/helium)
-- You can run the application locally by using Azure CLI cached credentials
+- Initial setup instructions are in the [Helium readme](https://github.com/retaildevcrews/helium)
+  - Please complete the setup steps and then continue below
 
 ### Validate az CLI works
+
+> In Visual Studio Codespaces, open a terminal by pressing ctl + `
 
 ```bash
 
@@ -67,32 +58,34 @@ az keyvault secret show --name CosmosDatabase --vault-name $He_Name
 
 ```
 
-### Run the app
+### Using Visual Studio Codespaces
 
-> A debug build can connect to Key Vault using MSI, Azure CLI or Visual Studio Credentials
+- Open `launch.json` in the `.vscode` directory
+- Replace `{your key vault name}` with the name of your key vault
+  - the file saves automatically
+- Press F5
+- Wait for `Application started. Press Ctrl+C to shut down.` in the Debug Console
+- Skip to the testing step below
 
-- If you are using CodeSpaces, you just need to set the --keyvault-name parameter and press F5
-  - Open launch.json in the .vscode directory at the root of the repo
-  - Replace `{your keyvault name}`
+### Using bash shell
 
+> This will work from a terminal in Visual Studio Codespaces as well
 
 ```bash
 
-# make sure you are in the root of the repo
-cd src/app
-dotnet restore
-
-# run in the background
-# $He_Name is set to the name of your key vault during setup
-# this will use Azure CLI cached credentials
-
-dotnet run -- --keyvault-name $He_Name --auth-type CLI
-
-# press ctl-c to stop the app
+# run the application
+# He_Name was set during setup and is your Key Vault name
+dotnet run -p src/app/helium.csproj -- --auth-type CLI --keyvault-name $He_Name
 
 ```
 
-### In a separate terminal
+wait for `Application started. Press Ctrl+C to shut down.`
+
+### Testing the application
+
+Open a new bash shell
+
+> Visual Studio Codespaces allows you to open multiple shells by TODO
 
 ```bash
 
@@ -100,6 +93,8 @@ dotnet run -- --keyvault-name $He_Name --auth-type CLI
 curl localhost:4120/version
 
 ```
+
+Stop helium by typing Ctrl-C or the stop button if run via F5
 
 ### Deep Testing
 
@@ -126,8 +121,6 @@ webv -s localhost:4120 -f baseline.json
 ## Build the release container using Docker
 
 > A release build requires MSI to connect to Key Vault.
-
-> For instructions on building the container with ACR, please see the Helium [readme](https://github.com/retaildevcrews/helium)
 
 ```bash
 
