@@ -54,6 +54,8 @@ az login
 ```bash
 
 # verify you have access to Key Vault
+# TODO should this just be a echo $KEYVAULT_NAME since the .saveenv.sh sets it?
+# should we just echo $KEYVAULT_NAME here?
 az keyvault secret show --name CosmosDatabase --vault-name $He_Name
 
 ```
