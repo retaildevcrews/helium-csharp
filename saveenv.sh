@@ -1,6 +1,7 @@
 #!/bin/bash
 
-export He_Repo=helium-csharp
+export He_Repo=helium-java
+export AUTH_TYPE=CLI
 
 if [ -z "$He_Name" ]
 then
@@ -20,12 +21,14 @@ else
     fi
   fi
 
+  export KEYVAULT_NAME=$He_Name
+
   echo '#!/bin/bash' > ~/.helium.env
   echo '' >> ~/.helium.env
 
   IFS=$'\n'
 
-  for var in $(env | grep -E 'He_|MSI_|AKS_|Imdb_' | sort | sed "s/=/='/g")
+  for var in $(env | grep -E 'He_|MSI_|AKS_|Imdb_|AUTH_TYPE|KEYVAULT_NAME' | sort | sed "s/=/='/g")
   do
     echo "export ${var}'" >> ~/.helium.env
   done
