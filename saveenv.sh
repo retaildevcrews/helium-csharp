@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export He_Repo=helium-java
+export He_Repo=helium-csharp
 export AUTH_TYPE=CLI
 
 if [ -z "$He_Name" ]
