@@ -88,6 +88,11 @@ Open a new bash shell
 ```bash
 
 # test the application
+
+# test using httpie (installed automatically in Codespaces)
+http localhost:4120/version
+
+# test using curl
 curl localhost:4120/version
 
 ```
