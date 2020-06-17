@@ -15,7 +15,9 @@ This is an ASP.NET Core Web API reference application designed to "fork and code
 - Connect to and query Cosmos DB
 - Automatically send telemetry and logs to Azure Monitor
 
-> Instructions for setting up Key Vault, ACR, Azure Monitor and Cosmos DB are in the Helium [readme](https://github.com/retaildevcrews/helium)
+> Visual Studio Codespaces is the easiest way to evaluate helium as all of the prerequisites are automatically installed
+>
+> Follow the setup steps in the [Helium readme](https://github.com/retaildevcrews/helium) to setup Codespaces
 
 ## Prerequisites
 
@@ -25,10 +27,6 @@ This is an ASP.NET Core Web API reference application designed to "fork and code
 - Docker CLI ([download](https://docs.docker.com/install/))
 - Azure CLI ([download](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest))
 - Visual Studio Code (optional) ([download](https://code.visualstudio.com/download))
-
-> Visual Studio Codespaces is the easiest way to evaluate helium
->
-> Follow the setup steps in the [Helium readme](https://github.com/retaildevcrews/helium) to setup Codespaces
 
 ## Setup
 
@@ -54,8 +52,6 @@ az login
 ```bash
 
 # verify you have access to Key Vault
-# TODO should this just be a echo $KEYVAULT_NAME since the .saveenv.sh sets it?
-# should we just echo $KEYVAULT_NAME here?
 az keyvault secret show --name CosmosDatabase --vault-name $He_Name
 
 ```
@@ -87,7 +83,7 @@ wait for `Application started. Press Ctrl+C to shut down.`
 
 Open a new bash shell
 
-> Visual Studio Codespaces allows you to open multiple shells by TODO
+> Visual Studio Codespaces allows you to open multiple shells by clicking on the `Split Terminal` icon
 
 ```bash
 
@@ -112,7 +108,7 @@ dotnet tool install -g webvalidate
 
 # run the validation tests
 # validation tests are located in the TestFiles directory
-webv -s localhost:4120 -f baseline.json
+webv -s localhost:4120 -f TestFiles/baseline.json
 
 # bad.json tests error conditions that return 4xx codes
 
@@ -135,6 +131,8 @@ docker build . -t helium-csharp
 ```
 
 ## CI-CD
+
+> Make sure to fork the repo before experimenting with CI-CD
 
 This repo uses [GitHub Actions](/.github/workflows/dockerCI.yml) for Continuous Integration. Detailed setup instructions are here: [ACR](https://github.com/retaildevcrews/helium/blob/master/docs/CI-CD/ACR.md) [DockerHub](https://github.com/retaildevcrews/helium/blob/master/docs/CI-CD/DockerHub.md)
 
