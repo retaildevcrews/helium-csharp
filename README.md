@@ -11,7 +11,7 @@ This is an ASP.NET Core Web API reference application designed to "fork and code
 - Securely build, deploy and run an Azure Kubernetes Service (AKS) application
 - Use Managed Identity to securely access resources
 - Securely store secrets in Key Vault
-- Securely build and deploy the Docker container from Azure Container Registry (ACR)
+- Securely build and deploy the Docker container to Azure Container Registry (ACR) or Docker Hub
 - Connect to and query Cosmos DB
 - Automatically send telemetry and logs to Azure Monitor
 
@@ -70,6 +70,9 @@ az keyvault secret show --name CosmosDatabase --vault-name $He_Name
 > This will work from a terminal in Visual Studio Codespaces as well
 
 ```bash
+
+# set environment variables
+export AUTH_TYPE=CLI
 
 # run the application
 # He_Name was set during setup and is your Key Vault name
@@ -139,7 +142,7 @@ docker build . -t helium-csharp
 
 > Make sure to fork the repo before experimenting with CI-CD
 
-This repo uses [GitHub Actions](/.github/workflows/dockerCI.yml) for Continuous Integration. Detailed setup instructions are here: [ACR](https://github.com/retaildevcrews/helium/blob/master/docs/CI-CD/ACR.md) [DockerHub](https://github.com/retaildevcrews/helium/blob/master/docs/CI-CD/DockerHub.md)
+This repo uses [GitHub Actions](/.github/workflows/dockerCI.yml) for Continuous Integration.
 
 - CI supports pushing to Azure Container Registry or DockerHub
 - The action is setup to execute on a PR or commit to ```master```
@@ -149,35 +152,33 @@ This repo uses [GitHub Actions](/.github/workflows/dockerCI.yml) for Continuous 
   - Tag the image with ```:1.0.8```
   - Tag the image with ```:stable```
   - Note that the ```v``` is case sensitive (lower case)
+- Once the `secrets` below are set, create a new branch, make a change to a file (md file changes are ignored), commit and push your change, create a PR into your local master
+- Check the `Actions` tab on the GitHub repo main page
 
-CD is supported via webhooks in Azure App Services connected to the ACR or DockerHub repository. See the Helium setup instructions for details.
+CD is supported via webhooks in Azure App Services connected to the ACR or DockerHub repository.
 
-### Testing
+### CI to Azure Container Registry
 
-The end-to-end test is executed as part of the CI-CD pipeline and requires the Azure Service Principal be setup per the instructions above and the following `secrets` be set in your GitHub repo:
+In order to push to ACR, you set the following `secrets` in your GitHub repo:
 
 - Azure Login Information
   - TENANT
   - SERVICE_PRINCIPAL
   - SERVICE_PRINCIPAL_SECRET
 
-### Pushing to Azure Container Registry
-
-In order to push to ACR, you must create a Service Principal that has push permissions to the ACR and set the following `secrets` in your GitHub repo:
-
 - ACR Information
   - ACR_REG
   - ACR_REPO
   - ACR_IMAGE
 
-### Pushing to DockerHub
+### CI to DockerHub
 
 In order to push to DockerHub, you must set the following `secrets` in your GitHub repo:
 
 - DOCKER_REPO
 - DOCKER_USER
 - DOCKER_PAT
-  - Personal Access Token
+  - Personal Access Token (recommended) or password
 
 ## Contributing
 
