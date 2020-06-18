@@ -71,9 +71,6 @@ az keyvault secret show --name CosmosDatabase --vault-name $He_Name
 
 ```bash
 
-# set environment variables
-export AUTH_TYPE=CLI
-
 # run the application
 # He_Name was set during setup and is your Key Vault name
 dotnet run -p src/app/helium.csproj -- --auth-type CLI --keyvault-name $He_Name
@@ -116,17 +113,14 @@ dotnet tool install -g webvalidate
 
 # run the validation tests
 # validation tests are located in the TestFiles directory
-webv -s localhost:4120 -f TestFiles/baseline.json
-
-# there may be a validation error on the /healthz/ietf endpoint test
-#   json: status: warn : Expected: pass
-# the "warn" status indicates a slower than normal response time
-# and will occasionally occur
+pushd TestFiles
+webv -s localhost:4120 -f baseline.json
 
 # bad.json tests error conditions that return 4xx codes
 
 # benchmark.json is a 300 request test that covers the entire API
 
+popd
 ```
 
 ## Build the release container using Docker
