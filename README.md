@@ -11,15 +11,17 @@ This is an ASP.NET Core Web API reference application designed to "fork and code
 - Securely build, deploy and run an Azure Kubernetes Service (AKS) application
 - Use Managed Identity to securely access resources
 - Securely store secrets in Key Vault
-- Securely build and deploy the Docker container from Azure Container Registry (ACR)
+- Securely build and deploy the Docker container to Azure Container Registry (ACR) or Docker Hub
 - Connect to and query Cosmos DB
 - Automatically send telemetry and logs to Azure Monitor
 
-> Instructions for setting up Key Vault, ACR, Azure Monitor and Cosmos DB are in the Helium [readme](https://github.com/retaildevcrews/helium)
+> Visual Studio Codespaces is the easiest way to evaluate helium as all of the prerequisites are automatically installed
+>
+> Follow the setup steps in the [Helium readme](https://github.com/retaildevcrews/helium) to setup Codespaces
 
 ## Prerequisites
 
-- Bash shell (tested on Mac, Ubuntu, Windows with WSL2, CodeSpaces)
+- Bash shell (tested on Visual Studio Codespaces, Mac, Ubuntu, Windows with WSL2)
   - Will not work with WSL1 or Cloud Shell
 - .NET Core SDK 3.1 ([download](https://dotnet.microsoft.com/download))
 - Docker CLI ([download](https://docs.docker.com/install/))
@@ -28,25 +30,12 @@ This is an ASP.NET Core Web API reference application designed to "fork and code
 
 ## Setup
 
-### Code Spaces
-
-- The easiest way to experiment with helium is using [CodeSpaces](https://visualstudio.microsoft.com/services/visual-studio-codespaces/)
-  - Fork this repo
-  - Create a new CodeSpace pointing to the forked repo
-  - Use the built-in bash shell
-
-### Local Setup
-
-- Fork this repo
-- Clone the forked repo to your local machine
-- All instructions assume starting from the root of the repo
-
-## Run helium from bash
-
-- The application requires Key Vault and Cosmos DB to be setup per the Helium setup [instructions](https://github.com/retaildevcrews/helium)
-- You can run the application locally by using Azure CLI cached credentials
+- Initial setup instructions are in the [Helium readme](https://github.com/retaildevcrews/helium)
+  - Please complete the setup steps and then continue below
 
 ### Validate az CLI works
+
+> In Visual Studio Codespaces, open a terminal by pressing ctl + `
 
 ```bash
 
@@ -67,39 +56,51 @@ az keyvault secret show --name CosmosDatabase --vault-name $He_Name
 
 ```
 
-### Run the app
+### Using Visual Studio Codespaces
 
-> A debug build can connect to Key Vault using MSI, Azure CLI or Visual Studio Credentials
+- Open `launch.json` in the `.vscode` directory
+- Replace `{your key vault name}` with the name of your key vault
+  - the file saves automatically
+- Press F5
+- Wait for `Application started. Press Ctrl+C to shut down.` in the Debug Console
+- Skip to the testing step below
 
-- If you are using CodeSpaces, you just need to set the --keyvault-name parameter and press F5
-  - Open launch.json in the .vscode directory at the root of the repo
-  - Replace `{your keyvault name}`
+### Using bash shell
 
+> This will work from a terminal in Visual Studio Codespaces as well
 
 ```bash
 
-# make sure you are in the root of the repo
-cd src/app
-dotnet restore
+# set environment variables
+export AUTH_TYPE=CLI
 
-# run in the background
-# $He_Name is set to the name of your key vault during setup
-# this will use Azure CLI cached credentials
-
-dotnet run -- --keyvault-name $He_Name --auth-type CLI
-
-# press ctl-c to stop the app
+# run the application
+# He_Name was set during setup and is your Key Vault name
+dotnet run -p src/app/helium.csproj -- --auth-type CLI --keyvault-name $He_Name
 
 ```
 
-### In a separate terminal
+wait for `Application started. Press Ctrl+C to shut down.`
+
+### Testing the application
+
+Open a new bash shell
+
+> Visual Studio Codespaces allows you to open multiple shells by clicking on the `Split Terminal` icon
 
 ```bash
 
 # test the application
+
+# test using httpie (installed automatically in Codespaces)
+http localhost:4120/version
+
+# test using curl
 curl localhost:4120/version
 
 ```
+
+Stop helium by typing Ctrl-C or the stop button if run via F5
 
 ### Deep Testing
 
@@ -115,7 +116,7 @@ dotnet tool install -g webvalidate
 
 # run the validation tests
 # validation tests are located in the TestFiles directory
-webv -s localhost:4120 -f baseline.json
+webv -s localhost:4120 -f TestFiles/baseline.json
 
 # bad.json tests error conditions that return 4xx codes
 
@@ -126,8 +127,6 @@ webv -s localhost:4120 -f baseline.json
 ## Build the release container using Docker
 
 > A release build requires MSI to connect to Key Vault.
-
-> For instructions on building the container with ACR, please see the Helium [readme](https://github.com/retaildevcrews/helium)
 
 ```bash
 
@@ -141,7 +140,9 @@ docker build . -t helium-csharp
 
 ## CI-CD
 
-This repo uses [GitHub Actions](/.github/workflows/dockerCI.yml) for Continuous Integration. Detailed setup instructions are here: [ACR](https://github.com/retaildevcrews/helium/blob/master/docs/CI-CD/ACR.md) [DockerHub](https://github.com/retaildevcrews/helium/blob/master/docs/CI-CD/DockerHub.md)
+> Make sure to fork the repo before experimenting with CI-CD
+
+This repo uses [GitHub Actions](/.github/workflows/dockerCI.yml) for Continuous Integration.
 
 - CI supports pushing to Azure Container Registry or DockerHub
 - The action is setup to execute on a PR or commit to ```master```
@@ -151,35 +152,33 @@ This repo uses [GitHub Actions](/.github/workflows/dockerCI.yml) for Continuous 
   - Tag the image with ```:1.0.8```
   - Tag the image with ```:stable```
   - Note that the ```v``` is case sensitive (lower case)
+- Once the `secrets` below are set, create a new branch, make a change to a file (md file changes are ignored), commit and push your change, create a PR into your local master
+- Check the `Actions` tab on the GitHub repo main page
 
-CD is supported via webhooks in Azure App Services connected to the ACR or DockerHub repository. See the Helium setup instructions for details.
+CD is supported via webhooks in Azure App Services connected to the ACR or DockerHub repository.
 
-### Testing
+### CI to Azure Container Registry
 
-The end-to-end test is executed as part of the CI-CD pipeline and requires the Azure Service Principal be setup per the instructions above and the following `secrets` be set in your GitHub repo:
+In order to push to ACR, you set the following `secrets` in your GitHub repo:
 
 - Azure Login Information
   - TENANT
   - SERVICE_PRINCIPAL
   - SERVICE_PRINCIPAL_SECRET
 
-### Pushing to Azure Container Registry
-
-In order to push to ACR, you must create a Service Principal that has push permissions to the ACR and set the following `secrets` in your GitHub repo:
-
 - ACR Information
   - ACR_REG
   - ACR_REPO
   - ACR_IMAGE
 
-### Pushing to DockerHub
+### CI to DockerHub
 
 In order to push to DockerHub, you must set the following `secrets` in your GitHub repo:
 
 - DOCKER_REPO
 - DOCKER_USER
 - DOCKER_PAT
-  - Personal Access Token
+  - Personal Access Token (recommended) or password
 
 ## Contributing
 

@@ -14,6 +14,11 @@ PS1='\[\033[01;30m\]\u@helium \[\033[01;34m\]\w/\[\033[00m\] $ '
 alias ls='ls --color=auto'
 alias ll='ls -alF'
 
+if [ -f ~/.helium.env ]
+then
+  source ~/.helium.env
+fi
+
 # you can add project specific settings to this file and
 # they will be added for every user that clones the repo with Codespaces
 # including keys or secrets could be a SECURITY RISK
