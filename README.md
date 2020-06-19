@@ -113,8 +113,14 @@ dotnet tool install -g webvalidate
 
 # run the validation tests
 # validation tests are located in the TestFiles directory
+
 pushd TestFiles
 webv -s localhost:4120 -f baseline.json
+
+# there may be a validation error on the /healthz/ietf test
+#   json: status: warn : Expected: pass
+# the "warn" status indicates a slower than normal response time
+# and will occasionally occur due to network latency
 
 # bad.json tests error conditions that return 4xx codes
 
