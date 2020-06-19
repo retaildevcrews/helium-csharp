@@ -35,7 +35,7 @@ namespace CSE.Helium.Controllers
             // return exception if task is null
             if (task == null)
             {
-                logger.LogError($"Exception:{method}\ntask is null");
+                logger.LogError($"Exception:{method} task is null");
 
                 return CreateResult(errorMessage, HttpStatusCode.InternalServerError);
             }
@@ -55,7 +55,7 @@ namespace CSE.Helium.Controllers
                 }
                 else
                 {
-                    logger.LogError($"CosmosException:{method}:{ce.StatusCode}:{ce.ActivityId}:{ce.Message}\n{ce}");
+                    logger.LogError($"{ce}\nCosmosException:{method}:{ce.StatusCode}:{ce.ActivityId}:{ce.Message}");
                 }
 
                 return CreateResult(errorMessage, ce.StatusCode);
@@ -64,7 +64,7 @@ namespace CSE.Helium.Controllers
             catch (Exception ex)
             {
                 // log and return exception
-                logger.LogError($"Exception:{method}\n{ex}");
+                logger.LogError($"{ex}\nException:{method}:{ex.Message}");
 
                 // return 500 error
                 return CreateResult("Internal Server Error", HttpStatusCode.InternalServerError);
