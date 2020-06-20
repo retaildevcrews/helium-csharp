@@ -99,7 +99,7 @@ namespace CSE.Helium
             catch (CosmosException ce)
             {
                 // log and return Unhealthy
-                logger.LogError($"CosmosException:Healthz:{ce.StatusCode}:{ce.ActivityId}:{ce.Message}\n{ce}");
+                logger.LogError($"{ce}\nCosmosException:Healthz:{ce.StatusCode}:{ce.ActivityId}:{ce.Message}");
 
                 data.Add("CosmosException", ce.Message);
 
@@ -109,7 +109,7 @@ namespace CSE.Helium
             catch (Exception ex)
             {
                 // log and return unhealthy
-                logger.LogError($"Exception:Healthz\n{ex}");
+                logger.LogError($"{ex}\nException:Healthz:{ex.Message}");
 
                 data.Add("Exception", ex.Message);
 

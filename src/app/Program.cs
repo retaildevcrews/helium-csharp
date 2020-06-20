@@ -199,7 +199,7 @@ namespace CSE.Helium
                 }
                 else
                 {
-                    Console.WriteLine($"Error in Main()\n{ex}");
+                    Console.WriteLine($"{ex}\nError in Main() {ex.Message}");
                 }
 
                 return -1;
@@ -375,7 +375,7 @@ namespace CSE.Helium
             {
                 // log and fail
 
-                Console.WriteLine($"KeyVault:Exception: {ex.Message}\n{ex}");
+                Console.WriteLine($"{ex}\nBuildConfig:Exception: {ex.Message}");
                 Environment.Exit(-1);
             }
 
@@ -452,7 +452,7 @@ namespace CSE.Helium
                     {
                         // log and fail
 
-                        Console.WriteLine($"KeyVault:Exception: {ex.Message}\n{ex}");
+                        Console.WriteLine($"{ex}\nKeyVault:Exception: {ex.Message}");
                         return null;
                     }
                 }
