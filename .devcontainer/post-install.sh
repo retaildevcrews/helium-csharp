@@ -4,7 +4,7 @@
 dotnet restore src/helium.sln
 
 # docker bash-completion
-sudo curl -L https://raw.githubusercontent.com/docker/machine/v0.16.0/contrib/completion/bash/docker-machine.bash -o /etc/bash_completion.d/docker-machine
+sudo curl https://raw.githubusercontent.com/docker/docker-ce/master/components/cli/contrib/completion/bash/docker -o /etc/bash_completion.d/docker
 
 DEBIAN_FRONTEND=noninteractive
 # update apt-get
