@@ -12,7 +12,7 @@ sudo apt-get update
 sudo apt-get install -y --no-install-recommends apt-utils dialog
 
 # update / install utils
-sudo apt-get install -y --no-install-recommends dnsutils httpie bash-completion curl wget git
+sudo apt-get install -y --no-install-recommends dnsutils httpie bash-completion curl wget git unzip
 DEBIAN_FRONTEND=dialog
 
 # copy vscode files
