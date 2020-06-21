@@ -4,7 +4,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>Helium</RootNamespace>
     <AssemblyName>helium</AssemblyName>
-    <Version>1.0.8+$([System.DateTime]::UtcNow.ToString(`MMdd-HHmm`))</Version>
+    <Version>1.1.0+$([System.DateTime]::UtcNow.ToString(`MMdd-HHmm`))</Version>
     <Copyright>Copyright (c) Microsoft Corporation. All rights reserved.</Copyright>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);1591</NoWarn>
@@ -27,8 +27,8 @@
     <PackageReference Include="Microsoft.Azure.KeyVault" Version="3.0.5" />
     <PackageReference Include="Microsoft.Azure.Services.AppAuthentication" Version="1.5.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.AzureKeyVault" Version="3.1.5" />
-    <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="5.4.1" />
-    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUi" Version="5.4.1" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="5.5.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUi" Version="5.5.0" />
     <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.20303.1" />
   </ItemGroup>
 

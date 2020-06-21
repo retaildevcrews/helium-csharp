@@ -2,7 +2,6 @@ using CSE.Helium.Model;
 using Microsoft.Azure.Cosmos;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace CSE.Helium.DataAccessLayer
