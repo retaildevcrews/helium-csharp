@@ -11,6 +11,19 @@ on:
     - '**.md'
     - 'TestFiles/**'
 
+  push:
+    branches:
+      - master
+
+    paths-ignore:
+    - 'docs/**'
+    - '.devcontainer/**'
+    - '**.md'
+    - 'TestFiles/**'
+
+    tags:
+      - v*
+
 jobs:
 
   build:
