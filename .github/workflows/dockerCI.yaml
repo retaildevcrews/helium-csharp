@@ -6,20 +6,20 @@ on:
       - master
 
     paths-ignore:
-      - 'docs/**'
-      - '.devcontainer/**'
-      - '**.md'
-      - 'TestFiles/**'
+    - 'docs/**'
+    - '.devcontainer/**'
+    - '**.md'
+    - 'TestFiles/**'
 
   push:
     branches:
       - master
 
     paths-ignore:
-      - 'docs/**'
-      - '.devcontainer/**'
-      - '**.md'
-      - 'TestFiles/**'
+    - 'docs/**'
+    - '.devcontainer/**'
+    - '**.md'
+    - 'TestFiles/**'
 
     tags:
       - v*
