@@ -4,6 +4,13 @@ on:
   pull_request:
     branches:
       - master
+
+    paths-ignore:
+      - 'docs/**'
+      - '.devcontainer/**'
+      - '**.md'
+      - 'TestFiles/**'
+
   push:
     branches:
       - master
@@ -12,6 +19,7 @@ on:
       - 'docs/**'
       - '.devcontainer/**'
       - '**.md'
+      - 'TestFiles/**'
 
     tags:
       - v*
