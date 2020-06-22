@@ -1,7 +1,11 @@
 #!/bin/sh
 
 # copy vscode files
-mkdir -p .vscode && cp docs/vscode-template/* .vscode
+mkdir -p .vscode
+cp docs/vscode-template/* .vscode
+
+# run dotnet restore
+dotnet restore src/tests.sln
 
 # source the bashrc-append from the repo
 # you can add project specific settings to .bashrc-append and
@@ -23,6 +27,3 @@ dotnet tool install -g webvalidate
 
 # set auth type
 export AUTH_TYPE=CLI
-
-# run dotnet restore
-dotnet restore src/tests.sln
