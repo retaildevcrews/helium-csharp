@@ -16,7 +16,11 @@ sudo apt-get install -y --no-install-recommends dnsutils httpie bash-completion 
 DEBIAN_FRONTEND=dialog
 
 # copy vscode files
-mkdir -p .vscode && cp docs/vscode-template/* .vscode
+mkdir -p .vscode
+cp docs/vscode-template/* .vscode
+
+# run dotnet restore
+dotnet restore src/tests.sln
 
 # source the bashrc-append from the repo
 # you can add project specific settings to .bashrc-append and

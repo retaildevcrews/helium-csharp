@@ -1,4 +1,3 @@
-using Microsoft.Azure.Cosmos;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -30,30 +29,6 @@ namespace CSE.Helium.DataAccessLayer
             }
 
             return results;
-        }
-
-
-        /// <summary>
-        /// Look up the proper Genre by key
-        /// </summary>
-        /// <param name="key"></param>
-        /// <returns>string.Empty or the Genre</returns>
-        public async Task<string> GetGenreAsync(string key)
-        {
-            if (string.IsNullOrWhiteSpace(key))
-            {
-                throw new System.ArgumentNullException(nameof(key));
-            }
-
-            // we know the partition key is 0
-            PartitionKey partitionKey = new PartitionKey("0");
-
-            // read the genre from Cosmos
-            // this will throw exception if not found
-            var ir = await cosmosDetails.Container.ReadItemAsync<IDictionary<string, string>>(key.ToLowerInvariant(), partitionKey).ConfigureAwait(false);
-
-            // return the value
-            return ir.Resource["genre"];
         }
     }
 }

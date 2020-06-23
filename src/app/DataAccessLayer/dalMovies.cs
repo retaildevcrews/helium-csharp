@@ -2,7 +2,6 @@ using CSE.Helium.Model;
 using Microsoft.Azure.Cosmos;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace CSE.Helium.DataAccessLayer
@@ -62,16 +61,10 @@ namespace CSE.Helium.DataAccessLayer
 
             string offsetLimit = string.Format(CultureInfo.InvariantCulture, movieOffset, offset, limit);
 
-            if (!string.IsNullOrEmpty(q))
+            if (!string.IsNullOrWhiteSpace(q))
             {
-                // convert to lower and escape embedded '
-                q = q.Trim().ToLowerInvariant().Replace("'", "''", System.StringComparison.OrdinalIgnoreCase);
-
-                if (!string.IsNullOrEmpty(q))
-                {
-                    // get movies by a "like" search on title
-                    sql += " and contains(m.textSearch, @q) ";
-                }
+                q = q.Trim();
+                sql += " and contains(m.title, @q, true) ";
             }
 
             if (year > 0)
@@ -84,33 +77,17 @@ namespace CSE.Helium.DataAccessLayer
                 sql += " and m.rating >= @rating ";
             }
 
-            if (!string.IsNullOrEmpty(actorId))
+            if (!string.IsNullOrWhiteSpace(actorId))
             {
-                // convert to lower and escape embedded '
-                actorId = actorId.Trim().ToLowerInvariant().Replace("'", "''", System.StringComparison.OrdinalIgnoreCase);
-
-                if (!string.IsNullOrEmpty(actorId))
-                {
-                    sql += " and array_contains(m.roles, { actorId: @actorId }, true) ";
-                }
-
+                // convert to lower
+                actorId = actorId.Trim().ToLowerInvariant();
+                sql += " and array_contains(m.roles, { actorId: @actorId }, true) ";
             }
 
-            if (!string.IsNullOrEmpty(genre))
+            if (!string.IsNullOrWhiteSpace(genre))
             {
-                try
-                {
-                    // get genre from key
-                    genre = await GetGenreAsync(genre).ConfigureAwait(false);
-                }
-                catch (CosmosException)
-                {
-                    // genre doesn't exist
-                    return new List<Movie>().AsQueryable<Movie>();
-                }
-
-                // get movies by genre
-                sql += " and array_contains(m.genres, @genre) ";
+                genre = genre.Trim();
+                sql += " and contains(m.genreSearch, @genre, true) ";
             }
 
             sql += movieOrderBy + offsetLimit;
@@ -118,17 +95,18 @@ namespace CSE.Helium.DataAccessLayer
             // Parameterize fields
             QueryDefinition queryDefinition = new QueryDefinition(sql);
 
-            if (!string.IsNullOrEmpty(q))
+            if (!string.IsNullOrWhiteSpace(q))
             {
                 queryDefinition.WithParameter("@q", q);
             }
-            if (!string.IsNullOrEmpty(actorId))
+            if (!string.IsNullOrWhiteSpace(actorId))
             {
                 queryDefinition.WithParameter("@actorId", actorId);
             }
-            if (!string.IsNullOrEmpty(genre))
+            if (!string.IsNullOrWhiteSpace(genre))
             {
-                queryDefinition.WithParameter("@genre", genre);
+                // genreSearch is stored delimited with :
+                queryDefinition.WithParameter("@genre", "|" + genre + "|");
             }
             if (year > 0)
             {
