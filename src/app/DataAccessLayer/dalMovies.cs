@@ -106,7 +106,7 @@ namespace CSE.Helium.DataAccessLayer
             if (!string.IsNullOrWhiteSpace(genre))
             {
                 // genreSearch is stored delimited with :
-                queryDefinition.WithParameter("@genre", ":" + genre + ":");
+                queryDefinition.WithParameter("@genre", "|" + genre + "|");
             }
             if (year > 0)
             {
