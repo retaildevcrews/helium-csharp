@@ -4,7 +4,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>Helium</RootNamespace>
     <AssemblyName>helium</AssemblyName>
-    <Version>1.1.0+$([System.DateTime]::UtcNow.ToString(`MMdd-HHmm`))</Version>
+    <Version>1.1.1+$([System.DateTime]::UtcNow.ToString(`MMdd-HHmm`))</Version>
     <Copyright>Copyright (c) Microsoft Corporation. All rights reserved.</Copyright>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);1591</NoWarn>
