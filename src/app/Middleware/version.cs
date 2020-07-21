@@ -1,10 +1,8 @@
 using Microsoft.AspNetCore.Builder;
 using System;
-using System.Dynamic;
 using System.IO;
 using System.Reflection;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace Middleware
 {
