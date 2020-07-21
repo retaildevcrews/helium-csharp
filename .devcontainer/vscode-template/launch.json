@@ -11,7 +11,7 @@
             "preLaunchTask": "build",
             "args": [
                 "--keyvault-name",
-                "{your keyvault name}",
+                "your_keyvault_name",
                 "--auth-type",
                 "CLI"
             ],

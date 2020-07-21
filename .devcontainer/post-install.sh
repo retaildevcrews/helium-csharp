@@ -17,7 +17,7 @@ DEBIAN_FRONTEND=dialog
 
 # copy vscode files
 mkdir -p .vscode
-cp docs/vscode-template/* .vscode
+cp .devcontainer/vscode-template/* .vscode
 
 # run dotnet restore
 dotnet restore src/tests.sln
