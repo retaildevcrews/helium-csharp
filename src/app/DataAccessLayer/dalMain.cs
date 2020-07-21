@@ -161,17 +161,8 @@ namespace CSE.Helium.DataAccessLayer
             // run query
             var query = cosmosDetails.Container.GetItemQueryIterator<T>(queryDefinition, requestOptions: cosmosDetails.QueryRequestOptions);
 
-            List<T> results = new List<T>();
-
-            while (query.HasMoreResults)
-            {
-                foreach (var doc in await query.ReadNextAsync().ConfigureAwait(false))
-                {
-                    results.Add(doc);
-                }
-            }
-
-            return results;
+            // return results
+            return await InternalCosmosDbResults<T>(query).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -185,7 +176,19 @@ namespace CSE.Helium.DataAccessLayer
             // run query
             var query = cosmosDetails.Container.GetItemQueryIterator<T>(sql, requestOptions: cosmosDetails.QueryRequestOptions);
 
-            List<T> results = new List<T>();
+            // return results
+            return await InternalCosmosDbResults<T>(query).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Returnt the generic Cosmos DB results
+        /// </summary>
+        /// <typeparam name="T">generic type</typeparam>
+        /// <param name="query">Cosmos Query</param>
+        /// <returns>IEnumerable T</returns>
+        private static async Task<IEnumerable<T>> InternalCosmosDbResults<T>(FeedIterator<T> query)
+        {
+            var results = new List<T>();
 
             while (query.HasMoreResults)
             {
@@ -194,6 +197,7 @@ namespace CSE.Helium.DataAccessLayer
                     results.Add(doc);
                 }
             }
+
             return results;
         }
     }
