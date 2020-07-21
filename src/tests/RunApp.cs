@@ -1,7 +1,6 @@
 using System;
 using System.CommandLine;
 using System.CommandLine.Parsing;
-using System.Net.Http;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -14,7 +13,7 @@ namespace CSE.Helium.Tests
         public async Task RunApp()
         {
             string[] args;
-            
+
             string keyvault = Environment.GetEnvironmentVariable("KEYVAULT_NAME");
 
             // test command line parser
