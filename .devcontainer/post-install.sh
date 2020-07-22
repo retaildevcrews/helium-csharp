@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# copy vscode files
+mkdir -p .vscode
+cp .devcontainer/vscode-template/* .vscode
+
 # run dotnet restore
 dotnet restore src/helium.sln
 
@@ -14,10 +18,6 @@ sudo apt-get install -y --no-install-recommends apt-utils dialog
 # update / install utils
 sudo apt-get install -y --no-install-recommends dnsutils httpie bash-completion curl wget git unzip
 DEBIAN_FRONTEND=dialog
-
-# copy vscode files
-mkdir -p .vscode
-cp docs/vscode-template/* .vscode
 
 # run dotnet restore
 dotnet restore src/tests.sln
