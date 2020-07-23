@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Builder;
 using System;
+using System.IO;
 using System.Reflection;
+using System.Text.Json;
 
 namespace Middleware
 {
@@ -28,11 +30,28 @@ namespace Middleware
                     // cache the version info for performance
                     if (responseBytes == null)
                     {
-                        responseBytes = System.Text.Encoding.UTF8.GetBytes(Middleware.VersionExtensions.Version);
+                        string swaggerVersion;
+
+                        try
+                        {
+                            // read swagger version from swagger.json
+                            using var sw = JsonDocument.Parse(File.ReadAllText("wwwroot/swagger/helium.json"));
+                            swaggerVersion = sw.RootElement.GetProperty("info").GetProperty("version").ToString();
+                        }
+                        catch (Exception ex)
+                        {
+                            // log and default to 1.0
+                            Console.WriteLine($"UseVersion:{ex.Message}");
+                            swaggerVersion = "1.0";
+                        }
+
+                        // build and cache the json string
+                        string json = "{ " + $"\"apiVersion\": \"{swaggerVersion}\", \"appVersion\": \"{Middleware.VersionExtensions.Version}\"" + " }";
+                        responseBytes = System.Text.Encoding.UTF8.GetBytes(json);
                     }
 
                     // return the version info
-                    context.Response.ContentType = "text/plain";
+                    context.Response.ContentType = "application/json";
                     await context.Response.Body.WriteAsync(responseBytes, 0, responseBytes.Length).ConfigureAwait(false);
                 }
                 else
