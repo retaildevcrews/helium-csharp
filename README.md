@@ -127,6 +127,7 @@ webv -s localhost:4120 -f baseline.json
 # benchmark.json is a 300 request test that covers the entire API
 
 popd
+
 ```
 
 ## Build the release container using Docker
