@@ -127,11 +127,12 @@ webv -s localhost:4120 -f baseline.json
 # benchmark.json is a 300 request test that covers the entire API
 
 popd
+
 ```
 
 ## Build the release container using Docker
 
-> A release build requires MSI to connect to Key Vault.
+> A release build requires MI to connect to Key Vault.
 
 ```bash
 

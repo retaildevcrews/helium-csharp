@@ -1,4 +1,4 @@
-﻿using CSE.Helium.Model;
+using CSE.Helium.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;

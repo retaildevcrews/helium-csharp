@@ -20,7 +20,7 @@ namespace CSE.Helium.Tests
             RootCommand root = App.BuildRootCommand();
 
             Assert.Empty(root.Parse("-k test-kv -a CLI").Errors);
-            Assert.Empty(root.Parse("-k test-kv -a MSI").Errors);
+            Assert.Empty(root.Parse("-k test-kv -a MI").Errors);
             Assert.Empty(root.Parse("-k test-kv -a VS").Errors);
 
             Assert.Empty(root.Parse("-k test-kv -a CLI -d").Errors);
