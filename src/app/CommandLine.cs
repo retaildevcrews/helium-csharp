@@ -1,4 +1,4 @@
-﻿using KeyVault.Extensions;
+using KeyVault.Extensions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -41,7 +41,7 @@ namespace CSE.Helium
             if (!cmd.Contains("--auth-type") && !cmd.Contains("-a"))
             {
                 cmd.Add("--auth-type");
-                cmd.Add(string.IsNullOrEmpty(auth) ? "MSI" : auth);
+                cmd.Add(string.IsNullOrEmpty(auth) ? "MI" : auth);
             }
 
             // add --log-level value from environment or default
@@ -88,7 +88,7 @@ namespace CSE.Helium
 
             // add the options
             root.AddOption(optKv);
-            root.AddOption(new Option<AuthenticationType>(new string[] { "-a", "--auth-type" }, "Authentication type (Release builds require MSI; Debug builds support all 3 options)"));
+            root.AddOption(new Option<AuthenticationType>(new string[] { "-a", "--auth-type" }, "Authentication type (Release builds require MI; Debug builds support all 3 options)"));
             root.AddOption(new Option<LogLevel>(new string[] { "-l", "--log-level" }, "Log Level"));
             root.AddOption(new Option(new string[] { "-d", "--dry-run" }, "Validates configuration"));
 

@@ -28,7 +28,7 @@ else
 
   IFS=$'\n'
 
-  for var in $(env | grep -E 'He_|MSI_|AKS_|Imdb_|AUTH_TYPE|KEYVAULT_NAME' | sort | sed "s/=/='/g")
+  for var in $(env | grep -E 'He_|MI_|AKS_|Imdb_|AUTH_TYPE|KEYVAULT_NAME' | sort | sed "s/=/='/g")
   do
     echo "export ${var}'" >> ~/.helium.env
   done

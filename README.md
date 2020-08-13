@@ -131,7 +131,7 @@ popd
 
 ## Build the release container using Docker
 
-> A release build requires MSI to connect to Key Vault.
+> A release build requires MI to connect to Key Vault.
 
 ```bash
 

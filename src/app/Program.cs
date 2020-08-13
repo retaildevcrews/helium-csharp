@@ -1,4 +1,4 @@
-﻿using CSE.Helium.DataAccessLayer;
+using CSE.Helium.DataAccessLayer;
 using KeyVault.Extensions;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore;
@@ -114,7 +114,7 @@ namespace CSE.Helium
         /// <summary>
         /// Builds the config for the web server
         /// 
-        /// Uses Key Vault via Managed Identity (MSI)
+        /// Uses Key Vault via Managed Identity (MI)
         /// </summary>
         /// <param name="kvClient">Key Vault Client</param>
         /// <param name="kvUrl">Key Vault URL</param>
@@ -148,7 +148,7 @@ namespace CSE.Helium
         /// Build the web host
         /// </summary>
         /// <param name="kvUrl">URL of the Key Vault</param>
-        /// <param name="authType">MSI, CLI, VS</param>
+        /// <param name="authType">MI, CLI, VS</param>
         /// <returns>Web Host ready to run</returns>
         static async Task<IWebHost> BuildHost(string kvUrl, AuthenticationType authType)
         {
@@ -206,7 +206,7 @@ namespace CSE.Helium
         ///   we retry for up to 90 seconds
         /// </summary>
         /// <param name="kvUrl">URL of the key vault</param>
-        /// <param name="authType">MSI, CLI or VS</param>
+        /// <param name="authType">MI, CLI or VS</param>
         /// <returns></returns>
         static async Task<KeyVaultClient> GetKeyVaultClient(string kvUrl, AuthenticationType authType)
         {
@@ -214,7 +214,7 @@ namespace CSE.Helium
             //   AKS has to spin up an MI pod which can take a while the first time on the pod
             DateTime timeout = DateTime.Now.AddSeconds(90.0);
 
-            // use MSI as default
+            // use MI as default
             string authString = "RunAs=App";
 
 #if (DEBUG)
@@ -229,9 +229,9 @@ namespace CSE.Helium
                     break;
             }
 #else
-            if (authType != AuthenticationType.MSI)
+            if (authType != AuthenticationType.MI)
             {
-                Console.WriteLine("Release builds require MSI authentication for Key Vault");
+                Console.WriteLine("Release builds require MI authentication for Key Vault");
                 return null;
             }
 #endif
@@ -242,7 +242,7 @@ namespace CSE.Helium
                 {
                     var tokenProvider = new AzureServiceTokenProvider(authString);
 
-                    // use Managed Identity (MSI) for secure access to Key Vault
+                    // use Managed Identity (MI) for secure access to Key Vault
                     var keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(tokenProvider.KeyVaultTokenCallback));
 
                     // read a key to make sure the connection is valid 
@@ -253,13 +253,13 @@ namespace CSE.Helium
                 }
                 catch (Exception ex)
                 {
-                    if (DateTime.Now <= timeout && authType == AuthenticationType.MSI)
+                    if (DateTime.Now <= timeout && authType == AuthenticationType.MI)
                     {
-                        // retry MSI connections for pod identity
+                        // retry MI connections for pod identity
 
 #if (DEBUG)
                         // Don't retry in debug mode
-                        Console.WriteLine($"KeyVault:Exception: Unable to connect to Key Vault using MSI");
+                        Console.WriteLine($"KeyVault:Exception: Unable to connect to Key Vault using MI");
                         return null;
 #else
                         Console.WriteLine($"KeyVault:Retry");

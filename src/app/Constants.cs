@@ -1,4 +1,4 @@
-﻿namespace CSE.Helium
+namespace CSE.Helium
 {
     /// <summary>
     /// String constants
@@ -36,5 +36,5 @@
 
         public const int HealthzCacheDuration = 60;
     }
-    public enum AuthenticationType { MSI, CLI, VS }
+    public enum AuthenticationType { MI, CLI, VS }
 }
