@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Text.Json;
+using Helium.ErrorHandler;
 
 namespace CSE.Helium.Controllers
 {
@@ -33,7 +35,7 @@ namespace CSE.Helium.Controllers
             {
                 if (q == null || q.Length < 2 || q.Length > 20)
                 {
-                    return GetAndLogBadParam("Invalid q (search) parameter", method, logger);
+                    return GetAndLogInvalidSearchParameter(method, logger);
                 }
             }
 
@@ -58,17 +60,27 @@ namespace CSE.Helium.Controllers
             return null;
         }
 
-        public static JsonResult GetAndLogBadParam(string message, string method, ILogger logger)
+        private static JsonResult GetAndLogBadParam(string message, string method, ILogger logger)
         {
             logger.LogWarning($"InvalidParameter|{method}|{message}");
-
-
-
+            
             return new JsonResult(new ErrorResult { Error = System.Net.HttpStatusCode.BadRequest, Message = message })
             {
                 StatusCode = (int)System.Net.HttpStatusCode.BadRequest
             };
         }
+
+        private static JsonResult GetAndLogInvalidSearchParameter(string method, ILogger logger)
+        {
+            const string message = "Invalid q (search) parameter";
+            logger.LogWarning($"InvalidParameter|{method}|{message}");
+
+            var httpInnerError = new InvalidSearchParameterInnerError();
+            var httpError = new HttpErrorType("BadArgument", httpInnerError, message, 400, "q");
+
+            return new JsonResult(httpError);
+        }
+
 
         /// <summary>
         /// validate query string parameters for Movies

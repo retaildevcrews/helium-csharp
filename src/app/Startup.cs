@@ -85,6 +85,8 @@ namespace CSE.Helium
                 app.UseHsts();
             }
 
+            app.UseExceptionHandler("/Error");
+
             app.UseResponseCaching();
 
             app.UseStaticFiles();
