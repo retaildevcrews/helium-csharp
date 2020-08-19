@@ -76,7 +76,7 @@ namespace CSE.Helium.Controllers
             const string message = "Invalid q (search) parameter";
             logger.LogWarning($"InvalidParameter|{method}|{message}");
 
-            var httpInnerError = new InnerError(InnerErrorType.PageSizeParameter);
+            var httpInnerError = new InnerError(InnerErrorType.SearchParameter);
             var httpError = new HttpErrorType("BadArgument", httpInnerError, message, 400, "q");
             var errorResponse = new ErrorResponse(httpError);
 
