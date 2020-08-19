@@ -67,7 +67,7 @@ namespace Helium.ErrorHandler
                     MaxValue = "1000";
                     MinValue = "1";
                     break;
-                case InnerErrorType.InvalidActorIdParameter:
+                case InnerErrorType.ActorIdParameter:
                     Code = "InvalidActorIDParameter";
                     break;
             }
@@ -79,7 +79,7 @@ namespace Helium.ErrorHandler
         SearchParameter,
         PageSizeParameter,
         PageNumberParameter,
-        InvalidActorIdParameter
+        ActorIdParameter
     }
 
 }

@@ -74,54 +74,53 @@ namespace CSE.Helium.Controllers
         private static JsonResult GetAndLogInvalidSearchParameter(string method, ILogger logger)
         {
             const HttpStatusCode statusCode = HttpStatusCode.BadRequest;
+            const InnerErrorType innerErrorType = InnerErrorType.SearchParameter;
             const string message = "Invalid q (search) parameter";
+            const string errorCode = "BadArgument";
+            const string target = "q";
 
             logger.LogWarning($"InvalidParameter|{method}|{message}");
 
-            var httpInnerError = new InnerError(InnerErrorType.SearchParameter);
-            var httpError = new HttpErrorType("BadArgument", httpInnerError, message, (int)statusCode, "q");
-            var errorResponse = new ErrorResponse(httpError);
-
-            return new JsonResult(errorResponse)
-            {
-                StatusCode = (int)statusCode
-            };
+            return CreateAndFormatError(innerErrorType, message, statusCode, errorCode, target);
         }
 
         private static JsonResult GetAndLogInvalidPageSizeParameter(string method, ILogger logger)
         {
             const HttpStatusCode statusCode = HttpStatusCode.BadRequest;
+            const InnerErrorType innerErrorType = InnerErrorType.PageSizeParameter;
             const string message = "Invalid PageSize parameter";
             const string errorCode = "BadArgument";
             const string target = "pageSize";
 
             logger.LogWarning($"InvalidParameter|{method}|{message}");
 
-            return CreateAndFormatError(InnerErrorType.InvalidActorIdParameter, message, statusCode, errorCode, target);
+            return CreateAndFormatError(innerErrorType, message, statusCode, errorCode, target);
         }
 
         private static JsonResult GetAndLogInvalidPageNumberParameter(string method, ILogger logger)
         {
             const HttpStatusCode statusCode = HttpStatusCode.BadRequest;
-            const string message = "Invalid PageSize parameter";
+            const InnerErrorType innerErrorType = InnerErrorType.PageNumberParameter;
+            const string message = "Invalid PageNumber parameter";
             const string errorCode = "BadArgument";
-            const string target = "pageSize";
+            const string target = "pageNumber";
 
             logger.LogWarning($"InvalidParameter|{method}|{message}");
 
-            return CreateAndFormatError(InnerErrorType.InvalidActorIdParameter, message, statusCode, errorCode, target);
+            return CreateAndFormatError(innerErrorType, message, statusCode, errorCode, target);
         }
 
         private static JsonResult GetAndLogInvalidActorIdParameter(string method, ILogger logger)
         {
             const HttpStatusCode statusCode = HttpStatusCode.BadRequest;
+            const InnerErrorType innerErrorType = InnerErrorType.ActorIdParameter;
             const string message = "Invalid Actor ID parameter";
             const string errorCode = "BadArgument";
             const string target = "actorId";
 
             logger.LogWarning($"InvalidParameter|{method}|{message}");
 
-            return CreateAndFormatError(InnerErrorType.InvalidActorIdParameter, message, statusCode, errorCode, target);
+            return CreateAndFormatError(innerErrorType, message, statusCode, errorCode, target);
         }
 
         private static JsonResult CreateAndFormatError(InnerErrorType innerErrorType, string message,
