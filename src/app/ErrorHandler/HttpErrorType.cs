@@ -1,18 +1,25 @@
-﻿namespace Helium.ErrorHandler
+﻿using Microsoft.AspNetCore.SignalR;
+using Newtonsoft.Json;
+using System.Collections.Generic;
+using System.Security;
+using System.Text.Json.Serialization;
+
+namespace Helium.ErrorHandler
 {
     public class HttpErrorType
     {
         public string Code { get; }
 
-        public dynamic InnerError { get; }
-
         public string Message { get; }
-
-        public int StatusCode { get; }
 
         public string Target { get; }
 
-        public HttpErrorType(string code, dynamic innerError, string message, int statusCode, string target)
+        [JsonPropertyName("innererror")]
+        public InnerError InnerError { get; }
+
+        public int StatusCode { get; } //Json question: do we need this one?
+
+        public HttpErrorType(string code, InnerError innerError, string message, int statusCode, string target)
         {
             Code = code;
             InnerError = innerError;
@@ -22,19 +29,47 @@
         }
     }
 
-    public sealed class InvalidSearchParameterInnerError
+    public class InnerError
     {
-        public static readonly string[] CharacterTypes = {"LowerCase", "UpperCase", "Number", "Symbol"};
+        public string Code {get;}
 
-        public const string Code = "InvalidSearchParameter";
+        public string MinLength { get; }
 
-        public const string MaxLength = "20";
+        public string MaxLength { get; }
 
-        public const string MinLength = "2";
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public List<string> CharacterTypes { get; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public List<string> ValueTypes { get; }
+
+        public InnerError(InnerErrorType innerErrorType)
+        {
+            switch(innerErrorType)
+            {
+                case InnerErrorType.SearchParameter:
+                    CharacterTypes = new List<string> { "lowerCase", "upperCase", "number", "symbol" };
+                    break;
+                case InnerErrorType.PageSizeParameter:
+                    ValueTypes = new List<string> { "integer" };
+                    break;
+            }
+
+            Code = "InvalidSearchParameter";
+            MinLength = "2";
+            MaxLength = "20";
+        }
     }
 
     public sealed class InvalidPageSizeParameterInnerError
     {
 
     }
+
+    public enum InnerErrorType
+    {
+        SearchParameter,
+        PageSizeParameter
+    }
+
 }

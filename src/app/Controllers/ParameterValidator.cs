@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Text.Json;
 using Helium.ErrorHandler;
+using System.Net;
 
 namespace CSE.Helium.Controllers
 {
@@ -75,10 +76,15 @@ namespace CSE.Helium.Controllers
             const string message = "Invalid q (search) parameter";
             logger.LogWarning($"InvalidParameter|{method}|{message}");
 
-            var httpInnerError = new InvalidSearchParameterInnerError();
+            var httpInnerError = new InnerError(InnerErrorType.PageSizeParameter);
             var httpError = new HttpErrorType("BadArgument", httpInnerError, message, 400, "q");
+            var errorResponse = new ErrorResponse(httpError);
 
-            return new JsonResult(httpError);
+            return new JsonResult(errorResponse)
+            {
+                StatusCode = (int)HttpStatusCode.BadRequest
+            };
+            
         }
 
 
