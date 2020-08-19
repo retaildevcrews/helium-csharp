@@ -81,5 +81,4 @@ namespace Helium.ErrorHandler
         PageNumberParameter,
         ActorIdParameter
     }
-
 }
