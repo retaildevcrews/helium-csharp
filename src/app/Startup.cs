@@ -36,6 +36,7 @@ namespace CSE.Helium
             // set json serialization defaults
             services.AddControllers().AddJsonOptions(options =>
             {
+                options.JsonSerializerOptions.WriteIndented = true;
                 options.JsonSerializerOptions.IgnoreNullValues = true;
                 options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
                 options.JsonSerializerOptions.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
@@ -96,7 +97,7 @@ namespace CSE.Helium
 
             // map the controllers
             app.UseEndpoints(ep => { ep.MapControllers(); });
-
+            
             // rewrite root to /index.html
             app.UseSwaggerRoot();
 
