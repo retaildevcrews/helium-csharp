@@ -41,9 +41,17 @@ namespace Helium.ErrorHandler
 
         public string MinLength { get; }
 
-        public string MaxValue { get; }
+        [JsonPropertyName("maxValue")]
+        public int MaxIntValue { get; }
 
-        public string MinValue { get; }
+        [JsonPropertyName("minValue")]
+        public int MinIntValue { get; }
+
+        [JsonPropertyName("maxValue")]
+        public double MaxDoubleValue { get; }
+
+        [JsonPropertyName("minValue")]
+        public double MinDoubleValue { get; }
 
         public InnerError(InnerErrorType innerErrorType)
         {
@@ -58,17 +66,38 @@ namespace Helium.ErrorHandler
                 case InnerErrorType.PageSizeParameter:
                     ValueTypes = new List<string> { "integer" };
                     Code = "InvalidPageSizeParameter";
-                    MaxValue = "1000";
-                    MinValue = "1";
+                    MaxIntValue = 1000;
+                    MinIntValue = 1;
                     break;
                 case InnerErrorType.PageNumberParameter:
                     ValueTypes = new List<string> { "integer" };
                     Code = "InvalidPageNumberParameter";
-                    MaxValue = "10000";
-                    MinValue = "1";
+                    MaxIntValue = 10000;
+                    MinIntValue = 1;
                     break;
                 case InnerErrorType.ActorIdParameter:
                     Code = "InvalidActorIDParameter";
+                    break;
+                case InnerErrorType.GenreParameter:
+                    ValueTypes = new List<string> { "string" };
+                    Code = "InvalidGenreParameter";
+                    MinLength = "3";
+                    MaxLength = "20";
+                    break;
+                case InnerErrorType.YearParameter:
+                    ValueTypes = new List<string> { "integer" };
+                    Code = "InvalidYearParameter";
+                    MinIntValue = 1984;
+                    MaxIntValue = 2025;
+                    break;
+                case InnerErrorType.RatingParameter:
+                    ValueTypes = new List<string> { "integer" };
+                    Code = "InvalidRatingParameter";
+                    MinDoubleValue = 0;
+                    MaxDoubleValue = 10;
+                    break;
+                case InnerErrorType.MovieIdParameter:
+                    Code = "InvalidMovieIDParameter";
                     break;
             }
         }
@@ -79,6 +108,10 @@ namespace Helium.ErrorHandler
         SearchParameter,
         PageSizeParameter,
         PageNumberParameter,
-        ActorIdParameter
+        ActorIdParameter,
+        GenreParameter,
+        YearParameter,
+        RatingParameter,
+        MovieIdParameter
     }
 }
