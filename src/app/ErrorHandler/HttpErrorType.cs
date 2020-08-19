@@ -64,7 +64,7 @@ namespace Helium.ErrorHandler
                 case InnerErrorType.PageNumberParameter:
                     ValueTypes = new List<string> { "integer" };
                     Code = "InvalidPageNumberParameter";
-                    MaxValue = "1000";
+                    MaxValue = "10000";
                     MinValue = "1";
                     break;
                 case InnerErrorType.ActorIdParameter:
