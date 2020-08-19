@@ -41,28 +41,45 @@ namespace Helium.ErrorHandler
 
         public string MinLength { get; }
 
+        public string MaxValue { get; }
+
+        public string MinValue { get; }
+
         public InnerError(InnerErrorType innerErrorType)
         {
             switch(innerErrorType)
             {
                 case InnerErrorType.SearchParameter:
                     CharacterTypes = new List<string> { "lowerCase", "upperCase", "number", "symbol" };
+                    Code = "InvalidSearchParameter";
+                    MinLength = "2";
+                    MaxLength = "20";
                     break;
                 case InnerErrorType.PageSizeParameter:
                     ValueTypes = new List<string> { "integer" };
+                    Code = "InvalidPageSizeParameter";
+                    MaxValue = "1000";
+                    MinValue = "1";
+                    break;
+                case InnerErrorType.PageNumberParameter:
+                    ValueTypes = new List<string> { "integer" };
+                    Code = "InvalidPageNumberParameter";
+                    MaxValue = "1000";
+                    MinValue = "1";
+                    break;
+                case InnerErrorType.InvalidActorIdParameter:
+                    Code = "InvalidActorIDParameter";
                     break;
             }
-
-            Code = "InvalidSearchParameter";
-            MinLength = "2";
-            MaxLength = "20";
         }
     }
 
     public enum InnerErrorType
     {
         SearchParameter,
-        PageSizeParameter
+        PageSizeParameter,
+        PageNumberParameter,
+        InvalidActorIdParameter
     }
 
 }

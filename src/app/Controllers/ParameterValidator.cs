@@ -45,7 +45,7 @@ namespace CSE.Helium.Controllers
             {
                 if (!int.TryParse(query["pageNumber"], out int val) || val != pageNumber || pageNumber < 1 || pageNumber > 10000)
                 {
-                    return GetAndLogBadParam("Invalid PageNumber parameter", method, logger);
+                    return GetAndLogInvalidPageNumberParameter(method, logger);
                 }
             }
 
@@ -54,7 +54,7 @@ namespace CSE.Helium.Controllers
             {
                 if (!int.TryParse(query["pageSize"], out int val) || val != pageSize || pageSize < 1 || pageSize > 1000)
                 {
-                    return GetAndLogBadParam("Invalid PageSize parameter", method, logger);
+                    return GetAndLogInvalidPageSizeParameter(method, logger);
                 }
             }
 
@@ -73,18 +73,68 @@ namespace CSE.Helium.Controllers
 
         private static JsonResult GetAndLogInvalidSearchParameter(string method, ILogger logger)
         {
+            const HttpStatusCode statusCode = HttpStatusCode.BadRequest;
             const string message = "Invalid q (search) parameter";
+
             logger.LogWarning($"InvalidParameter|{method}|{message}");
 
             var httpInnerError = new InnerError(InnerErrorType.SearchParameter);
-            var httpError = new HttpErrorType("BadArgument", httpInnerError, message, 400, "q");
+            var httpError = new HttpErrorType("BadArgument", httpInnerError, message, (int)statusCode, "q");
             var errorResponse = new ErrorResponse(httpError);
 
             return new JsonResult(errorResponse)
             {
-                StatusCode = (int)HttpStatusCode.BadRequest
+                StatusCode = (int)statusCode
             };
-            
+        }
+
+        private static JsonResult GetAndLogInvalidPageSizeParameter(string method, ILogger logger)
+        {
+            const HttpStatusCode statusCode = HttpStatusCode.BadRequest;
+            const string message = "Invalid PageSize parameter";
+            const string errorCode = "BadArgument";
+            const string target = "pageSize";
+
+            logger.LogWarning($"InvalidParameter|{method}|{message}");
+
+            return CreateAndFormatError(InnerErrorType.InvalidActorIdParameter, message, statusCode, errorCode, target);
+        }
+
+        private static JsonResult GetAndLogInvalidPageNumberParameter(string method, ILogger logger)
+        {
+            const HttpStatusCode statusCode = HttpStatusCode.BadRequest;
+            const string message = "Invalid PageSize parameter";
+            const string errorCode = "BadArgument";
+            const string target = "pageSize";
+
+            logger.LogWarning($"InvalidParameter|{method}|{message}");
+
+            return CreateAndFormatError(InnerErrorType.InvalidActorIdParameter, message, statusCode, errorCode, target);
+        }
+
+        private static JsonResult GetAndLogInvalidActorIdParameter(string method, ILogger logger)
+        {
+            const HttpStatusCode statusCode = HttpStatusCode.BadRequest;
+            const string message = "Invalid Actor ID parameter";
+            const string errorCode = "BadArgument";
+            const string target = "actorId";
+
+            logger.LogWarning($"InvalidParameter|{method}|{message}");
+
+            return CreateAndFormatError(InnerErrorType.InvalidActorIdParameter, message, statusCode, errorCode, target);
+        }
+
+        private static JsonResult CreateAndFormatError(InnerErrorType innerErrorType, string message,
+            HttpStatusCode httpStatusCode, string errorCode, string target)
+        {
+            var httpInnerError = new InnerError(innerErrorType);
+            var httpError = new HttpErrorType(errorCode, httpInnerError, message, (int)httpStatusCode, target);
+            var errorResponse = new ErrorResponse(httpError);
+
+            return new JsonResult(errorResponse)
+            {
+                StatusCode = (int)httpStatusCode
+            };
         }
 
 
@@ -174,7 +224,7 @@ namespace CSE.Helium.Controllers
                 !int.TryParse(actorId.Substring(2), out int val) ||
                 val <= 0)
             {
-                return GetAndLogBadParam("Invalid Actor ID parameter", method, logger);
+                return GetAndLogInvalidActorIdParameter(method, logger);
             }
 
             return null;
