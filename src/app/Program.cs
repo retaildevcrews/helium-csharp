@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.AzureKeyVault;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Hosting;
 using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;
@@ -76,11 +77,9 @@ namespace CSE.Helium
 
                 Console.WriteLine("Ctl-C Pressed - Starting shutdown ...");
 
-                // give threads a chance to shutdown
-                Thread.Sleep(500);
-
-                // end the app
-                Environment.Exit(0);
+                // trigger graceful shutdown for the webhost
+                // force shutdown after timeout, defined in UseShutdownTimeout within BuildHost() method
+                host.StopAsync();
             };
 
             return ctCancel;
@@ -170,6 +169,7 @@ namespace CSE.Helium
                 .UseKestrel()
                 .UseUrls(string.Format(System.Globalization.CultureInfo.InvariantCulture, $"http://*:{Constants.Port}/"))
                 .UseStartup<Startup>()
+                .UseShutdownTimeout(TimeSpan.FromSeconds(10))
                 .ConfigureServices(services =>
                 {
                     // add the data access layer via DI
