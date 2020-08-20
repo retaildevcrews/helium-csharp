@@ -58,6 +58,7 @@ namespace CSE.Helium
             if (ctCancel != null)
             {
                 ctCancel.Cancel(false);
+                host.StopAsync();
             }
         }
 
