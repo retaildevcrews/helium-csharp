@@ -2,9 +2,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Text.Json;
-using Helium.ErrorHandler;
 using System.Net;
+using System.Text;
+using Helium.Enumerations;
 
 namespace CSE.Helium.Controllers
 {
@@ -23,7 +23,7 @@ namespace CSE.Helium.Controllers
         /// <param name="method">current method</param>
         /// <param name="logger">ILogger</param>
         /// <returns></returns>
-        public static JsonResult Common(IQueryCollection query, string q, int pageNumber, int pageSize, string method, ILogger logger)
+        public static IActionResult Common(IQueryCollection query, string q, int pageNumber, int pageSize, string method, ILogger logger)
         {
             // no query string
             if (query == null)
@@ -67,17 +67,12 @@ namespace CSE.Helium.Controllers
         /// <param name="method"></param>
         /// <param name="logger"></param>
         /// <returns></returns>
-        private static JsonResult GetAndLogInvalidSearchParameter(string method, ILogger logger)
+        private static IActionResult GetAndLogInvalidSearchParameter(string method, ILogger logger)
         {
-            const HttpStatusCode statusCode = HttpStatusCode.BadRequest;
-            const InnerErrorType innerErrorType = InnerErrorType.SearchParameter;
-            const string message = "Invalid q (search) parameter";
-            const string errorCode = "BadArgument";
-            const string target = "q";
-            const int minLength = 2;
-            const int maxLength = 20;
+            logger.LogWarning($"InvalidParameter|{method}|Invalid q (search) parameter");
 
-            return CreateAndFormatError(logger, method, innerErrorType, message, statusCode, errorCode, target, minLength, maxLength);
+            return BuildJsonResponse(HttpStatusCode.BadRequest, "BadArgument", "Invalid q (search) parameter", "q",
+                InnerErrorType.InvalidSearchParameter, 2, 20);
         }
 
         /// <summary>
@@ -86,17 +81,12 @@ namespace CSE.Helium.Controllers
         /// <param name="method"></param>
         /// <param name="logger"></param>
         /// <returns></returns>
-        private static JsonResult GetAndLogInvalidPageSizeParameter(string method, ILogger logger)
+        private static IActionResult GetAndLogInvalidPageSizeParameter(string method, ILogger logger)
         {
-            const HttpStatusCode statusCode = HttpStatusCode.BadRequest;
-            const InnerErrorType innerErrorType = InnerErrorType.PageSizeParameter;
-            const string message = "Invalid PageSize parameter";
-            const string errorCode = "BadArgument";
-            const string target = "pageSize";
-            const int minValue = 1;
-            const int maxValue = 1000;
+            logger.LogWarning($"InvalidParameter|{method}|Invalid PageSize parameter");
 
-            return CreateAndFormatError(logger, method, innerErrorType, message, statusCode, errorCode, target, minValue, maxValue);
+            return BuildJsonResponse(HttpStatusCode.BadRequest, "BadArgument", "Invalid PageSize parameter", "pageSize",
+                InnerErrorType.InvalidPageSizeParameter, 1, 1000);
         }
 
         /// <summary>
@@ -105,17 +95,12 @@ namespace CSE.Helium.Controllers
         /// <param name="method"></param>
         /// <param name="logger"></param>
         /// <returns></returns>
-        private static JsonResult GetAndLogInvalidPageNumberParameter(string method, ILogger logger)
+        private static IActionResult GetAndLogInvalidPageNumberParameter(string method, ILogger logger)
         {
-            const HttpStatusCode statusCode = HttpStatusCode.BadRequest;
-            const InnerErrorType innerErrorType = InnerErrorType.PageNumberParameter;
-            const string message = "Invalid PageNumber parameter";
-            const string errorCode = "BadArgument";
-            const string target = "pageNumber";
-            const int minValue = 1;
-            const int maxValue = 10000;
+            logger.LogWarning($"InvalidParameter|{method}|Invalid PageNumber parameter");
 
-            return CreateAndFormatError(logger, method, innerErrorType, message, statusCode, errorCode, target, minValue, maxValue);
+            return BuildJsonResponse(HttpStatusCode.BadRequest, "BadArgument", "Invalid PageNumber parameter", "pageNumber", 
+                InnerErrorType.InvalidPageNumberParameter, 1, 10000);
         }
 
         /// <summary>
@@ -124,17 +109,13 @@ namespace CSE.Helium.Controllers
         /// <param name="method"></param>
         /// <param name="logger"></param>
         /// <returns></returns>
-        private static JsonResult GetAndLogInvalidActorIdParameter(string method, ILogger logger)
+        private static IActionResult GetAndLogInvalidActorIdParameter(string method, ILogger logger)
         {
-            const HttpStatusCode statusCode = HttpStatusCode.BadRequest;
-            const InnerErrorType innerErrorType = InnerErrorType.ActorIdParameter;
-            const string message = "Invalid Actor ID parameter";
-            const string errorCode = "BadArgument";
-            const string target = "actorId";
+            logger.LogWarning($"InvalidParameter|{method}|Invalid Actor ID parameter");
 
-            return CreateAndFormatError(logger, method, innerErrorType, message, statusCode, errorCode, target, null, null);
+            return BuildJsonResponse(HttpStatusCode.BadRequest, "BadArgument", "Invalid Actor ID parameter", "actorId",
+                InnerErrorType.InvalidActorIDParameter, null, null);
         }
-
 
         /// <summary>
         /// validate query string parameters for Movies
@@ -150,7 +131,7 @@ namespace CSE.Helium.Controllers
         /// <param name="method">current method</param>
         /// <param name="logger">ILogger</param>
         /// <returns></returns>
-        public static JsonResult Movies(IQueryCollection query, string q, string genre, int year, double rating, string actorId, int pageNumber, int pageSize, string method, ILogger logger)
+        public static IActionResult Movies(IQueryCollection query, string q, string genre, int year, double rating, string actorId, int pageNumber, int pageSize, string method, ILogger logger)
         {
             // no query string
             if (query == null)
@@ -211,17 +192,12 @@ namespace CSE.Helium.Controllers
         /// <param name="method"></param>
         /// <param name="logger"></param>
         /// <returns></returns>
-        private static JsonResult GetAndLogInvalidGenreParameter(string method, ILogger logger)
+        private static IActionResult GetAndLogInvalidGenreParameter(string method, ILogger logger)
         {
-            const HttpStatusCode statusCode = HttpStatusCode.BadRequest;
-            const InnerErrorType innerErrorType = InnerErrorType.GenreParameter;
-            const string message = "Invalid Genre parameter";
-            const string errorCode = "BadArgument";
-            const string target = "genre";
-            const int minValue = 3;
-            const int maxValue = 20;
+            logger.LogWarning($"InvalidParameter|{method}|Invalid Genre parameter");
 
-            return CreateAndFormatError(logger, method, innerErrorType, message, statusCode, errorCode, target, minValue, maxValue);
+            return BuildJsonResponse(HttpStatusCode.BadRequest, "BadArgument", "Invalid Genre parameter", "genre",
+                InnerErrorType.InvalidGenreParameter, 3, 20);
         }
 
         /// <summary>
@@ -230,17 +206,12 @@ namespace CSE.Helium.Controllers
         /// <param name="method"></param>
         /// <param name="logger"></param>
         /// <returns></returns>
-        private static JsonResult GetAndLogInvalidYearParameter(string method, ILogger logger)
+        private static IActionResult GetAndLogInvalidYearParameter(string method, ILogger logger)
         {
-            const HttpStatusCode statusCode = HttpStatusCode.BadRequest;
-            const InnerErrorType innerErrorType = InnerErrorType.YearParameter;
-            const string message = "Invalid Year parameter";
-            const string errorCode = "BadArgument";
-            const string target = "year";
-            const int minValue = 1874;
-            const int maxValue = 2025;
+            logger.LogWarning($"InvalidParameter|{method}|Invalid Year parameter");
 
-            return CreateAndFormatError(logger, method, innerErrorType, message, statusCode, errorCode, target, minValue, maxValue);
+            return BuildJsonResponse(HttpStatusCode.BadRequest, "BadArgument", "Invalid Year parameter", "year",
+                InnerErrorType.InvalidYearParameter, 1874, 2025);
         }
 
         /// <summary>
@@ -249,17 +220,12 @@ namespace CSE.Helium.Controllers
         /// <param name="method"></param>
         /// <param name="logger"></param>
         /// <returns></returns>
-        private static JsonResult GetAndLogInvalidRatingParameter(string method, ILogger logger)
+        private static IActionResult GetAndLogInvalidRatingParameter(string method, ILogger logger)
         {
-            const HttpStatusCode statusCode = HttpStatusCode.BadRequest;
-            const InnerErrorType innerErrorType = InnerErrorType.RatingParameter;
-            const string message = "Invalid Rating parameter";
-            const string errorCode = "BadArgument";
-            const string target = "rating";
-            const double minValue = 0;
-            const double maxValue = 10;
+            logger.LogWarning($"InvalidParameter|{method}|Invalid Rating parameter");
 
-            return CreateAndFormatError(logger, method, innerErrorType, message, statusCode, errorCode, target, minValue, maxValue);
+            return BuildJsonResponse(HttpStatusCode.BadRequest, "BadArgument", "Invalid Rating parameter", "rating",
+                InnerErrorType.InvalidRatingParameter, 0, 10);
         }
 
         /// <summary>
@@ -268,15 +234,12 @@ namespace CSE.Helium.Controllers
         /// <param name="method"></param>
         /// <param name="logger"></param>
         /// <returns></returns>
-        private static JsonResult GetAndLogInvalidMovieIdParameter(string method, ILogger logger)
+        private static IActionResult GetAndLogInvalidMovieIdParameter(string method, ILogger logger)
         {
-            const HttpStatusCode statusCode = HttpStatusCode.BadRequest;
-            const InnerErrorType innerErrorType = InnerErrorType.MovieIdParameter;
-            const string message = "Invalid Movie ID parameter";
-            const string errorCode = "BadArgument";
-            const string target = "movieId";
+            logger.LogWarning($"InvalidParameter|{method}|Invalid Movie ID parameter");
 
-            return CreateAndFormatError(logger, method, innerErrorType, message, statusCode, errorCode, target, null, null);
+            return BuildJsonResponse(HttpStatusCode.BadRequest, "BadArgument", "Invalid Movie ID parameter", "movieId",
+                InnerErrorType.InvalidMovieIDParameter, null, null);
         }
 
         /// <summary>
@@ -286,7 +249,7 @@ namespace CSE.Helium.Controllers
         /// <param name="method">current method</param>
         /// <param name="logger">ILogger</param>
         /// <returns></returns>
-        public static JsonResult ActorId(string actorId, string method, ILogger logger)
+        public static IActionResult ActorId(string actorId, string method, ILogger logger)
         {
             // validate actorId
             if (actorId == null ||
@@ -309,7 +272,7 @@ namespace CSE.Helium.Controllers
         /// <param name="method">current method</param>
         /// <param name="logger">ILogger</param>
         /// <returns></returns>
-        public static JsonResult MovieId(string movieId, string method, ILogger logger)
+        public static IActionResult MovieId(string movieId, string method, ILogger logger)
         {
             // validate movieId
             if (movieId == null ||
@@ -326,30 +289,93 @@ namespace CSE.Helium.Controllers
         }
 
         /// <summary>
-        /// creates ErrorResponse and returns JsonResult with StatusCode for HTTP response
+        /// 
         /// </summary>
-        /// <param name="logger"></param>
-        /// <param name="method"></param>
-        /// <param name="innerErrorType"></param>
-        /// <param name="message"></param>
-        /// <param name="httpStatusCode"></param>
+        /// <param name="statusCode"></param>
         /// <param name="errorCode"></param>
+        /// <param name="errorMessage"></param>
         /// <param name="target"></param>
+        /// <param name="innerErrorType"></param>
         /// <param name="minValue"></param>
         /// <param name="maxValue"></param>
         /// <returns></returns>
-        private static JsonResult CreateAndFormatError(ILogger logger, string method, InnerErrorType innerErrorType, string message,
-            HttpStatusCode httpStatusCode, string errorCode, string target, object minValue, object maxValue)
+        private static IActionResult BuildJsonResponse(HttpStatusCode statusCode, string errorCode, string errorMessage, string target,
+            InnerErrorType innerErrorType, object minValue, object maxValue)
         {
-            logger.LogWarning($"InvalidParameter|{method}|{message}");
+            var sb = new StringBuilder();
+            sb.Append("{\n");
+            sb.Append("\"error\": {\n");
+            sb.Append($"\"code\": \"{errorCode}\",\n");
+            sb.Append($"\"message\": \"{errorMessage}\",\n");
+            sb.Append($"\"statusCode\": {(int)statusCode},\n");
+            sb.Append($"\"target\": \"{target}\",\n");
+            sb.Append("\"innererror\": {\n");
+            sb.Append($"\"code\": \"{innerErrorType}\",\n");
 
-            var httpInnerError = new InnerError(innerErrorType, minValue, maxValue);
-            var httpError = new HttpErrorType(errorCode, httpInnerError, message, (int)httpStatusCode, target);
-            var errorResponse = new ErrorResponse(httpError);
-
-            return new JsonResult(errorResponse)
+            switch (innerErrorType)
             {
-                StatusCode = (int)httpStatusCode
+                case InnerErrorType.InvalidSearchParameter:
+                    sb.Append($"\"minLength\": {minValue},\n");
+                    sb.Append($"\"maxLength\": {maxValue},\n");
+                    sb.Append("\"characterTypes\": [\n");
+                    sb.Append("\"lowerCase\",\n");
+                    sb.Append("\"upperCase\",\n");
+                    sb.Append("\"number\",\n");
+                    sb.Append("\"symbol\",\n");
+                    sb.Append("]\n");
+                    break;
+                case InnerErrorType.InvalidPageSizeParameter:
+                    sb.Append($"\"minValue\": {minValue},\n");
+                    sb.Append($"\"maxValue\": {maxValue},\n");
+                    sb.Append("\"valueTypes\": [\n");
+                    sb.Append("\"integer\",\n");
+                    sb.Append("]\n");
+                    break;
+                case InnerErrorType.InvalidPageNumberParameter:
+                    sb.Append($"\"minValue\": {minValue},\n");
+                    sb.Append($"\"maxValue\": {maxValue},\n");
+                    sb.Append("\"valueTypes\": [\n");
+                    sb.Append("\"integer\",\n");
+                    sb.Append("]\n");
+                    break;
+                case InnerErrorType.InvalidGenreParameter:
+                    sb.Append($"\"minLength\": {minValue},\n");
+                    sb.Append($"\"maxLength\": {maxValue},\n");
+                    sb.Append("\"valueTypes\": [\n");
+                    sb.Append("\"integer\",\n");
+                    sb.Append("]\n");
+                    break;
+                case InnerErrorType.InvalidYearParameter:
+                    sb.Append($"\"minValue\": {minValue},\n");
+                    sb.Append($"\"maxValue\": {maxValue},\n");
+                    sb.Append("\"valueTypes\": [\n");
+                    sb.Append("\"integer\",\n");
+                    sb.Append("]\n");
+                    break;
+                case InnerErrorType.InvalidRatingParameter:
+                    sb.Append($"\"minValue\": {minValue},\n");
+                    sb.Append($"\"maxValue\": {maxValue},\n");
+                    sb.Append("\"valueTypes\": [\n");
+                    sb.Append("\"double\",\n");
+                    sb.Append("]\n");
+                    break;
+                case InnerErrorType.InvalidActorIDParameter:
+                    break;
+                case InnerErrorType.InvalidMovieIDParameter:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(innerErrorType), innerErrorType, null);
+            }
+
+            sb.Append("}\n");
+            sb.Append("}\n");
+            sb.Append("}");
+
+            return new ContentResult()
+            {
+                StatusCode = (int)statusCode,
+                ContentType = "application/json",
+                Content = sb.ToString()
             };
         }
     }
