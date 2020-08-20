@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using System;
+using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Security;
@@ -37,68 +38,64 @@ namespace Helium.ErrorHandler
 
         public string Code { get; }
 
-        public string MaxLength { get; }
+        public object MaxLength { get; }
 
-        public string MinLength { get; }
+        public object MinLength { get; }
 
-        [JsonPropertyName("maxValue")]
-        public int MaxIntValue { get; }
+        public object MaxValue { get; }
 
-        [JsonPropertyName("minValue")]
-        public int MinIntValue { get; }
+        public object MinValue { get; }
 
-        [JsonPropertyName("maxValue")]
-        public double MaxDoubleValue { get; }
-
-        [JsonPropertyName("minValue")]
-        public double MinDoubleValue { get; }
-
-        public InnerError(InnerErrorType innerErrorType)
+        public InnerError(InnerErrorType innerErrorType, object minValue, object maxValue)
         {
             switch(innerErrorType)
             {
                 case InnerErrorType.SearchParameter:
                     CharacterTypes = new List<string> { "lowerCase", "upperCase", "number", "symbol" };
                     Code = "InvalidSearchParameter";
-                    MinLength = "2";
-                    MaxLength = "20";
+                    MinLength = minValue;
+                    MaxLength = maxValue;
                     break;
                 case InnerErrorType.PageSizeParameter:
                     ValueTypes = new List<string> { "integer" };
                     Code = "InvalidPageSizeParameter";
-                    MaxIntValue = 1000;
-                    MinIntValue = 1;
+                    MaxValue = maxValue;
+                    MinValue = minValue;
                     break;
                 case InnerErrorType.PageNumberParameter:
                     ValueTypes = new List<string> { "integer" };
                     Code = "InvalidPageNumberParameter";
-                    MaxIntValue = 10000;
-                    MinIntValue = 1;
+                    MaxValue = maxValue;
+                    MinValue = minValue;
                     break;
-                case InnerErrorType.ActorIdParameter:
-                    Code = "InvalidActorIDParameter";
-                    break;
+
                 case InnerErrorType.GenreParameter:
-                    ValueTypes = new List<string> { "string" };
+                    ValueTypes = new List<string> { "integer" };
                     Code = "InvalidGenreParameter";
-                    MinLength = "3";
-                    MaxLength = "20";
+                    MinLength = minValue;
+                    MaxLength = maxValue;
                     break;
                 case InnerErrorType.YearParameter:
                     ValueTypes = new List<string> { "integer" };
                     Code = "InvalidYearParameter";
-                    MinIntValue = 1984;
-                    MaxIntValue = 2025;
+                    MaxValue = maxValue;
+                    MinValue = minValue;
                     break;
                 case InnerErrorType.RatingParameter:
-                    ValueTypes = new List<string> { "integer" };
+                    ValueTypes = new List<string> { "double" };
                     Code = "InvalidRatingParameter";
-                    MinDoubleValue = 0;
-                    MaxDoubleValue = 10;
+                    MaxValue = maxValue;
+                    MinValue = minValue;
+                    break;
+                case InnerErrorType.ActorIdParameter:
+                    Code = "InvalidActorIDParameter";
                     break;
                 case InnerErrorType.MovieIdParameter:
                     Code = "InvalidMovieIDParameter";
                     break;
+
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(innerErrorType), innerErrorType, null);
             }
         }
     }
