@@ -2,6 +2,7 @@ name: Docker Image Build
 
 on:
   pull_request:
+    types: [opened, reopened, closed]
     branches:
       - master
 
@@ -46,6 +47,18 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+
+    - name: PR Closed
+      if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' }}
+
+      run: |
+        # handle PR Closed event by building / pushing main branch
+        
+        # checkout parent branch (usually "main")
+        git config pull.ff only
+        git fetch --all
+        git checkout ${{ github.base_ref }}
+        git pull
 
     - name: Set conditions
       run: |
