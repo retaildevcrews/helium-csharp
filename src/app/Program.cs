@@ -58,7 +58,6 @@ namespace CSE.Helium
             if (ctCancel != null)
             {
                 ctCancel.Cancel(false);
-                host.StopAsync();
             }
         }
 
@@ -70,7 +69,7 @@ namespace CSE.Helium
         {
             CancellationTokenSource ctCancel = new CancellationTokenSource();
 
-            Console.CancelKeyPress += delegate (object sender, ConsoleCancelEventArgs e)
+            Console.CancelKeyPress += async delegate (object sender, ConsoleCancelEventArgs e)
             {
                 e.Cancel = true;
                 ctCancel.Cancel();
@@ -79,7 +78,7 @@ namespace CSE.Helium
 
                 // trigger graceful shutdown for the webhost
                 // force shutdown after timeout, defined in UseShutdownTimeout within BuildHost() method
-                host.StopAsync();
+                await host.StopAsync().ConfigureAwait(false);
             };
 
             return ctCancel;
@@ -169,7 +168,7 @@ namespace CSE.Helium
                 .UseKestrel()
                 .UseUrls(string.Format(System.Globalization.CultureInfo.InvariantCulture, $"http://*:{Constants.Port}/"))
                 .UseStartup<Startup>()
-                .UseShutdownTimeout(TimeSpan.FromSeconds(10))
+                .UseShutdownTimeout(TimeSpan.FromSeconds(Constants.GracefulShutdownTimeout))
                 .ConfigureServices(services =>
                 {
                     // add the data access layer via DI
