@@ -44,7 +44,7 @@ namespace CSE.Helium.DataAccessLayer
         /// <param name="offset">zero based offset for paging</param>
         /// <param name="limit">number of documents for paging</param>
         /// <returns>List of Actors or an empty list</returns>
-        public async Task<IEnumerable<Actor>> GetActorsAsync(string q, int offset = 0, int limit = Constants.DefaultPageSize)
+        public async Task<IEnumerable<Actor>> GetActorsAsync(string q, int? offset = 0, int? limit = Constants.DefaultPageSize)
         {
 
             string sql = actorSelect;

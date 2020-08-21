@@ -1,9 +1,12 @@
-﻿using CSE.Helium.DataAccessLayer;
+﻿using System;
+using CSE.Helium.DataAccessLayer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Globalization;
 using System.Threading.Tasks;
 using CSE.Helium.Interfaces;
+using CSE.Helium.Validation;
+using Helium.Model;
 
 namespace CSE.Helium.Controllers
 {
@@ -38,21 +41,26 @@ namespace CSE.Helium.Controllers
         /// <param name="pageSize">page size (1000 max)</param>
         /// <response code="200">JSON array of Actor objects or empty array if not found</response>
         [HttpGet]
-        public async Task<IActionResult> GetActorsAsync([FromQuery] string q, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = Constants.DefaultPageSize)
+        public async Task<IActionResult> GetActorsAsync([FromQuery]ActorQueryParameters queryParameters)
         {
-            string method = GetMethodText(q, pageNumber, pageSize);
+            _ = queryParameters ?? throw new ArgumentNullException(nameof(queryParameters));
+
+            string method = GetMethodText(queryParameters.Q, queryParameters.PageNumber, queryParameters.PageSize);
+
+            if (!ModelState.IsValid)
+                return ValidationProcessor.GetAndLogInvalidSearchParameter(method, logger);
 
             // validate query string parameters
-            var result = parameterValidator.ValidateCommonParameters(HttpContext?.Request?.Query, q, pageNumber, pageSize, method, logger);
-            if (result != null)
-            {
-                return result;
-            }
+            //var result = parameterValidator.ValidateCommonParameters(HttpContext?.Request?.Query, queryParameters.Q, queryParameters.PageNumber, queryParameters.PageSize, method, logger);
+            //if (result != null)
+            //{
+            //    return result;
+            //}
 
             // convert to zero based index
-            pageNumber = pageNumber > 1 ? pageNumber - 1 : 0;
+            queryParameters.PageNumber = queryParameters.PageNumber > 1 ? queryParameters.PageNumber - 1 : 0;
 
-            return await ResultHandler.Handle(dal.GetActorsAsync(q, pageNumber * pageSize, pageSize), method, Constants.ActorsControllerException, logger).ConfigureAwait(false);
+            return await ResultHandler.Handle(dal.GetActorsAsync(queryParameters.Q, queryParameters.PageNumber * queryParameters.PageSize, queryParameters.PageSize), method, Constants.ActorsControllerException, logger).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -83,7 +91,7 @@ namespace CSE.Helium.Controllers
         /// <param name="pageNumber"></param>
         /// <param name="pageSize"></param>
         /// <returns></returns>
-        private string GetMethodText(string q, int pageNumber, int pageSize)
+        private string GetMethodText(string q, int? pageNumber, int? pageSize)
         {
             string method = "GetActorsAsync";
 
