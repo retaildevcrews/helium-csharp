@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Net;
 using System.Text;
-using Helium.Enumerations;
+using CSE.Helium.Enumerations;
 
 namespace CSE.Helium.Controllers
 {
@@ -289,7 +289,7 @@ namespace CSE.Helium.Controllers
         }
 
         /// <summary>
-        /// 
+        /// creates JSON response using StringBuilder given inputs
         /// </summary>
         /// <param name="statusCode"></param>
         /// <param name="errorCode"></param>

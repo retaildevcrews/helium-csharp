@@ -1,4 +1,4 @@
-﻿namespace Helium.Enumerations
+﻿namespace CSE.Helium.Enumerations
 {
     public enum InnerErrorType
     {
