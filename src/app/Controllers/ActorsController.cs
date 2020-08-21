@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Globalization;
 using System.Threading.Tasks;
+using CSE.Helium.Interfaces;
 
 namespace CSE.Helium.Controllers
 {
@@ -14,17 +15,19 @@ namespace CSE.Helium.Controllers
     {
         private readonly ILogger logger;
         private readonly IDAL dal;
+        private readonly IParameterValidator parameterValidator;
 
         /// <summary>
         ///  Constructor
         /// </summary>
         /// <param name="logger">log instance</param>
         /// <param name="dal">data access layer instance</param>
-        public ActorsController(ILogger<ActorsController> logger, IDAL dal)
+        public ActorsController(ILogger<ActorsController> logger, IDAL dal, IParameterValidator parameterValidator)
         {
             // save to local for use in handlers
             this.logger = logger;
             this.dal = dal;
+            this.parameterValidator = parameterValidator;
         }
 
         /// <summary>
@@ -40,7 +43,7 @@ namespace CSE.Helium.Controllers
             string method = GetMethodText(q, pageNumber, pageSize);
 
             // validate query string parameters
-            var result = ParameterValidator.Common(HttpContext?.Request?.Query, q, pageNumber, pageSize, method, logger);
+            var result = parameterValidator.ValidateCommonParameters(HttpContext?.Request?.Query, q, pageNumber, pageSize, method, logger);
             if (result != null)
             {
                 return result;
@@ -63,7 +66,7 @@ namespace CSE.Helium.Controllers
             string method = "GetActorByIdAsync " + actorId;
 
             // validate actorId
-            var result = ParameterValidator.ActorId(actorId, method, logger);
+            var result = parameterValidator.ValidateActorId(actorId, method, logger);
             if (result != null)
             {
                 return result;

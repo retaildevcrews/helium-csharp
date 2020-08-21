@@ -7,6 +7,8 @@ using Microsoft.Extensions.Logging;
 using Middleware;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using CSE.Helium.Interfaces;
+using CSE.Helium.Validation;
 
 namespace CSE.Helium
 {
@@ -53,6 +55,9 @@ namespace CSE.Helium
             {
                 services.AddApplicationInsightsTelemetry(appInsightsKey);
             }
+
+            // add parameter validation
+            services.AddSingleton<IParameterValidator, ParameterValidator>();
         }
 
         /// <summary>

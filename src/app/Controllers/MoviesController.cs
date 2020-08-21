@@ -1,5 +1,5 @@
 ﻿using CSE.Helium.DataAccessLayer;
-using Microsoft.AspNetCore.Http;
+using CSE.Helium.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Globalization;
@@ -15,16 +15,18 @@ namespace CSE.Helium.Controllers
     {
         private readonly ILogger logger;
         private readonly IDAL dal;
+        private readonly IParameterValidator parameterValidator;
 
         /// <summary>
         ///  Constructor
         /// </summary>
         /// <param name="logger">log instance</param>
         /// <param name="dal">data access layer instance</param>
-        public MoviesController(ILogger<MoviesController> logger, IDAL dal)
+        public MoviesController(ILogger<MoviesController> logger, IDAL dal, IParameterValidator parameterValidator)
         {
             this.logger = logger;
             this.dal = dal;
+            this.parameterValidator = parameterValidator;
         }
 
         /// <summary>
@@ -43,10 +45,10 @@ namespace CSE.Helium.Controllers
             string method = GetMethodText(q, genre, year, rating, actorId, pageNumber, pageSize);
 
             // validate query string parameters
-            var result = ParameterValidator.Movies(HttpContext?.Request?.Query, q, genre, year, rating, actorId, pageNumber, pageSize, method, logger);
-            if (result != null)
+            var validationResult = parameterValidator.ValidateMovieParameters(HttpContext?.Request?.Query, q, genre, year, rating, actorId, pageNumber, pageSize, method, logger);
+            if (validationResult != null)
             {
-                return result;
+                return validationResult;
             }
 
             // convert to zero based page index
@@ -66,7 +68,7 @@ namespace CSE.Helium.Controllers
             string method = "GetMovieByIdAsync " + movieId;
 
             // validate movieId
-            var result = ParameterValidator.MovieId(movieId, method, logger);
+            var result = parameterValidator.ValidateMovieId(movieId, method, logger);
             if (result != null)
             {
                 return result;
