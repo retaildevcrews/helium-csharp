@@ -41,47 +41,45 @@ namespace CSE.Helium.Controllers
         /// <param name="pageSize">page size (1000 max)</param>
         /// <response code="200">JSON array of Actor objects or empty array if not found</response>
         [HttpGet]
-        public async Task<IActionResult> GetActorsAsync([FromQuery]ActorQueryParameters queryParameters)
+        public async Task<IActionResult> GetActorsAsync([FromQuery]ActorQueryParameters actorQueryParameters)
         {
-            _ = queryParameters ?? throw new ArgumentNullException(nameof(queryParameters));
+            _ = actorQueryParameters ?? throw new ArgumentNullException(nameof(actorQueryParameters));
 
-            string method = GetMethodText(queryParameters.Q, queryParameters.PageNumber, queryParameters.PageSize);
+            string method = GetMethodText(actorQueryParameters.Q, actorQueryParameters.PageNumber, actorQueryParameters.PageSize);
 
             if (!ModelState.IsValid)
                 return ValidationProcessor.GetAndLogInvalidSearchParameter(method, logger);
 
-            // validate query string parameters
-            //var result = parameterValidator.ValidateCommonParameters(HttpContext?.Request?.Query, queryParameters.Q, queryParameters.PageNumber, queryParameters.PageSize, method, logger);
-            //if (result != null)
-            //{
-            //    return result;
-            //}
-
             // convert to zero based index
-            queryParameters.PageNumber = queryParameters.PageNumber > 1 ? queryParameters.PageNumber - 1 : 0;
+            actorQueryParameters.PageNumber = actorQueryParameters.PageNumber > 1 ? actorQueryParameters.PageNumber - 1 : 0;
 
-            return await ResultHandler.Handle(dal.GetActorsAsync(queryParameters.Q, queryParameters.PageNumber * queryParameters.PageSize, queryParameters.PageSize), method, Constants.ActorsControllerException, logger).ConfigureAwait(false);
+            return await ResultHandler.Handle(dal.GetActorsAsync(actorQueryParameters.Q, actorQueryParameters.PageNumber * actorQueryParameters.PageSize, actorQueryParameters.PageSize), method, Constants.ActorsControllerException, logger).ConfigureAwait(false);
         }
 
         /// <summary>
         /// Returns a single JSON Actor by actorId
         /// </summary>
-        /// <param name="actorId">The actorId</param>
+        /// <param name="actorIdParameter">The actorId</param>
         /// <response code="404">actorId not found</response>
-        [HttpGet("{actorId}")]
-        public async Task<IActionResult> GetActorByIdAsync(string actorId)
+        [HttpGet("/api/actors/{ActorIdParameter}")]
+        public async Task<IActionResult> GetActorByIdAsync([FromRoute]ActorIdParameter actorIdParameter)
         {
-            string method = "GetActorByIdAsync " + actorId;
+            _ = actorIdParameter ?? throw new ArgumentNullException(nameof(actorIdParameter));
+            
+            string method = "GetActorByIdAsync " + actorIdParameter;
 
-            // validate actorId
-            var result = parameterValidator.ValidateActorId(actorId, method, logger);
-            if (result != null)
-            {
-                return result;
-            }
+            if (!ModelState.IsValid)
+                return ValidationProcessor.GetAndLogInvalidActorIdParameter(method, logger);
+
+            //// validate actorId
+            //var result = parameterValidator.ValidateActorId(actorId, method, logger);
+            //if (result != null)
+            //{
+            //    return result;
+            //}
 
             // return result
-            return await ResultHandler.Handle(dal.GetActorAsync(actorId), method, "Actor Not Found", logger).ConfigureAwait(false);
+            return await ResultHandler.Handle(dal.GetActorAsync(actorIdParameter.ActorId), method, "Actor Not Found", logger).ConfigureAwait(false);
         }
 
         /// <summary>

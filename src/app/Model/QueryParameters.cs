@@ -4,11 +4,11 @@ namespace Helium.Model
 {
     public abstract class QueryParameters
     {
-        [Range(minimum:1, maximum:10000, ErrorMessage = "Invalid PageNumber parameter")]
-        public int? PageNumber { get; set; }
+        [Range(minimum: 1, maximum: 10000)]
+        public int PageNumber { get; set; } = 1;
 
-        [Range(minimum:1, maximum:1000, ErrorMessage = "Invalid PageSize parameter")]
-        public int? PageSize { get; set; }
+        [Range(minimum: 1, maximum: 1000)]
+        public int PageSize { get; set; } = 100;
     }
 
     public sealed class MovieQueryParameters : QueryParameters
@@ -18,7 +18,14 @@ namespace Helium.Model
 
     public sealed class ActorQueryParameters : QueryParameters
     {
-        [StringLength(maximumLength: 20, MinimumLength = 2, ErrorMessage = "Invalid q (search) parameter")]
+        [StringLength(maximumLength: 20, MinimumLength = 2)]
         public string Q { get; set; }
+    }
+
+    public sealed class ActorIdParameter
+    {
+        [Required]
+        [RegularExpression(@"^.*nm(\d{5}|\d{7})$")]
+        public string ActorId { get; set; }
     }
 }

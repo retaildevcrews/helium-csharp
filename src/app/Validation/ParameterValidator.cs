@@ -142,8 +142,8 @@ namespace CSE.Helium.Validation
         {
             // validate actorId
             if (actorId == null ||
-                actorId.Length < 7 ||
-                actorId.Length > 11 ||
+                actorId.Length < 5 ||
+                actorId.Length > 7 ||
                 actorId.Substring(0, 2) != "nm" ||
                 !int.TryParse(actorId.Substring(2), out int val) ||
                 val <= 0)

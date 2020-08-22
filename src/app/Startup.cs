@@ -36,10 +36,7 @@ namespace CSE.Helium
         public void ConfigureServices(IServiceCollection services)
         {
             // set json serialization defaults
-            services.AddControllers(c =>
-            {
-                c.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
-            }).AddJsonOptions(options =>
+            services.AddControllers().AddJsonOptions(options =>
             {
                 options.JsonSerializerOptions.IgnoreNullValues = true;
                 options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;

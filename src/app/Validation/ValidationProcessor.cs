@@ -143,11 +143,11 @@ namespace CSE.Helium.Validation
             sb.Append($"\"statusCode\": {(int)statusCode},\n");
             sb.Append($"\"target\": \"{target}\",\n");
             sb.Append("\"innererror\": {\n");
-            sb.Append($"\"code\": \"{innerErrorType}\",\n");
 
             switch (innerErrorType)
             {
                 case InnerErrorType.InvalidSearchParameter:
+                    sb.Append($"\"code\": \"{innerErrorType}\",\n");
                     sb.Append($"\"minLength\": {minValue},\n");
                     sb.Append($"\"maxLength\": {maxValue},\n");
                     sb.Append("\"characterTypes\": [\n");
@@ -158,6 +158,7 @@ namespace CSE.Helium.Validation
                     sb.Append("]\n");
                     break;
                 case InnerErrorType.InvalidPageSizeParameter:
+                    sb.Append($"\"code\": \"{innerErrorType}\",\n");
                     sb.Append($"\"minValue\": {minValue},\n");
                     sb.Append($"\"maxValue\": {maxValue},\n");
                     sb.Append("\"valueTypes\": [\n");
@@ -165,6 +166,7 @@ namespace CSE.Helium.Validation
                     sb.Append("]\n");
                     break;
                 case InnerErrorType.InvalidPageNumberParameter:
+                    sb.Append($"\"code\": \"{innerErrorType}\",\n");
                     sb.Append($"\"minValue\": {minValue},\n");
                     sb.Append($"\"maxValue\": {maxValue},\n");
                     sb.Append("\"valueTypes\": [\n");
@@ -172,6 +174,7 @@ namespace CSE.Helium.Validation
                     sb.Append("]\n");
                     break;
                 case InnerErrorType.InvalidGenreParameter:
+                    sb.Append($"\"code\": \"{innerErrorType}\",\n");
                     sb.Append($"\"minLength\": {minValue},\n");
                     sb.Append($"\"maxLength\": {maxValue},\n");
                     sb.Append("\"valueTypes\": [\n");
@@ -179,6 +182,7 @@ namespace CSE.Helium.Validation
                     sb.Append("]\n");
                     break;
                 case InnerErrorType.InvalidYearParameter:
+                    sb.Append($"\"code\": \"{innerErrorType}\",\n");
                     sb.Append($"\"minValue\": {minValue},\n");
                     sb.Append($"\"maxValue\": {maxValue},\n");
                     sb.Append("\"valueTypes\": [\n");
@@ -186,6 +190,7 @@ namespace CSE.Helium.Validation
                     sb.Append("]\n");
                     break;
                 case InnerErrorType.InvalidRatingParameter:
+                    sb.Append($"\"code\": \"{innerErrorType}\",\n");
                     sb.Append($"\"minValue\": {minValue},\n");
                     sb.Append($"\"maxValue\": {maxValue},\n");
                     sb.Append("\"valueTypes\": [\n");
@@ -193,8 +198,10 @@ namespace CSE.Helium.Validation
                     sb.Append("]\n");
                     break;
                 case InnerErrorType.InvalidActorIDParameter:
+                    sb.Append($"\"code\": \"{innerErrorType}\"\n");
                     break;
                 case InnerErrorType.InvalidMovieIDParameter:
+                    sb.Append($"\"code\": \"{innerErrorType}\"\n");
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(innerErrorType), innerErrorType, null);
