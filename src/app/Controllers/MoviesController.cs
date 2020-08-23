@@ -1,9 +1,12 @@
-﻿using CSE.Helium.DataAccessLayer;
+﻿using System;
+using CSE.Helium.DataAccessLayer;
 using CSE.Helium.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Globalization;
 using System.Threading.Tasks;
+using CSE.Helium.Model;
+using CSE.Helium.Validation;
 
 namespace CSE.Helium.Controllers
 {
@@ -11,6 +14,7 @@ namespace CSE.Helium.Controllers
     /// Handle all of the /api/movies requests
     /// </summary>
     [Route("api/[controller]")]
+    [ApiController]
     public class MoviesController : Controller
     {
         private readonly ILogger logger;
@@ -32,29 +36,38 @@ namespace CSE.Helium.Controllers
         /// <summary>
         /// Returns a JSON array of Movie objects
         /// </summary>
-        /// <param name="q">(optional) The term used to search by movie title (rings)</param>
-        /// <param name="genre">(optional) Movies of a genre (Action)</param>
-        /// <param name="year">(optional) Get movies by year (2005)</param>
-        /// <param name="rating">(optional) Get movies with a rating >= rating (8.5)</param>
-        /// <param name="actorId">(optional) Get movies by Actor Id (nm0000704)</param>
-        /// <param name="pageNumber">1 based page index</param>
-        /// <param name="pageSize">page size (1000 max)</param>
+        /// <param name="movieQueryParameters"></param>
+        /// <returns></returns>
         [HttpGet]
-        public async Task<IActionResult> GetMoviesAsync([FromQuery] string q = null, [FromQuery] string genre = null, [FromQuery] int year = 0, [FromQuery] double rating = 0, [FromQuery] string actorId = null, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = Constants.DefaultPageSize)
-        {
-            string method = GetMethodText(q, genre, year, rating, actorId, pageNumber, pageSize);
+        public async Task<IActionResult> GetMoviesAsync([FromQuery]MovieQueryParameters movieQueryParameters)
 
-            // validate query string parameters
-            var validationResult = parameterValidator.ValidateMovieParameters(HttpContext?.Request?.Query, q, genre, year, rating, actorId, pageNumber, pageSize, method, logger);
-            if (validationResult != null)
-            {
-                return validationResult;
-            }
+        {
+            _ = movieQueryParameters ?? throw new ArgumentNullException(nameof(movieQueryParameters));
+
+            string method = GetMethodText(
+                movieQueryParameters.Q,
+                movieQueryParameters.Genre,
+                movieQueryParameters.Year,
+                movieQueryParameters.Rating,
+                movieQueryParameters.ActorId,
+                movieQueryParameters.PageNumber,
+                movieQueryParameters.PageSize);
 
             // convert to zero based page index
-            pageNumber = pageNumber > 1 ? pageNumber - 1 : 0;
+            movieQueryParameters.PageNumber = movieQueryParameters.PageNumber > 1 ? movieQueryParameters.PageNumber - 1 : 0;
 
-            return await ResultHandler.Handle(dal.GetMoviesAsync(q, genre, year, rating, actorId, pageNumber * pageSize, pageSize), method, Constants.MoviesControllerException, logger).ConfigureAwait(false);
+            return await ResultHandler.Handle(dal.GetMoviesAsync(
+                        movieQueryParameters.Q,
+                        movieQueryParameters.Genre,
+                        movieQueryParameters.Year,
+                        movieQueryParameters.Rating,
+                        movieQueryParameters.ActorId,
+                        movieQueryParameters.PageNumber * movieQueryParameters.PageSize,
+                        movieQueryParameters.PageSize),
+                    method,
+                    Constants.MoviesControllerException,
+                    logger)
+                .ConfigureAwait(false);
         }
 
         /// <summary>

@@ -25,7 +25,7 @@ namespace CSE.Helium.DataAccessLayer
         /// </summary>
         /// <param name="actorId">Actor ID</param>
         /// <returns>Actor object</returns>
-        public async System.Threading.Tasks.Task<Actor> GetActorAsync(string actorId)
+        public async Task<Actor> GetActorAsync(string actorId)
         {
             // get the partition key for the actor ID
             // note: if the key cannot be determined from the ID, ReadDocumentAsync cannot be used.

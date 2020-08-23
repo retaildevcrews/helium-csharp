@@ -6,7 +6,7 @@ using System.Globalization;
 using System.Threading.Tasks;
 using CSE.Helium.Interfaces;
 using CSE.Helium.Validation;
-using Helium.Model;
+using CSE.Helium.Model;
 
 namespace CSE.Helium.Controllers
 {
@@ -34,7 +34,7 @@ namespace CSE.Helium.Controllers
         }
 
         /// <summary>
-        /// Returns a JSON array of Actor objects
+        /// Returns a JSON array of Actor objects based on query parameters
         /// </summary>
         /// <param name="q">(optional) The term used to search Actor name</param>
         /// <param name="pageNumber">1 based page index</param>
@@ -61,22 +61,16 @@ namespace CSE.Helium.Controllers
         /// </summary>
         /// <param name="actorIdParameter">The actorId</param>
         /// <response code="404">actorId not found</response>
-        [HttpGet("/api/actors/{ActorIdParameter}")]
+        [HttpGet("{actorId}")]
         public async Task<IActionResult> GetActorByIdAsync([FromRoute]ActorIdParameter actorIdParameter)
         {
             _ = actorIdParameter ?? throw new ArgumentNullException(nameof(actorIdParameter));
             
-            string method = "GetActorByIdAsync " + actorIdParameter;
+            string method = "GetActorByIdAsync " + actorIdParameter.ActorId;
 
+            // validation result
             if (!ModelState.IsValid)
                 return ValidationProcessor.GetAndLogInvalidActorIdParameter(method, logger);
-
-            //// validate actorId
-            //var result = parameterValidator.ValidateActorId(actorId, method, logger);
-            //if (result != null)
-            //{
-            //    return result;
-            //}
 
             // return result
             return await ResultHandler.Handle(dal.GetActorAsync(actorIdParameter.ActorId), method, "Actor Not Found", logger).ConfigureAwait(false);
@@ -89,7 +83,7 @@ namespace CSE.Helium.Controllers
         /// <param name="pageNumber"></param>
         /// <param name="pageSize"></param>
         /// <returns></returns>
-        private string GetMethodText(string q, int? pageNumber, int? pageSize)
+        private string GetMethodText(string q, int pageNumber, int pageSize)
         {
             string method = "GetActorsAsync";
 

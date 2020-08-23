@@ -1,11 +1,8 @@
-﻿using System;
-using System.Net;
-using System.Text;
-using CSE.Helium.Enumerations;
-using CSE.Helium.Interfaces;
+﻿using CSE.Helium.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
 
 namespace CSE.Helium.Validation
 {
@@ -141,12 +138,7 @@ namespace CSE.Helium.Validation
         public IActionResult ValidateActorId(string actorId, string method, ILogger logger)
         {
             // validate actorId
-            if (actorId == null ||
-                actorId.Length < 5 ||
-                actorId.Length > 7 ||
-                actorId.Substring(0, 2) != "nm" ||
-                !int.TryParse(actorId.Substring(2), out int val) ||
-                val <= 0)
+            if (actorId == null || actorId.Length < 5 || actorId.Length > 7 || actorId.Substring(0, 2) != "nm" || !int.TryParse(actorId.Substring(2), out int val) || val <= 0)
             {
                 return ValidationProcessor.GetAndLogInvalidActorIdParameter(method, logger);
             }

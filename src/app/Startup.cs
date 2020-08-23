@@ -1,3 +1,5 @@
+using CSE.Helium.Interfaces;
+using CSE.Helium.Validation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -7,8 +9,6 @@ using Microsoft.Extensions.Logging;
 using Middleware;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using CSE.Helium.Interfaces;
-using CSE.Helium.Validation;
 
 namespace CSE.Helium
 {
@@ -36,14 +36,19 @@ namespace CSE.Helium
         public void ConfigureServices(IServiceCollection services)
         {
             // set json serialization defaults
-            services.AddControllers().AddJsonOptions(options =>
-            {
-                options.JsonSerializerOptions.IgnoreNullValues = true;
-                options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-                options.JsonSerializerOptions.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
-                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-                options.JsonSerializerOptions.Converters.Add(new TimeSpanConverter());
-            });
+            services.AddControllers()
+                .ConfigureApiBehaviorOptions(o =>
+                {
+                    o.InvalidModelStateResponseFactory = ctx => new ValidationProblemDetailsResult(services);
+                })
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.IgnoreNullValues = true;
+                    options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+                    options.JsonSerializerOptions.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
+                    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                    options.JsonSerializerOptions.Converters.Add(new TimeSpanConverter());
+                });
 
             // add healthcheck service
             services.AddHealthChecks().AddCosmosHealthCheck(CosmosHealthCheck.ServiceId);

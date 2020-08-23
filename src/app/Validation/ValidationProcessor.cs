@@ -2,8 +2,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Linq;
 using System.Net;
 using System.Text;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace CSE.Helium.Validation
 {
@@ -119,6 +121,17 @@ namespace CSE.Helium.Validation
 
             return BuildJsonResponse(HttpStatusCode.BadRequest, "BadArgument", "Invalid Movie ID parameter", "movieId",
                 InnerErrorType.InvalidMovieIDParameter, null, null);
+        }
+
+        internal static string ProcessBadParameter(ModelStateDictionary modelState, ILogger logger)
+        {
+            // extract error message from model
+            var message = modelState.Select(
+                x => x.Value.Errors.FirstOrDefault()).FirstOrDefault();
+
+            logger.LogWarning($"InvalidParameter|{message.ErrorMessage}");
+
+            return "BadParameter";
         }
 
         /// <summary>
