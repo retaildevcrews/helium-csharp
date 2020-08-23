@@ -4,8 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Globalization;
 using System.Threading.Tasks;
-using CSE.Helium.Interfaces;
-using CSE.Helium.Validation;
 using CSE.Helium.Model;
 
 namespace CSE.Helium.Controllers
@@ -14,41 +12,34 @@ namespace CSE.Helium.Controllers
     /// Handle all of the /api/actors requests
     /// </summary>
     [Route("api/[controller]")]
+    [ApiController]
     public class ActorsController : Controller
     {
         private readonly ILogger logger;
         private readonly IDAL dal;
-        private readonly IParameterValidator parameterValidator;
-
+        
         /// <summary>
         ///  Constructor
         /// </summary>
         /// <param name="logger">log instance</param>
         /// <param name="dal">data access layer instance</param>
-        public ActorsController(ILogger<ActorsController> logger, IDAL dal, IParameterValidator parameterValidator)
+        public ActorsController(ILogger<ActorsController> logger, IDAL dal)
         {
             // save to local for use in handlers
             this.logger = logger;
             this.dal = dal;
-            this.parameterValidator = parameterValidator;
         }
 
         /// <summary>
         /// Returns a JSON array of Actor objects based on query parameters
         /// </summary>
-        /// <param name="q">(optional) The term used to search Actor name</param>
-        /// <param name="pageNumber">1 based page index</param>
-        /// <param name="pageSize">page size (1000 max)</param>
-        /// <response code="200">JSON array of Actor objects or empty array if not found</response>
+        /// <param name="actorQueryParameters"></param>
         [HttpGet]
         public async Task<IActionResult> GetActorsAsync([FromQuery]ActorQueryParameters actorQueryParameters)
         {
             _ = actorQueryParameters ?? throw new ArgumentNullException(nameof(actorQueryParameters));
 
             string method = GetMethodText(actorQueryParameters.Q, actorQueryParameters.PageNumber, actorQueryParameters.PageSize);
-
-            if (!ModelState.IsValid)
-                return ValidationProcessor.GetAndLogInvalidSearchParameter(method, logger);
 
             // convert to zero based index
             actorQueryParameters.PageNumber = actorQueryParameters.PageNumber > 1 ? actorQueryParameters.PageNumber - 1 : 0;
@@ -67,10 +58,6 @@ namespace CSE.Helium.Controllers
             _ = actorIdParameter ?? throw new ArgumentNullException(nameof(actorIdParameter));
             
             string method = "GetActorByIdAsync " + actorIdParameter.ActorId;
-
-            // validation result
-            if (!ModelState.IsValid)
-                return ValidationProcessor.GetAndLogInvalidActorIdParameter(method, logger);
 
             // return result
             return await ResultHandler.Handle(dal.GetActorAsync(actorIdParameter.ActorId), method, "Actor Not Found", logger).ConfigureAwait(false);

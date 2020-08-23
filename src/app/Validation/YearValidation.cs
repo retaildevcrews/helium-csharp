@@ -10,22 +10,13 @@ namespace CSE.Helium.Validation
         private readonly int startYear = 1874;
         private readonly int endYear = DateTime.UtcNow.AddYears(5).Year;
 
-        public YearValidation(string errorMessage) : base(errorMessage)
-        {
-            ErrorMessage = errorMessage;
-        }
-        
+        public YearValidation(string errorMessage) : base(errorMessage) => ErrorMessage = errorMessage;
+
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
-            var year = (int)value;
-            bool isValid = year >= startYear || year >= endYear || year == defaultYear;
+            var isValid = (int)value >= startYear || (int)value >= endYear || (int)value == defaultYear;
 
-            if (!isValid)
-            {
-                return new ValidationResult(ErrorMessage);
-            }
-
-            return ValidationResult.Success;
+            return !isValid ? new ValidationResult(ErrorMessage) : ValidationResult.Success;
         }
     }
 }

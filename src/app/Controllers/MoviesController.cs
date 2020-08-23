@@ -1,12 +1,10 @@
-﻿using System;
-using CSE.Helium.DataAccessLayer;
-using CSE.Helium.Interfaces;
+﻿using CSE.Helium.DataAccessLayer;
+using CSE.Helium.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Globalization;
 using System.Threading.Tasks;
-using CSE.Helium.Model;
-using CSE.Helium.Validation;
 
 namespace CSE.Helium.Controllers
 {
@@ -19,25 +17,22 @@ namespace CSE.Helium.Controllers
     {
         private readonly ILogger logger;
         private readonly IDAL dal;
-        private readonly IParameterValidator parameterValidator;
 
         /// <summary>
         ///  Constructor
         /// </summary>
         /// <param name="logger">log instance</param>
         /// <param name="dal">data access layer instance</param>
-        public MoviesController(ILogger<MoviesController> logger, IDAL dal, IParameterValidator parameterValidator)
+        public MoviesController(ILogger<MoviesController> logger, IDAL dal)
         {
             this.logger = logger;
             this.dal = dal;
-            this.parameterValidator = parameterValidator;
         }
 
         /// <summary>
         /// Returns a JSON array of Movie objects
         /// </summary>
         /// <param name="movieQueryParameters"></param>
-        /// <returns></returns>
         [HttpGet]
         public async Task<IActionResult> GetMoviesAsync([FromQuery]MovieQueryParameters movieQueryParameters)
 
@@ -73,22 +68,17 @@ namespace CSE.Helium.Controllers
         /// <summary>
         /// Returns a single JSON Movie by movieId
         /// </summary>
-        /// <param name="movieId">The movieId</param>
-        /// <response code="404">movieId not found</response>
+        /// <param name="movieId"></param>
+        /// <returns></returns>
         [HttpGet("{movieId}")]
-        public async System.Threading.Tasks.Task<IActionResult> GetMovieByIdAsync(string movieId)
+        public async System.Threading.Tasks.Task<IActionResult> GetMovieByIdAsync(MovieIdParameter movieId)
         {
-            string method = "GetMovieByIdAsync " + movieId;
+            _ = movieId ?? throw new ArgumentNullException(nameof(movieId));
 
-            // validate movieId
-            var result = parameterValidator.ValidateMovieId(movieId, method, logger);
-            if (result != null)
-            {
-                return result;
-            }
+            string method = nameof(GetMovieByIdAsync) + movieId.MovieId;
 
             // get movie by movieId
-            return await ResultHandler.Handle(dal.GetMovieAsync(movieId), method, "Movie Not Found", logger).ConfigureAwait(false);
+            return await ResultHandler.Handle(dal.GetMovieAsync(movieId.MovieId), method, "Movie Not Found", logger).ConfigureAwait(false);
         }
 
         /// <summary>

@@ -1,4 +1,3 @@
-using CSE.Helium.Interfaces;
 using CSE.Helium.Validation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -61,8 +60,6 @@ namespace CSE.Helium
                 services.AddApplicationInsightsTelemetry(appInsightsKey);
             }
 
-            // add parameter validation
-            services.AddSingleton<IParameterValidator, ParameterValidator>();
         }
 
         /// <summary>

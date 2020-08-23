@@ -21,8 +21,9 @@ namespace CSE.Helium.Validation
         {
             _ = context ?? throw new ArgumentNullException(nameof(context));
 
+            context.HttpContext.Response.ContentType = "application/json";
             context.HttpContext.Response.WriteAsync(
-                ValidationProcessor.ProcessBadParameter(context.ModelState, logger));
+                ValidationProcessor.ProcessBadParameter(context, "Testing", logger));
 
             return Task.CompletedTask;
         }
