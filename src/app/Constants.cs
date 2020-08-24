@@ -35,6 +35,7 @@ namespace CSE.Helium
         public const int MaxPageSize = 1000;
 
         public const int HealthzCacheDuration = 60;
+        public const int GracefulShutdownTimeout = 10;
     }
     public enum AuthenticationType { MI, CLI, VS }
 }
