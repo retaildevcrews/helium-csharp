@@ -39,7 +39,10 @@ namespace CSE.Helium.Controllers
         {
             _ = actorQueryParameters ?? throw new ArgumentNullException(nameof(actorQueryParameters));
 
-            string method = GetMethodText(actorQueryParameters.Q, actorQueryParameters.PageNumber, actorQueryParameters.PageSize);
+            string method = GetMethodText(
+                actorQueryParameters.Q,
+                actorQueryParameters.PageNumber,
+                actorQueryParameters.PageSize);
 
             // convert to zero based index
             actorQueryParameters.PageNumber = actorQueryParameters.PageNumber > 1 ? actorQueryParameters.PageNumber - 1 : 0;

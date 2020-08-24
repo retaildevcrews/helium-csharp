@@ -34,7 +34,7 @@ namespace CSE.Helium.Validation
             // write and log details collection
             foreach (var state in modelStateEntries)
             {
-                logger.LogWarning($"InvalidParameter|{state.Value}");
+                logger.LogWarning($"InvalidParameter|{target}|{state.Value.Errors[0].ErrorMessage}");
                 sb.Append("{");
                 sb.Append(string.IsNullOrWhiteSpace(state.Value.AttemptedValue)
                     ? $"\"code\": \"{code}\",\n"

@@ -6,17 +6,21 @@ namespace CSE.Helium.Validation
     [AttributeUsage(AttributeTargets.Property)]
     public class YearValidation : ValidationAttribute
     {
-        private readonly int defaultYear = 0;
-        private readonly int startYear = 1874;
-        private readonly int endYear = DateTime.UtcNow.AddYears(5).Year;
+        private const int DefaultYear = 0;
+        private const int StartYear = 1874;
+        private static readonly int EndYear = DateTime.UtcNow.AddYears(5).Year;
+        private readonly string errorMessage = $"Year parameter should be between {StartYear} and {EndYear}";
 
-        public YearValidation(string errorMessage) : base(errorMessage) => ErrorMessage = errorMessage;
+        public YearValidation()
+        {
+            // required for unit test
+        }
 
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
-            var isValid = (int)value >= startYear || (int)value >= endYear || (int)value == defaultYear;
+            var isValid = (int)value >= StartYear || (int)value >= EndYear || (int)value == DefaultYear;
 
-            return !isValid ? new ValidationResult(ErrorMessage) : ValidationResult.Success;
+            return !isValid ? new ValidationResult(errorMessage) : ValidationResult.Success;
         }
     }
 }

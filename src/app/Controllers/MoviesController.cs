@@ -35,7 +35,6 @@ namespace CSE.Helium.Controllers
         /// <param name="movieQueryParameters"></param>
         [HttpGet]
         public async Task<IActionResult> GetMoviesAsync([FromQuery]MovieQueryParameters movieQueryParameters)
-
         {
             _ = movieQueryParameters ?? throw new ArgumentNullException(nameof(movieQueryParameters));
 
