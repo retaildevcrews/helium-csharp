@@ -7,29 +7,29 @@ assignees: ''
 
 ---
 
-# Comparison
+## Comparison
 
 |   Resource/Set-up/Behavior    |  Group1     |   Group2     | Group3 |
 | ------------- | ------------- | ------------- | ------------- |
-| **Header** | | | |
+| **Header**
 | Task1 | Y/N | Y/N | Y/N |
 | Task2 | Y/N | Y/N | Y/N |
 | Task3 | Y/N | Y/N | Y/N |
 | Task4 | Y/N | Y/N | Y/N |
 | | | | |
-| **Header** | | | |
+| **Header**
 | Task1 | Y/N | Y/N | Y/N |
 | Task2 | Y/N | Y/N | Y/N |
 | Task3 | Y/N | Y/N | Y/N |
 | Task4 | Y/N | Y/N | Y/N |
 | | | | |
-| **Header** | | | |
+| **Header**
 | Task1 | Y/N | Y/N | Y/N |
 | Task2 | Y/N | Y/N | Y/N |
 | Task3 | Y/N | Y/N | Y/N |
 | Task4 | Y/N | Y/N | Y/N |
 | | | | |
-| **Header** | | | |
+| **Header**
 | Task1 | Y/N | Y/N | Y/N |
 | Task2 | Y/N | Y/N | Y/N |
 | Task3 | Y/N | Y/N | Y/N |

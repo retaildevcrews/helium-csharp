@@ -4,7 +4,7 @@ on:
   pull_request:
     types: [opened, reopened, closed]
     branches:
-      - master
+      - main
 
     paths-ignore:
     - 'docs/**'
@@ -14,7 +14,7 @@ on:
 
   push:
     branches:
-      - master
+      - main
 
     paths-ignore:
     - 'docs/**'
@@ -48,18 +48,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: PR Closed
-      if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == false }}
-
-      run: |
-        # handle PR Closed event by building / pushing main branch
-        
-        # checkout parent branch (usually "main")
-        git config pull.ff only
-        git fetch --all
-        git checkout ${{ github.base_ref }}
-        git pull
-
     - name: Set conditions
       run: |
         # check that all Azure secrets are set
@@ -77,9 +65,33 @@ jobs:
         # check that all ACR secrets are set
         if [[ "${{ secrets.ACR_REG }}" != "" && "${{ secrets.ACR_REPO }}" != "" && "${{ secrets.ACR_IMAGE }}" != "" ]];
         then
-          echo "ACR Set"
           echo "::set-env name=ACR_SET::true"
         fi
+
+    - name: PR Closed
+      if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' && ! github.event.pull_request.merged }}
+
+      run: |
+
+        # handle PR Closed event by building / pushing main branch
+        
+        # checkout parent branch (usually "main")
+        git config pull.ff only
+        git fetch --all
+        git checkout ${{ github.base_ref }}
+        git pull
+
+    - name: PR Merged
+      if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged }}
+
+      run: |
+
+        # Do not build on PR Merged
+        
+        # Skip remaining steps
+        echo "::set-env name=AZURE_SET::false"
+        echo "::set-env name=DOCKER_SET::false"
+        echo "::set-env name=ACR_SET::false"
 
     - name: Validate Azure Access
       if: ${{ env.AZURE_SET == 'true' }}
