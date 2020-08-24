@@ -102,12 +102,12 @@ namespace CSE.Helium
         /// <param name="authType">Authentication Type</param>
         /// <param name="dryRun">Dry Run flag</param>
         /// <returns></returns>
-        public static async Task RunApp(string keyvaultName, AuthenticationType authType, LogLevel logLevel, bool dryRun)
+        public static async Task<int> RunApp(string keyvaultName, AuthenticationType authType, LogLevel logLevel, bool dryRun)
         {
             // validate keyvaultName and convert to URL
             if (!KeyVaultHelper.BuildKeyVaultConnectionString(keyvaultName, out string kvUrl))
             {
-                Environment.Exit(-1);
+                return -1;
             }
 
             try
@@ -122,13 +122,13 @@ namespace CSE.Helium
 
                 if (host == null)
                 {
-                    Environment.Exit(-1);
+                    return -1;
                 }
 
                 // don't start the web server
                 if (dryRun)
                 {
-                    Environment.Exit(DoDryRun(kvUrl, authType));
+                    return DoDryRun(kvUrl, authType);
                 }
 
                 // log startup messages
@@ -144,7 +144,7 @@ namespace CSE.Helium
                 //await RunKeyRotationCheck(ctCancel, Constants.KeyVaultChangeCheckSeconds).ConfigureAwait(false);
 
                 // if not cancelled, app exit -1
-                Environment.Exit(ctCancel.IsCancellationRequested ? 0 : -1);
+                return ctCancel.IsCancellationRequested ? 0 : -1;
             }
 
             catch (Exception ex)
@@ -159,7 +159,7 @@ namespace CSE.Helium
                     Console.WriteLine($"{ex}\nError in Main() {ex.Message}");
                 }
 
-                Environment.Exit(-1);
+                return -1;
             }
         }
 

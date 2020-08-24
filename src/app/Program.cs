@@ -79,6 +79,9 @@ namespace CSE.Helium
                 // trigger graceful shutdown for the webhost
                 // force shutdown after timeout, defined in UseShutdownTimeout within BuildHost() method
                 await host.StopAsync().ConfigureAwait(false);
+
+                // end the app
+                Environment.Exit(0);
             };
 
             return ctCancel;
