@@ -4,7 +4,7 @@ on:
   pull_request:
     types: [opened, reopened, closed]
     branches:
-      - master
+      - main
 
     paths-ignore:
     - 'docs/**'
@@ -14,7 +14,7 @@ on:
 
   push:
     branches:
-      - master
+      - main
 
     paths-ignore:
     - 'docs/**'
