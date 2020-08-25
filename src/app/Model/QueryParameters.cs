@@ -26,6 +26,10 @@ namespace CSE.Helium.Model
         [IdValidation(startingCharacters:"nm", minimumCharacters:7, maximumCharacters:11)]
         public string ActorId { get; set; }
 
+        [JsonPropertyName(name: "movieId")]
+        [IdValidation(startingCharacters: "tt", minimumCharacters: 7, maximumCharacters: 11)]
+        public string MovieId { get; set; }
+
         [JsonPropertyName(name:"genre")]
         [StringLength(maximumLength: 20, MinimumLength = 3, ErrorMessage = "The parameter should be between {2} and {1} characters.")]
         public string Genre { get; set; }

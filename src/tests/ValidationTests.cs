@@ -122,6 +122,29 @@ namespace CSE.Helium.Tests
         }
 
         [Theory]
+        [InlineData("nm123456789", true)]
+        [InlineData("nm12345678", true)]
+        [InlineData("nm1234567", true)]
+        [InlineData("nm0000000", false)]
+        [InlineData("tt0000001", false)]
+        [InlineData("nm1234", false)]
+        [InlineData("nM12345", false)]
+        [InlineData("ab132456", false)]
+        [InlineData("123456789", false)]
+        [InlineData("12345", false)]
+        public void ActorIdInMovieQueryParameters_ValidateRegularExpression_ReturnsExpectedResult(string input, bool expectedResult)
+        {
+            // Arrange
+            var actorIdParameter = new MovieQueryParameters();
+
+            // Act
+            var isValid = IsValidProperty(actorIdParameter, input, "ActorId");
+
+            // Assert
+            Assert.Equal(expectedResult, isValid);
+        }
+
+        [Theory]
         [InlineData("tt123456789", true)]
         [InlineData("tt12345678", true)]
         [InlineData("tt12345", true)]
@@ -136,6 +159,29 @@ namespace CSE.Helium.Tests
         {
             // Arrange
             var movieIdParameter = new MovieIdParameter();
+
+            // Act
+            var isValid = IsValidProperty(movieIdParameter, input, "MovieId");
+
+            // Assert
+            Assert.Equal(expectedResult, isValid);
+        }
+
+        [Theory]
+        [InlineData("tt123456789", true)]
+        [InlineData("tt12345678", true)]
+        [InlineData("tt12345", true)]
+        [InlineData("tt0000000", false)]
+        [InlineData("nm123456789", false)]
+        [InlineData("tt1234", false)]
+        [InlineData("tT123456789111", false)]
+        [InlineData("ab132456", false)]
+        [InlineData("123456789", false)]
+        [InlineData("12345", false)]
+        public void MovieIdInMovieQueryParameters_ValidateRegularExpression_ReturnsExpectedResult(string input, bool expectedResult)
+        {
+            // Arrange
+            var movieIdParameter = new MovieQueryParameters();
 
             // Act
             var isValid = IsValidProperty(movieIdParameter, input, "MovieId");

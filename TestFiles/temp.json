@@ -1,5 +1,5 @@
 {
-    "type": "http://www.example.com/validation-error",
+    "type": "http://example.net/validation-error",
     "title": "Your request parameters did not validate.",
     "detail": "One or more invalid parameters were specified.",
     "status": 400,
@@ -28,7 +28,7 @@
         {
             "code": "InvalidValue",
             "target": "ActorId",
-            "message": "The parameter should start with "nm" and be between 7 and 11 characters in total"
+            "message": "The parameter should start with \"nm\" and be between 7 and 11 characters in total"
         },
         {
             "code": "InvalidValue",
@@ -45,7 +45,7 @@
 
 {
     "type": "http://example.net/valiation-error",
-    "title": "Your request parameters didn't validate.",
+    "title": "Your request parameters did not validate.",
     "detail": "One or more invalid parameters were specified.",
     "status": 400,
     "instance": "api/actors?q=k&pageSize=0&pageNumber=0",

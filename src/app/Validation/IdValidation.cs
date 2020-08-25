@@ -6,15 +6,15 @@ namespace Helium.Validation
     [AttributeUsage(AttributeTargets.Property)]
     public class IdValidation : ValidationAttribute
     {
-        private static int minimumCharacters;
-        private static int maximumCharacters;
-        private static string startingCharacters;
+        private int minimumCharacters;
+        private int maximumCharacters;
+        private string startingCharacters;
 
         public IdValidation(string startingCharacters, int minimumCharacters, int maximumCharacters)
         {
-            IdValidation.startingCharacters = startingCharacters;
-            IdValidation.minimumCharacters = minimumCharacters;
-            IdValidation.maximumCharacters = maximumCharacters;
+            this.startingCharacters = startingCharacters;
+            this.minimumCharacters = minimumCharacters;
+            this.maximumCharacters = maximumCharacters;
         }
 
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
@@ -29,7 +29,7 @@ namespace Helium.Validation
                           val <= 0;
 
             string errorMessage =
-                $"The parameter should start with '{startingCharacters}' and be between {minimumCharacters} and {maximumCharacters} characters in total";
+                $"The parameter should start with {startingCharacters} and be between {minimumCharacters} and {maximumCharacters} characters in total";
 
             return isInvalid ? new ValidationResult(errorMessage) : ValidationResult.Success;
         }
