@@ -144,6 +144,25 @@ namespace CSE.Helium.Tests
             Assert.Equal(expectedResult, isValid);
         }
 
+        [Theory]
+        [InlineData("The", true)]
+        [InlineData("the matrix", true)]
+        [InlineData("2001", true)]
+        [InlineData("the quick brown fox jumped over the lazy dog", false)]
+        [InlineData("t", false)]
+
+        public void QueryString_ValidateRegularExpression_ReturnsExpectedResult(string input, bool expectedResult)
+        {
+            // Arrange
+            var queryParameter = new ActorQueryParameters();
+
+            // Act
+            var isValid = IsValidProperty(queryParameter, input, "Q");
+
+            // Assert
+            Assert.Equal(expectedResult, isValid);
+        }
+
         private bool IsValidProperty(object inputObject, object input, string memberName)
         {
             var validationContext = new ValidationContext(inputObject) { MemberName = memberName };
