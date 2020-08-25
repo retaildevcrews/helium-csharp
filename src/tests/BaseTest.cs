@@ -9,7 +9,7 @@ namespace tests
 {
     public class BaseTest
     {
-        protected void ConstructorMustThrowArgumentNullException(Type type)
+        protected static void ConstructorMustThrowArgumentNullException(Type type)
         {
             _ = type ?? throw new ArgumentNullException(nameof(type));
 

@@ -9,7 +9,7 @@ namespace CSE.Helium.Validation
         private const int DefaultYear = 0;
         private const int StartYear = 1874;
         private static readonly int EndYear = DateTime.UtcNow.AddYears(5).Year;
-        private readonly string errorMessage = $"Year parameter should be between {StartYear} and {EndYear}.";
+        private readonly string errorMessage = $"The parameter should be between {StartYear} and {EndYear}.";
 
         public YearValidation()
         {

@@ -1,5 +1,3 @@
-using System.Text;
-
 namespace CSE.Helium
 {
     /// <summary>
@@ -38,7 +36,6 @@ namespace CSE.Helium
 
         public const int HealthzCacheDuration = 60;
 
-        public const string BadRequestTemplate = @"";
     }
     public enum AuthenticationType { MI, CLI, VS }
 }
