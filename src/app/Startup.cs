@@ -1,3 +1,4 @@
+using System.Net.Mime;
 using CSE.Helium.Validation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -8,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Middleware;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace CSE.Helium
 {
@@ -38,6 +40,13 @@ namespace CSE.Helium
             services.AddControllers()
                 .ConfigureApiBehaviorOptions(o =>
                 {
+                    //o.InvalidModelStateResponseFactory = ctx =>
+                    //{
+                    //    var result = new BadRequestObjectResult(ctx.ModelState);
+                    //    result.ContentTypes.Add(MediaTypeNames.Application.Json);
+
+                    //    return result;
+                    //};
                     o.InvalidModelStateResponseFactory = ctx => new ValidationProblemDetailsResult(services);
                 })
                 .AddJsonOptions(options =>

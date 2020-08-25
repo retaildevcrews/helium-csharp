@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Net;
 using System.Threading.Tasks;
+using CSE.Helium.Model;
 
 namespace CSE.Helium.Controllers
 {

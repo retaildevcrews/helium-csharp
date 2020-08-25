@@ -1,32 +1,41 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using CSE.Helium.Validation;
+using Helium.Validation;
 
 namespace CSE.Helium.Model
 {
     public abstract class QueryParameters
     {
-        [Range(minimum: 1, maximum: 10000, ErrorMessage = "Valid page numbers are between {1} and {2}")]
+        [JsonPropertyName(name:"pageNumber")]
+        [Range(minimum: 1, maximum: 10000, ErrorMessage = "Page number should be between {1} and {2}.")]
         public int PageNumber { get; set; } = 1;
 
-        [Range(minimum: 1, maximum: 1000, ErrorMessage = "Valid page sizes are between {1} and {2}")]
+        [JsonPropertyName(name:"pageSize")]
+        [Range(minimum: 1, maximum: 1000, ErrorMessage = "Page size should be between {1} and {2}.")]
         public int PageSize { get; set; } = 100;
 
-        [StringLength(maximumLength: 20, MinimumLength = 2, ErrorMessage = "Query search parameter should be between {2} and {1} characters")]
+        [JsonPropertyName(name:"q")]
+        [StringLength(maximumLength: 20, MinimumLength = 2, ErrorMessage = "Query search parameter should be between {2} and {1} characters.")]
         public string Q { get; set; }
     }
 
     public sealed class MovieQueryParameters : QueryParameters
     {
-        [RegularExpression(@"^nm(?!0+$)([0-9]{7,11})$", ErrorMessage = "Actor ID starts with \"nm\" and should be between 7 and 11 characters")]
+        [JsonPropertyName(name:"actorId")]
+        [IdValidation(startingCharacters:"nm", minimumCharacters:7, maximumCharacters:11)]
         public string ActorId { get; set; }
 
-        [StringLength(maximumLength: 20, MinimumLength = 3, ErrorMessage = "Genre parameter should be between {2} and {1} characters")]
+        [JsonPropertyName(name:"genre")]
+        [StringLength(maximumLength: 20, MinimumLength = 3, ErrorMessage = "Genre parameter should be between {2} and {1} characters.")]
         public string Genre { get; set; }
 
-        [YearValidation()]
+        [JsonPropertyName(name:"year")]
+        [YearValidation]
         public int Year { get; set; }
         
-        [Range(minimum:0, maximum:10, ErrorMessage = "Rating parameter should be between {1} and {2}")]
+        [JsonPropertyName(name:"rating")]
+        [Range(minimum:0, maximum:10.0, ErrorMessage = "Rating parameter should be between {1} and {2}.")]
         public double Rating { get; set; }
     }
 
@@ -37,13 +46,16 @@ namespace CSE.Helium.Model
 
     public sealed class MovieIdParameter
     {
-        [RegularExpression(@"^tt(?!0+$)([0-9]{7,11})$", ErrorMessage = "Movie ID starts with \"tt\" and should be between 7 and 11 characters")]
+        // todo : performance test this regex and remove or keep -> [RegularExpression(@"^tt(?!0+$)([0-9]{7,11})$", ErrorMessage = "Movie ID starts with 'tt' and should be between 7 and 11 characters")]
+        [JsonPropertyName(name:"movieId")]
+        [IdValidation(startingCharacters:"tt", minimumCharacters:7, maximumCharacters:11)]
         public string MovieId { get; set; }
     }
 
     public sealed class ActorIdParameter
     {
-        [RegularExpression(@"^nm(?!0+$)([0-9]{7,11})$", ErrorMessage = "Actor ID starts with \"nm\" and should be between 7 and 11 characters")]
+        [JsonPropertyName(name:"actorId")]
+        [IdValidation(startingCharacters:"nm", minimumCharacters:7, maximumCharacters:11)]
         public string ActorId { get; set; }
     }
 }

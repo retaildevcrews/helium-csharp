@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Net;
+using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -21,9 +23,13 @@ namespace CSE.Helium.Validation
         {
             _ = context ?? throw new ArgumentNullException(nameof(context));
 
+            var problemDetails = new ValidationProblemDetails(context.ModelState);
+
             context.HttpContext.Response.ContentType = "application/json";
-            context.HttpContext.Response.WriteAsync(
-                ValidationProcessor.ProcessBadParameter(context, context.HttpContext.Request.Path, logger));
+            context.HttpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            context.HttpContext.Response.WriteAsync(JsonSerializer.Serialize(problemDetails));
+
+            //context.HttpContext.Response.WriteAsync(ValidationProcessor.ProcessBadParameter(context, context.HttpContext.Request.Path, logger));
 
             return Task.CompletedTask;
         }

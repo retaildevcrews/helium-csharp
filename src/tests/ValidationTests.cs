@@ -1,6 +1,5 @@
 ﻿using CSE.Helium.Model;
 using CSE.Helium.Validation;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Xunit;
 
@@ -9,12 +8,85 @@ namespace CSE.Helium.Tests
     public class ValidationTests
     {
         [Theory]
+        [InlineData(12, true)]
+        [InlineData(1200, true)]
+        [InlineData(10000, true)]
+        [InlineData(10001, false)]
+        [InlineData(0, false)]
+        public void PageNumberInput_ValidateModel_ReturnsExpectedResult(int input, bool expectedResult)
+        {
+            // Arrange
+            var queryParameters = new ActorQueryParameters{PageNumber = input};
+
+            // Act
+            var actualValue = IsValidProperty(queryParameters, input, "PageNumber");
+
+            // Assert
+            Assert.Equal(expectedResult, actualValue);
+        }
+
+        [Theory]
+        [InlineData(12, true)]
+        [InlineData(1000, true)]
+        [InlineData(1001, false)]
+        [InlineData(0, false)]
+        public void PageSizeInput_ValidateModel_ReturnsExpectedResult(int input, bool expectedResult)
+        {
+            // Arrange
+            var queryParameters = new ActorQueryParameters();
+
+            // Act
+            var actualValue = IsValidProperty(queryParameters, input, "PageSize");
+
+            // Assert
+            Assert.Equal(expectedResult, actualValue);
+        }
+
+        [Theory]
+        [InlineData("aaa", true)]
+        [InlineData("AAA", true)]
+        [InlineData("12345678901234567890", true)]
+        [InlineData("123456789012345678901", false)]
+        [InlineData("aa", false)]
+        public void GenreInput_ValidateModel_ReturnsExpectedResult(string input, bool expectedResult)
+        {
+            // Arrange
+            var queryParameters = new MovieQueryParameters();
+
+            // Act
+            var actualValue = IsValidProperty(queryParameters, input, "Genre");
+
+            // Assert
+            Assert.Equal(expectedResult, actualValue);
+        }
+
+        [Theory]
+        [InlineData(9.9, true)]
+        [InlineData(0.1, true)]
+        [InlineData(5, true)]
+        [InlineData(999, false)]
+        [InlineData(10.00001, false)]
+        [InlineData(100.1, false)]
+        [InlineData(-5, false)]
+        public void RatingInput_ValidateModel_ReturnsExpectedResult(double input, bool expectedResult)
+        {
+            // Arrange
+            var queryParameters = new MovieQueryParameters();
+
+            // Act
+            var actualValue = IsValidProperty(queryParameters, input, "Rating");
+
+            // Assert
+            Assert.Equal(expectedResult, actualValue);
+        }
+
+        [Theory]
         [InlineData(1874, true)]
         [InlineData(2025, true)]
         [InlineData(2001, true)]
         [InlineData(1870, false)]
         [InlineData(123, false)]
-        public void VaryYearInput_ValidateRegularExpression_ReturnsExpectedResult(int year, bool expectedResult)
+        public void YearInput_ValidateRegularExpression_ReturnsExpectedResult(int year, bool expectedResult)
         {
             // Arrange
             var yearValidation = new YearValidation();
@@ -27,64 +99,55 @@ namespace CSE.Helium.Tests
         }
 
         [Theory]
-        [InlineData("nm123456789", 0)]
-        [InlineData("nm12345678", 0)]
-        [InlineData("nm1234567", 0)]
-        [InlineData("nm0000000", 1)]
-        [InlineData("tt0000001", 1)]
-        [InlineData("nm1234", 1)]
-        [InlineData("nM12345", 1)]
-        [InlineData("ab132456", 1)]
-        [InlineData("123456789", 1)]
-        [InlineData("12345", 1)]
-        public void VaryActorId_ValidateRegularExpression_ReturnsExpectedResult(string input, int errorCount)
+        [InlineData("nm123456789", true)]
+        [InlineData("nm12345678", true)]
+        [InlineData("nm1234567", true)]
+        [InlineData("nm0000000", false)]
+        [InlineData("tt0000001", false)]
+        [InlineData("nm1234", false)]
+        [InlineData("nM12345", false)]
+        [InlineData("ab132456", false)]
+        [InlineData("123456789", false)]
+        [InlineData("12345", false)]
+        public void ActorId_ValidateRegularExpression_ReturnsExpectedResult(string input, bool expectedResult)
         {
             // Arrange
-            var actorIdParameter = new ActorIdParameter {ActorId = input};
-            
+            var actorIdParameter = new ActorIdParameter();
+
             // Act
-            var actorIdResults = ValidateModel(actorIdParameter);
-            
-            var matchesActorErrorCount = actorIdResults.Count.Equals(errorCount);
-            
+            var isValid = IsValidProperty(actorIdParameter, input, "ActorId");
+
             // Assert
-            Assert.True(matchesActorErrorCount);
-            Assert.True(actorIdResults.Count.Equals(errorCount));
+            Assert.Equal(expectedResult, isValid);
         }
 
         [Theory]
-        [InlineData("tt12345678910", 0)]
-        [InlineData("tt123456789", 0)]
-        [InlineData("tt12345678", 0)]
-        [InlineData("tt1234567", 0)]
-        [InlineData("tt0000000", 1)]
-        [InlineData("nm123456789", 1)]
-        [InlineData("tt123456", 1)]
-        [InlineData("tt12345", 1)]
-        [InlineData("tt1234", 1)]
-        [InlineData("tT123456789111", 1)]
-        [InlineData("ab132456", 1)]
-        [InlineData("123456789", 1)]
-        [InlineData("12345", 1)]
-        public void VaryMovieId_ValidateRegularExpression_ReturnsExpectedResult(string input, int errorCount)
+        [InlineData("tt123456789", true)]
+        [InlineData("tt12345678", true)]
+        [InlineData("tt12345", true)]
+        [InlineData("tt0000000", false)]
+        [InlineData("nm123456789", false)]
+        [InlineData("tt1234", false)]
+        [InlineData("tT123456789111", false)]
+        [InlineData("ab132456", false)]
+        [InlineData("123456789", false)]
+        [InlineData("12345", false)]
+        public void MovieId_ValidateRegularExpression_ReturnsExpectedResult(string input, bool expectedResult)
         {
             // Arrange
-            var movieIdParameter = new MovieIdParameter() { MovieId = input };
-            
+            var movieIdParameter = new MovieIdParameter();
+
             // Act
-            var validationResults = ValidateModel(movieIdParameter);
-            var matchesErrorCount = validationResults.Count.Equals(errorCount);
+            var isValid = IsValidProperty(movieIdParameter, input, "MovieId");
 
             // Assert
-            Assert.True(matchesErrorCount);
+            Assert.Equal(expectedResult, isValid);
         }
 
-        private IList<ValidationResult> ValidateModel(object model)
+        private bool IsValidProperty(object inputObject, object input, string memberName)
         {
-            var validationResults = new List<ValidationResult>();
-            var ctx = new ValidationContext(model, null, null);
-            Validator.TryValidateObject(model, ctx, validationResults, true);
-            return validationResults;
+            var validationContext = new ValidationContext(inputObject) { MemberName = memberName };
+            return Validator.TryValidateProperty(input, validationContext, null);
         }
     }
 }
