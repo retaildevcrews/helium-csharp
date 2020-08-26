@@ -64,6 +64,12 @@ namespace CSE.Helium.Validation
             return sb.ToString();
         }
         
+        /// <summary>
+        /// creates JSON response using string.Format given inputs
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="logger"></param>
+        /// <returns></returns>
         public static string WriteJsonWithStringFormat(ActionContext context, ILogger logger)
         {
             // collect all errors for iterative string/json representation
@@ -97,6 +103,5 @@ namespace CSE.Helium.Validation
 
             return response;
         }
-
     }
 }
