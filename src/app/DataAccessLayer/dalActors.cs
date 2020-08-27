@@ -31,7 +31,7 @@ namespace CSE.Helium.DataAccessLayer
             // note: if the key cannot be determined from the ID, ReadDocumentAsync cannot be used.
             // GetPartitionKey will throw an ArgumentException if the actorId isn't valid
             // get an actor by ID
-            return await cosmosDetails.Container.ReadItemAsync<Actor>(actorId, new PartitionKey(GetPartitionKey(actorId))).ConfigureAwait(false);
+            return await cosmosDetails.Container.ReadItemAsync<Actor>(actorId, new PartitionKey(Actor.GetPartitionKey(actorId))).ConfigureAwait(false);
         }
 
         /// <summary>

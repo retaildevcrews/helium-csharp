@@ -128,29 +128,6 @@ namespace CSE.Helium.DataAccessLayer
         }
 
         /// <summary>
-        /// Compute the partition key based on the movieId or actorId
-        /// 
-        /// For this sample, the partitionkey is the id mod 10
-        /// 
-        /// In a full implementation, you would update the logic to determine the partition key
-        /// </summary>
-        /// <param name="id">document id</param>
-        /// <returns>the partition key</returns>
-        public static string GetPartitionKey(string id)
-        {
-            // validate id
-            if (!string.IsNullOrEmpty(id) &&
-                id.Length > 5 &&
-                (id.StartsWith("tt", StringComparison.OrdinalIgnoreCase) || id.StartsWith("nm", StringComparison.OrdinalIgnoreCase)) &&
-                int.TryParse(id.Substring(2), out int idInt))
-            {
-                return (idInt % 10).ToString(CultureInfo.InvariantCulture);
-            }
-
-            throw new ArgumentException("Invalid Partition Key");
-        }
-
-        /// <summary>
         /// Generic function to be used by subclasses to execute arbitrary queries and return type T.
         /// </summary>
         /// <typeparam name="T">POCO type to which results are serialized and returned.</typeparam>
