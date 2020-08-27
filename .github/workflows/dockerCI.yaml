@@ -124,7 +124,7 @@ jobs:
     - name: Install WebV
       if: ${{ env.AZURE_SET == 'true' }}
       run: |
-        dotnet tool install -g webvalidate --version 1.0.7.4
+        dotnet tool install -g webvalidate
 
     - name: Start helium container
       if: ${{ env.AZURE_SET == 'true' }}
