@@ -196,7 +196,6 @@ namespace CSE.Helium.Tests
         [InlineData("2001", true)]
         [InlineData("the quick brown fox jumped over the lazy dog", false)]
         [InlineData("t", false)]
-
         public void QueryString_ValidateRegularExpression_ReturnsExpectedResult(string input, bool expectedResult)
         {
             // Arrange

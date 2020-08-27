@@ -88,7 +88,7 @@ namespace CSE.Helium.Validation
                 // create a validationError
                 validationErrorsJson += string.Format(
                     CultureInfo.InvariantCulture,
-                    "{{'code': 'InvalidValue', 'target': '{0}', 'message': '{1}'}}", validationError.Key, validationError.Value.Errors[0].ErrorMessage).Replace("'", "\"", StringComparison.InvariantCulture);
+                    "{{`code`: `InvalidValue`, `target`: `{0}`, `message`: `{1}`}}", validationError.Key, validationError.Value.Errors[0].ErrorMessage).Replace("`", "\"", StringComparison.InvariantCulture);
 
                 // implementation of proper json formatting of a collection
                 if (!validationError.Equals(lastValidationError))
@@ -98,8 +98,8 @@ namespace CSE.Helium.Validation
             // format final response including error collection
             var response = string.Format(
                 CultureInfo.InvariantCulture,
-                "{{'type': 'http://www.example.com/validation-error', 'title': 'Your request parameters did not validate.', 'detail': 'One or more invalid parameters were specified.', 'status': {0}, 'instance': '{1}', 'validationErrors': [{2}]}}",
-                (int)HttpStatusCode.BadRequest, context.HttpContext.Request.Path, validationErrorsJson).Replace("'", "\"", StringComparison.InvariantCulture);
+                "{{`type`: `http://www.example.com/validation-error`, `title`: `Your request parameters did not validate.`, `detail`: `One or more invalid parameters were specified.`, `status`: {0}, `instance`: `{1}`, `validationErrors`: [{2}]}}",
+                (int)HttpStatusCode.BadRequest, context.HttpContext.Request.Path, validationErrorsJson).Replace("`", "\"", StringComparison.InvariantCulture);
 
             return response;
         }

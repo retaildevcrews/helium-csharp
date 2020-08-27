@@ -40,13 +40,6 @@ namespace CSE.Helium
             services.AddControllers()
                 .ConfigureApiBehaviorOptions(o =>
                 {
-                    //o.InvalidModelStateResponseFactory = ctx =>
-                    //{
-                    //    var result = new BadRequestObjectResult(ctx.ModelState);
-                    //    result.ContentTypes.Add(MediaTypeNames.Application.Json);
-
-                    //    return result;
-                    //};
                     o.InvalidModelStateResponseFactory = ctx => new ValidationProblemDetailsResult(services);
                 })
                 .AddJsonOptions(options =>

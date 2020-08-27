@@ -57,19 +57,19 @@ namespace CSE.Helium.Controllers
         }
 
         /// <summary>
-        /// Returns a single JSON Movie by movieId
+        /// Returns a single JSON Movie by movieIdParameter
         /// </summary>
-        /// <param name="movieId"></param>
+        /// <param name="movieIdParameter"></param>
         /// <returns></returns>
         [HttpGet("{movieId}")]
-        public async System.Threading.Tasks.Task<IActionResult> GetMovieByIdAsync(MovieIdParameter movieId)
+        public async System.Threading.Tasks.Task<IActionResult> GetMovieByIdAsync([FromRoute]MovieIdParameter movieIdParameter)
         {
-            _ = movieId ?? throw new ArgumentNullException(nameof(movieId));
+            _ = movieIdParameter ?? throw new ArgumentNullException(nameof(movieIdParameter));
 
-            string method = nameof(GetMovieByIdAsync) + movieId.MovieId;
+            string method = nameof(GetMovieByIdAsync) + movieIdParameter.MovieId;
 
-            // get movie by movieId
-            return await ResultHandler.Handle(dal.GetMovieAsync(movieId.MovieId), method, "Movie Not Found", logger).ConfigureAwait(false);
+            // get movie by movieIdParameter
+            return await ResultHandler.Handle(dal.GetMovieAsync(movieIdParameter.MovieId), method, "Movie Not Found", logger).ConfigureAwait(false);
         }
 
         /// <summary>

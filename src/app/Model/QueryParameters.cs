@@ -8,11 +8,13 @@ namespace CSE.Helium.Model
     public abstract class QueryParameters
     {
         [JsonPropertyName(name:"pageNumber")]
-        [Range(minimum: 1, maximum: 10000, ErrorMessage = "The parameter should be between {1} and {2}.")]
+        //[Range(minimum: 1, maximum: 10000, ErrorMessage = "The parameter should be between {1} and {2}.")]
+        [IntegerRangeValidation(minValue:1, maxValue:1000)]
         public int PageNumber { get; set; } = 1;
 
         [JsonPropertyName(name:"pageSize")]
-        [Range(minimum: 1, maximum: 1000, ErrorMessage = "The parameter should be between {1} and {2}.")]
+        //[Range(minimum: 1, maximum: 1000, ErrorMessage = "The parameter should be between {1} and {2}.")]
+        [IntegerRangeValidation(minValue:1, maxValue:1000)]
         public int PageSize { get; set; } = 100;
 
         [JsonPropertyName(name:"q")]
@@ -23,11 +25,11 @@ namespace CSE.Helium.Model
     public sealed class MovieQueryParameters : QueryParameters
     {
         [JsonPropertyName(name:"actorId")]
-        [IdValidation(startingCharacters:"nm", minimumCharacters:7, maximumCharacters:11)]
+        [IdValidation(startingCharacters:"nm", minimumCharacters:7, maximumCharacters:11, true)]
         public string ActorId { get; set; }
 
         [JsonPropertyName(name: "movieId")]
-        [IdValidation(startingCharacters: "tt", minimumCharacters: 7, maximumCharacters: 11)]
+        [IdValidation(startingCharacters: "tt", minimumCharacters: 7, maximumCharacters: 11, true)]
         public string MovieId { get; set; }
 
         [JsonPropertyName(name:"genre")]
@@ -50,16 +52,16 @@ namespace CSE.Helium.Model
 
     public sealed class MovieIdParameter
     {
-        // todo : performance test this regex and remove or keep -> [RegularExpression(@"^tt(?!0+$)([0-9]{7,11})$", ErrorMessage = "Movie ID starts with 'tt' and should be between 7 and 11 characters")]
+        //[RegularExpression(@"^tt(?!0+$)([0-9]{7,11})$", ErrorMessage = "Movie ID starts with 'tt' and should be between 7 and 11 characters")]
         [JsonPropertyName(name:"movieId")]
-        [IdValidation(startingCharacters:"tt", minimumCharacters:7, maximumCharacters:11)]
+        [IdValidation(startingCharacters:"tt", minimumCharacters:7, maximumCharacters:11, false)]
         public string MovieId { get; set; }
     }
 
     public sealed class ActorIdParameter
     {
         [JsonPropertyName(name:"actorId")]
-        [IdValidation(startingCharacters:"nm", minimumCharacters:7, maximumCharacters:11)]
+        [IdValidation(startingCharacters:"nm", minimumCharacters:7, maximumCharacters:11, false)]
         public string ActorId { get; set; }
     }
 }

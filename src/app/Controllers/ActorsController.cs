@@ -60,7 +60,7 @@ namespace CSE.Helium.Controllers
         {
             _ = actorIdParameter ?? throw new ArgumentNullException(nameof(actorIdParameter));
             
-            string method = "GetActorByIdAsync " + actorIdParameter.ActorId;
+            string method = nameof(GetActorByIdAsync) + actorIdParameter.ActorId;
 
             // return result
             return await ResultHandler.Handle(dal.GetActorAsync(actorIdParameter.ActorId), method, "Actor Not Found", logger).ConfigureAwait(false);
