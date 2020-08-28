@@ -29,7 +29,7 @@ namespace CSE.Helium.Model
         /// </summary>
         /// <param name="id">document id</param>
         /// <returns>the partition key</returns>
-        public static string GetPartitionKey(string id)
+        public static string ComputePartitionKey(string id)
         {
             // validate id
             if (!string.IsNullOrEmpty(id) &&
