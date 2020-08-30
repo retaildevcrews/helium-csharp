@@ -30,7 +30,7 @@ namespace Helium.Validation
                 return ValidationResult.Success;
             
             memberName.Add(validationContext.MemberName);
-            var errorMessage = $"The parameter '{memberName[0]}' should start with {startingCharacters} and be between {minimumCharacters} and {maximumCharacters} characters in total";
+            var errorMessage = $"The parameter '{memberName[0]}' should start with '{startingCharacters}' and be between {minimumCharacters} and {maximumCharacters} characters in total";
 
             if (!allowNulls && value == null)
                 return new ValidationResult(errorMessage, memberName);

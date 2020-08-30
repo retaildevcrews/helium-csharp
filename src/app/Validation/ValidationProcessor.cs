@@ -17,32 +17,28 @@ namespace CSE.Helium.Validation
         /// <param name="target"></param>
         /// <param name="logger"></param>
         /// <returns></returns>
-        public static string WriteJsonWithStringBuilder(ActionContext context, string target, ILogger logger)
+        public static string WriteJsonWithStringBuilder(ActionContext context, ILogger logger)
         {
-            var code = "NullValue";
-
             var modelStateEntries = context.ModelState.Where(
                 e => e.Value.Errors.Count > 0).ToArray();
             var last = modelStateEntries.Last();
 
             var sb = new StringBuilder();
 
-            sb.Append("{\n");
-            sb.Append("\"error\": {\n");
-            sb.Append($"\"code\": \"BadParameter\",\n");
-            sb.Append($"\"message\": \"Parameter validation failed\",\n");
-            sb.Append($"\"target\": \"{target}\",\n");
-            sb.Append("\"details\": [\n");
+            sb.Append($"{{\"type\": \"http://www.example.com/validation-error\",\n");
+            sb.Append($"\"title\": \"Your request parameters did not validate.\",\n");
+            sb.Append($"\"detail\": \"One or more invalid parameters were specified.\",\n");
+            sb.Append($"\"status\": 400,");
+            sb.Append($"\"instance\": \"{context.HttpContext.Request.Path}\",\n");
+            sb.Append($"\"validationErrors\": [\n");
             
             // write and log details collection
             foreach (var state in modelStateEntries)
             {
-                logger.LogWarning($"InvalidParameter|{target}|{state.Value.Errors[0].ErrorMessage}");
-                sb.Append("{");
-                sb.Append(string.IsNullOrWhiteSpace(state.Value.AttemptedValue)
-                    ? $"\"code\": \"{code}\",\n"
-                    : $"\"code\": \"Invalid parameter\",\n");
+                logger.LogWarning($"InvalidParameter|{context.HttpContext.Request.Path}|{state.Value.Errors[0].ErrorMessage}");
 
+                sb.Append("{\n");
+                sb.Append($"\"code\": \"InvalidValue\",\n");
                 sb.Append($"\"target\": \"{state.Key}\",\n");
                 sb.Append($"\"message\": \"{state.Value.Errors[0].ErrorMessage}\"\n");
 
@@ -59,7 +55,6 @@ namespace CSE.Helium.Validation
             }
 
             sb.Append("}\n");
-            sb.Append("}");
 
             return sb.ToString();
         }
