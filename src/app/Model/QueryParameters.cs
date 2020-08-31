@@ -36,7 +36,7 @@ namespace CSE.Helium.Model
         [StringLength(maximumLength: 20, MinimumLength = 3, ErrorMessage = "The parameter should be between {2} and {1} characters.")]
         public string Genre { get; set; }
 
-        [JsonPropertyName(name:"year")]
+        [JsonPropertyName(name: "year")]
         [YearValidation]
         public int Year { get; set; }
         

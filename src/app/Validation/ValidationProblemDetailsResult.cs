@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
+using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -24,6 +26,8 @@ namespace CSE.Helium.Validation
 
             context.HttpContext.Response.ContentType = "application/json";
             context.HttpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            
+            //context.HttpContext.Response.WriteAsync(ValidationProcessor.WriteJsonUsingObjects(context, logger));
             
             context.HttpContext.Response.WriteAsync(ValidationProcessor.WriteJsonWithStringFormat(context, logger));
 

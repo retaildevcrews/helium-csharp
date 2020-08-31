@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Text.Json;
 
 namespace CSE.Helium.Validation
 {
@@ -97,6 +99,34 @@ namespace CSE.Helium.Validation
                 (int)HttpStatusCode.BadRequest, context.HttpContext.Request.Path, validationErrorsJson).Replace("`", "\"", StringComparison.InvariantCulture);
 
             return response;
+        }
+
+        public static string WriteJsonUsingObjects(ActionContext context, ILogger logger)
+        {
+            var problemDetails = new ValidationProblemDetails
+            {
+                Type = "http://www.example.com/validation-error",
+                Title = "Your request parameters did not validate.",
+                Detail = "One or more invalid parameters were specified.",
+                Status = 400,
+                Instance = context.HttpContext.Request.Path,
+            };
+
+            // collect all errors for iterative string/json representation
+            var validationErrors = context.ModelState.Where(m => m.Value.Errors.Count > 0).ToArray();
+
+            foreach (var validationError in validationErrors)
+            {
+                // log each validation error in the collection
+                logger.LogWarning($"InvalidParameter|{context.HttpContext.Request.Path}|{validationError.Value.Errors[0].ErrorMessage}");
+
+                var error = new ValidationError("InvalidValue", validationError.Key, validationError.Value.Errors[0].ErrorMessage);
+                
+                // add error object to problemDetails
+                problemDetails.ValidationErrors.Add(error);
+            }
+
+            return JsonSerializer.Serialize(problemDetails);
         }
     }
 }

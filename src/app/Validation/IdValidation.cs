@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 namespace Helium.Validation
 {
     [AttributeUsage(AttributeTargets.Property)]
-    public class IdValidation : ValidationAttribute
+    public sealed class IdValidation : ValidationAttribute
     {
         private int minimumCharacters;
         private int maximumCharacters;
