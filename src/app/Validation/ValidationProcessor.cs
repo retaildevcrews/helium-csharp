@@ -101,6 +101,12 @@ namespace CSE.Helium.Validation
             return response;
         }
 
+        /// <summary>
+        /// creates JSON response using ValidationProblemDetails given inputs
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="logger"></param>
+        /// <returns></returns>
         public static string WriteJsonUsingObjects(ActionContext context, ILogger logger)
         {
             var problemDetails = new ValidationProblemDetails

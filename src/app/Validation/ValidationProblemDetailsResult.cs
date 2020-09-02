@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Text.Json;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Net;
+using System.Threading.Tasks;
 
 namespace CSE.Helium.Validation
 {
@@ -27,9 +25,9 @@ namespace CSE.Helium.Validation
             context.HttpContext.Response.ContentType = "application/json";
             context.HttpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
             
-            //context.HttpContext.Response.WriteAsync(ValidationProcessor.WriteJsonUsingObjects(context, logger));
+            context.HttpContext.Response.WriteAsync(ValidationProcessor.WriteJsonUsingObjects(context, logger));
             
-            context.HttpContext.Response.WriteAsync(ValidationProcessor.WriteJsonWithStringFormat(context, logger));
+            //context.HttpContext.Response.WriteAsync(ValidationProcessor.WriteJsonWithStringFormat(context, logger));
 
             //context.HttpContext.Response.WriteAsync(ValidationProcessor.WriteJsonWithStringBuilder(context, logger));
 
