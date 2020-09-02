@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Text.Json;
+using Microsoft.AspNetCore.Http.Extensions;
 
 namespace CSE.Helium.Validation
 {
@@ -62,46 +63,6 @@ namespace CSE.Helium.Validation
         }
         
         /// <summary>
-        /// creates JSON response using string.Format given inputs
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="logger"></param>
-        /// <returns></returns>
-        public static string WriteJsonWithStringFormat(ActionContext context, ILogger logger)
-        {
-            // collect all errors for iterative string/json representation
-            var validationErrors = context.ModelState.Where(m => m.Value.Errors.Count > 0).ToArray();
-
-            // need last error for proper json formatting of a collection
-            var lastValidationError = validationErrors.Last();
-
-            var validationErrorsJson = "";
-
-            foreach (var validationError in validationErrors)
-            {
-                // log each validation error in the collection
-                logger.LogWarning($"InvalidParameter|{context.HttpContext.Request.Path}|{validationError.Value.Errors[0].ErrorMessage}");
-
-                // create a validationError
-                validationErrorsJson += string.Format(
-                    CultureInfo.InvariantCulture,
-                    "{{`code`: `InvalidValue`, `target`: `{0}`, `message`: `{1}`}}", validationError.Key, validationError.Value.Errors[0].ErrorMessage).Replace("`", "\"", StringComparison.InvariantCulture);
-
-                // implementation of proper json formatting of a collection
-                if (!validationError.Equals(lastValidationError))
-                    validationErrorsJson += ",";
-            }
-
-            // format final response including error collection
-            var response = string.Format(
-                CultureInfo.InvariantCulture,
-                "{{`type`: `http://www.example.com/validation-error`, `title`: `Your request parameters did not validate.`, `detail`: `One or more invalid parameters were specified.`, `status`: {0}, `instance`: `{1}`, `validationErrors`: [{2}]}}",
-                (int)HttpStatusCode.BadRequest, context.HttpContext.Request.Path, validationErrorsJson).Replace("`", "\"", StringComparison.InvariantCulture);
-
-            return response;
-        }
-
-        /// <summary>
         /// creates JSON response using ValidationProblemDetails given inputs
         /// </summary>
         /// <param name="context"></param>
@@ -115,7 +76,7 @@ namespace CSE.Helium.Validation
                 Title = "Your request parameters did not validate.",
                 Detail = "One or more invalid parameters were specified.",
                 Status = 400,
-                Instance = context.HttpContext.Request.Path,
+                Instance = context.HttpContext.Request.GetEncodedPathAndQuery(),
             };
 
             // collect all errors for iterative string/json representation
