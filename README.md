@@ -148,7 +148,7 @@ docker build . -t helium-csharp
 
 > Make sure to fork the repo before experimenting with CI-CD
 
-This repo uses [GitHub Actions](/.github/workflows/dockerCI.yml) for Continuous Integration.
+This repo uses [GitHub Actions](.github/workflows/dockerCI.yaml) for Continuous Integration.
 
 - CI supports pushing to Azure Container Registry or DockerHub
 - The action is setup to execute on a PR or commit to ```master```

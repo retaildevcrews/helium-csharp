@@ -37,4 +37,4 @@ assignees: ''
 - Technical Design Document
 - Mockups
 
-Reference: [Definition of Done](../../docs/EngineeringPractices.md)
+Reference: [Definition of Done](https://github.com/retaildevcrews/helium/blob/main/docs/EngineeringPractices.md)
