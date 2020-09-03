@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using System.Globalization;
 using System.Linq;
-using System.Net;
 using System.Text;
 using System.Text.Json;
-using Microsoft.AspNetCore.Http.Extensions;
 
 namespace CSE.Helium.Validation
 {
@@ -84,6 +80,10 @@ namespace CSE.Helium.Validation
 
             foreach (var validationError in validationErrors)
             {
+                // skip empty validation error
+                if(string.IsNullOrEmpty(validationError.Key))
+                    continue;
+
                 // log each validation error in the collection
                 logger.LogWarning($"InvalidParameter|{context.HttpContext.Request.Path}|{validationError.Value.Errors[0].ErrorMessage}");
 
