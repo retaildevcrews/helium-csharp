@@ -21,7 +21,7 @@ namespace tests
         [Fact]
         public void ValidationProblemDetailsResult_ExecuteResultAsync_ShouldThrow()
         {
-            var validationProblemDetailsResult = new ValidationProblemDetailsResult(serviceCollection);
+            var validationProblemDetailsResult = new ValidationProblemDetailsResult();
             Func<Task> funcResult = async () => await validationProblemDetailsResult.ExecuteResultAsync(default);
 
             funcResult.Should().Throw<ArgumentNullException>();

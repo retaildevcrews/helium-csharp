@@ -1,3 +1,4 @@
+using System;
 using System.Net.Mime;
 using CSE.Helium.Validation;
 using Microsoft.AspNetCore.Builder;
@@ -9,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Middleware;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Helium;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CSE.Helium
@@ -19,7 +21,7 @@ namespace CSE.Helium
     public class Startup
     {
         public IConfiguration Configuration { get; }
-
+        
         /// <summary>
         /// Constructor
         /// </summary>
@@ -36,11 +38,13 @@ namespace CSE.Helium
         /// <param name="services">The services in the web host</param>
         public void ConfigureServices(IServiceCollection services)
         {
-            // set json serialization defaults
+            
+
+            // set json serialization defaults and api behavior
             services.AddControllers()
                 .ConfigureApiBehaviorOptions(o =>
                 {
-                    o.InvalidModelStateResponseFactory = ctx => new ValidationProblemDetailsResult(services);
+                    o.InvalidModelStateResponseFactory = ctx => new ValidationProblemDetailsResult();
                 })
                 .AddJsonOptions(options =>
                 {
@@ -71,6 +75,10 @@ namespace CSE.Helium
         /// <param name="env"></param>
         public static void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            _ = app ?? throw new ArgumentNullException(nameof(app));
+
+            ServiceActivator.Configure(app.ApplicationServices);
+
             // log http responses to the console
             // this should be first as it "wraps" all requests
             if (App.HeliumLogLevel != LogLevel.None)

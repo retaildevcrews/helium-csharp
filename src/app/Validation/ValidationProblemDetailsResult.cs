@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Helium;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -12,10 +13,10 @@ namespace CSE.Helium.Validation
     {
         private readonly ILogger logger;
 
-        public ValidationProblemDetailsResult(IServiceCollection serviceCollection)
+        public ValidationProblemDetailsResult()
         {
-            var services = serviceCollection.BuildServiceProvider();
-            logger = services.GetRequiredService<ILogger<ValidationProblemDetailsResult>>();
+            using var serviceScope = ServiceActivator.GetScope();
+            logger = serviceScope.ServiceProvider.GetService<ILogger<ValidationProblemDetailsResult>>();
         }
 
         public Task ExecuteResultAsync(ActionContext context)
@@ -27,7 +28,7 @@ namespace CSE.Helium.Validation
             
             context.HttpContext.Response.WriteAsync(ValidationProcessor.WriteJsonUsingObjects(context, logger));
             
-            // todo: performance test this vs. object creation //context.HttpContext.Response.WriteAsync(ValidationProcessor.WriteJsonWithStringBuilder(context, logger));
+            //context.HttpContext.Response.WriteAsync(ValidationProcessor.WriteJsonWithStringBuilder(context, logger));
 
             return Task.CompletedTask;
         }
