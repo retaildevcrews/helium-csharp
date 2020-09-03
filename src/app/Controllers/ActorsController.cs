@@ -1,10 +1,10 @@
-﻿using System;
-using CSE.Helium.DataAccessLayer;
+﻿using CSE.Helium.DataAccessLayer;
+using CSE.Helium.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Globalization;
 using System.Threading.Tasks;
-using CSE.Helium.Model;
 
 namespace CSE.Helium.Controllers
 {
