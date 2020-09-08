@@ -1,4 +1,4 @@
-name: Docker Image Build
+name: Experimentation Docker Build
 
 on:
   pull_request:
@@ -21,9 +21,6 @@ on:
     - '.devcontainer/**'
     - '**.md'
     - 'TestFiles/**'
-
-    tags:
-      - v*
 
 jobs:
 
@@ -86,9 +83,7 @@ jobs:
 
       run: |
 
-        # Do not build on PR Merged
-        
-        # Skip remaining steps
+        # Skip remaining steps - do not build on PR merge - will build on main merge
         echo "::set-env name=AZURE_SET::false"
         echo "::set-env name=DOCKER_SET::false"
         echo "::set-env name=ACR_SET::false"
@@ -174,20 +169,8 @@ jobs:
     - name: Docker Tag and Push
       if: ${{ env.DOCKER_SET == 'true' }}
       run: |
-        # tag the repo with :beta
-        docker tag helium $DOCKER_REPO:beta
-
-        # Tag image based on repo tag if a github label
-        if [[ "${{ github.ref }}" == "refs/tags/"* ]]
-        then
-
-          # Strip git ref prefix from version
-          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,'  | sed -e 's/^v//')
-
-          # tag the image with :version and :stable
-          docker tag helium $DOCKER_REPO:$VERSION
-          docker tag helium $DOCKER_REPO:stable
-        fi
+        # tag the repo with :experimentation
+        docker tag helium $DOCKER_REPO:experimentation
 
         # Push to the repo
         docker push $DOCKER_REPO
@@ -202,22 +185,7 @@ jobs:
         ACR_IMAGE=$ACR_REG.azurecr.io/$ACR_REPO/$ACR_IMAGE
 
         # build release image
-        docker tag helium $ACR_IMAGE:beta
+        docker tag helium $ACR_IMAGE:experimentation
 
-        # Tag image based on repo tag if a github label
-        if [[ "${{ github.ref }}" == "refs/tags/"* ]]
-        then
-
-          # Strip git ref prefix from version
-          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
-        
-          # Strip "v" prefix from tag name
-          VERSION=$(echo $VERSION | sed -e 's/^v//')
-          
-          # tag the image with :version and :stable
-          docker tag helium $ACR_IMAGE:$VERSION
-          docker tag helium $ACR_IMAGE:stable
-        fi
-        
         # push the repo
         docker push $ACR_IMAGE
