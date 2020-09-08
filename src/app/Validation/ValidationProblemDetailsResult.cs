@@ -38,7 +38,6 @@ namespace CSE.Helium.Validation
         /// </summary>
         /// <param name="context"></param>
         /// <param name="logger"></param>
-        /// <returns></returns>
         private static string WriteJsonOutput(ActionContext context, ILogger logger)
         {
             var problemDetails = new ValidationProblemDetails
@@ -71,28 +70,38 @@ namespace CSE.Helium.Validation
             return JsonSerializer.Serialize(problemDetails);
         }
 
+        /// <summary>
+        /// determines the correct Type property to set in JSON response
+        /// </summary>
+        /// <param name="context"></param>
         private static string FormatProblemType(ActionContext context)
         {
-            const string movieParameterUri = "https://github.com/retaildevcrews/helium/blob/main/docs/ParameterValidation.md#movies";
-            const string actorParameterUri = "https://github.com/retaildevcrews/helium/blob/main/docs/ParameterValidation.md#actors";
-            const string movieDirectReadUri = "https://github.com/retaildevcrews/helium/blob/main/docs/ParameterValidation.md#direct-read";
-            const string actorDirectReadUri = "https://github.com/retaildevcrews/helium/blob/main/docs/ParameterValidation.md#direct-read-1";
+            const string baseUri = "https://github.com/retaildevcrews/helium/blob/main/docs/ParameterValidation.md";
 
             var instance = context.HttpContext.Request.GetEncodedPathAndQuery();
 
-            if (instance.Contains("/api/movies", StringComparison.InvariantCulture) && instance.Contains("?", StringComparison.InvariantCulture))
-                return movieParameterUri;
+            if (instance.Contains("?", StringComparison.InvariantCulture))
+            {
+                // query parameter
+                if (instance.StartsWith("/api/movies", StringComparison.InvariantCulture))
+                    return baseUri + "#movies";
 
-            if (instance.Contains("/api/actors", StringComparison.InvariantCulture) && instance.Contains("?", StringComparison.InvariantCulture))
-                return actorParameterUri;
+                if (instance.StartsWith("/api/actors", StringComparison.InvariantCulture))
+                    return baseUri + "#actors";
 
-            if (instance.Contains("/api/movies", StringComparison.InvariantCulture) && !instance.Contains("?", StringComparison.InvariantCulture))
-                return movieDirectReadUri;
+                // no path match, return parameter validation main page
+                return baseUri;
+            }
 
-            if (instance.Contains("/api/actors", StringComparison.InvariantCulture) && !instance.Contains("?", StringComparison.InvariantCulture))
-                return actorDirectReadUri;
+            // direct read
+            if (instance.StartsWith("/api/movies", StringComparison.InvariantCulture))
+                return baseUri + "#direct-read";
 
-            return "about:blank";
+            if (instance.StartsWith("/api/actors", StringComparison.InvariantCulture))
+                return baseUri + "#direct-read-1";
+
+            // no match, return parameter validation main page
+            return baseUri;
         }
 
     }
