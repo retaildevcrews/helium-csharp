@@ -14,9 +14,10 @@ COPY src /src
 
 WORKDIR /src/app
 
-# build the app
-RUN dotnet publish -c Release -o /app
+RUN echo "Options - ${COMPILER_OPTIONS}"
 
+# build the app
+RUN dotnet publish -c Release -o /app ${COMPILER_OPTIONS}
 
 ###########################################################
 
