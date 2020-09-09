@@ -88,17 +88,16 @@ namespace CSE.Helium.Validation
 
                 if (instance.StartsWith("/api/actors", StringComparison.InvariantCulture))
                     return baseUri + "#actors";
-
-                // no path match, return parameter validation main page
-                return baseUri;
             }
+            else
+            {
+                // direct read
+                if (instance.StartsWith("/api/movies", StringComparison.InvariantCulture))
+                    return baseUri + "#direct-read";
 
-            // direct read
-            if (instance.StartsWith("/api/movies", StringComparison.InvariantCulture))
-                return baseUri + "#direct-read";
-
-            if (instance.StartsWith("/api/actors", StringComparison.InvariantCulture))
-                return baseUri + "#direct-read-1";
+                if (instance.StartsWith("/api/actors", StringComparison.InvariantCulture))
+                    return baseUri + "#direct-read-1";
+            }
 
             // no match, return parameter validation main page
             return baseUri;
