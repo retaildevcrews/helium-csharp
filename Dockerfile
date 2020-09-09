@@ -1,6 +1,9 @@
 ### Build and Test the App
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS build
 
+# dotnet compiler options
+ARG COMPILER_OPTIONS=
+
 ### Optional: Set Proxy Variables
 # ENV http_proxy {value}
 # ENV https_proxy {value}
@@ -14,10 +17,9 @@ COPY src /src
 
 WORKDIR /src/app
 
-RUN echo "Options - ${COMPILER_OPTIONS}"
-
 # build the app
-RUN dotnet publish -c Release -o /app ${COMPILER_OPTIONS}
+RUN echo "${COMPILER_OPTIONS}" && \
+    dotnet publish -c Release -o /app ${COMPILER_OPTIONS}
 
 ###########################################################
 
