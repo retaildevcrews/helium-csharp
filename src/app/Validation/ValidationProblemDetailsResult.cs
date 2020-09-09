@@ -26,7 +26,7 @@ namespace CSE.Helium.Validation
         {
             _ = context ?? throw new ArgumentNullException(nameof(context));
 
-            context.HttpContext.Response.ContentType = "application/json";
+            context.HttpContext.Response.ContentType = "application/problem+json";
             context.HttpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
             context.HttpContext.Response.WriteAsync(WriteJsonOutput(context, logger));
 
