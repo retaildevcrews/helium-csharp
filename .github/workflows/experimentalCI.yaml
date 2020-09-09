@@ -114,7 +114,7 @@ jobs:
       if: ${{ env.AZURE_SET == 'true' }}
       run: |
         # build test image
-        docker build . -t test --target test --build-arg COMPILER_OPTIONS=/p:DefineConstants=\"EXPERIMENTAL\"
+        docker build . -t test --target test --build-arg CONFIGURATION=/p:Configuration=Experimental
 
     - name: Install WebV
       if: ${{ env.AZURE_SET == 'true' }}
@@ -164,7 +164,7 @@ jobs:
       if: ${{ env.DOCKER_SET == 'true' || env.ACR_SET == 'true' }}
       run: |
         # build release image
-        docker build . -t helium --build-arg COMPILER_OPTIONS=/p:DefineConstants=\"EXPERIMENTAL\"
+        docker build . -t helium --build-arg CONFIGURATION=/p:Configuration=Experimental
 
     - name: Docker Tag and Push
       if: ${{ env.DOCKER_SET == 'true' }}

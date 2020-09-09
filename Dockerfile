@@ -2,7 +2,7 @@
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS build
 
 # dotnet compiler options
-ARG COMPILER_OPTIONS=
+ARG CONFIGURATION=
 
 ### Optional: Set Proxy Variables
 # ENV http_proxy {value}
@@ -18,7 +18,7 @@ COPY src /src
 WORKDIR /src/app
 
 # build the app
-RUN dotnet publish -c Release -o /app ${COMPILER_OPTIONS}
+RUN dotnet publish -c Release -o /app ${CONFIGURATION}
 
 ###########################################################
 
@@ -45,7 +45,7 @@ WORKDIR /src/tests
 
 ENTRYPOINT [ "./runtests" ]
 
-CMD [ "${COMPILER_OPTIONS}"]
+CMD [ "${CONFIGURATION}"]
 
 ###########################################################
 
