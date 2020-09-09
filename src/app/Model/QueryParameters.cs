@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 using CSE.Helium.Validation;
-using Helium.Validation;
 
 namespace CSE.Helium.Model
 {

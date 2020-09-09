@@ -1,17 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace Helium.Validation
+namespace CSE.Helium.Validation
 {
     [AttributeUsage(AttributeTargets.Property)]
     public sealed class IdValidation : ValidationAttribute
     {
-        private int minimumCharacters;
-        private int maximumCharacters;
-        private bool allowNulls;
-        private string startingCharacters;
-        private List<string> memberName = new List<string>();
+        private readonly int minimumCharacters;
+        private readonly int maximumCharacters;
+        private readonly bool allowNulls;
+        private readonly string startingCharacters;
 
         public IdValidation(string startingCharacters, int minimumCharacters, int maximumCharacters, bool allowNulls)
         {
@@ -23,20 +21,18 @@ namespace Helium.Validation
 
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
-            if (validationContext == null)
-                return ValidationResult.Success;
-
-            if (allowNulls && value == null)
+            if (validationContext == null || allowNulls && value == null)
                 return ValidationResult.Success;
             
-            memberName.Add(validationContext.MemberName);
-            var errorMessage = $"The parameter '{memberName[0]}' should start with '{startingCharacters}' and be between {minimumCharacters} and {maximumCharacters} characters in total";
+            var errorMessage = $"The parameter '{validationContext.MemberName}' should start with '{startingCharacters}' and be between {minimumCharacters} and {maximumCharacters} characters in total";
 
             if (!allowNulls && value == null)
-                return new ValidationResult(errorMessage, memberName);
+                return new ValidationResult(errorMessage);
 
+            // cast value to string
             var id = (string) value;
 
+            // check id has correct starting characters and is between min/max values specified
             var isInvalid = id == null ||
                           id.Length < minimumCharacters ||
                           id.Length > maximumCharacters ||
@@ -44,7 +40,7 @@ namespace Helium.Validation
                           !int.TryParse(id.Substring(2), out var val) ||
                           val <= 0;
             
-            return isInvalid ? new ValidationResult(errorMessage, memberName) : ValidationResult.Success;
+            return isInvalid ? new ValidationResult(errorMessage) : ValidationResult.Success;
         }
     }
 }

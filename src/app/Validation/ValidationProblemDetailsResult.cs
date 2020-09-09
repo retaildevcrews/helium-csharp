@@ -40,6 +40,7 @@ namespace CSE.Helium.Validation
         /// <param name="logger"></param>
         private static string WriteJsonOutput(ActionContext context, ILogger logger)
         {
+            // create problem details response
             var problemDetails = new ValidationProblemDetails
             {
                 Type = FormatProblemType(context),

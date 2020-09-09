@@ -1,13 +1,11 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace Helium.Validation
+namespace CSE.Helium.Validation
 {
     public class IntegerRangeValidation : ValidationAttribute
     {
         private int minValue;
         private int maxValue;
-        private List<string> memberName = new List<string>();
 
         public IntegerRangeValidation(int minValue, int maxValue)
         {
@@ -20,12 +18,11 @@ namespace Helium.Validation
             if (validationContext == null)
                 return ValidationResult.Success;
 
-            memberName.Add(validationContext.MemberName);
-            var errorMessage = $"The parameter '{memberName[0]}' should be between {minValue} and {maxValue}.";
+            var errorMessage = $"The parameter '{validationContext.MemberName}' should be between {minValue} and {maxValue}.";
 
             var isValid = (int)value >= minValue && (int)value <= maxValue;
 
-            return isValid ? ValidationResult.Success : new ValidationResult(errorMessage, memberName);
+            return isValid ? ValidationResult.Success : new ValidationResult(errorMessage);
         }
     }
 }
