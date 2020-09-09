@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System;
+using System.Globalization;
 
 namespace CSE.Helium.Model
 {
@@ -14,6 +16,29 @@ namespace CSE.Helium.Model
         public string TextSearch { get; set; }
         public List<string> Profession { get; set; }
         public List<ActorMovie> Movies { get; set; }
+
+        /// <summary>
+        /// Compute the partition key based on the movieId or actorId
+        /// 
+        /// For this sample, the partitionkey is the id mod 10
+        /// 
+        /// In a full implementation, you would update the logic to determine the partition key
+        /// </summary>
+        /// <param name="id">document id</param>
+        /// <returns>the partition key</returns>
+        public static string ComputePartitionKey(string id)
+        {
+            // validate id
+            if (!string.IsNullOrEmpty(id) &&
+                id.Length > 5 &&
+                id.StartsWith("nm", StringComparison.OrdinalIgnoreCase) &&
+                int.TryParse(id.Substring(2), out int idInt))
+            {
+                return (idInt % 10).ToString(CultureInfo.InvariantCulture);
+            }
+
+            throw new ArgumentException("Invalid Partition Key");
+        }
     }
 
     public class ActorMovie

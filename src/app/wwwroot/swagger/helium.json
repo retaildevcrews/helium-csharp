@@ -396,8 +396,8 @@
             "style": "form",
             "explode": true,
             "schema": {
-              "maxLength": 100,
-              "minLength": 3,
+              "maxLength": 20,
+              "minLength": 2,
               "type": "string",
               "example": "reeves"
             }
