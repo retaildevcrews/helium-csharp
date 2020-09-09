@@ -46,7 +46,10 @@ namespace Middleware
                         }
 
                         // build and cache the json string
-                        string json = "{ " + $"\"apiVersion\": \"{swaggerVersion}\", \"appVersion\": \"{Middleware.VersionExtensions.Version}\"" + " }";
+                        string json = "{ " +
+                            $"\"apiVersion\": \"{swaggerVersion}\", " + 
+                            $"\"appVersion\": \"{Middleware.VersionExtensions.Version}\", " +
+                            "\"language\": \"csharp\" }";
                         responseBytes = System.Text.Encoding.UTF8.GetBytes(json);
                     }
 
