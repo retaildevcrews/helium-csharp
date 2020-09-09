@@ -47,7 +47,7 @@ namespace Middleware
 
 #if (EXPERIMENTAL)
                         // build and cache the json string
-                        string json = "{ \"language\": \"C$\"" + $"\"apiVersion\": \"{swaggerVersion}\", \"appVersion\": \"{Middleware.VersionExtensions.Version}\"" + " }";
+                        string json = "{ \"language\": \"C#\", " + $"\"apiVersion\": \"{swaggerVersion}\", \"appVersion\": \"{Middleware.VersionExtensions.Version}\"" + " }";
                         responseBytes = System.Text.Encoding.UTF8.GetBytes(json);
 #else
                         // build and cache the json string
