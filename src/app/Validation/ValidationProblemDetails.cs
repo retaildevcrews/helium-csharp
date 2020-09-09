@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
+using CSE.Helium.Model;
 
 namespace CSE.Helium.Validation
 {

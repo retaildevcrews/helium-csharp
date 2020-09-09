@@ -35,7 +35,7 @@ namespace CSE.Helium.Controllers
         /// </summary>
         /// <param name="actorQueryParameters"></param>
         [HttpGet]
-        public async Task<IActionResult> GetActorsAsync([FromQuery]ActorQueryParameters actorQueryParameters)
+        public async Task<IActionResult> GetActorsAsync([FromQuery] ActorQueryParameters actorQueryParameters)
         {
             _ = actorQueryParameters ?? throw new ArgumentNullException(nameof(actorQueryParameters));
 
