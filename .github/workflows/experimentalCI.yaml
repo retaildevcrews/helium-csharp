@@ -1,4 +1,4 @@
-name: Experimentation Docker Build
+name: Experimental Docker Build
 
 on:
   pull_request:
@@ -114,7 +114,7 @@ jobs:
       if: ${{ env.AZURE_SET == 'true' }}
       run: |
         # build test image
-        docker build . -t test --target test --build-arg COMPILER_OPTIONS=/p:DefineConstants=\"EXPERIMENTATION\"
+        docker build . -t test --target test --build-arg COMPILER_OPTIONS=/p:DefineConstants=\"EXPERIMENTAL\"
 
     - name: Install WebV
       if: ${{ env.AZURE_SET == 'true' }}
@@ -164,13 +164,13 @@ jobs:
       if: ${{ env.DOCKER_SET == 'true' || env.ACR_SET == 'true' }}
       run: |
         # build release image
-        docker build . -t helium --build-arg COMPILER_OPTIONS=/p:DefineConstants=\"EXPERIMENTATION\"
+        docker build . -t helium --build-arg COMPILER_OPTIONS=/p:DefineConstants=\"EXPERIMENTAL\"
 
     - name: Docker Tag and Push
       if: ${{ env.DOCKER_SET == 'true' }}
       run: |
-        # tag the repo with :experimentation
-        docker tag helium $DOCKER_REPO:experimentation
+        # tag the repo with :experimental
+        docker tag helium $DOCKER_REPO:experimental
 
         # Push to the repo
         docker push $DOCKER_REPO
@@ -184,8 +184,8 @@ jobs:
         # build the complete image name
         ACR_IMAGE=$ACR_REG.azurecr.io/$ACR_REPO/$ACR_IMAGE
 
-        # build release image
-        docker tag helium $ACR_IMAGE:experimentation
+        # tag image
+        docker tag helium $ACR_IMAGE:experimental
 
         # push the repo
         docker push $ACR_IMAGE
