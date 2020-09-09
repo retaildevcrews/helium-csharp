@@ -18,8 +18,7 @@ COPY src /src
 WORKDIR /src/app
 
 # build the app
-RUN echo "${COMPILER_OPTIONS}" && \
-    dotnet publish -c Release -o /app ${COMPILER_OPTIONS}
+RUN dotnet publish -c Release -o /app ${COMPILER_OPTIONS}
 
 ###########################################################
 
@@ -46,6 +45,7 @@ WORKDIR /src/tests
 
 ENTRYPOINT [ "./runtests" ]
 
+CMD [ "${COMPILER_OPTIONS}"]
 
 ###########################################################
 
