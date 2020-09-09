@@ -1,3 +1,3 @@
 #!/bin/sh
 
-dotnet test /p:CollectCoverage=true /p:CoverletOutput="./TestResults/" $COMPILER_OPTIONS
+dotnet test /p:CollectCoverage=true /p:CoverletOutput="./TestResults/" $1
