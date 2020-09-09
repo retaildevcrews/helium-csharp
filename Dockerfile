@@ -1,6 +1,9 @@
 ### Build and Test the App
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS build
 
+# dotnet compiler options
+ARG CONFIGURATION=
+
 ### Optional: Set Proxy Variables
 # ENV http_proxy {value}
 # ENV https_proxy {value}
@@ -15,8 +18,7 @@ COPY src /src
 WORKDIR /src/app
 
 # build the app
-RUN dotnet publish -c Release -o /app
-
+RUN dotnet publish -c Release -o /app ${CONFIGURATION}
 
 ###########################################################
 
@@ -42,7 +44,6 @@ EXPOSE 4120
 WORKDIR /src/tests
 
 ENTRYPOINT [ "./runtests" ]
-
 
 ###########################################################
 
