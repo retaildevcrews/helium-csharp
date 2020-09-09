@@ -17,9 +17,8 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Experimental'">
+  <PropertyGroup Condition="'$(Configuration)'=='Experimental'">
     <DefineConstants>TRACE;DEBUG;EXPERIMENTAL</DefineConstants>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
