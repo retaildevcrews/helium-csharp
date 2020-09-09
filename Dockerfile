@@ -45,8 +45,6 @@ WORKDIR /src/tests
 
 ENTRYPOINT [ "./runtests" ]
 
-CMD [ "${CONFIGURATION}"]
-
 ###########################################################
 
 ### Build the runtime container

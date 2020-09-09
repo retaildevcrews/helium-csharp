@@ -125,7 +125,7 @@ jobs:
       if: ${{ env.AZURE_SET == 'true' }}
       run: |
         # run the app
-        docker run -d --name hcs -p 4120:4120 --env KEYVAULT_NAME=$KEYVAULT_NAME --env AUTH_TYPE=CLI -v ~/.azure:/root/.azure test
+        docker run -d --name hcs -p 4120:4120 --env KEYVAULT_NAME=$KEYVAULT_NAME --env AUTH_TYPE=CLI -v ~/.azure:/root/.azure --env CONFIGURATION="/p:Configuration=Experimental" test
         
         echo "Waiting for web server to start and run initial tests ..."
         sleep 25
