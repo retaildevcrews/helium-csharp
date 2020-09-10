@@ -45,15 +45,9 @@ namespace Middleware
                             swaggerVersion = "1.0";
                         }
 
-#if (EXPERIMENTAL)
                         // build and cache the json string
-                        string json = "{ \"language\": \"C#\", " + $"\"apiVersion\": \"{swaggerVersion}\", \"appVersion\": \"{Middleware.VersionExtensions.Version}\"" + " }";
+                        string json = $"{{ \"apiVersion\": \"{swaggerVersion}\", \"appVersion\": \"{Middleware.VersionExtensions.Version}\", \"language\": \"C#\" }}";
                         responseBytes = System.Text.Encoding.UTF8.GetBytes(json);
-#else
-                        // build and cache the json string
-                        string json = "{ " + $"\"apiVersion\": \"{swaggerVersion}\", \"appVersion\": \"{Middleware.VersionExtensions.Version}\"" + " }";
-                        responseBytes = System.Text.Encoding.UTF8.GetBytes(json);
-#endif
                     }
 
                     // return the version info
