@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Builder;
 using System;
 using System.IO;
 using System.Reflection;
+using System.Text;
 using System.Text.Json;
 
 namespace Middleware
@@ -46,11 +47,13 @@ namespace Middleware
                         }
 
                         // build and cache the json string
-                        string json = "{ " +
-                            $"\"apiVersion\": \"{swaggerVersion}\", " + 
-                            $"\"appVersion\": \"{Middleware.VersionExtensions.Version}\", " +
-                            "\"language\": \"csharp\" }";
-                        responseBytes = System.Text.Encoding.UTF8.GetBytes(json);
+                        StringBuilder sb = new StringBuilder("{ ");
+                        sb.Append("\"apiVersion\": ");
+                        sb.Append($"\"{swaggerVersion}\", ");
+                        sb.Append("\"appVersion\": ");
+                        sb.Append($"\"{Middleware.VersionExtensions.Version}\", ");
+                        sb.Append("\"language\": \"csharp\" }");
+                        responseBytes = System.Text.Encoding.UTF8.GetBytes(sb.ToString());
                     }
 
                     // return the version info
