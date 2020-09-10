@@ -35,7 +35,7 @@ namespace CSE.Helium.Validation
         }
 
         /// <summary>
-        /// creates JSON response using ValidationProblemDetails given inputs
+        /// Creates JSON response using ValidationProblemDetails given inputs
         /// </summary>
         /// <param name="context"></param>
         /// <param name="logger"></param>
@@ -48,7 +48,7 @@ namespace CSE.Helium.Validation
                 Title = "Your request parameters did not validate",
                 Detail = "One or more invalid parameters were specified.",
                 Status = 400,
-                Instance = context.HttpContext.Request.GetEncodedPathAndQuery(),
+                Instance = context.HttpContext.Request.GetEncodedPathAndQuery()
             };
 
             // collect all errors for iterative string/json representation
@@ -73,7 +73,7 @@ namespace CSE.Helium.Validation
         }
 
         /// <summary>
-        /// determines the correct Type property to set in JSON response
+        /// Determines the correct Type property to set in JSON response
         /// </summary>
         /// <param name="context"></param>
         private static string FormatProblemType(ActionContext context)
