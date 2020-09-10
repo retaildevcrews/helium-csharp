@@ -49,7 +49,6 @@ namespace CSE.Helium.Model
 
     public sealed class MovieIdParameter
     {
-        //[RegularExpression(@"^tt(?!0+$)([0-9]{7,11})$", ErrorMessage = "Movie ID starts with 'tt' and should be between 7 and 11 characters")]
         [JsonPropertyName(name:"movieId")]
         [IdValidation(startingCharacters:"tt", minimumCharacters:7, maximumCharacters:11, false)]
         public string MovieId { get; set; }

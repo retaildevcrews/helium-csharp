@@ -42,14 +42,13 @@ namespace CSE.Helium.Validation
         private static string WriteJsonOutput(ActionContext context, ILogger logger)
         {
             // create problem details response
-            var problemDetails = new ValidationProblemDetails
-            {
-                Type = FormatProblemType(context),
-                Title = "Your request parameters did not validate",
-                Detail = "One or more invalid parameters were specified.",
-                Status = 400,
-                Instance = context.HttpContext.Request.GetEncodedPathAndQuery()
-            };
+            var problemDetails = new ValidationProblemDetails(
+                type: FormatProblemType(context),
+                title: "Your request parameters did not validate",
+                detail: "One or more invalid parameters were specified",
+                status: 400,
+                instance: context.HttpContext.Request.GetEncodedPathAndQuery()
+            );
 
             // collect all errors for iterative string/json representation
             var validationErrors = context.ModelState.Where(m => m.Value.Errors.Count > 0).ToArray();
