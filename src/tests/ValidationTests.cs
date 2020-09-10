@@ -86,13 +86,13 @@ namespace CSE.Helium.Tests
         [InlineData(2001, true)]
         [InlineData(1870, false)]
         [InlineData(123, false)]
-        public void YearInput_ValidateRegularExpression_ReturnsExpectedResult(int year, bool expectedResult)
+        public void YearInput_ValidateRegularExpression_ReturnsExpectedResult(int input, bool expectedResult)
         {
             // Arrange
-            var yearValidation = new YearValidation();
+            var yearValidation = new MovieQueryParameters();
 
             // Act
-            var actualResult = yearValidation.IsValid(year);
+            var actualResult = IsValidProperty(yearValidation, input, "Year");
 
             // Assert
             Assert.Equal(expectedResult, actualResult);

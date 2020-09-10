@@ -7,7 +7,7 @@ namespace CSE.Helium.Model
     public abstract class QueryParameters
     {
         [JsonPropertyName(name:"pageNumber")]
-        [IntegerRangeValidation(minValue:1, maxValue:1000)]
+        [IntegerRangeValidation(minValue:1, maxValue:10000)]
         public int PageNumber { get; set; } = 1;
 
         [JsonPropertyName(name:"pageSize")]

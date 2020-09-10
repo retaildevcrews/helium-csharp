@@ -9,11 +9,6 @@ namespace CSE.Helium.Validation
         private const int StartYear = 1874;
         private static readonly int EndYear = DateTime.UtcNow.AddYears(5).Year;
 
-        public YearValidation()
-        {
-            // required for unit test
-        }
-
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
             _ = validationContext ?? throw new ArgumentNullException(nameof(validationContext));
