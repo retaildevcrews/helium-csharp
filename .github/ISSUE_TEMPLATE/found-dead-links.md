@@ -1,7 +1,7 @@
 ---
 name: Found Dead Links
 about: Dead link
-title: 'Dead link(s) found in markdown files in helium repository'
+title: 'Dead link(s) found in markdown files in helium-csharp repository'
 labels: 'Documentation'
 assignees: ''
 
