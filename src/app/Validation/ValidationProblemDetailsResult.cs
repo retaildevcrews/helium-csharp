@@ -44,8 +44,8 @@ namespace CSE.Helium.Validation
             // create problem details response
             var problemDetails = new ValidationProblemDetails(
                 type: FormatProblemType(context),
-                title: "Your request parameters did not validate",
-                detail: "One or more invalid parameters were specified",
+                title: "Parameter validation error",
+                detail: "One or more invalid parameters were specified.",
                 status: 400,
                 instance: context.HttpContext.Request.GetEncodedPathAndQuery()
             );
