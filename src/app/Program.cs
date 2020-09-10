@@ -28,7 +28,7 @@ namespace CSE.Helium
         private static IWebHost host;
 
         // Key Vault configuration
-        private static IConfigurationRoot config = null;
+        private static IConfigurationRoot config;
 
         private static CancellationTokenSource ctCancel;
 
@@ -281,6 +281,7 @@ namespace CSE.Helium
 
         /// <summary>
         /// Check for Cosmos key rotation
+        /// Currently not used - safe to ignore fxcop warning
         /// </summary>
         /// <param name="ctCancel">CancellationTokenSource</param>
         /// <returns>Only returns when ctl-c is pressed and cancellation token is cancelled</returns>

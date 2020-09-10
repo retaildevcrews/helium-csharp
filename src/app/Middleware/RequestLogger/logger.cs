@@ -48,6 +48,11 @@ namespace Middleware
             // set start time
             DateTime dtStart = DateTime.Now;
 
+            if (context == null)
+            {
+                return;
+            }
+
             // Invoke next handler
             if (next != null)
             {

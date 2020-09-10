@@ -17,7 +17,7 @@ namespace CSE.Helium
         public static readonly string ServiceId = "helium-csharp";
         public static readonly string Description = "Helium C# Health Check";
 
-        private static JsonSerializerOptions jsonOptions = null;
+        private static JsonSerializerOptions jsonOptions;
 
         private readonly ILogger logger;
         private readonly IDAL dal;
