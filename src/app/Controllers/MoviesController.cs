@@ -61,7 +61,7 @@ namespace CSE.Helium.Controllers
         /// <param name="movieIdParameter"></param>
         /// <returns></returns>
         [HttpGet("{movieId}")]
-        public async System.Threading.Tasks.Task<IActionResult> GetMovieByIdAsync([FromRoute]MovieIdParameter movieIdParameter)
+        public async System.Threading.Tasks.Task<IActionResult> GetMovieByIdAsync([FromRoute] MovieIdParameter movieIdParameter)
         {
             _ = movieIdParameter ?? throw new ArgumentNullException(nameof(movieIdParameter));
 

@@ -58,7 +58,7 @@ namespace CSE.Helium.Controllers
         /// <param name="actorIdParameter">The actorId</param>
         /// <response code="404">actorId not found</response>
         [HttpGet("{actorId}")]
-        public async Task<IActionResult> GetActorByIdAsync([FromRoute]ActorIdParameter actorIdParameter)
+        public async Task<IActionResult> GetActorByIdAsync([FromRoute] ActorIdParameter actorIdParameter)
         {
             _ = actorIdParameter ?? throw new ArgumentNullException(nameof(actorIdParameter));
             
