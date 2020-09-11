@@ -12,7 +12,7 @@ namespace Middleware
     public static class VersionExtensions
     {
         // cached response
-        static byte[] responseBytes = null;
+        static byte[] responseBytes;
 
         /// <summary>
         /// Middleware extension method to handle /version request
@@ -52,7 +52,7 @@ namespace Middleware
 
                     // return the version info
                     context.Response.ContentType = "application/json";
-                    await context.Response.Body.WriteAsync(responseBytes, 0, responseBytes.Length).ConfigureAwait(false);
+                    await context.Response.Body.WriteAsync(responseBytes).ConfigureAwait(false);
                 }
                 else
                 {

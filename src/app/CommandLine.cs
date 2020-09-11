@@ -71,7 +71,7 @@ namespace CSE.Helium
             Option optKv = new Option<string>(new string[] { "-k", "--keyvault-name" }, "The name or URL of the Azure Keyvault")
             {
                 Argument = new Argument<string>(),
-                Required = true
+                IsRequired = true
             };
 
             optKv.AddValidator(v =>

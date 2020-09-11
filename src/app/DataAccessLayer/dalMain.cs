@@ -16,7 +16,7 @@ namespace CSE.Helium.DataAccessLayer
         public int CosmosTimeout { get; set; } = 60;
         public int CosmosMaxRetries { get; set; } = 10;
 
-        private CosmosConfig cosmosDetails = null;
+        private CosmosConfig cosmosDetails;
 
         /// <summary>
         /// Data Access Layer Constructor

@@ -33,7 +33,7 @@ namespace Middleware
                 {
                     // return the content
                     context.Response.ContentType = "text/plain";
-                    await context.Response.Body.WriteAsync(responseBytes, 0, responseBytes.Length).ConfigureAwait(false);
+                    await context.Response.Body.WriteAsync(responseBytes).ConfigureAwait(false);
                 }
                 else
                 {

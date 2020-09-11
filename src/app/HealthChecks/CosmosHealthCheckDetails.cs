@@ -74,7 +74,7 @@ namespace CSE.Helium
 
             try
             {
-                (await dal.GetGenresAsync().ConfigureAwait(false)).ToList<string>();
+                _ = (await dal.GetGenresAsync().ConfigureAwait(false)).ToList<string>();
 
                 return BuildHealthzCheck(path, maxMilliseconds, null, data, name);
             }
@@ -128,7 +128,7 @@ namespace CSE.Helium
 
             try
             {
-                (await dal.GetMoviesAsync(query).ConfigureAwait(false)).ToList<Movie>();
+                _ = (await dal.GetMoviesAsync(query).ConfigureAwait(false)).ToList<Movie>();
 
                 return BuildHealthzCheck(path, maxMilliseconds, null, data, name);
             }
@@ -181,7 +181,7 @@ namespace CSE.Helium
 
             try
             {
-                (await dal.GetActorsAsync(query).ConfigureAwait(false)).ToList<Actor>();
+                _ = (await dal.GetActorsAsync(query).ConfigureAwait(false)).ToList<Actor>();
 
                 return BuildHealthzCheck(path, maxMilliseconds, null, data, name);
             }
