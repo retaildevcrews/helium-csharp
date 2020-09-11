@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
     <RootNamespace>Helium</RootNamespace>
     <AssemblyName>helium</AssemblyName>
     <Version>1.1.1+$([System.DateTime]::UtcNow.ToString(`MMdd-HHmm`))</Version>
