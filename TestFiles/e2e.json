@@ -123,12 +123,12 @@
 
   {"Path":"/api/movies/tt00000","PerfTarget":{"Category":"SearchMovies"},"Validation":{"StatusCode":400, "ContentType":"application/problem+json","jsonObject":[{"field":"type","value":"https://github.com/retaildevcrews/helium/blob/main/docs/ParameterValidation.md#direct-read"},{"field":"title","value":"Parameter validation error"},{"field":"detail","value":"One or more invalid parameters were specified."},{"field":"status","value":400},{"field":"instance","value":"/api/movies/tt00000"},{"field":"validationErrors","Validation":{"jsonArray":{"count":1,"forEach":[{"jsonObject":[{"field":"code"},{"field":"target"},{"field":"message"}]}]}}}]}},
 
-  {"Path":"/api/actors/nm12345","PerfTarget":{"Category": "DirectRead"},"Validation":{"StatusCode":404, "ContentType":"application/problem+json","jsonObject":[{"field":"status","value":404},{"field":"message","value":"Actor Not Found"}]}},
+  {"Path":"/api/actors/nm12345","PerfTarget":{"Category": "DirectRead"},"Validation":{"StatusCode":404,"jsonObject":[{"field":"status","value":404},{"field":"message","value":"Actor Not Found"}]}},
 
-  {"Path":"/api/movies/tt12345", "PerfTarget":{"Category": "DirectRead"},"Validation":{"StatusCode":404, "ContentType":"application/problem+json","jsonObject":[{"field":"status","value":404},{"field":"message","value":"Movie Not Found"}]}},
+  {"Path":"/api/movies/tt12345", "PerfTarget":{"Category": "DirectRead"},"Validation":{"StatusCode":404,"jsonObject":[{"field":"status","value":404},{"field":"message","value":"Movie Not Found"}]}},
 
   {"Path":"/api/actors/nm0000173/foo","PerfTarget":{"Category": "DirectRead"},"Validation":{"StatusCode":404}},
-  
+
   {"Path":"/api/movies/tt0133093/foo","PerfTarget":{"Category": "DirectRead"},"Validation":{"StatusCode":404}}
 
 ]
