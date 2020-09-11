@@ -168,7 +168,8 @@ namespace CSE.Helium
             // configure the web host builder
             IWebHostBuilder builder = WebHost.CreateDefaultBuilder()
                 .UseConfiguration(config)
-                .UseKestrel()
+                //.UseIISIntegration()
+                //.UseKestrel()
                 .UseUrls(string.Format(System.Globalization.CultureInfo.InvariantCulture, $"http://*:{Constants.Port}/"))
                 .UseStartup<Startup>()
                 .UseShutdownTimeout(TimeSpan.FromSeconds(Constants.GracefulShutdownTimeout))
