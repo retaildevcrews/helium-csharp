@@ -8,7 +8,7 @@ namespace Helium
     /// </summary>
     public static class ServiceActivator
     {
-        internal static IServiceProvider _serviceProvider = null;
+        private static IServiceProvider _serviceProvider;
 
         /// <summary>
         /// Configure ServiceActivator with full serviceProvider
