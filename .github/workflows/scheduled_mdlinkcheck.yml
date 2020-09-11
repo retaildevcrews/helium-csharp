@@ -1,0 +1,34 @@
+name: Check Markdown Links
+
+on: 
+  schedule:
+  # Run on the 1st, 8th, 15th and 22nd of every month at 2:00 AM 
+  - cron: "0 2 1,8,15,22 * *"
+
+jobs:
+  markdown-link-check:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@main
+    - uses: gaurav-nelson/github-action-markdown-link-check@v1
+      with:
+        use-quiet-mode: 'yes'
+        use-verbose-mode: 'yes'
+        config-file: 'mlc_config.json'
+
+    - name: Create Issue From File
+      if: ${{ failure() }}
+      id: ciff
+      uses: peter-evans/create-issue-from-file@v2
+      with:
+        title: Remove dead links from repository
+        content-filepath: ./.github/ISSUE_TEMPLATE/found-dead-links.md
+
+    - name: Create Project Card
+      if: ${{ failure() }}
+      uses: peter-evans/create-or-update-project-card@v1
+      with:
+        project-number: '1'
+        column-name: 'Triage'
+        issue-number: ${{ steps.ciff.outputs.issue-number }}
+    

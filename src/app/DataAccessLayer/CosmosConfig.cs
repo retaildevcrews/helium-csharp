@@ -8,8 +8,8 @@ namespace CSE.Helium.DataAccessLayer
     /// </summary>
     internal class CosmosConfig
     {
-        public CosmosClient Client = null;
-        public Container Container = null;
+        public CosmosClient Client;
+        public Container Container;
 
         // default values for Cosmos Options
         public int MaxRows = 1000;
@@ -23,8 +23,8 @@ namespace CSE.Helium.DataAccessLayer
         public string CosmosCollection;
 
         // member variables
-        private QueryRequestOptions queryRequestOptions = null;
-        private CosmosClientOptions cosmosClientOptions = null;
+        private QueryRequestOptions queryRequestOptions;
+        private CosmosClientOptions cosmosClientOptions;
 
         // CosmosDB query request options
         public QueryRequestOptions QueryRequestOptions

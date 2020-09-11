@@ -9,7 +9,7 @@ namespace CSE.Helium.Controllers
 {
     public class ErrorResult
     {
-        public int Status { get { return (int)Error; } }
+        public int Status => (int)Error;
         public string Message { get; set; }
         public HttpStatusCode Error { get; set; }
     }
