@@ -39,15 +39,17 @@ namespace CSE.Helium.Controllers
         {
             _ = actorQueryParameters ?? throw new ArgumentNullException(nameof(actorQueryParameters));
 
-            string method = GetMethodText(
-                actorQueryParameters.Q,
-                actorQueryParameters.PageNumber,
-                actorQueryParameters.PageSize);
-
             // convert to zero based index
             actorQueryParameters.PageNumber = actorQueryParameters.PageNumber > 1 ? actorQueryParameters.PageNumber - 1 : 0;
 
-            return await ResultHandler.Handle(dal.GetActorsAsync(actorQueryParameters.Q, actorQueryParameters.PageNumber * actorQueryParameters.PageSize, actorQueryParameters.PageSize), method, Constants.ActorsControllerException, logger).ConfigureAwait(false);
+            return await ResultHandler.Handle(dal.GetActorsAsync(
+                    actorQueryParameters.Q,
+                    actorQueryParameters.PageNumber * actorQueryParameters.PageSize,
+                    actorQueryParameters.PageSize),
+                    GetMethodText(actorQueryParameters),
+                    Constants.ActorsControllerException,
+                    logger)
+                .ConfigureAwait(false);
         }
 
         /// <summary>
@@ -73,7 +75,7 @@ namespace CSE.Helium.Controllers
         /// <param name="pageNumber"></param>
         /// <param name="pageSize"></param>
         /// <returns></returns>
-        private string GetMethodText(string q, int pageNumber, int pageSize)
+        private string GetMethodText(ActorQueryParameters actorQueryParameters)
         {
             string method = "GetActorsAsync";
 
@@ -82,15 +84,15 @@ namespace CSE.Helium.Controllers
                 // add the query parameters to the method name if exists
                 if (HttpContext.Request.Query.ContainsKey("q"))
                 {
-                    method = string.Format(CultureInfo.InvariantCulture, $"{method}:q:{q}");
+                    method = string.Format(CultureInfo.InvariantCulture, $"{method}:q:{actorQueryParameters.Q}");
                 }
                 if (HttpContext.Request.Query.ContainsKey("pageNumber"))
                 {
-                    method = string.Format(CultureInfo.InvariantCulture, $"{method}:pageNumber:{pageNumber}");
+                    method = string.Format(CultureInfo.InvariantCulture, $"{method}:pageNumber:{actorQueryParameters.PageNumber}");
                 }
                 if (HttpContext.Request.Query.ContainsKey("pageSize"))
                 {
-                    method = string.Format(CultureInfo.InvariantCulture, $"{method}:pageSize:{pageSize}");
+                    method = string.Format(CultureInfo.InvariantCulture, $"{method}:pageSize:{actorQueryParameters.PageSize}");
                 }
             }
 

@@ -1,5 +1,4 @@
 ﻿using CSE.Helium.Model;
-using CSE.Helium.Validation;
 using System.ComponentModel.DataAnnotations;
 using Xunit;
 
