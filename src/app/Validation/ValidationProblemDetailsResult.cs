@@ -19,6 +19,7 @@ namespace CSE.Helium.Validation
 
         public ValidationProblemDetailsResult()
         {
+            // todo: can this be done a different way so we don't need the ServiceActivator to get an instance of ILogger?
             using var serviceScope = ServiceActivator.GetScope();
             logger = serviceScope.ServiceProvider.GetService<ILogger<ValidationProblemDetailsResult>>();
         }
