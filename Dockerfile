@@ -4,14 +4,6 @@ FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS build
 # dotnet compiler options
 ARG CONFIGURATION=
 
-### Optional: Set Proxy Variables
-# ENV http_proxy {value}
-# ENV https_proxy {value}
-# ENV HTTP_PROXY {value}
-# ENV HTTPS_PROXY {value}
-# ENV no_proxy {value}
-# ENV NO_PROXY {value}
-
 ### copy the source and tests
 COPY src /src
 
@@ -49,14 +41,6 @@ ENTRYPOINT [ "./runtests" ]
 
 ### Build the runtime container
 FROM mcr.microsoft.com/dotnet/core/aspnet:3.1-alpine AS release
-
-### Optional: Set Proxy Variables
-# ENV http_proxy {value}
-# ENV https_proxy {value}
-# ENV HTTP_PROXY {value}
-# ENV HTTPS_PROXY {value}
-# ENV no_proxy {value}
-# ENV NO_PROXY {value}
 
 ### if port is changed, also update value in Constants.cs
 EXPOSE 4120
