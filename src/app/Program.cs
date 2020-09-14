@@ -109,7 +109,14 @@ namespace CSE.Helium
                 logger.LogInformation("Web Server Started");
             }
 
-            Console.WriteLine($"Version: {Middleware.VersionExtensions.Version}");
+            Console.WriteLine(" _          _ _");
+            Console.WriteLine("| |        | (_)");
+            Console.WriteLine("| |__   ___| |_ _   _ _ __ ___");
+            Console.WriteLine("| '_ \\ / _ \\ | | | | | '_ ` _ \\");
+            Console.WriteLine("| | | |  __/ | | |_| | | | | | |");
+            Console.WriteLine("|_| |_|\\___|_|_|\\__,_|_| |_| |_|");
+
+            Console.WriteLine($"\nVersion: {Middleware.VersionExtensions.Version}");
         }
 
         /// <summary>
