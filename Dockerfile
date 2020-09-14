@@ -1,5 +1,5 @@
 ### Build and Test the App
-FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS build
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS test
 
 # dotnet compiler options
 ARG CONFIGURATION=
@@ -33,11 +33,20 @@ ENV DEBIAN_FRONTEND=dialog
 
 EXPOSE 4120
 
+### copy the source and tests
+COPY src /src
+
+WORKDIR /src/app
+
+# build the app
+RUN dotnet publish -c Release -o /app ${CONFIGURATION}
+
 WORKDIR /src/tests
 
 ENTRYPOINT [ "./runtests" ]
 
 ###########################################################
+
 
 ### Build the runtime container
 FROM mcr.microsoft.com/dotnet/core/aspnet:3.1-alpine AS release
@@ -57,6 +66,6 @@ RUN addgroup -S helium && \
 USER helium
 
 ### copy the app
-COPY --from=build /app .
+COPY --from=test /app .
 
 ENTRYPOINT [ "dotnet",  "helium.dll" ]
