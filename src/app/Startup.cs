@@ -64,13 +64,13 @@ namespace CSE.Helium
         {
             // log http responses to the console
             // this should be first as it "wraps" all requests
-            if (App.HeliumLogLevel != LogLevel.None)
+            if (App.AppLogLevel != LogLevel.None)
             {
                 app.UseLogger(new LoggerOptions
                 {
-                    Log2xx = App.HeliumLogLevel <= LogLevel.Information,
-                    Log3xx = App.HeliumLogLevel <= LogLevel.Information,
-                    Log4xx = App.HeliumLogLevel <= LogLevel.Warning,
+                    Log2xx = App.AppLogLevel <= LogLevel.Information,
+                    Log3xx = App.AppLogLevel <= LogLevel.Information,
+                    Log4xx = App.AppLogLevel <= LogLevel.Warning,
                     Log5xx = true
                 });
             }

@@ -32,7 +32,7 @@ namespace CSE.Helium
 
         private static CancellationTokenSource ctCancel;
 
-        public static LogLevel HeliumLogLevel { get; set; } = LogLevel.Warning;
+        public static LogLevel AppLogLevel { get; set; } = LogLevel.Warning;
 
         /// <summary>
         /// Main entry point
@@ -186,16 +186,22 @@ namespace CSE.Helium
                     services.AddSingleton<IConfigurationRoot>(config);
 
                     services.AddResponseCaching();
-                })
-                // configure logger based on command line
-                .ConfigureLogging(logger =>
-                {
-                    logger.ClearProviders();
-                    logger.AddConsole()
-                    .AddFilter("Microsoft", HeliumLogLevel)
-                    .AddFilter("System", HeliumLogLevel)
-                    .AddFilter("Default", HeliumLogLevel);
                 });
+
+            // configure logger based on command line
+            builder.ConfigureLogging(logger =>
+            {
+                logger.ClearProviders();
+                logger.AddConsole();
+
+                if (Constants.IsLogLevelSet)
+                {
+                    logger.AddFilter("Microsoft", AppLogLevel)
+                    .AddFilter("System", AppLogLevel)
+                    .AddFilter("Default", AppLogLevel)
+                    .AddFilter("CSE.Helium", AppLogLevel);
+                }
+            });
 
             // build the host
             return builder.Build();
