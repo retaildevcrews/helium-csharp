@@ -4,19 +4,6 @@ FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS test
 # dotnet compiler options
 ARG CONFIGURATION=
 
-### copy the source and tests
-COPY src /src
-
-WORKDIR /src/app
-
-# build the app
-RUN dotnet publish -c Release -o /app ${CONFIGURATION}
-
-###########################################################
-
-### Build and Test the App
-FROM build AS test
-
 ENV DEBIAN_FRONTEND=noninteractive
 # Install the Azure CLI
 RUN mkdir -p /root/.azure \
