@@ -1,5 +1,4 @@
-﻿using CSE.Helium.Model;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using Xunit;
 
 namespace CSE.Helium.Tests

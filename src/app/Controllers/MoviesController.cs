@@ -1,9 +1,7 @@
 ﻿using CSE.Helium.DataAccessLayer;
-using CSE.Helium.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Globalization;
 using System.Threading.Tasks;
 
 namespace CSE.Helium.Controllers
@@ -80,42 +78,42 @@ namespace CSE.Helium.Controllers
         {
             string method = "GetMovies";
 
-            if (HttpContext != null && HttpContext.Request != null && HttpContext.Request.Query != null)
+            if (HttpContext?.Request?.Query != null)
             {
                 // add the query parameters to the method name if exists
                 if (HttpContext.Request.Query.ContainsKey("q"))
                 {
-                    method = string.Format(CultureInfo.InvariantCulture, $"{method}:q:{movieQueryParameters.Q}");
+                    method = $"{method}:q:{movieQueryParameters.Q}";
                 }
 
                 if (HttpContext.Request.Query.ContainsKey("genre"))
                 {
-                    method = string.Format(CultureInfo.InvariantCulture, $"{method}:genre:{movieQueryParameters.Genre}");
+                    method = $"{method}:genre:{movieQueryParameters.Genre}";
                 }
 
                 if (HttpContext.Request.Query.ContainsKey("year"))
                 {
-                    method = string.Format(CultureInfo.InvariantCulture, $"{method}:year:{movieQueryParameters.Year}");
+                    method = $"{method}:year:{movieQueryParameters.Year}";
                 }
 
                 if (HttpContext.Request.Query.ContainsKey("rating"))
                 {
-                    method = string.Format(CultureInfo.InvariantCulture, $"{method}:rating:{movieQueryParameters.Rating}");
+                    method = $"{method}:rating:{movieQueryParameters.Rating}";
                 }
 
                 if (HttpContext.Request.Query.ContainsKey("actorId"))
                 {
-                    method = string.Format(CultureInfo.InvariantCulture, $"{method}:actorId:{movieQueryParameters.ActorId}");
+                    method = $"{method}:actorId:{movieQueryParameters.ActorId}";
                 }
 
                 if (HttpContext.Request.Query.ContainsKey("pageNumber"))
                 {
-                    method = string.Format(CultureInfo.InvariantCulture, $"{method}:pageNumber:{movieQueryParameters.PageNumber}");
+                    method = $"{method}:pageNumber:{movieQueryParameters.PageNumber}";
                 }
 
                 if (HttpContext.Request.Query.ContainsKey("pageSize"))
                 {
-                    method = string.Format(CultureInfo.InvariantCulture, $"{method}:pageSize:{movieQueryParameters.PageSize}");
+                    method = $"{method}:pageSize:{movieQueryParameters.PageSize}";
                 }
             }
 

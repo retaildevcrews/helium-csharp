@@ -1,9 +1,7 @@
 ﻿using CSE.Helium.DataAccessLayer;
-using CSE.Helium.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Globalization;
 using System.Threading.Tasks;
 
 namespace CSE.Helium.Controllers
@@ -17,7 +15,7 @@ namespace CSE.Helium.Controllers
     {
         private readonly ILogger logger;
         private readonly IDAL dal;
-        
+
         /// <summary>
         ///  Constructor
         /// </summary>
@@ -71,28 +69,26 @@ namespace CSE.Helium.Controllers
         /// <summary>
         /// Add parameters to the method name if specified in the query string
         /// </summary>
-        /// <param name="q"></param>
-        /// <param name="pageNumber"></param>
-        /// <param name="pageSize"></param>
+        /// <param name="actorQueryParameters"></param>
         /// <returns></returns>
         private string GetMethodText(ActorQueryParameters actorQueryParameters)
         {
             string method = "GetActorsAsync";
 
-            if (HttpContext != null && HttpContext.Request != null && HttpContext.Request.Query != null)
+            if (HttpContext?.Request?.Query != null)
             {
                 // add the query parameters to the method name if exists
                 if (HttpContext.Request.Query.ContainsKey("q"))
                 {
-                    method = string.Format(CultureInfo.InvariantCulture, $"{method}:q:{actorQueryParameters.Q}");
+                    method = $"{method}:q:{actorQueryParameters.Q}";
                 }
                 if (HttpContext.Request.Query.ContainsKey("pageNumber"))
                 {
-                    method = string.Format(CultureInfo.InvariantCulture, $"{method}:pageNumber:{actorQueryParameters.PageNumber}");
+                    method = $"{method}:pageNumber:{actorQueryParameters.PageNumber}";
                 }
                 if (HttpContext.Request.Query.ContainsKey("pageSize"))
                 {
-                    method = string.Format(CultureInfo.InvariantCulture, $"{method}:pageSize:{actorQueryParameters.PageSize}");
+                    method = $"{method}:pageSize:{actorQueryParameters.PageSize}";
                 }
             }
 

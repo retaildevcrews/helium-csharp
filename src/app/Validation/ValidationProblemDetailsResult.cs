@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 using System.Net;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http.Extensions;
 
@@ -47,7 +48,7 @@ namespace CSE.Helium.Validation
                 type: FormatProblemType(context),
                 title: "Parameter validation error",
                 detail: "One or more invalid parameters were specified.",
-                status: 400,
+                status: (int)HttpStatusCode.BadRequest,
                 instance: context.HttpContext.Request.GetEncodedPathAndQuery()
             );
 
@@ -69,7 +70,17 @@ namespace CSE.Helium.Validation
                 problemDetails.ValidationErrors.Add(error);
             }
 
-            return JsonSerializer.Serialize(problemDetails);
+            var jsonOptions = new JsonSerializerOptions
+            {
+                IgnoreNullValues = true,
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
+            };
+
+            jsonOptions.Converters.Add(new JsonStringEnumConverter());
+            jsonOptions.Converters.Add(new TimeSpanConverter());
+
+            return JsonSerializer.Serialize(problemDetails, jsonOptions);
         }
 
         /// <summary>

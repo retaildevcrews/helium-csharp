@@ -22,12 +22,16 @@ namespace CSE.Helium.Validation
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
             if (validationContext == null || allowNulls && value == null)
+            {
                 return ValidationResult.Success;
-            
+            }
+
             var errorMessage = $"The parameter '{validationContext.MemberName}' should start with '{startingCharacters}' and be between {minimumCharacters} and {maximumCharacters} characters in total";
 
             if (!allowNulls && value == null)
+            {
                 return new ValidationResult(errorMessage);
+            }
 
             // cast value to string
             var id = (string) value;

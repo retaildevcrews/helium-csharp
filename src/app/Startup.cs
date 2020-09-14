@@ -36,7 +36,6 @@ namespace CSE.Helium
         /// <param name="services">The services in the web host</param>
         public void ConfigureServices(IServiceCollection services)
         {
-            
 
             // set json serialization defaults and api behavior
             services.AddControllers()
