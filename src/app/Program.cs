@@ -1,5 +1,5 @@
 using CSE.Helium.DataAccessLayer;
-using KeyVault.Extensions;
+using CSE.KeyVault;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;

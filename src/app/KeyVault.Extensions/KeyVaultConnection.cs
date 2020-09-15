@@ -1,7 +1,7 @@
 ﻿using Microsoft.Azure.KeyVault;
 using System;
 
-namespace KeyVault.Extensions
+namespace CSE.KeyVault
 {
     /// <summary>
     /// IKeyVault Connection Interface

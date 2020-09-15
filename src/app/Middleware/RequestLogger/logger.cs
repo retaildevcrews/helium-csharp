@@ -6,7 +6,7 @@ using System;
 using System.Globalization;
 using System.Threading.Tasks;
 
-namespace Middleware
+namespace CSE.Middleware
 {
     /// <summary>
     /// Simple aspnet core middleware that logs requests to the console
