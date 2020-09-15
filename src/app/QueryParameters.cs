@@ -5,7 +5,7 @@ namespace CSE.Helium
 {
     public abstract class QueryParameters
     {
-        [IntegerRangeValidation(minValue:1, maxValue:10000)]
+        [IntegerRangeValidation(minValue: 1, maxValue: 10000)]
         public int PageNumber { get; set; } = 1;
 
         [IntegerRangeValidation(minValue:1, maxValue:1000)]
@@ -19,9 +19,6 @@ namespace CSE.Helium
     {
         [IdValidation(startingCharacters:"nm", minimumCharacters:7, maximumCharacters:11, true)]
         public string ActorId { get; set; }
-
-        [IdValidation(startingCharacters: "tt", minimumCharacters: 7, maximumCharacters: 11, true)]
-        public string MovieId { get; set; }
 
         [StringLength(maximumLength: 20, MinimumLength = 3, ErrorMessage = "The parameter 'Genre' should be between {2} and {1} characters.")]
         public string Genre { get; set; }
