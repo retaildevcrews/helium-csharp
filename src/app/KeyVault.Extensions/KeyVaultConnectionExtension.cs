@@ -2,7 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using System;
 
-namespace KeyVault.Extensions
+namespace CSE.KeyVault
 {
     public static class KeyVaultConnectionExtension
     {

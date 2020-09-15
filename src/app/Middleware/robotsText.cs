@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Builder;
 using System;
 
-namespace Middleware
+namespace CSE.Middleware
 {
     /// <summary>
     /// Register robots middleware

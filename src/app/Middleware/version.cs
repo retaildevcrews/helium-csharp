@@ -4,7 +4,7 @@ using System.IO;
 using System.Reflection;
 using System.Text.Json;
 
-namespace Middleware
+namespace CSE.Middleware
 {
     /// <summary>
     /// Registers aspnet middleware handler that handles /version

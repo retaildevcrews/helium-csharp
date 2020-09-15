@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace KeyVault.Extensions
+﻿namespace CSE.KeyVault
 {
     public enum AuthenticationType { MI, CLI, VS }
 }

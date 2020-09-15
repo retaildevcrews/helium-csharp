@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Options;
 
-namespace Middleware
+namespace CSE.Middleware
 {
     /// <summary>
     /// Middleware extension to make registering Logger easy

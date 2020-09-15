@@ -1,4 +1,4 @@
-﻿namespace Middleware
+﻿namespace CSE.Middleware
 {
     /// <summary>
     /// Logger options used to configure DI

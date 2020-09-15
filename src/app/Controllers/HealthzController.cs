@@ -76,26 +76,6 @@ namespace CSE.Helium.Controllers
         }
 
         /// <summary>
-        /// Returns a JSON representation of the full Health Check
-        /// </summary>
-        [HttpGet("dotnet")]
-        [Produces("application/json")]
-        [ProducesResponseType(typeof(CosmosHealthCheck), 200)]
-        public async System.Threading.Tasks.Task<IActionResult> RunHealthzJsonAsync()
-        {
-            logger.LogInformation(nameof(RunHealthzAsync));
-
-            HealthCheckResult res = await RunCosmosHealthCheck().ConfigureAwait(false);
-
-            HttpContext.Items.Add(typeof(HealthCheckResult).ToString(), res);
-
-            return new ObjectResult(res)
-            {
-                StatusCode = res.Status == HealthStatus.Unhealthy ? (int)System.Net.HttpStatusCode.ServiceUnavailable : (int)System.Net.HttpStatusCode.OK
-            };
-        }
-
-        /// <summary>
         /// Run the health check
         /// </summary>
         /// <returns>HealthCheckResult</returns>

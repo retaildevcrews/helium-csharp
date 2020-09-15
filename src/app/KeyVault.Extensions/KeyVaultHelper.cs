@@ -1,11 +1,10 @@
-﻿using CSE.Helium;
-using Microsoft.Azure.KeyVault;
+﻿using Microsoft.Azure.KeyVault;
 using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 
-namespace KeyVault.Extensions
+namespace CSE.KeyVault
 {
     /// <summary>
     /// Static helper methods for working with Key Vault
