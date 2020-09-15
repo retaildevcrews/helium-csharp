@@ -10,6 +10,9 @@ namespace CSE.Helium.Tests
         [InlineData(1200, true)]
         [InlineData(10000, true)]
         [InlineData(10001, false)]
+        [InlineData(10006, false)]
+        [InlineData(10007, false)]
+        [InlineData(10002, false)]
         [InlineData(0, false)]
         public void PageNumberInput_ValidateModel_ReturnsExpectedResult(int input, bool expectedResult)
         {
@@ -157,29 +160,6 @@ namespace CSE.Helium.Tests
         {
             // Arrange
             var movieIdParameter = new MovieIdParameter();
-
-            // Act
-            var isValid = IsValidProperty(movieIdParameter, input, "MovieId");
-
-            // Assert
-            Assert.Equal(expectedResult, isValid);
-        }
-
-        [Theory]
-        [InlineData("tt123456789", true)]
-        [InlineData("tt12345678", true)]
-        [InlineData("tt12345", true)]
-        [InlineData("tt0000000", false)]
-        [InlineData("nm123456789", false)]
-        [InlineData("tt1234", false)]
-        [InlineData("tT123456789111", false)]
-        [InlineData("ab132456", false)]
-        [InlineData("123456789", false)]
-        [InlineData("12345", false)]
-        public void MovieIdInMovieQueryParameters_ValidateRegularExpression_ReturnsExpectedResult(string input, bool expectedResult)
-        {
-            // Arrange
-            var movieIdParameter = new MovieQueryParameters();
 
             // Act
             var isValid = IsValidProperty(movieIdParameter, input, "MovieId");

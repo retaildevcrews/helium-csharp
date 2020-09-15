@@ -1,3 +1,4 @@
+using System;
 using CSE.Helium.Model;
 using Microsoft.Azure.Cosmos;
 using System.Collections.Generic;
@@ -40,16 +41,21 @@ namespace CSE.Helium.DataAccessLayer
         /// The search is a "contains" search on actor name
         /// If q is empty, all actors are returned
         /// </summary>
-        /// <param name="q">search term</param>
-        /// <param name="offset">zero based offset for paging</param>
-        /// <param name="limit">number of documents for paging</param>
+        /// <param name="actorQueryParameters">search parameters</param>
         /// <returns>List of Actors or an empty list</returns>
-        public async Task<IEnumerable<Actor>> GetActorsAsync(string q, int offset = 0, int limit = Constants.DefaultPageSize)
+        public async Task<IEnumerable<Actor>> GetActorsAsync(ActorQueryParameters actorQueryParameters)
         {
+            _ = actorQueryParameters ?? throw new ArgumentNullException(nameof(actorQueryParameters));
+
+            // convert pageNumber to zero-based page index for Cosmos DB
+            actorQueryParameters.PageNumber = actorQueryParameters.PageNumber > 1 ? actorQueryParameters.PageNumber - 1 : 0;
 
             string sql = actorSelect;
 
+            int offset = actorQueryParameters.PageSize * actorQueryParameters.PageNumber;
+            int limit = actorQueryParameters.PageSize;
 
+            // todo: do we need this since PageSize has a default value in the POCO with validation built-in?
             if (limit < 1)
             {
                 limit = Constants.DefaultPageSize;
@@ -61,12 +67,12 @@ namespace CSE.Helium.DataAccessLayer
 
             string offsetLimit = string.Format(CultureInfo.InvariantCulture, actorOffset, offset, limit);
 
-            if (!string.IsNullOrEmpty(q))
+            if (!string.IsNullOrEmpty(actorQueryParameters.Q))
             {
                 // convert to lower and escape embedded '
-                q = q.Trim().ToLowerInvariant().Replace("'", "''", System.StringComparison.OrdinalIgnoreCase);
+                actorQueryParameters.Q = actorQueryParameters.Q.Trim().ToLowerInvariant().Replace("'", "''", System.StringComparison.OrdinalIgnoreCase);
 
-                if (!string.IsNullOrEmpty(q))
+                if (!string.IsNullOrEmpty(actorQueryParameters.Q))
                 {
                     // get actors by a "like" search on name
                     sql += string.Format(CultureInfo.InvariantCulture, $" and contains(m.textSearch, @q) ");
@@ -78,9 +84,9 @@ namespace CSE.Helium.DataAccessLayer
 
             QueryDefinition queryDefinition = new QueryDefinition(sql);
 
-            if (!string.IsNullOrEmpty(q))
+            if (!string.IsNullOrEmpty(actorQueryParameters.Q))
             {
-                queryDefinition.WithParameter("@q", q);
+                queryDefinition.WithParameter("@q", actorQueryParameters.Q);
             }
 
             return await InternalCosmosDBSqlQuery<Actor>(queryDefinition).ConfigureAwait(false);

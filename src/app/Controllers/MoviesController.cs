@@ -36,17 +36,8 @@ namespace CSE.Helium.Controllers
         {
             _ = movieQueryParameters ?? throw new ArgumentNullException(nameof(movieQueryParameters));
 
-            return await ResultHandler.Handle(dal.GetMoviesAsync(
-                    movieQueryParameters.Q,
-                    movieQueryParameters.Genre,
-                    movieQueryParameters.Year,
-                    movieQueryParameters.Rating,
-                    movieQueryParameters.ActorId,
-                    movieQueryParameters.PageNumber * movieQueryParameters.PageSize,
-                    movieQueryParameters.PageSize),
-                    GetMethodText(movieQueryParameters),
-                    Constants.MoviesControllerException,
-                    logger)
+            return await ResultHandler.Handle(
+                dal.GetMoviesAsync(movieQueryParameters), GetMethodText(movieQueryParameters), Constants.MoviesControllerException, logger)
                 .ConfigureAwait(false);
         }
 
