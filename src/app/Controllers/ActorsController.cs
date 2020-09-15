@@ -37,9 +37,6 @@ namespace CSE.Helium.Controllers
         {
             _ = actorQueryParameters ?? throw new ArgumentNullException(nameof(actorQueryParameters));
 
-            // convert to zero based index
-            actorQueryParameters.PageNumber = actorQueryParameters.PageNumber > 1 ? actorQueryParameters.PageNumber - 1 : 0;
-
             return await ResultHandler.Handle(dal.GetActorsAsync(
                     actorQueryParameters.Q,
                     actorQueryParameters.PageNumber * actorQueryParameters.PageSize,

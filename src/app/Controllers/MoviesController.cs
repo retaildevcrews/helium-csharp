@@ -36,10 +36,6 @@ namespace CSE.Helium.Controllers
         {
             _ = movieQueryParameters ?? throw new ArgumentNullException(nameof(movieQueryParameters));
 
-            // todo: this is the area that could benefit from encapsulation
-            // convert to zero based page index
-            movieQueryParameters.PageNumber = movieQueryParameters.PageNumber > 1 ? movieQueryParameters.PageNumber - 1 : 0;
-
             return await ResultHandler.Handle(dal.GetMoviesAsync(
                     movieQueryParameters.Q,
                     movieQueryParameters.Genre,

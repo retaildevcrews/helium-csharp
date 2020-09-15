@@ -5,8 +5,21 @@ namespace CSE.Helium
 {
     public abstract class QueryParameters
     {
-        [IntegerRangeValidation(minValue: 1, maxValue: 10000)]
-        public int PageNumber { get; set; } = 1;
+        private int pageNumber = 1;
+
+        [IntegerRangeValidation(minValue: 0, maxValue: 9999)]
+        public int PageNumber
+        {
+            get
+            {
+                // adjust for zero based Cosmos offset
+                return pageNumber - 1;
+            }
+            set
+            {
+                pageNumber = value;
+            }
+        }
 
         [IntegerRangeValidation(minValue:1, maxValue:1000)]
         public int PageSize { get; set; } = 100;
