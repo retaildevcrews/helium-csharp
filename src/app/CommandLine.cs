@@ -49,6 +49,11 @@ namespace CSE.Helium
             {
                 cmd.Add("--log-level");
                 cmd.Add(string.IsNullOrEmpty(logLevel) ? "Warning" : logLevel);
+                Constants.IsLogLevelSet = !string.IsNullOrEmpty(logLevel);
+            }
+            else
+            {
+                Constants.IsLogLevelSet = true;
             }
 
             return cmd.ToArray();
@@ -115,7 +120,7 @@ namespace CSE.Helium
                 // setup ctl c handler
                 ctCancel = SetupCtlCHandler();
 
-                HeliumLogLevel = logLevel;
+                AppLogLevel = logLevel;
 
                 // build the host
                 host = await BuildHost(kvUrl, authType).ConfigureAwait(false);
@@ -174,7 +179,7 @@ namespace CSE.Helium
             Console.WriteLine($"Version            {Middleware.VersionExtensions.Version}");
             Console.WriteLine($"Keyvault           {kvUrl}");
             Console.WriteLine($"Auth Type          {authType}");
-            Console.WriteLine($"Log Level          {HeliumLogLevel}");
+            Console.WriteLine($"Log Level          {AppLogLevel}");
             Console.WriteLine($"Cosmos Server      {config.GetValue<string>(Constants.CosmosUrl)}");
             Console.WriteLine($"Cosmos Key         Length({config.GetValue<string>(Constants.CosmosKey).Length})");
             Console.WriteLine($"Cosmos Database    {config.GetValue<string>(Constants.CosmosDatabase)}");

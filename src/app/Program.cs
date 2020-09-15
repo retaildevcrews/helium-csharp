@@ -32,7 +32,7 @@ namespace CSE.Helium
 
         private static CancellationTokenSource ctCancel;
 
-        public static LogLevel HeliumLogLevel { get; set; } = LogLevel.Warning;
+        public static LogLevel AppLogLevel { get; set; } = LogLevel.Warning;
 
         /// <summary>
         /// Main entry point
@@ -109,7 +109,20 @@ namespace CSE.Helium
                 logger.LogInformation("Web Server Started");
             }
 
-            Console.WriteLine($"Version: {Middleware.VersionExtensions.Version}");
+            Console.WriteLine("\n");
+            Console.WriteLine("                                ,-\"\"\"\"-.");
+            Console.WriteLine("                              ,'      _ `.");
+            Console.WriteLine("                             /       )_)  \\");
+            Console.WriteLine("                            :              :");
+            Console.WriteLine("                            \\              /");
+            Console.WriteLine(" _          _ _              \\            /");
+            Console.WriteLine("| |        | (_)              `.        ,'");
+            Console.WriteLine("| |__   ___| |_ _   _ _ __ ___  `.    ,'");
+            Console.WriteLine("| '_ \\ / _ \\ | | | | | '_ ` _ \\   `.,'");
+            Console.WriteLine("| | | |  __/ | | |_| | | | | | |   /\\`.   ,-._");
+            Console.WriteLine("|_| |_|\\___|_|_|\\__,_|_| |_| |_|        `-'");
+
+            Console.WriteLine($"\nVersion: {Middleware.VersionExtensions.Version}");
         }
 
         /// <summary>
@@ -168,7 +181,6 @@ namespace CSE.Helium
             // configure the web host builder
             IWebHostBuilder builder = WebHost.CreateDefaultBuilder()
                 .UseConfiguration(config)
-                .UseKestrel()
                 .UseUrls(string.Format(System.Globalization.CultureInfo.InvariantCulture, $"http://*:{Constants.Port}/"))
                 .UseStartup<Startup>()
                 .UseShutdownTimeout(TimeSpan.FromSeconds(Constants.GracefulShutdownTimeout))
@@ -187,16 +199,22 @@ namespace CSE.Helium
                     services.AddSingleton<IConfigurationRoot>(config);
 
                     services.AddResponseCaching();
-                })
-                // configure logger based on command line
-                .ConfigureLogging(logger =>
-                {
-                    logger.ClearProviders();
-                    logger.AddConsole()
-                    .AddFilter("Microsoft", HeliumLogLevel)
-                    .AddFilter("System", HeliumLogLevel)
-                    .AddFilter("Default", HeliumLogLevel);
                 });
+
+            // configure logger based on command line
+            builder.ConfigureLogging(logger =>
+            {
+                logger.ClearProviders();
+                logger.AddConsole();
+
+                if (Constants.IsLogLevelSet)
+                {
+                    logger.AddFilter("Microsoft", AppLogLevel)
+                    .AddFilter("System", AppLogLevel)
+                    .AddFilter("Default", AppLogLevel)
+                    .AddFilter("CSE.Helium", AppLogLevel);
+                }
+            });
 
             // build the host
             return builder.Build();
