@@ -167,7 +167,7 @@ namespace CSE.Helium
         static async Task<IWebHost> BuildHost(string kvUrl, AuthenticationType authType)
         {
             // create the Key Vault Client
-            var kvClient = await KeyVaultHelper.GetKeyVaultClient(kvUrl, authType).ConfigureAwait(false);
+            var kvClient = await KeyVaultHelper.GetKeyVaultClient(kvUrl, authType, Constants.CosmosKey).ConfigureAwait(false);
 
             if (kvClient == null)
             {

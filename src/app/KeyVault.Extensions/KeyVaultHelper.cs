@@ -1,6 +1,7 @@
 ﻿using CSE.Helium;
 using Microsoft.Azure.KeyVault;
 using Microsoft.Azure.Services.AppAuthentication;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 
@@ -74,8 +75,9 @@ namespace KeyVault.Extensions
         /// </summary>
         /// <param name="kvUri">URL of the key vault</param>
         /// <param name="authType">MI, CLI or VS</param>
+        /// <param name="keyVaultTestKey">Keyvault key to test the connection</param>
         /// <returns></returns>
-        public static async Task<KeyVaultClient> GetKeyVaultClient(string kvUrl, AuthenticationType authType)
+        public static async Task<KeyVaultClient> GetKeyVaultClient(string kvUrl, AuthenticationType authType, string keyVaultTestKey, ILogger logger = null)
         {
             // retry Managed Identity for 90 seconds
             //   AKS has to spin up an MI pod which can take a while the first time on the pod
@@ -94,11 +96,21 @@ namespace KeyVault.Extensions
                 case AuthenticationType.VS:
                     authString = "RunAs=Developer; DeveloperTool=VisualStudio";
                     break;
+                    
             }
 #else
             if (authType != AuthenticationType.MI)
             {
-                Console.WriteLine("Release builds require MI authentication for Key Vault");
+                var warningMsg = "Release builds require MI authentication for Key Vault";
+                if (logger == null)
+                {
+                    Console.WriteLine(warningMsg);
+                }
+                else
+                {
+                    logger.LogWarning(warningMsg);
+                }
+                
                 return null;
             }
 #endif
@@ -113,7 +125,7 @@ namespace KeyVault.Extensions
                     var keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(tokenProvider.KeyVaultTokenCallback));
 
                     // read a key to make sure the connection is valid 
-                    await keyVaultClient.GetSecretAsync(kvUrl, Constants.CosmosUrl).ConfigureAwait(false);
+                    await keyVaultClient.GetSecretAsync(kvUrl, keyVaultTestKey).ConfigureAwait(false);
 
                     // return the client
                     return keyVaultClient;
@@ -126,18 +138,41 @@ namespace KeyVault.Extensions
 
 #if (DEBUG)
                         // Don't retry in debug mode
-                        Console.WriteLine($"KeyVault:Exception: Unable to connect to Key Vault using MI");
+                        var message = $"KeyVault:Exception: Unable to connect to Key Vault using MI";
+                        if (logger == null)
+                        {
+                            Console.WriteLine(message);
+                        }
+                        else
+                        {
+                            logger.LogError(message);
+                        }
                         return null;
 #else
-                        Console.WriteLine($"KeyVault:Retry");
+                        if(logger == null) 
+                        {
+                            Console.WriteLine($"KeyVault:Retry");
+                        }
+                        else
+                        {
+                            logger.LogInformation($"KeyVault:Retry");
+                        }
                         await Task.Delay(1000).ConfigureAwait(false);
 #endif
                     }
                     else
                     {
                         // log and fail
-
-                        Console.WriteLine($"{ex}\nKeyVault:Exception: {ex.Message}");
+                        var error = $"{ex}\nKeyVault:Exception: {ex.Message}";
+                        if (logger == null)
+                        {
+                            Console.WriteLine(error);
+                        }
+                        else
+                        {
+                            logger.LogError(error);
+                        }
+                        
                         return null;
                     }
                 }
