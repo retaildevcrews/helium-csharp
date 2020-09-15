@@ -49,11 +49,11 @@ namespace CSE.Helium
             {
                 cmd.Add("--log-level");
                 cmd.Add(string.IsNullOrEmpty(logLevel) ? "Warning" : logLevel);
-                Constants.IsLogLevelSet = !string.IsNullOrEmpty(logLevel);
+                App.IsLogLevelSet = !string.IsNullOrEmpty(logLevel);
             }
             else
             {
-                Constants.IsLogLevelSet = true;
+                App.IsLogLevelSet = true;
             }
 
             return cmd.ToArray();
