@@ -55,7 +55,7 @@ namespace CSE.Helium.Controllers
             string method = nameof(GetMovieByIdAsync) + movieIdParameter.MovieId;
 
             return await ResultHandler.Handle(
-                dal.GetMovieAsync(movieIdParameter.MovieId), method, Constants.MoviesControllerException, logger)
+                dal.GetMovieAsync(movieIdParameter.MovieId), method, "Movie Not Found", logger)
                 .ConfigureAwait(false);
         }
     }

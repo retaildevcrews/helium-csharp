@@ -58,7 +58,7 @@ namespace CSE.Helium.Controllers
 
             // return result
             return await ResultHandler.Handle(
-                dal.GetActorAsync(actorIdParameter.ActorId), method, Constants.ActorsControllerException, logger)
+                dal.GetActorAsync(actorIdParameter.ActorId), method, "Actor Not Found", logger)
                 .ConfigureAwait(false);
         }
     }
