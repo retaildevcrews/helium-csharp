@@ -19,7 +19,10 @@ namespace Helium.Extensions
 
             string method = "GetMovies";
 
-            if (httpContext?.Request?.Query == null) return method;
+            if (httpContext?.Request?.Query == null)
+            {
+                return method;
+            }
 
             // add the query parameters to the method name if exists
             if (httpContext.Request.Query.ContainsKey("q"))

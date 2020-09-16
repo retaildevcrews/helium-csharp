@@ -1,5 +1,6 @@
 using CSE.Helium.DataAccessLayer;
 using CSE.KeyVault;
+using KeyVault.Extensions;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
@@ -15,7 +16,6 @@ using System.CommandLine.Parsing;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using KeyVault.Extensions;
 
 namespace CSE.Helium
 {

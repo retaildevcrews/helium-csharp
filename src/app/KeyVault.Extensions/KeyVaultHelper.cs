@@ -1,9 +1,9 @@
-﻿using Microsoft.Azure.KeyVault;
+﻿using KeyVault.Extensions;
+using Microsoft.Azure.KeyVault;
 using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
-using KeyVault.Extensions;
 
 namespace CSE.KeyVault
 {

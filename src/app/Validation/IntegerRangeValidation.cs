@@ -16,7 +16,9 @@ namespace CSE.Helium.Validation
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
             if (validationContext == null)
+            {
                 return ValidationResult.Success;
+            }
 
             var errorMessage = $"The parameter '{validationContext.MemberName}' should be between {minValue} and {maxValue}.";
 

@@ -61,7 +61,10 @@ namespace tests
                 yield return new object[] { "pageSize", "1", new MovieQueryParameters { PageSize = 1 } };
             }
 
-            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
+            }
         }
 
         [Theory]
@@ -107,7 +110,10 @@ namespace tests
                 yield return new object[] { "pageSize", "1", new ActorQueryParameters { PageSize = 1 } };
             }
 
-            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
+            }
         }
     }
 }

@@ -1,4 +1,5 @@
 using CSE.KeyVault;
+using KeyVault.Extensions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -7,7 +8,6 @@ using System.Collections.Generic;
 using System.CommandLine;
 using System.Globalization;
 using System.Threading.Tasks;
-using KeyVault.Extensions;
 
 namespace CSE.Helium
 {

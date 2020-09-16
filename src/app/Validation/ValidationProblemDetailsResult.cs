@@ -58,7 +58,9 @@ namespace CSE.Helium.Validation
             {
                 // skip empty validation error
                 if (string.IsNullOrEmpty(validationError.Key))
+                {
                     continue;
+                }
 
                 // log each validation error in the collection
                 logger.LogWarning($"InvalidParameter|{context.HttpContext.Request.Path}|{validationError.Value.Errors[0].ErrorMessage}");
@@ -96,19 +98,27 @@ namespace CSE.Helium.Validation
             {
                 // query parameter
                 if (instance.StartsWith("/api/movies", StringComparison.InvariantCulture))
+                {
                     return baseUri + "#movies";
+                }
 
                 if (instance.StartsWith("/api/actors", StringComparison.InvariantCulture))
+                {
                     return baseUri + "#actors";
+                }
             }
             else
             {
                 // direct read
                 if (instance.StartsWith("/api/movies", StringComparison.InvariantCulture))
+                {
                     return baseUri + "#direct-read";
+                }
 
                 if (instance.StartsWith("/api/actors", StringComparison.InvariantCulture))
+                {
                     return baseUri + "#direct-read-1";
+                }
             }
 
             // no match, return parameter validation main page
