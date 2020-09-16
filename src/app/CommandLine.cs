@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.CommandLine;
 using System.Globalization;
 using System.Threading.Tasks;
+using KeyVault.Extensions;
 
 namespace CSE.Helium
 {
