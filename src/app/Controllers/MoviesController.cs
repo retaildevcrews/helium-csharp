@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
+using Helium.Extensions;
 
 namespace CSE.Helium.Controllers
 {
@@ -37,7 +38,7 @@ namespace CSE.Helium.Controllers
             _ = movieQueryParameters ?? throw new ArgumentNullException(nameof(movieQueryParameters));
 
             return await ResultHandler.Handle(
-                dal.GetMoviesAsync(movieQueryParameters), GetMethodText(movieQueryParameters), Constants.MoviesControllerException, logger)
+                dal.GetMoviesAsync(movieQueryParameters), movieQueryParameters.GetMethodText(HttpContext), Constants.MoviesControllerException, logger)
                 .ConfigureAwait(false);
         }
 
@@ -54,58 +55,7 @@ namespace CSE.Helium.Controllers
             string method = nameof(GetMovieByIdAsync) + movieIdParameter.MovieId;
 
             // get movie by movieIdParameter
-            return await ResultHandler.Handle(dal.GetMovieAsync(movieIdParameter.MovieId), method, "Movie Not Found", logger).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// Add parameters to the method name if specified in the query string
-        /// </summary>
-        /// <param name="movieQueryParameters"></param>
-        /// <returns></returns>
-        private string GetMethodText(MovieQueryParameters movieQueryParameters)
-        {
-            string method = "GetMovies";
-
-            if (HttpContext?.Request?.Query != null)
-            {
-                // add the query parameters to the method name if exists
-                if (HttpContext.Request.Query.ContainsKey("q"))
-                {
-                    method = $"{method}:q:{movieQueryParameters.Q}";
-                }
-
-                if (HttpContext.Request.Query.ContainsKey("genre"))
-                {
-                    method = $"{method}:genre:{movieQueryParameters.Genre}";
-                }
-
-                if (HttpContext.Request.Query.ContainsKey("year"))
-                {
-                    method = $"{method}:year:{movieQueryParameters.Year}";
-                }
-
-                if (HttpContext.Request.Query.ContainsKey("rating"))
-                {
-                    method = $"{method}:rating:{movieQueryParameters.Rating}";
-                }
-
-                if (HttpContext.Request.Query.ContainsKey("actorId"))
-                {
-                    method = $"{method}:actorId:{movieQueryParameters.ActorId}";
-                }
-
-                if (HttpContext.Request.Query.ContainsKey("pageNumber"))
-                {
-                    method = $"{method}:pageNumber:{movieQueryParameters.PageNumber}";
-                }
-
-                if (HttpContext.Request.Query.ContainsKey("pageSize"))
-                {
-                    method = $"{method}:pageSize:{movieQueryParameters.PageSize}";
-                }
-            }
-
-            return method;
+            return await ResultHandler.Handle(dal.GetMovieAsync(movieIdParameter.MovieId), method, Constants.MoviesControllerException, logger).ConfigureAwait(false);
         }
     }
 }

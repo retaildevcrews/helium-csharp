@@ -47,23 +47,10 @@ namespace CSE.Helium.DataAccessLayer
         {
             _ = actorQueryParameters ?? throw new ArgumentNullException(nameof(actorQueryParameters));
 
-            // convert pageNumber to zero-based page index for Cosmos DB
-            actorQueryParameters.PageNumber = actorQueryParameters.PageNumber > 1 ? actorQueryParameters.PageNumber - 1 : 0;
-
             string sql = actorSelect;
 
-            int offset = actorQueryParameters.PageSize * actorQueryParameters.PageNumber;
+            int offset = actorQueryParameters.PageSize * actorQueryParameters.GetZeroBasedPageNumber();
             int limit = actorQueryParameters.PageSize;
-
-            // todo: do we need this since PageSize has a default value in the POCO with validation built-in?
-            if (limit < 1)
-            {
-                limit = Constants.DefaultPageSize;
-            }
-            else if (limit > Constants.MaxPageSize)
-            {
-                limit = Constants.MaxPageSize;
-            }
 
             string offsetLimit = string.Format(CultureInfo.InvariantCulture, actorOffset, offset, limit);
 
@@ -76,7 +63,6 @@ namespace CSE.Helium.DataAccessLayer
                 {
                     // get actors by a "like" search on name
                     sql += string.Format(CultureInfo.InvariantCulture, $" and contains(m.textSearch, @q) ");
-
                 }
             }
 

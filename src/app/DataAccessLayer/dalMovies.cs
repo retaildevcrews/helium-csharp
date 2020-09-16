@@ -43,24 +43,11 @@ namespace CSE.Helium.DataAccessLayer
         public async Task<IEnumerable<Movie>> GetMoviesAsync(MovieQueryParameters movieQueryParameters)
         {
             _ = movieQueryParameters ?? throw new ArgumentNullException(nameof(movieQueryParameters));
-
-            // convert pageNumber to zero-based page index for Cosmos DB
-            movieQueryParameters.PageNumber = movieQueryParameters.PageNumber > 1 ? movieQueryParameters.PageNumber - 1 : 0;
-
+            
             string sql = movieSelect;
 
-            int offset = movieQueryParameters.PageSize * movieQueryParameters.PageNumber;
+            int offset = movieQueryParameters.PageSize * movieQueryParameters.GetZeroBasedPageNumber();
             int limit = movieQueryParameters.PageSize;
-
-            // todo: do we need this since PageSize has a default value in the POCO with validation built-in?
-            if (limit < 1)
-            {
-                limit = Constants.DefaultPageSize;
-            }
-            else if (limit > Constants.MaxPageSize)
-            {
-                limit = Constants.MaxPageSize;
-            }
 
             string offsetLimit = string.Format(CultureInfo.InvariantCulture, movieOffset, offset, limit);
 

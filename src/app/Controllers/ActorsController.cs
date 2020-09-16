@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
+using Helium.Extensions;
 
 namespace CSE.Helium.Controllers
 {
@@ -37,7 +38,7 @@ namespace CSE.Helium.Controllers
         {
             _ = actorQueryParameters ?? throw new ArgumentNullException(nameof(actorQueryParameters));
 
-            return await ResultHandler.Handle(dal.GetActorsAsync(actorQueryParameters), GetMethodText(actorQueryParameters), Constants.ActorsControllerException,
+            return await ResultHandler.Handle(dal.GetActorsAsync(actorQueryParameters), actorQueryParameters.GetMethodText(), Constants.ActorsControllerException,
                     logger)
                 .ConfigureAwait(false);
         }
@@ -56,35 +57,6 @@ namespace CSE.Helium.Controllers
 
             // return result
             return await ResultHandler.Handle(dal.GetActorAsync(actorIdParameter.ActorId), method, "Actor Not Found", logger).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// Add parameters to the method name if specified in the query string
-        /// </summary>
-        /// <param name="actorQueryParameters"></param>
-        /// <returns></returns>
-        private string GetMethodText(ActorQueryParameters actorQueryParameters)
-        {
-            string method = "GetActorsAsync";
-
-            if (HttpContext?.Request?.Query != null)
-            {
-                // add the query parameters to the method name if exists
-                if (HttpContext.Request.Query.ContainsKey("q"))
-                {
-                    method = $"{method}:q:{actorQueryParameters.Q}";
-                }
-                if (HttpContext.Request.Query.ContainsKey("pageNumber"))
-                {
-                    method = $"{method}:pageNumber:{actorQueryParameters.PageNumber}";
-                }
-                if (HttpContext.Request.Query.ContainsKey("pageSize"))
-                {
-                    method = $"{method}:pageSize:{actorQueryParameters.PageSize}";
-                }
-            }
-
-            return method;
         }
     }
 }
