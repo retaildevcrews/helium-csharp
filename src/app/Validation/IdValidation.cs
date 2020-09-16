@@ -34,7 +34,7 @@ namespace CSE.Helium.Validation
             }
 
             // cast value to string
-            var id = (string) value;
+            var id = (string)value;
 
             // check id has correct starting characters and is between min/max values specified
             var isInvalid = id == null ||
@@ -43,7 +43,7 @@ namespace CSE.Helium.Validation
                           id.Substring(0, 2) != startingCharacters ||
                           !int.TryParse(id.Substring(2), out var val) ||
                           val <= 0;
-            
+
             return isInvalid ? new ValidationResult(errorMessage) : ValidationResult.Success;
         }
     }

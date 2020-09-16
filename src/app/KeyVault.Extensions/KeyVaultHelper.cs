@@ -1,5 +1,4 @@
-﻿using CSE.Helium;
-using Microsoft.Azure.KeyVault;
+﻿using Microsoft.Azure.KeyVault;
 using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Extensions.Logging;
 using System;
@@ -12,7 +11,7 @@ namespace KeyVault.Extensions
     /// </summary>
     public sealed class KeyVaultHelper
     {
-        
+
         /// <summary>
         /// Build the Key Vault URL from the name
         /// </summary>
@@ -96,7 +95,7 @@ namespace KeyVault.Extensions
                 case AuthenticationType.VS:
                     authString = "RunAs=Developer; DeveloperTool=VisualStudio";
                     break;
-                    
+
             }
 #else
             if (authType != AuthenticationType.MI)
@@ -172,7 +171,7 @@ namespace KeyVault.Extensions
                         {
                             logger.LogError(error);
                         }
-                        
+
                         return null;
                     }
                 }

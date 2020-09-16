@@ -17,7 +17,7 @@ namespace CSE.Helium.Tests
         public void PageNumberInput_ValidateModel_ReturnsExpectedResult(int input, bool expectedResult)
         {
             // Arrange
-            var queryParameters = new ActorQueryParameters{PageNumber = input};
+            var queryParameters = new ActorQueryParameters { PageNumber = input };
 
             // Act
             var actualValue = IsValidProperty(queryParameters, input, "PageNumber");
@@ -186,7 +186,24 @@ namespace CSE.Helium.Tests
             Assert.Equal(expectedResult, isValid);
         }
 
-        private bool IsValidProperty(object inputObject, object input, string memberName)
+        [Theory]
+        [InlineData(0, 0)]
+        [InlineData(1, 0)]
+        [InlineData(55, 54)]
+        [InlineData(10000, 9999)]
+        public void GivenPageNumber_ValidateZeroBasedIndex_ReturnsExpectedResult(int pageNumber, int expectedResult)
+        {
+            // Arrange
+            var queryParameters = new ActorQueryParameters { PageNumber = pageNumber };
+
+            // Act
+            var actualResult = queryParameters.GetZeroBasedPageNumber();
+
+            // Assert
+            Assert.Equal(expectedResult, actualResult);
+        }
+
+        private static bool IsValidProperty(object inputObject, object input, string memberName)
         {
             var validationContext = new ValidationContext(inputObject) { MemberName = memberName };
             return Validator.TryValidateProperty(input, validationContext, null);

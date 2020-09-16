@@ -19,7 +19,7 @@ namespace CSE.Helium
     public class Startup
     {
         public IConfiguration Configuration { get; }
-        
+
         /// <summary>
         /// Constructor
         /// </summary>

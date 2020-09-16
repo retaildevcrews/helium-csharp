@@ -1,7 +1,7 @@
+using CSE.Helium.Model;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using CSE.Helium.Model;
 
 namespace CSE.Helium.DataAccessLayer
 {

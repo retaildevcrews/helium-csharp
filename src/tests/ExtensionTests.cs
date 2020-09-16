@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using CSE.Helium;
+﻿using CSE.Helium;
 using CSE.Helium.Controllers;
 using CSE.Helium.DataAccessLayer;
 using Helium.Extensions;
@@ -9,10 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Moq;
+using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Reflection;
-using CSE.Helium.Model;
 using Xunit;
 
 namespace tests
@@ -55,13 +52,13 @@ namespace tests
         {
             public IEnumerator<object[]> GetEnumerator()
             {
-                yield return new object[] {"q", "ring", new MovieQueryParameters{Q = "ring"}};
-                yield return new object[] {"genre", "Action", new MovieQueryParameters{Genre = "Action"}};
-                yield return new object[] {"year", "1999", new MovieQueryParameters{Year = 1999}};
-                yield return new object[] {"rating", "1.1", new MovieQueryParameters{Rating = 1.1}};
-                yield return new object[] {"actorId", "nm123456", new MovieQueryParameters{ActorId = "nm123456"}};
-                yield return new object[] {"pageNumber", "1", new MovieQueryParameters{PageNumber = 1}};
-                yield return new object[] {"pageSize", "1", new MovieQueryParameters{PageSize = 1}};
+                yield return new object[] { "q", "ring", new MovieQueryParameters { Q = "ring" } };
+                yield return new object[] { "genre", "Action", new MovieQueryParameters { Genre = "Action" } };
+                yield return new object[] { "year", "1999", new MovieQueryParameters { Year = 1999 } };
+                yield return new object[] { "rating", "1.1", new MovieQueryParameters { Rating = 1.1 } };
+                yield return new object[] { "actorId", "nm123456", new MovieQueryParameters { ActorId = "nm123456" } };
+                yield return new object[] { "pageNumber", "1", new MovieQueryParameters { PageNumber = 1 } };
+                yield return new object[] { "pageSize", "1", new MovieQueryParameters { PageSize = 1 } };
             }
 
             IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

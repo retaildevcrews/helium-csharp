@@ -12,7 +12,7 @@ namespace CSE.Helium.Validation
             this.minValue = minValue;
             this.maxValue = maxValue;
         }
-        
+
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
             if (validationContext == null)

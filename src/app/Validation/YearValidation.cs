@@ -13,7 +13,7 @@ namespace CSE.Helium.Validation
         {
             _ = validationContext ?? throw new ArgumentNullException(nameof(validationContext));
 
-            var isValid = (int) value >= StartYear && (int) value <= EndYear || (int) value == 0;
+            var isValid = (int)value >= StartYear && (int)value <= EndYear || (int)value == 0;
 
             var errorMessage = $"The parameter '{validationContext.MemberName}' should be between {StartYear} and {EndYear}.";
 

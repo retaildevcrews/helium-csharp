@@ -1,9 +1,9 @@
 ﻿using CSE.Helium.DataAccessLayer;
+using Helium.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
-using Helium.Extensions;
 
 namespace CSE.Helium.Controllers
 {
@@ -54,8 +54,9 @@ namespace CSE.Helium.Controllers
 
             string method = nameof(GetMovieByIdAsync) + movieIdParameter.MovieId;
 
-            // get movie by movieIdParameter
-            return await ResultHandler.Handle(dal.GetMovieAsync(movieIdParameter.MovieId), method, Constants.MoviesControllerException, logger).ConfigureAwait(false);
+            return await ResultHandler.Handle(
+                dal.GetMovieAsync(movieIdParameter.MovieId), method, Constants.MoviesControllerException, logger)
+                .ConfigureAwait(false);
         }
     }
 }

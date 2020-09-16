@@ -1,6 +1,6 @@
-using System;
 using CSE.Helium.Model;
 using Microsoft.Azure.Cosmos;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Threading.Tasks;

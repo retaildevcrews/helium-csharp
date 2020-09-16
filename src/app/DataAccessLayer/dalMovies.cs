@@ -1,6 +1,6 @@
-using System;
 using CSE.Helium.Model;
 using Microsoft.Azure.Cosmos;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Threading.Tasks;
@@ -43,7 +43,7 @@ namespace CSE.Helium.DataAccessLayer
         public async Task<IEnumerable<Movie>> GetMoviesAsync(MovieQueryParameters movieQueryParameters)
         {
             _ = movieQueryParameters ?? throw new ArgumentNullException(nameof(movieQueryParameters));
-            
+
             string sql = movieSelect;
 
             int offset = movieQueryParameters.PageSize * movieQueryParameters.GetZeroBasedPageNumber();

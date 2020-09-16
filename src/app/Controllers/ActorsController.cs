@@ -1,9 +1,9 @@
 ﻿using CSE.Helium.DataAccessLayer;
+using Helium.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
-using Helium.Extensions;
 
 namespace CSE.Helium.Controllers
 {
@@ -38,7 +38,8 @@ namespace CSE.Helium.Controllers
         {
             _ = actorQueryParameters ?? throw new ArgumentNullException(nameof(actorQueryParameters));
 
-            return await ResultHandler.Handle(dal.GetActorsAsync(actorQueryParameters), actorQueryParameters.GetMethodText(HttpContext), Constants.ActorsControllerException,
+            return await ResultHandler.Handle(
+                    dal.GetActorsAsync(actorQueryParameters), actorQueryParameters.GetMethodText(HttpContext), Constants.ActorsControllerException,
                     logger)
                 .ConfigureAwait(false);
         }
@@ -52,11 +53,13 @@ namespace CSE.Helium.Controllers
         public async Task<IActionResult> GetActorByIdAsync([FromRoute] ActorIdParameter actorIdParameter)
         {
             _ = actorIdParameter ?? throw new ArgumentNullException(nameof(actorIdParameter));
-            
+
             string method = nameof(GetActorByIdAsync) + actorIdParameter.ActorId;
 
             // return result
-            return await ResultHandler.Handle(dal.GetActorAsync(actorIdParameter.ActorId), method, Constants.ActorsControllerException, logger).ConfigureAwait(false);
+            return await ResultHandler.Handle(
+                dal.GetActorAsync(actorIdParameter.ActorId), method, Constants.ActorsControllerException, logger)
+                .ConfigureAwait(false);
         }
     }
 }

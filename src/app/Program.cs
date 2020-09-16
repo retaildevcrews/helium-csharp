@@ -4,7 +4,6 @@ using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Azure.KeyVault;
-using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.AzureKeyVault;
 using Microsoft.Extensions.DependencyInjection;
@@ -220,7 +219,7 @@ namespace CSE.Helium
             return builder.Build();
         }
 
-       
+
 
         /// <summary>
         /// Check for Cosmos key rotation

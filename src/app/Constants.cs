@@ -38,5 +38,5 @@ namespace CSE.Helium
         public const int HealthzCacheDuration = 60;
         public const int GracefulShutdownTimeout = 10;
     }
-    
+
 }

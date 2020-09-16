@@ -1,6 +1,6 @@
 ﻿using CSE.Helium;
-using System;
 using Microsoft.AspNetCore.Http;
+using System;
 
 namespace Helium.Extensions
 {
@@ -24,7 +24,7 @@ namespace Helium.Extensions
             {
                 method = $"{method}:q:{actorQueryParameters.Q}";
             }
-            
+
             if (httpContext.Request.Query.ContainsKey("pageNumber"))
             {
                 method = $"{method}:pageNumber:{actorQueryParameters.PageNumber}";

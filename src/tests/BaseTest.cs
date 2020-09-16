@@ -1,8 +1,8 @@
-﻿using Moq;
+﻿using FluentAssertions;
+using Moq;
 using System;
 using System.Linq;
 using System.Reflection;
-using FluentAssertions;
 using Xunit;
 
 namespace tests
