@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Builder;
 
-namespace Middleware
+namespace CSE.Middleware
 {
     /// <summary>
     /// Register swagger root middleware

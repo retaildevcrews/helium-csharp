@@ -1,5 +1,5 @@
 using CSE.Helium.DataAccessLayer;
-using KeyVault.Extensions;
+using CSE.KeyVault;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
@@ -32,6 +32,7 @@ namespace CSE.Helium
         private static CancellationTokenSource ctCancel;
 
         public static LogLevel AppLogLevel { get; set; } = LogLevel.Warning;
+        public static bool IsLogLevelSet { get; set; }
 
         /// <summary>
         /// Main entry point
@@ -206,7 +207,7 @@ namespace CSE.Helium
                 logger.ClearProviders();
                 logger.AddConsole();
 
-                if (Constants.IsLogLevelSet)
+                if (App.IsLogLevelSet)
                 {
                     logger.AddFilter("Microsoft", AppLogLevel)
                     .AddFilter("System", AppLogLevel)

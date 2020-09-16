@@ -11,7 +11,6 @@ namespace CSE.Helium
         public const string KeyVaultName = "KEYVAULT_NAME";
         public const string AuthType = "AUTH_TYPE";
         public const string LogLevel = "LOG_LEVEL";
-        public static bool IsLogLevelSet { get; set; }
 
         public const string CosmosCollection = "CosmosCollection";
         public const string CosmosDatabase = "CosmosDatabase";
