@@ -66,6 +66,8 @@ namespace CSE.Helium
         /// <returns>HealthzCheck</returns>
         private async Task<HealthzCheck> GetGenresAsync(Dictionary<string, object> data = null)
         {
+            // TODO - reduce 400 to 100-250
+            // TODO - use constants
             const string name = "getGenres";
             const int maxMilliseconds = 400;
             const string path = "/api/genres";
@@ -122,13 +124,16 @@ namespace CSE.Helium
         {
             const string name = "searchMovies";
             const int maxMilliseconds = 400;
-            string path = "/api/movies?q=" + query;
+
+            var movieQuery = new MovieQueryParameters { Q = query };
+
+            string path = "/api/movies?q=" + movieQuery.Q;
 
             stopwatch.Restart();
 
             try
             {
-                _ = (await dal.GetMoviesAsync(query).ConfigureAwait(false)).ToList<Movie>();
+                _ = (await dal.GetMoviesAsync(movieQuery).ConfigureAwait(false)).ToList<Movie>();
 
                 return BuildHealthzCheck(path, maxMilliseconds, null, data, name);
             }
@@ -175,13 +180,16 @@ namespace CSE.Helium
         {
             const string name = "searchActors";
             const int maxMilliseconds = 400;
-            string path = "/api/actors?q=" + query;
+
+            var actorQuery = new ActorQueryParameters { Q = query };
+
+            string path = "/api/actors?q=" + actorQuery.Q;
 
             stopwatch.Restart();
 
             try
             {
-                _ = (await dal.GetActorsAsync(query).ConfigureAwait(false)).ToList<Actor>();
+                _ = (await dal.GetActorsAsync(actorQuery).ConfigureAwait(false)).ToList<Actor>();
 
                 return BuildHealthzCheck(path, maxMilliseconds, null, data, name);
             }

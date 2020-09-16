@@ -1,10 +1,13 @@
+using CSE.Helium.Validation;
 using CSE.Middleware;
+using Helium;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -33,15 +36,21 @@ namespace CSE.Helium
         /// <param name="services">The services in the web host</param>
         public void ConfigureServices(IServiceCollection services)
         {
-            // set json serialization defaults
-            services.AddControllers().AddJsonOptions(options =>
-            {
-                options.JsonSerializerOptions.IgnoreNullValues = true;
-                options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-                options.JsonSerializerOptions.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
-                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-                options.JsonSerializerOptions.Converters.Add(new TimeSpanConverter());
-            });
+
+            // set json serialization defaults and api behavior
+            services.AddControllers()
+                .ConfigureApiBehaviorOptions(o =>
+                {
+                    o.InvalidModelStateResponseFactory = ctx => new ValidationProblemDetailsResult();
+                })
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.IgnoreNullValues = true;
+                    options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+                    options.JsonSerializerOptions.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
+                    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                    options.JsonSerializerOptions.Converters.Add(new TimeSpanConverter());
+                });
 
             // add healthcheck service
             services.AddHealthChecks().AddCosmosHealthCheck(CosmosHealthCheck.ServiceId);
@@ -53,6 +62,7 @@ namespace CSE.Helium
             {
                 services.AddApplicationInsightsTelemetry(appInsightsKey);
             }
+
         }
 
         /// <summary>
@@ -62,6 +72,10 @@ namespace CSE.Helium
         /// <param name="env"></param>
         public static void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            _ = app ?? throw new ArgumentNullException(nameof(app));
+
+            ServiceActivator.Configure(app.ApplicationServices);
+
             // log http responses to the console
             // this should be first as it "wraps" all requests
             if (App.AppLogLevel != LogLevel.None)

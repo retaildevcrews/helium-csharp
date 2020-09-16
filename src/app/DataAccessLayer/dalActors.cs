@@ -1,5 +1,6 @@
 using CSE.Helium.Model;
 using Microsoft.Azure.Cosmos;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Threading.Tasks;
@@ -25,7 +26,7 @@ namespace CSE.Helium.DataAccessLayer
         /// </summary>
         /// <param name="actorId">Actor ID</param>
         /// <returns>Actor object</returns>
-        public async System.Threading.Tasks.Task<Actor> GetActorAsync(string actorId)
+        public async Task<Actor> GetActorAsync(string actorId)
         {
             // get the partition key for the actor ID
             // note: if the key cannot be determined from the ID, ReadDocumentAsync cannot be used.
@@ -40,37 +41,28 @@ namespace CSE.Helium.DataAccessLayer
         /// The search is a "contains" search on actor name
         /// If q is empty, all actors are returned
         /// </summary>
-        /// <param name="q">search term</param>
-        /// <param name="offset">zero based offset for paging</param>
-        /// <param name="limit">number of documents for paging</param>
+        /// <param name="actorQueryParameters">search parameters</param>
         /// <returns>List of Actors or an empty list</returns>
-        public async Task<IEnumerable<Actor>> GetActorsAsync(string q, int offset = 0, int limit = Constants.DefaultPageSize)
+        public async Task<IEnumerable<Actor>> GetActorsAsync(ActorQueryParameters actorQueryParameters)
         {
+            _ = actorQueryParameters ?? throw new ArgumentNullException(nameof(actorQueryParameters));
 
             string sql = actorSelect;
 
-
-            if (limit < 1)
-            {
-                limit = Constants.DefaultPageSize;
-            }
-            else if (limit > Constants.MaxPageSize)
-            {
-                limit = Constants.MaxPageSize;
-            }
+            int offset = actorQueryParameters.GetOffset();
+            int limit = actorQueryParameters.PageSize;
 
             string offsetLimit = string.Format(CultureInfo.InvariantCulture, actorOffset, offset, limit);
 
-            if (!string.IsNullOrEmpty(q))
+            if (!string.IsNullOrEmpty(actorQueryParameters.Q))
             {
                 // convert to lower and escape embedded '
-                q = q.Trim().ToLowerInvariant().Replace("'", "''", System.StringComparison.OrdinalIgnoreCase);
+                actorQueryParameters.Q = actorQueryParameters.Q.Trim().ToLowerInvariant().Replace("'", "''", System.StringComparison.OrdinalIgnoreCase);
 
-                if (!string.IsNullOrEmpty(q))
+                if (!string.IsNullOrEmpty(actorQueryParameters.Q))
                 {
                     // get actors by a "like" search on name
                     sql += string.Format(CultureInfo.InvariantCulture, $" and contains(m.textSearch, @q) ");
-
                 }
             }
 
@@ -78,9 +70,9 @@ namespace CSE.Helium.DataAccessLayer
 
             QueryDefinition queryDefinition = new QueryDefinition(sql);
 
-            if (!string.IsNullOrEmpty(q))
+            if (!string.IsNullOrEmpty(actorQueryParameters.Q))
             {
-                queryDefinition.WithParameter("@q", q);
+                queryDefinition.WithParameter("@q", actorQueryParameters.Q);
             }
 
             return await InternalCosmosDBSqlQuery<Actor>(queryDefinition).ConfigureAwait(false);

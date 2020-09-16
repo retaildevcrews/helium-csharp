@@ -1,5 +1,6 @@
 using CSE.Helium.Model;
 using Microsoft.Azure.Cosmos;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Threading.Tasks;
@@ -37,56 +38,45 @@ namespace CSE.Helium.DataAccessLayer
         /// <summary>
         /// Get a list of Movies by search and/or filter terms
         /// </summary>
-        /// <param name="q">search term</param>
-        /// <param name="genre">get movies by genre</param>
-        /// <param name="year">get movies by year</param>
-        /// <param name="rating">get movies rated >= rating</param>
-        /// <param name="actorId">get movies by actorId</param>
-        /// <param name="offset">zero based offset for paging</param>
-        /// <param name="limit">number of documents for paging</param>
+        /// <param name="movieQueryParameters">movie search parameters</param>
         /// <returns>List of Movies or an empty list</returns>
-        public async Task<IEnumerable<Movie>> GetMoviesAsync(string q, string genre = "", int year = 0, double rating = 0, string actorId = "", int offset = 0, int limit = Constants.DefaultPageSize)
+        public async Task<IEnumerable<Movie>> GetMoviesAsync(MovieQueryParameters movieQueryParameters)
         {
+            _ = movieQueryParameters ?? throw new ArgumentNullException(nameof(movieQueryParameters));
 
             string sql = movieSelect;
 
-            if (limit < 1)
-            {
-                limit = Constants.DefaultPageSize;
-            }
-            else if (limit > Constants.MaxPageSize)
-            {
-                limit = Constants.MaxPageSize;
-            }
+            int offset = movieQueryParameters.GetOffset();
+            int limit = movieQueryParameters.PageSize;
 
             string offsetLimit = string.Format(CultureInfo.InvariantCulture, movieOffset, offset, limit);
 
-            if (!string.IsNullOrWhiteSpace(q))
+            if (!string.IsNullOrWhiteSpace(movieQueryParameters.Q))
             {
-                q = q.Trim();
+                movieQueryParameters.Q = movieQueryParameters.Q.Trim();
                 sql += " and contains(m.title, @q, true) ";
             }
 
-            if (year > 0)
+            if (movieQueryParameters.Year > 0)
             {
                 sql += " and m.year = @year ";
             }
 
-            if (rating > 0)
+            if (movieQueryParameters.Rating > 0)
             {
                 sql += " and m.rating >= @rating ";
             }
 
-            if (!string.IsNullOrWhiteSpace(actorId))
+            if (!string.IsNullOrWhiteSpace(movieQueryParameters.ActorId))
             {
                 // convert to lower
-                actorId = actorId.Trim().ToLowerInvariant();
+                movieQueryParameters.ActorId = movieQueryParameters.ActorId.Trim().ToLowerInvariant();
                 sql += " and array_contains(m.roles, { actorId: @actorId }, true) ";
             }
 
-            if (!string.IsNullOrWhiteSpace(genre))
+            if (!string.IsNullOrWhiteSpace(movieQueryParameters.Genre))
             {
-                genre = genre.Trim();
+                movieQueryParameters.Genre = movieQueryParameters.Genre.Trim();
                 sql += " and contains(m.genreSearch, @genre, true) ";
             }
 
@@ -95,26 +85,26 @@ namespace CSE.Helium.DataAccessLayer
             // Parameterize fields
             QueryDefinition queryDefinition = new QueryDefinition(sql);
 
-            if (!string.IsNullOrWhiteSpace(q))
+            if (!string.IsNullOrWhiteSpace(movieQueryParameters.Q))
             {
-                queryDefinition.WithParameter("@q", q);
+                queryDefinition.WithParameter("@q", movieQueryParameters.Q);
             }
-            if (!string.IsNullOrWhiteSpace(actorId))
+            if (!string.IsNullOrWhiteSpace(movieQueryParameters.ActorId))
             {
-                queryDefinition.WithParameter("@actorId", actorId);
+                queryDefinition.WithParameter("@actorId", movieQueryParameters.ActorId);
             }
-            if (!string.IsNullOrWhiteSpace(genre))
+            if (!string.IsNullOrWhiteSpace(movieQueryParameters.Genre))
             {
                 // genreSearch is stored delimited with :
-                queryDefinition.WithParameter("@genre", "|" + genre + "|");
+                queryDefinition.WithParameter("@genre", "|" + movieQueryParameters.Genre + "|");
             }
-            if (year > 0)
+            if (movieQueryParameters.Year > 0)
             {
-                queryDefinition.WithParameter("@year", year);
+                queryDefinition.WithParameter("@year", movieQueryParameters.Year);
             }
-            if (rating > 0)
+            if (movieQueryParameters.Rating > 0)
             {
-                queryDefinition.WithParameter("@rating", rating);
+                queryDefinition.WithParameter("@rating", movieQueryParameters.Rating);
             }
 
             return await InternalCosmosDBSqlQuery<Movie>(queryDefinition).ConfigureAwait(false);

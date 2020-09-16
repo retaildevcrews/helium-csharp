@@ -1,4 +1,5 @@
 using CSE.KeyVault;
+using KeyVault.Extensions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;

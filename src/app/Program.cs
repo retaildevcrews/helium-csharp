@@ -1,10 +1,10 @@
 using CSE.Helium.DataAccessLayer;
 using CSE.KeyVault;
+using KeyVault.Extensions;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Azure.KeyVault;
-using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.AzureKeyVault;
 using Microsoft.Extensions.DependencyInjection;
@@ -203,11 +203,14 @@ namespace CSE.Helium
                 });
 
             // configure logger based on command line
+            // TODO - add comment on appsettings.json
+
             builder.ConfigureLogging(logger =>
             {
                 logger.ClearProviders();
                 logger.AddConsole();
 
+                // TODO - add comment about appsettings
                 if (App.IsLogLevelSet)
                 {
                     logger.AddFilter("Microsoft", AppLogLevel)
@@ -221,7 +224,7 @@ namespace CSE.Helium
             return builder.Build();
         }
 
-       
+
 
         /// <summary>
         /// Check for Cosmos key rotation

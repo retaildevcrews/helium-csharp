@@ -1,7 +1,8 @@
 ﻿using CSE.Helium.DataAccessLayer;
+using Helium.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using System.Globalization;
+using System;
 using System.Threading.Tasks;
 
 namespace CSE.Helium.Controllers
@@ -10,6 +11,7 @@ namespace CSE.Helium.Controllers
     /// Handle all of the /api/actors requests
     /// </summary>
     [Route("api/[controller]")]
+    [ApiController]
     public class ActorsController : Controller
     {
         private readonly ILogger logger;
@@ -28,80 +30,36 @@ namespace CSE.Helium.Controllers
         }
 
         /// <summary>
-        /// Returns a JSON array of Actor objects
+        /// Returns a JSON array of Actor objects based on query parameters
         /// </summary>
-        /// <param name="q">(optional) The term used to search Actor name</param>
-        /// <param name="pageNumber">1 based page index</param>
-        /// <param name="pageSize">page size (1000 max)</param>
-        /// <response code="200">JSON array of Actor objects or empty array if not found</response>
+        /// <param name="actorQueryParameters"></param>
         [HttpGet]
-        public async Task<IActionResult> GetActorsAsync([FromQuery] string q, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = Constants.DefaultPageSize)
+        public async Task<IActionResult> GetActorsAsync([FromQuery] ActorQueryParameters actorQueryParameters)
         {
-            string method = GetMethodText(q, pageNumber, pageSize);
+            _ = actorQueryParameters ?? throw new ArgumentNullException(nameof(actorQueryParameters));
 
-            // validate query string parameters
-            var result = ParameterValidator.Common(HttpContext?.Request?.Query, q, pageNumber, pageSize, method, logger);
-            if (result != null)
-            {
-                return result;
-            }
-
-            // convert to zero based index
-            pageNumber = pageNumber > 1 ? pageNumber - 1 : 0;
-
-            return await ResultHandler.Handle(dal.GetActorsAsync(q, pageNumber * pageSize, pageSize), method, Constants.ActorsControllerException, logger).ConfigureAwait(false);
+            return await ResultHandler.Handle(
+                    dal.GetActorsAsync(actorQueryParameters), actorQueryParameters.GetMethodText(HttpContext), Constants.ActorsControllerException,
+                    logger)
+                .ConfigureAwait(false);
         }
 
         /// <summary>
         /// Returns a single JSON Actor by actorId
         /// </summary>
-        /// <param name="actorId">The actorId</param>
+        /// <param name="actorIdParameter">The actorId</param>
         /// <response code="404">actorId not found</response>
         [HttpGet("{actorId}")]
-        public async Task<IActionResult> GetActorByIdAsync(string actorId)
+        public async Task<IActionResult> GetActorByIdAsync([FromRoute] ActorIdParameter actorIdParameter)
         {
-            string method = "GetActorByIdAsync " + actorId;
+            _ = actorIdParameter ?? throw new ArgumentNullException(nameof(actorIdParameter));
 
-            // validate actorId
-            var result = ParameterValidator.ActorId(actorId, method, logger);
-            if (result != null)
-            {
-                return result;
-            }
+            string method = nameof(GetActorByIdAsync) + actorIdParameter.ActorId;
 
             // return result
-            return await ResultHandler.Handle(dal.GetActorAsync(actorId), method, "Actor Not Found", logger).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// Add parameters to the method name if specified in the query string
-        /// </summary>
-        /// <param name="q"></param>
-        /// <param name="pageNumber"></param>
-        /// <param name="pageSize"></param>
-        /// <returns></returns>
-        private string GetMethodText(string q, int pageNumber, int pageSize)
-        {
-            string method = "GetActorsAsync";
-
-            if (HttpContext != null && HttpContext.Request != null && HttpContext.Request.Query != null)
-            {
-                // add the query parameters to the method name if exists
-                if (HttpContext.Request.Query.ContainsKey("q"))
-                {
-                    method = string.Format(CultureInfo.InvariantCulture, $"{method}:q:{q}");
-                }
-                if (HttpContext.Request.Query.ContainsKey("pageNumber"))
-                {
-                    method = string.Format(CultureInfo.InvariantCulture, $"{method}:pageNumber:{pageNumber}");
-                }
-                if (HttpContext.Request.Query.ContainsKey("pageSize"))
-                {
-                    method = string.Format(CultureInfo.InvariantCulture, $"{method}:pageSize:{pageSize}");
-                }
-            }
-
-            return method;
+            return await ResultHandler.Handle(
+                dal.GetActorAsync(actorIdParameter.ActorId), method, "Actor Not Found", logger)
+                .ConfigureAwait(false);
         }
     }
 }
