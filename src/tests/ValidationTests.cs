@@ -174,6 +174,7 @@ namespace CSE.Helium.Tests
         [InlineData("2001", true)]
         [InlineData("the quick brown fox jumped over the lazy dog", false)]
         [InlineData("t", false)]
+        [InlineData("1", false)]
         public void QueryString_ValidateRegularExpression_ReturnsExpectedResult(string input, bool expectedResult)
         {
             // Arrange
@@ -189,15 +190,15 @@ namespace CSE.Helium.Tests
         [Theory]
         [InlineData(0, 0)]
         [InlineData(1, 0)]
-        [InlineData(55, 54)]
-        [InlineData(10000, 9999)]
-        public void GivenPageNumber_ValidateZeroBasedIndex_ReturnsExpectedResult(int pageNumber, int expectedResult)
+        [InlineData(55, 5400)]
+        [InlineData(10000, 999900)]
+        public void GivenPageNumber_ValidateOffset_ReturnsExpectedResult(int pageNumber, int expectedResult)
         {
             // Arrange
             var queryParameters = new ActorQueryParameters { PageNumber = pageNumber };
 
             // Act
-            var actualResult = queryParameters.GetZeroBasedPageNumber();
+            var actualResult = queryParameters.GetOffset();
 
             // Assert
             Assert.Equal(expectedResult, actualResult);

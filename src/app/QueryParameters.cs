@@ -14,7 +14,7 @@ namespace CSE.Helium
         [StringLength(maximumLength: 20, MinimumLength = 2, ErrorMessage = "The parameter 'q' should be between {2} and {1} characters.")]
         public string Q { get; set; }
 
-        public int GetZeroBasedPageNumber() => PageNumber > 1 ? PageNumber - 1 : 0;
+        public int GetOffset() => PageSize * (PageNumber > 1 ? PageNumber - 1 : 0);
     }
 
     public sealed class MovieQueryParameters : QueryParameters

@@ -46,7 +46,7 @@ namespace CSE.Helium.DataAccessLayer
 
             string sql = movieSelect;
 
-            int offset = movieQueryParameters.PageSize * movieQueryParameters.GetZeroBasedPageNumber();
+            int offset = movieQueryParameters.GetOffset();
             int limit = movieQueryParameters.PageSize;
 
             string offsetLimit = string.Format(CultureInfo.InvariantCulture, movieOffset, offset, limit);

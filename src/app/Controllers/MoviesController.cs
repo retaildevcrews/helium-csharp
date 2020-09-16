@@ -37,6 +37,7 @@ namespace CSE.Helium.Controllers
         {
             _ = movieQueryParameters ?? throw new ArgumentNullException(nameof(movieQueryParameters));
 
+            // todo: encapsulate getmethodtext and const
             return await ResultHandler.Handle(
                 dal.GetMoviesAsync(movieQueryParameters), movieQueryParameters.GetMethodText(HttpContext), Constants.MoviesControllerException, logger)
                 .ConfigureAwait(false);

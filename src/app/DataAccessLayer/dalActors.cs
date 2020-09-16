@@ -49,7 +49,7 @@ namespace CSE.Helium.DataAccessLayer
 
             string sql = actorSelect;
 
-            int offset = actorQueryParameters.PageSize * actorQueryParameters.GetZeroBasedPageNumber();
+            int offset = actorQueryParameters.GetOffset();
             int limit = actorQueryParameters.PageSize;
 
             string offsetLimit = string.Format(CultureInfo.InvariantCulture, actorOffset, offset, limit);
