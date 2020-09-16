@@ -1,5 +1,6 @@
 ﻿using CSE.Helium;
 using System;
+using Microsoft.AspNetCore.Http;
 
 namespace Helium.Extensions
 {
@@ -8,26 +9,28 @@ namespace Helium.Extensions
         /// <summary>
         /// Add parameters to the method name if specified in the query string
         /// </summary>
-        /// <param name="actorQueryParameters"></param>
+        /// <param name="actorQueryParameters">Actor query parameters</param>
+        /// <param name="httpContext">HttpContext</param>
         /// <returns></returns>
-        public static string GetMethodText(this ActorQueryParameters actorQueryParameters)
+        public static string GetMethodText(this ActorQueryParameters actorQueryParameters, HttpContext httpContext)
         {
             _ = actorQueryParameters ?? throw new ArgumentNullException(nameof(actorQueryParameters));
+            _ = httpContext ?? throw new ArgumentNullException(nameof(httpContext));
 
-            string method = "GetActorsAsync";
+            string method = "GetActors";
 
             // add the query parameters to the method name if exists
-            if (!string.IsNullOrEmpty(actorQueryParameters.Q))
+            if (httpContext.Request.Query.ContainsKey("q"))
             {
                 method = $"{method}:q:{actorQueryParameters.Q}";
             }
             
-            if (actorQueryParameters.PageNumber != default)
+            if (httpContext.Request.Query.ContainsKey("pageNumber"))
             {
                 method = $"{method}:pageNumber:{actorQueryParameters.PageNumber}";
             }
 
-            if (actorQueryParameters.PageSize != default)
+            if (httpContext.Request.Query.ContainsKey("pageSize"))
             {
                 method = $"{method}:pageSize:{actorQueryParameters.PageSize}";
             }

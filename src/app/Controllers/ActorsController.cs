@@ -38,7 +38,7 @@ namespace CSE.Helium.Controllers
         {
             _ = actorQueryParameters ?? throw new ArgumentNullException(nameof(actorQueryParameters));
 
-            return await ResultHandler.Handle(dal.GetActorsAsync(actorQueryParameters), actorQueryParameters.GetMethodText(), Constants.ActorsControllerException,
+            return await ResultHandler.Handle(dal.GetActorsAsync(actorQueryParameters), actorQueryParameters.GetMethodText(HttpContext), Constants.ActorsControllerException,
                     logger)
                 .ConfigureAwait(false);
         }
@@ -56,7 +56,7 @@ namespace CSE.Helium.Controllers
             string method = nameof(GetActorByIdAsync) + actorIdParameter.ActorId;
 
             // return result
-            return await ResultHandler.Handle(dal.GetActorAsync(actorIdParameter.ActorId), method, "Actor Not Found", logger).ConfigureAwait(false);
+            return await ResultHandler.Handle(dal.GetActorAsync(actorIdParameter.ActorId), method, Constants.ActorsControllerException, logger).ConfigureAwait(false);
         }
     }
 }
