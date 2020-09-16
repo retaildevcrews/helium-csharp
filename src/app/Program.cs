@@ -203,11 +203,14 @@ namespace CSE.Helium
                 });
 
             // configure logger based on command line
+            // TODO - add comment on appsettings.json
+
             builder.ConfigureLogging(logger =>
             {
                 logger.ClearProviders();
                 logger.AddConsole();
 
+                // TODO - add comment about appsettings
                 if (App.IsLogLevelSet)
                 {
                     logger.AddFilter("Microsoft", AppLogLevel)

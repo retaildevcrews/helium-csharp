@@ -66,6 +66,8 @@ namespace CSE.Helium
         /// <returns>HealthzCheck</returns>
         private async Task<HealthzCheck> GetGenresAsync(Dictionary<string, object> data = null)
         {
+            // TODO - reduce 400 to 100-250
+            // TODO - use constants
             const string name = "getGenres";
             const int maxMilliseconds = 400;
             const string path = "/api/genres";
