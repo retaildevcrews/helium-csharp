@@ -99,7 +99,10 @@ namespace CSE.Helium.Controllers
             };
         }
 
-
+        /// <summary>
+        /// This method creates a Polly retry policy when there is cosmos exception with code Unauthorized.
+        /// </summary>
+        /// <returns></returns>
         private AsyncRetryPolicy GetCosmosRetryPolicy()
         {
             return Policy.Handle<CosmosException>(e => e.StatusCode == HttpStatusCode.Unauthorized)
