@@ -1,5 +1,4 @@
-﻿using KeyVault.Extensions;
-using Microsoft.Azure.KeyVault;
+﻿using Microsoft.Azure.KeyVault;
 using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Extensions.Logging;
 using System;
@@ -115,6 +114,8 @@ namespace CSE.KeyVault
             }
 #endif
 
+            KeyVaultClient keyVaultClient;
+
             while (true)
             {
                 try
@@ -122,7 +123,7 @@ namespace CSE.KeyVault
                     var tokenProvider = new AzureServiceTokenProvider(authString);
 
                     // use Managed Identity (MI) for secure access to Key Vault
-                    var keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(tokenProvider.KeyVaultTokenCallback));
+                    keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(tokenProvider.KeyVaultTokenCallback));
 
                     // read a key to make sure the connection is valid 
                     await keyVaultClient.GetSecretAsync(kvUrl, keyVaultTestKey).ConfigureAwait(false);
