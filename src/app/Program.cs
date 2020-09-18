@@ -1,6 +1,5 @@
 using CSE.Helium.DataAccessLayer;
 using CSE.KeyVault;
-using KeyVault.Extensions;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
@@ -168,7 +167,7 @@ namespace CSE.Helium
         static async Task<IWebHost> BuildHost(string kvUrl, AuthenticationType authType)
         {
             // create the Key Vault Client
-            var kvClient = await KeyVaultHelper.GetKeyVaultClient(kvUrl, authType, Constants.CosmosKey).ConfigureAwait(false);
+            var kvClient = await KeyVaultHelper.GetKeyVaultClient(kvUrl, authType, Constants.CosmosDatabase).ConfigureAwait(false);
 
             if (kvClient == null)
             {
@@ -194,7 +193,7 @@ namespace CSE.Helium
                         config.GetValue<string>(Constants.CosmosCollection));
 
                     // add the KeyVaultConnection via DI
-                    services.AddKeyVaultConnection(kvClient, new Uri(kvUrl));
+                    services.AddKeyVaultConnection(kvClient, kvUrl);
 
                     // add IConfigurationRoot
                     services.AddSingleton<IConfigurationRoot>(config);
@@ -203,14 +202,13 @@ namespace CSE.Helium
                 });
 
             // configure logger based on command line
-            // TODO - add comment on appsettings.json
-
             builder.ConfigureLogging(logger =>
             {
                 logger.ClearProviders();
                 logger.AddConsole();
 
-                // TODO - add comment about appsettings
+                // if you specify the --log-level option, it will override the appsettings.json options
+                // remove any or all of the code below that you don't want to override
                 if (App.IsLogLevelSet)
                 {
                     logger.AddFilter("Microsoft", AppLogLevel)

@@ -1,7 +1,8 @@
 using CSE.KeyVault;
-using KeyVault.Extensions;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Azure.KeyVault;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -139,6 +140,10 @@ namespace CSE.Helium
 
                 // log startup messages
                 LogStartup();
+
+                // verify key vault access
+                var kvConnection = host.Services.GetService<IKeyVaultConnection>();
+                var secret = kvConnection.Client.GetSecretAsync(kvConnection.Address, Constants.CosmosDatabase);
 
                 // start the webserver
                 var w = host.RunAsync();

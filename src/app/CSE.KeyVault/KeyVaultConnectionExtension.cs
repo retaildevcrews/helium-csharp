@@ -13,13 +13,13 @@ namespace CSE.KeyVault
         /// <param name="client">KeyVaultClient</param>
         /// <param name="uri">Key Vault URI</param>
         /// <returns>IServiceCollection</returns>
-        public static IServiceCollection AddKeyVaultConnection(this IServiceCollection services, KeyVaultClient client, Uri uri)
+        public static IServiceCollection AddKeyVaultConnection(this IServiceCollection services, KeyVaultClient client, string uri)
         {
             // add the KeyVaultConnection as a singleton
             services.AddSingleton<IKeyVaultConnection>(new KeyVaultConnection
             {
                 Client = client,
-                Uri = uri
+                Address = uri
             });
 
             return services;

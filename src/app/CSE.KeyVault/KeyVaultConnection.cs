@@ -11,7 +11,7 @@ namespace CSE.KeyVault
     public interface IKeyVaultConnection
     {
         IKeyVaultClient Client { get; set; }
-        Uri Uri { get; set; }
+        string Address { get; set; }
     }
 
     /// <summary>
@@ -20,6 +20,6 @@ namespace CSE.KeyVault
     public class KeyVaultConnection : IKeyVaultConnection
     {
         public IKeyVaultClient Client { get; set; }
-        public Uri Uri { get; set; }
+        public string Address { get; set; }
     }
 }
