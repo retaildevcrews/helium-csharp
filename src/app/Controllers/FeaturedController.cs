@@ -1,5 +1,6 @@
 ﻿using CSE.Helium.DataAccessLayer;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -11,7 +12,7 @@ namespace CSE.Helium.Controllers
     /// Handle /api/featured/movie requests
     /// </summary>
     [Route("api/[controller]")]
-    public class FeaturedController : Controller
+    public class FeaturedController : BaseController
     {
         private readonly ILogger logger;
         private readonly IDAL dal;
@@ -22,7 +23,7 @@ namespace CSE.Helium.Controllers
         /// </summary>
         /// <param name="logger">log instance</param>
         /// <param name="dal">data access layer instance</param>
-        public FeaturedController(ILogger<FeaturedController> logger, IDAL dal)
+        public FeaturedController(ILogger<FeaturedController> logger, IDAL dal, IConfiguration configuration) : base(logger, dal, configuration)
         {
             this.logger = logger;
             this.dal = dal;
@@ -46,7 +47,7 @@ namespace CSE.Helium.Controllers
                 string movieId = featuredMovies[rand.Next(0, featuredMovies.Count - 1)];
 
                 // get movie by movieId
-                return await ResultHandler.Handle(dal.GetMovieAsync(movieId), method, Constants.FeaturedControllerException, logger).ConfigureAwait(false);
+                return await Handle(RetryCosmosPolicy.ExecuteAsync(() => dal.GetMovieAsync(movieId)), method, Constants.FeaturedControllerException, logger).ConfigureAwait(false);
             }
 
             return NotFound();

@@ -1,4 +1,5 @@
-﻿using CSE.Helium;
+﻿using Castle.Core.Configuration;
+using CSE.Helium;
 using CSE.Helium.Controllers;
 using CSE.Helium.DataAccessLayer;
 using Helium.Extensions;
@@ -22,9 +23,10 @@ namespace tests
         {
             // Arrange
             var logger = new Mock<ILogger<MoviesController>>();
+            var config = new Mock<Microsoft.Extensions.Configuration.IConfiguration>();
             var mockIDAL = new Mock<IDAL>();
 
-            var controller = new MoviesController(logger.Object, mockIDAL.Object)
+            var controller = new MoviesController(logger.Object, mockIDAL.Object,config.Object)
             {
                 ControllerContext = new ControllerContext()
             };
@@ -73,9 +75,10 @@ namespace tests
         {
             // Arrange
             var logger = new Mock<ILogger<ActorsController>>();
+            var config = new Mock<Microsoft.Extensions.Configuration.IConfiguration>();
             var mockIDAL = new Mock<IDAL>();
 
-            var controller = new ActorsController(logger.Object, mockIDAL.Object)
+            var controller = new ActorsController(logger.Object, mockIDAL.Object,config.Object)
             {
                 ControllerContext = new ControllerContext()
             };

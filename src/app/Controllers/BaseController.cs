@@ -1,23 +1,37 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.Cosmos;
-using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using CSE.Helium;
+using CSE.Helium.DataAccessLayer;
+using CSE.KeyVault;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Cosmos;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Polly;
+using Polly.Retry;
 
 namespace CSE.Helium.Controllers
 {
-    public class ErrorResult
+    [Route("api/[controller]")]
+    [ApiController]
+    public class BaseController : Controller
     {
-        public int Status => (int)Error;
-        public string Message { get; set; }
-        public HttpStatusCode Error { get; set; }
-    }
-    /// <summary>
-    /// Handles query requests from the controllers
-    /// </summary>
-    public static class ResultHandler
-    {
+        private readonly IDAL dal;
+        private readonly IConfiguration configuration;
+        private readonly ILogger logger;
+        protected AsyncRetryPolicy RetryCosmosPolicy { get; private set; }
+
+        public BaseController(ILogger logger, IDAL dal, IConfiguration configuration )
+        {
+            this.dal = dal;
+            this.configuration = configuration;
+            this.logger = logger;
+            RetryCosmosPolicy = GetCosmosRetryPolicy();
+        }
+
         /// <summary>
         /// Handle an IActionResult request from a controller
         /// </summary>
@@ -49,7 +63,7 @@ namespace CSE.Helium.Controllers
             catch (CosmosException ce)
             {
                 // log and return Cosmos status code
-                if (ce.StatusCode == System.Net.HttpStatusCode.NotFound)
+                if (ce.StatusCode == HttpStatusCode.NotFound)
                 {
                     logger.LogWarning($"CosmosNotFound:{method}");
                 }
@@ -83,6 +97,27 @@ namespace CSE.Helium.Controllers
             {
                 StatusCode = (int)statusCode
             };
+        }
+
+
+        private AsyncRetryPolicy GetCosmosRetryPolicy()
+        {
+            return Policy.Handle<CosmosException>(e => e.StatusCode == HttpStatusCode.Unauthorized)
+                .WaitAndRetryAsync(1, retryAttempt =>
+                 {
+                     var timeToWait = TimeSpan.FromSeconds(Math.Pow(2, retryAttempt));
+                     logger.LogInformation("Reloading configurations to check if Key was rotated.");
+                     
+                     //Reload the configurations.
+                     (configuration as IConfigurationRoot).Reload();
+
+                     logger.LogInformation("Refresh cosmos connection with upadated secret.");
+                     dal.Reconnect(new Uri(configuration[Constants.CosmosUrl]), configuration[Constants.CosmosKey], configuration[Constants.CosmosDatabase], configuration[Constants.CosmosCollection]).ConfigureAwait(false);
+
+                     logger.LogInformation($"Waiting {timeToWait.TotalSeconds} seconds");
+                     return timeToWait;
+                 }
+                );
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using CSE.Helium.DataAccessLayer;
 using Helium.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
@@ -12,7 +13,7 @@ namespace CSE.Helium.Controllers
     /// </summary>
     [Route("api/[controller]")]
     [ApiController]
-    public class MoviesController : Controller
+    public class MoviesController : BaseController
     {
         private readonly ILogger logger;
         private readonly IDAL dal;
@@ -22,7 +23,7 @@ namespace CSE.Helium.Controllers
         /// </summary>
         /// <param name="logger">log instance</param>
         /// <param name="dal">data access layer instance</param>
-        public MoviesController(ILogger<MoviesController> logger, IDAL dal)
+        public MoviesController(ILogger<MoviesController> logger, IDAL dal, IConfiguration configuration) : base(logger, dal, configuration)
         {
             this.logger = logger;
             this.dal = dal;
@@ -38,8 +39,8 @@ namespace CSE.Helium.Controllers
             _ = movieQueryParameters ?? throw new ArgumentNullException(nameof(movieQueryParameters));
 
             // todo: encapsulate getmethodtext and const
-            return await ResultHandler.Handle(
-                dal.GetMoviesAsync(movieQueryParameters), movieQueryParameters.GetMethodText(HttpContext), Constants.MoviesControllerException, logger)
+            return await Handle(
+                RetryCosmosPolicy.ExecuteAsync(() => dal.GetMoviesAsync(movieQueryParameters)), movieQueryParameters.GetMethodText(HttpContext), Constants.MoviesControllerException, logger)
                 .ConfigureAwait(false);
         }
 
@@ -55,8 +56,8 @@ namespace CSE.Helium.Controllers
 
             string method = nameof(GetMovieByIdAsync) + movieIdParameter.MovieId;
 
-            return await ResultHandler.Handle(
-                dal.GetMovieAsync(movieIdParameter.MovieId), method, "Movie Not Found", logger)
+            return await Handle(
+                RetryCosmosPolicy.ExecuteAsync(() => dal.GetMovieAsync(movieIdParameter.MovieId)), method, "Movie Not Found", logger)
                 .ConfigureAwait(false);
         }
     }
