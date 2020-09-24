@@ -1,7 +1,6 @@
 ﻿using CSE.Helium.DataAccessLayer;
 using Helium.Extensions;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
@@ -13,7 +12,7 @@ namespace CSE.Helium.Controllers
     /// </summary>
     [Route("api/[controller]")]
     [ApiController]
-    public class ActorsController : BaseController
+    public class ActorsController : Controller
     {
         private readonly ILogger logger;
         private readonly IDAL dal;
@@ -23,7 +22,7 @@ namespace CSE.Helium.Controllers
         /// </summary>
         /// <param name="logger">log instance</param>
         /// <param name="dal">data access layer instance</param>
-        public ActorsController(ILogger<ActorsController> logger, IDAL dal, IConfiguration configuration) : base(logger, dal, configuration)
+        public ActorsController(ILogger<ActorsController> logger, IDAL dal)
         {
             // save to local for use in handlers
             this.logger = logger;
@@ -39,8 +38,8 @@ namespace CSE.Helium.Controllers
         {
             _ = actorQueryParameters ?? throw new ArgumentNullException(nameof(actorQueryParameters));
 
-            return await Handle(
-                   RetryCosmosPolicy.ExecuteAsync(()=> dal.GetActorsAsync(actorQueryParameters)), actorQueryParameters.GetMethodText(HttpContext), Constants.ActorsControllerException,
+            return await ResultHandler.Handle(
+                    dal.GetActorsAsync(actorQueryParameters), actorQueryParameters.GetMethodText(HttpContext), Constants.ActorsControllerException,
                     logger)
                 .ConfigureAwait(false);
         }
@@ -58,8 +57,8 @@ namespace CSE.Helium.Controllers
             string method = nameof(GetActorByIdAsync) + actorIdParameter.ActorId;
 
             // return result
-            return await Handle(
-                RetryCosmosPolicy.ExecuteAsync(() => dal.GetActorAsync(actorIdParameter.ActorId)), method, "Actor Not Found", logger)
+            return await ResultHandler.Handle(
+                dal.GetActorAsync(actorIdParameter.ActorId), method, "Actor Not Found", logger)
                 .ConfigureAwait(false);
         }
     }
