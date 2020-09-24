@@ -174,11 +174,14 @@ namespace CSE.Helium
                 return null;
             }
 
+            // build the config
+            // we need the key vault values for the DAL
+            config = BuildConfig(kvClient, kvUrl);
+
             // configure the web host builder
             IWebHostBuilder builder = WebHost.CreateDefaultBuilder()
                  .ConfigureAppConfiguration((configuration) =>
                  {
-                     //Add Keyvault provider to configurations.
                      configuration.AddAzureKeyVault(kvUrl, kvClient, new DefaultKeyVaultSecretManager());
                      config = configuration.Build();
                  })
