@@ -42,18 +42,23 @@ namespace CSE.KeyRotation
                 .RetryAsync(Constants.RetryCount, async(exception, retryCount)  =>
                 {
 
+                    try
+                    {
+                        
+                        await semaphoreSlim.WaitAsync().ConfigureAwait(false);
+                        logger.LogInformation("Read the cosmos key from KeyVault.");
+                        
+                        //Get the latest cosmos key.                    
+                        var cosmosKeySecret = await keyVaultConnection.Client.GetSecretAsync(keyVaultConnection.Address, Constants.CosmosKey).ConfigureAwait(false);
 
-                    await semaphoreSlim.WaitAsync().ConfigureAwait(false);
-
-                    logger.LogInformation("Read the cosmos key from KeyVault.");
-
-                    //Get the latest cosmos key.                    
-                    var cosmosKeySecret = await keyVaultConnection.Client.GetSecretAsync(keyVaultConnection.Address, Constants.CosmosKey).ConfigureAwait(false);
-
-                    logger.LogInformation("Refresh cosmos connection with upadated secret.");
-                    await dal.Reconnect(new Uri(configuration[Constants.CosmosUrl]), cosmosKeySecret.Value, configuration[Constants.CosmosDatabase], configuration[Constants.CosmosCollection]).ConfigureAwait(false);
-
-                    semaphoreSlim.Release();
+                        logger.LogInformation("Refresh cosmos connection with upadated secret.");
+                        await dal.Reconnect(new Uri(configuration[Constants.CosmosUrl]), cosmosKeySecret.Value, configuration[Constants.CosmosDatabase], configuration[Constants.CosmosCollection]).ConfigureAwait(false);
+                    }
+                    finally
+                    {
+                        // release the semaphore
+                        semaphoreSlim.Release();
+                    }
                 });
         }
     }
