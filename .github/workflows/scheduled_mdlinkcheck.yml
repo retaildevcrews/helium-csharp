@@ -1,4 +1,4 @@
-name: Check Markdown Links
+name: Scheduled Check for Dead Markdown Links
 
 on: 
   schedule:
@@ -23,12 +23,14 @@ jobs:
       with:
         title: Remove dead links from repository
         content-filepath: ./.github/ISSUE_TEMPLATE/found-dead-links.md
+        labels: Documentation
 
     - name: Create Project Card
       if: ${{ failure() }}
       uses: peter-evans/create-or-update-project-card@v1
       with:
+        token: ${{ secrets.BOT_PAT }}
+        project-location: 'retaildevcrews'
         project-number: '1'
         column-name: 'Triage'
         issue-number: ${{ steps.ciff.outputs.issue-number }}
-    
