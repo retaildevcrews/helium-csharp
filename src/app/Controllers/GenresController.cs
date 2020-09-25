@@ -1,4 +1,5 @@
 ﻿using CSE.Helium.DataAccessLayer;
+using CSE.KeyRotation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
@@ -13,16 +14,18 @@ namespace CSE.Helium.Controllers
     {
         private readonly ILogger logger;
         private readonly IDAL dal;
+        private readonly IKeyRotation keyRotation;
 
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="logger">log instance</param>
         /// <param name="dal">data access layer instance</param>
-        public GenresController(ILogger<GenresController> logger, IDAL dal)
+        public GenresController(ILogger<GenresController> logger, IDAL dal, IKeyRotation keyRotation)
         {
             this.logger = logger;
             this.dal = dal;
+            this.keyRotation = keyRotation;
         }
 
         /// <summary>
@@ -33,7 +36,7 @@ namespace CSE.Helium.Controllers
         public async Task<IActionResult> GetGenresAsync()
         {
             // get list of genres as list of string
-            return await ResultHandler.Handle(dal.GetGenresAsync(), nameof(GetGenresAsync), Constants.GenresControllerException, logger).ConfigureAwait(false);
+            return await ResultHandler.Handle(keyRotation.RetryCosmosPolicy.ExecuteAsync(()=> dal.GetGenresAsync()), nameof(GetGenresAsync), Constants.GenresControllerException, logger).ConfigureAwait(false);
         }
     }
 }
