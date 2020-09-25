@@ -23,7 +23,7 @@ jobs:
       with:
         title: Remove dead links from repository
         content-filepath: ./.github/ISSUE_TEMPLATE/found-dead-links.md
-        labels: Documentation
+        labels: Documentation, Bug
 
     - name: Create Project Card
       if: ${{ failure() }}
