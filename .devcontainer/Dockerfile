@@ -3,15 +3,11 @@
 # Licensed under the MIT License. See https://go.microsoft.com/fwlink/?linkid=2090316 for license information.
 #-------------------------------------------------------------------------------------------------------------
 
-# Not currently using this - using the built in image
-
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1
 
-# Avoid warnings by switching to noninteractive
-ENV DEBIAN_FRONTEND=noninteractive
-
 # Configure apt and install packages
-RUN apt-get update \
+RUN export DEBIAN_FRONTEND=noninteractive \
+    && apt-get update \
     && apt-get -y install --no-install-recommends apt-utils dialog \
     #
     # Verify git, process tools, lsb-release (common in install instructions for CLIs) installed
@@ -25,7 +21,8 @@ RUN apt-get update \
     #
     # Clean up
     && apt-get autoremove -y \
-    && apt-get upgrade -y
+    && apt-get upgrade -y \
+    && apt-get dist-upgrade -y
 
 ### leave the packages
 #    && apt-get clean -y \
@@ -47,9 +44,10 @@ RUN groupadd --gid $USER_GID $USERNAME \
     #
     # add docker group
     && groupadd -g 800 docker \
-    && usermod -a -G docker $USERNAME
+    && usermod -a -G docker $USERNAME \
+    && chown -R $USERNAME:$USERNAME /home/$USERNAME
 
-RUN chown -R $USERNAME:$USERNAME /home/$USERNAME
-
-# Switch back to dialog for any ad-hoc use of apt-get
-ENV DEBIAN_FRONTEND=dialog
+USER helium
+RUN  dotnet tool install -g webvalidate
+ENV PATH="~/.dotnet/tools:${PATH}" \
+    DEBIAN_FRONTEND=

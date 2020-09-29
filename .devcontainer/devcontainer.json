@@ -1,9 +1,13 @@
 {
   "name": "helium-csharp",
+  "image": "retaildevcrew/codespaces-dotnet",
 
-  "settings": { "terminal.integrated.shell.linux": "/bin/bash" },
+  "settings":
+  {
+    "terminal.integrated.shell.linux": "/bin/bash"
+  },
 
-	// Open port 4120 by default
+  // Open port 4120 by default
   "forwardPorts": [4120],
 
   // Install extensions
