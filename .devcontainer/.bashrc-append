@@ -5,7 +5,7 @@ export AUTH_TYPE=CLI
 export PATH="$PATH:~/.dotnet/tools"
 
 # set dotnet root
-export DOTNET_ROOT=~/.dotnet
+#export DOTNET_ROOT="/opt/dotnet"
 
 # set prompt
 PS1='\[\033[01;30m\]\u@helium \[\033[01;34m\]\w/\[\033[00m\] $ '

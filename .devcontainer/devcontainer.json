@@ -1,6 +1,7 @@
 {
   "name": "helium-csharp",
   "image": "retaildevcrew/codespaces-dotnet",
+  "mounts": [ "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind" ],
 
   "settings":
   {
