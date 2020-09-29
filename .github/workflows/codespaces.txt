@@ -1,0 +1,64 @@
+# TODO: rename file from .txt back to .yml when ready to enable
+name: CSharp Codespaces Image Build
+
+on:
+  schedule:
+    # Run weekly at 3:00 AM
+    - cron: "0 3 * * 0"
+  push:
+    branches:
+      - main
+
+    paths:
+    # TODO: need final location of Dockerfile. currently in progress
+    - 'docs/codespaces/Dockerfile'
+    - '.github/workflows/codespaces.yml'
+
+jobs:
+
+  docker-codespaces:
+
+    runs-on: ubuntu-latest
+    env:
+      # These are used in if: conditions
+      DOCKER_SET: false
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set conditions
+      run: |
+        # check that all Docker secrets are set
+        if [[ "${{ secrets.DOCKER_PAT }}" != "" && "${{ secrets.DOCKER_USER }}" != "" ]];
+        then
+          echo "::set-env name=DOCKER_SET::true"
+        fi
+
+    - name: Docker Login
+      if: ${{ env.DOCKER_SET == 'true' }}
+      run: |
+        # login to dockerhub
+        echo "${{ secrets.DOCKER_PAT }}" | docker login -u ${{ secrets.DOCKER_USER }} --password-stdin
+
+    - name: Docker Pull
+      if: ${{ env.DOCKER_SET == 'true' }}
+      run: |
+        # Pull the latest image if needed
+        # This doesn't have to be a separate step, but makes the output easier to read and debug
+        docker pull mcr.microsoft.com/dotnet/core/sdk:3.1
+
+    - name: Docker Build
+      if: ${{ env.DOCKER_SET == 'true' }}
+      run: |
+        # build release image
+        # TODO: need final location of Dockerfile. currently in progress
+        docker build . -t helium-csharp-codespaces -f docs/codespaces/Dockerfile
+
+    - name: Docker Tag and Push
+      if: ${{ env.DOCKER_SET == 'true' }}
+      run: |
+        # tag the repo with :latest
+        docker tag helium-csharp-codespaces retaildevcrew/helium-csharp-codespaces:latest
+
+        # Push to the repo
+        docker push retaildevcrew/helium-csharp-codespaces:latest
