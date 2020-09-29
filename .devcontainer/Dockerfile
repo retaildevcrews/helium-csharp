@@ -1,8 +1,3 @@
-#-------------------------------------------------------------------------------------------------------------
-# Copyright (c) Microsoft Corporation. All rights reserved.
-# Licensed under the MIT License. See https://go.microsoft.com/fwlink/?linkid=2090316 for license information.
-#-------------------------------------------------------------------------------------------------------------
-
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1
 
 # Configure apt and install packages
@@ -37,17 +32,17 @@ ARG USER_UID=1000
 ARG USER_GID=$USER_UID
 
 # Create the user
-RUN groupadd --gid $USER_GID $USERNAME \
-    && useradd -s /bin/bash --uid $USER_UID --gid $USER_GID -m $USERNAME \
-    && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME\
-    && chmod 0440 /etc/sudoers.d/$USERNAME \
+#RUN groupadd --gid $USER_GID $USERNAME \
+#    && useradd -s /bin/bash --uid $USER_UID --gid $USER_GID -m $USERNAME \
+#    && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME\
+#    && chmod 0440 /etc/sudoers.d/$USERNAME \
     #
     # add docker group
-    && groupadd -g 800 docker \
-    && usermod -a -G docker $USERNAME \
-    && chown -R $USERNAME:$USERNAME /home/$USERNAME
+#    && groupadd -g 800 docker \
+#    && usermod -a -G docker $USERNAME \
+#    && chown -R $USERNAME:$USERNAME /home/$USERNAME
 
-USER helium
-RUN  dotnet tool install -g webvalidate
-ENV PATH="~/.dotnet/tools:${PATH}" \
-    DEBIAN_FRONTEND=
+#USER helium
+#RUN  dotnet tool install -g webvalidate
+#ENV PATH="~/.dotnet/tools:${PATH}" \
+ENV DEBIAN_FRONTEND=
