@@ -1,5 +1,4 @@
-# TODO: rename file from .txt back to .yml when ready to enable
-name: CSharp Codespaces Image Build
+name: .NET Codespaces Image Build
 
 on:
   schedule:
@@ -10,8 +9,7 @@ on:
       - main
 
     paths:
-    # TODO: need final location of Dockerfile. currently in progress
-    - 'docs/codespaces/Dockerfile'
+    - '.devcontainer/Dockerfile'
     - '.github/workflows/codespaces.yml'
 
 jobs:
@@ -51,14 +49,13 @@ jobs:
       if: ${{ env.DOCKER_SET == 'true' }}
       run: |
         # build release image
-        # TODO: need final location of Dockerfile. currently in progress
-        docker build . -t helium-csharp-codespaces -f docs/codespaces/Dockerfile
+        docker build . -t codespaces-dotnet -f .devcontainer/Dockerfile
 
     - name: Docker Tag and Push
       if: ${{ env.DOCKER_SET == 'true' }}
       run: |
         # tag the repo with :latest
-        docker tag helium-csharp-codespaces retaildevcrew/helium-csharp-codespaces:latest
+        docker tag codespaces-dotnet retaildevcrew/codespaces-dotnet:latest
 
         # Push to the repo
-        docker push retaildevcrew/helium-csharp-codespaces:latest
+        docker push retaildevcrew/codespaces-dotnet:latest
