@@ -27,15 +27,14 @@ RUN  if [ "$INSTALL_AZURE_CLI" = "true" ]; then bash /tmp/library-scripts/azcli-
 ARG  INSTALL_DOCKER="true"
 COPY library-scripts/docker-debian.sh /tmp/library-scripts/
 RUN  if [ "${INSTALL_DOCKER}" = "true" ]; then \
-        bash /tmp/library-scripts/docker-debian.sh "true" "/var/run/docker-host.sock" "/var/run/docker.sock" "vscode"; \
+        bash /tmp/library-scripts/docker-debian.sh "true" "vscode"; \
      else \
         echo '#!/bin/bash\nexec "$@"' > /usr/local/share/docker-init.sh && chmod +x /usr/local/share/docker-init.sh; \
      fi
 
 RUN  groupadd -g 800 docker && \
-#     chown $USERNAME:$USERNAME /var/run/docker* && \
-#     apt-get -y upgrade && \
-     usermod -a -G docker $USERNAME
+     usermod -a -G docker $USERNAME && \
+     apt-get -y upgrade
 
 # [Optional] Uncomment this line to install global node packages.
 # RUN su vscode -c "source /usr/local/share/nvm/nvm.sh && npm install -g <your-package-here>" 2>&1
@@ -43,4 +42,4 @@ RUN  groupadd -g 800 docker && \
 #ENTRYPOINT [ "/usr/local/share/docker-init.sh" ]
 #CMD [ "sleep", "infinity" ]
 
-#USER $USERNAME
+USER $USERNAME
