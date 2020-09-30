@@ -1,49 +1,20 @@
-FROM mcr.microsoft.com/dotnet/core/sdk:3.1
+# [Choice] .NET Core version: 3.1, 2.1
+ARG VARIANT=3.1
+FROM mcr.microsoft.com/vscode/devcontainers/dotnetcore:${VARIANT}
 
-# Configure apt and install packages
-RUN export DEBIAN_FRONTEND=noninteractive \
-    && apt-get update \
-    && apt-get -y install --no-install-recommends apt-utils dialog \
-    #
-    # Verify git, process tools, lsb-release (common in install instructions for CLIs) installed
-    && apt-get -y install sudo git nano openssh-client less iproute2 procps apt-transport-https gnupg2 curl lsb-release jq \
-    #
-    # Install the Azure CLI
-    && echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $(lsb_release -cs) main" > /etc/apt/sources.list.d/azure-cli.list \
-    && curl -sL https://packages.microsoft.com/keys/microsoft.asc | apt-key add - 2>/dev/null \
-    && apt-get update \
-    && apt-get install -y azure-cli \
-    #
-    # Clean up
-    && apt-get autoremove -y \
-    && apt-get upgrade -y \
-    && apt-get dist-upgrade -y
+# [Option] Install Node.js
+ARG INSTALL_NODE="false"
+ARG NODE_VERSION="lts/*"
+RUN if [ "${INSTALL_NODE}" = "true" ]; then su vscode -c "source /usr/local/share/nvm/nvm.sh && nvm install ${NODE_VERSION} 2>&1"; fi
 
-### leave the packages
-#    && apt-get clean -y \
-#    && rm -rf /var/lib/apt/lists/*
+# [Option] Install Azure CLI
+ARG INSTALL_AZURE_CLI="true"
+COPY library-scripts/azcli-debian.sh /tmp/library-scripts/
+RUN if [ "$INSTALL_AZURE_CLI" = "true" ]; then bash /tmp/library-scripts/azcli-debian.sh; fi
 
-# This Dockerfile adds a non-root user with sudo access. Use the "remoteUser"
-# property in devcontainer.json to use it. On Linux, the container user's GID/UIDs
-# will be updated to match your local UID/GID (when using the dockerFile property).
-# See https://aka.ms/vscode-remote/containers/non-root-user for details.
-ARG USERNAME=codespaces
-ARG USER_UID=1000
-ARG USER_GID=$USER_UID
+# [Optional] Uncomment this section to install additional OS packages.
+# RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
+#     && apt-get -y install --no-install-recommends <your-package-list-here>
 
-# Create the user
-RUN groupadd --gid $USER_GID $USERNAME \
-    && useradd -s /bin/bash --uid $USER_UID --gid $USER_GID -m $USERNAME \
-    && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME\
-    && chmod 0440 /etc/sudoers.d/$USERNAME \
-    #
-    # add docker group
-    && groupadd -g 800 docker \
-    && usermod -a -G docker $USERNAME \
-    && chown -R $USERNAME:$USERNAME /home/$USERNAME
-
-USER $USERNAME
-RUN  dotnet tool install -g webvalidate
-ENV PATH="~/.dotnet/tools:${PATH}" \
-    DEBIAN_FRONTEND= \
-    DOTNET_ROOT="/opt/dotnet"
+# [Optional] Uncomment this line to install global node packages.
+# RUN su vscode -c "source /usr/local/share/nvm/nvm.sh && npm install -g <your-package-here>" 2>&1
