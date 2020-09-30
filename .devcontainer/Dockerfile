@@ -27,9 +27,10 @@ RUN  if [ "$INSTALL_AZURE_CLI" = "true" ]; then bash /tmp/library-scripts/azcli-
 ARG  INSTALL_DOCKER_CLI="true"
 COPY library-scripts/docker-debian.sh /tmp/library-scripts/
 #RUN  bash /tmp/library-scripts/docker-debian.sh
-RUN  groupadd -g 800 docker && \
+RUN  echo "setting up Docker" && \
+     groupadd -g 800 docker && \
      usermod -a -G docker $USERNAME && \
-     chown $USERNAME:$USERNAME /var/run/docker* && \
+#     chown $USERNAME:$USERNAME /var/run/docker* && \
 #     rm -rf /tmp/library-scripts && \
      apt-get -y upgrade
 
