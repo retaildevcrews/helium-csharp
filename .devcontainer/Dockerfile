@@ -16,18 +16,18 @@ ARG  NODE_VERSION="none"
 ENV  NVM_DIR=/usr/local/share/nvm
 ENV  NVM_SYMLINK_CURRENT=true \
      PATH=${NVM_DIR}/current/bin:${PATH}
-COPY library-scripts/node-debian.sh /tmp/library-scripts/
+COPY .devcontainer/library-scripts/node-debian.sh /tmp/library-scripts/
 RUN  if [ "$INSTALL_NODE" = "true" ]; then bash /tmp/library-scripts/node-debian.sh "${NVM_DIR}" "${NODE_VERSION}" "${USERNAME}"; fi
 
 
 # [Option] Install Azure CLI
 ARG  INSTALL_AZURE_CLI="true"
-COPY library-scripts/azcli-debian.sh /tmp/library-scripts/
+COPY .devcontainer/library-scripts/azcli-debian.sh /tmp/library-scripts/
 RUN  if [ "$INSTALL_AZURE_CLI" = "true" ]; then bash /tmp/library-scripts/azcli-debian.sh; fi
 
 # [Option] Install Docker CLI
 ARG  INSTALL_DOCKER="true"
-COPY library-scripts/docker-debian.sh /tmp/library-scripts/
+COPY .devcontainer/library-scripts/docker-debian.sh /tmp/library-scripts/
 RUN  if [ "${INSTALL_DOCKER}" = "true" ]; then \
         bash /tmp/library-scripts/docker-debian.sh "true" "vscode"; \
      else \
