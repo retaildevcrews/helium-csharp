@@ -18,5 +18,11 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
     apt-get -y install --no-install-recommends apt-transport-https ca-certificates software-properties-common libssl-dev libffi-dev build-essential gnupg-agent && \
     apt-get -y upgrade
 
+# Install docker
+COPY library-scripts/docker-debian.sh /tmp/library-scripts/
+COPY library-scripts/docker-debian.sh /
+RUN bash /tmp/library-scripts/docker-debian.sh
+RUN groupadd -g 800 docker && usermod -a -G docker vscode && chown vscode:vscode /var/run/docker*
+
 # [Optional] Uncomment this line to install global node packages.
 # RUN su vscode -c "source /usr/local/share/nvm/nvm.sh && npm install -g <your-package-here>" 2>&1

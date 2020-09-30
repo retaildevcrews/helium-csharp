@@ -15,12 +15,6 @@ COPY library-scripts/common-debian.sh /tmp/library-scripts/
 RUN bash /tmp/library-scripts/common-debian.sh "${INSTALL_ZSH}" "${USERNAME}" "${USER_UID}" "${USER_GID}" "${UPGRADE_PACKAGES}" \
     && apt-get clean -y && rm -rf /var/lib/apt/lists/* /tmp/library-scripts
 
-# Install docker
-COPY library-scripts/docker-debian.sh /tmp/library-scripts/
-COPY library-scripts/docker-debian.sh /root/
-RUN groupadd -g 800 docker && usermod -a -G docker vscode
-#RUN bash /tmp/library-scripts/docker-debian.sh
-
 # [Option] Install Node.js
 ARG INSTALL_NODE="true"
 ARG NODE_VERSION="none"
