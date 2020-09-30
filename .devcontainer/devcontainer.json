@@ -23,7 +23,7 @@
   "forwardPorts": [4120],
 
   "mounts": [
-    "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+//    "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
   ],
 
   // Install extensions

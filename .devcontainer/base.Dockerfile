@@ -1,6 +1,6 @@
 # [Choice] .NET Core version: 3.1, 2.1
 ARG VARIANT="3.1"
-FROM mcr.microsoft.com/dotnet/core/sdk:${VARIANT}-bionic
+FROM mcr.microsoft.com/dotnet/core/sdk:${VARIANT}
 
 # [Option] Install zsh
 ARG INSTALL_ZSH="true"
@@ -12,11 +12,10 @@ ARG USERNAME=vscode
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
 COPY library-scripts/common-debian.sh /tmp/library-scripts/
-RUN bash /tmp/library-scripts/common-debian.sh "${INSTALL_ZSH}" "${USERNAME}" "${USER_UID}" "${USER_GID}" "${UPGRADE_PACKAGES}" \
-    && apt-get clean -y && rm -rf /var/lib/apt/lists/* /tmp/library-scripts
+RUN bash /tmp/library-scripts/common-debian.sh "${INSTALL_ZSH}" "${USERNAME}" "${USER_UID}" "${USER_GID}" "${UPGRADE_PACKAGES}"
 
 # [Option] Install Node.js
-ARG INSTALL_NODE="true"
+ARG INSTALL_NODE="false"
 ARG NODE_VERSION="none"
 ENV NVM_DIR=/usr/local/share/nvm
 ENV NVM_SYMLINK_CURRENT=true \
@@ -25,7 +24,7 @@ COPY library-scripts/node-debian.sh /tmp/library-scripts/
 RUN if [ "$INSTALL_NODE" = "true" ]; then bash /tmp/library-scripts/node-debian.sh "${NVM_DIR}" "${NODE_VERSION}" "${USERNAME}"; fi
 
 # [Option] Install Azure CLI
-ARG INSTALL_AZURE_CLI="false"
+ARG INSTALL_AZURE_CLI="true"
 COPY library-scripts/azcli-debian.sh /tmp/library-scripts/
 RUN if [ "$INSTALL_AZURE_CLI" = "true" ]; then bash /tmp/library-scripts/azcli-debian.sh; fi
 
