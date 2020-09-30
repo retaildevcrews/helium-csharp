@@ -1,16 +1,6 @@
 {
   "name": "helium-csharp",
-  // "image": "retaildevcrew/codespaces-dotnet",
-  "build": {
-    "dockerfile": "Dockerfile",
-    "args": {
-      "VARIANT": "3.1",
-      "INSTALL_NODE": "false",
-      "NODE_VERSION": "lts/*",
-      "INSTALL_AZURE_CLI": "true",
-      "INSTALL_DOCKER": "true"
-    }
-  },
+  "image": "retaildevcrew/codespaces-dotnet",
 
   "mounts": [
     "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
