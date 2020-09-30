@@ -6,9 +6,10 @@ RUN curl https://packages.microsoft.com/config/debian/10/packages-microsoft-prod
     dpkg -i /tmp/packages-microsoft-prod.deb && \
     #
     apt-get update && \
-    apt-get -y install --no-install-recommends apt-utils dialog && \
+    apt-get upgrade -y && \
+    apt-get dist-upgrade -y && \
+    apt-get -y install --no-install-recommends \
     #Install Common Tools
-    apt-get -y install \
             apt-transport-https \
             apt-utils \
             bash-completion \
@@ -24,17 +25,20 @@ RUN curl https://packages.microsoft.com/config/debian/10/packages-microsoft-prod
             openssh-client \
             less \
             iproute2 \
-            procps \
-            apt-transport-https \
             gnupg2 \
-            curl \
-            lsb-release \
             jq \
             vim && \
-    #Install Azure CLI
+    #
+    # Install Azure CLI
     curl -sL https://aka.ms/InstallAzureCLIDeb | bash && \
     #
-    #Install WebValidate
+    # Install Docker CLI
+    curl -sL https://download.docker.com/linux/$(lsb_release -is | tr '[:upper:]' '[:lower:]')/gpg | (OUT=$(apt-key add - 2>&1) || echo $OUT) && \
+    echo "deb [arch=amd64] https://download.docker.com/linux/$(lsb_release -is | tr '[:upper:]' '[:lower:]') $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list && \
+    apt-get update && \
+    apt-get -y install --no-install-recommends docker-ce-cli && \
+    #
+    # Install WebValidate
     dotnet tool install -g webvalidate
 
 # This Dockerfile adds a non-root user with sudo access. Use the "remoteUser"
@@ -57,8 +61,7 @@ RUN groupadd --gid $USER_GID $USERNAME \
 
 RUN chown -R $USERNAME:$USERNAME /home/$USERNAME
 
+USER helium
+
 # Switch back to dialog for any ad-hoc use of apt-get
 ENV DEBIAN_FRONTEND=dialog
-
-
-CMD [“echo”,”Image created”] 
