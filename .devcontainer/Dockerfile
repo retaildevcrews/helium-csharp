@@ -14,7 +14,9 @@ RUN if [ "$INSTALL_AZURE_CLI" = "true" ]; then bash /tmp/library-scripts/azcli-d
 
 # [Optional] Uncomment this section to install additional OS packages.
 RUN export DEBIAN_FRONTEND=noninteractive && \
-    apt-get -y install --no-install-recommends dnsutils httpie bash-completion curl wget git unzip
+    apt-get -y install --no-install-recommends dnsutils httpie bash-completion curl wget git unzip jq lsb-release && \
+    apt-get -y install --no-install-recommends apt-transport-https ca-certificates software-properties-common libssl-dev libffi-dev build-essential gnupg-agent && \
+    apt-get -y upgrade
 
 # [Optional] Uncomment this line to install global node packages.
 # RUN su vscode -c "source /usr/local/share/nvm/nvm.sh && npm install -g <your-package-here>" 2>&1
