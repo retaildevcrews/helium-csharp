@@ -2,12 +2,7 @@
 ARG VARIANT=3.1
 FROM mcr.microsoft.com/vscode/devcontainers/dotnetcore:${VARIANT}
 
-ARG  USERNAME="vscode"
-
-# TODO:
-#   check if we can connect to the remote port for the running app in codespaces
-#   check if vscode user is owner of their home directory
-#   remove common-debian.sh. not used
+ARG USERNAME="vscode"
 
 RUN export DEBIAN_FRONTEND=noninteractive && \
     apt-get update && \
@@ -43,7 +38,5 @@ RUN  groupadd -g 800 docker && \
      usermod -a -G docker $USERNAME && \
      apt-get -y upgrade && \
      apt-get -y dist-upgrade
-
-# RUN chown -R $USERNAME:$USERNAME /home/$USERNAME
 
 USER $USERNAME
