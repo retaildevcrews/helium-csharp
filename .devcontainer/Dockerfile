@@ -33,8 +33,8 @@ RUN  if [ "${INSTALL_DOCKER}" = "true" ]; then \
      fi
 
 RUN  groupadd -g 800 docker && \
-#     chown $USERNAME /var/run/docker* && \
-#     apt-get -y upgrade
+#     chown $USERNAME:$USERNAME /var/run/docker* && \
+#     apt-get -y upgrade && \
      usermod -a -G docker $USERNAME
 
 # [Optional] Uncomment this line to install global node packages.
