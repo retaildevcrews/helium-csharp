@@ -24,13 +24,12 @@ dotnet restore src/tests.sln
 # you can add project specific settings to .bashrc-append and
 # they will be added for every user that clones the repo with Codespaces
 # including keys or secrets is a SECURITY RISK
-#echo "" >> ~/.bashrc
-#echo ". ${PWD}/.devcontainer/.bashrc-append" >> ~/.bashrc
+echo "" >> ~/.bashrc
+echo ". ${PWD}/.devcontainer/.bashrc-append" >> ~/.bashrc
 
 # install WebV global tool
-#export PATH="$PATH:~/.dotnet/tools"
-#export DOTNET_ROOT=~/.dotnet
+export PATH="$PATH:~/.dotnet/tools"
 dotnet tool install -g webvalidate
 
 # set auth type
-#export AUTH_TYPE=CLI
+export AUTH_TYPE=CLI
