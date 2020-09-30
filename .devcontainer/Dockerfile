@@ -23,17 +23,13 @@ ARG  INSTALL_AZURE_CLI="true"
 COPY library-scripts/azcli-debian.sh /tmp/library-scripts/
 RUN  if [ "$INSTALL_AZURE_CLI" = "true" ]; then bash /tmp/library-scripts/azcli-debian.sh; fi
 
-# [Option] Install Docker CLI
-ARG  INSTALL_DOCKER_CLI="true"
+# Install Docker CLI
 COPY library-scripts/docker-debian.sh /tmp/library-scripts/
-#RUN  bash /tmp/library-scripts/docker-debian.sh
+RUN  bash /tmp/library-scripts/docker-debian.sh
 RUN  groupadd -g 800 docker && \
      usermod -a -G docker $USERNAME && \
-#     chown $USERNAME:$USERNAME /var/run/docker* && \
-#     rm -rf /tmp/library-scripts && \
-     mkdir -p /home/vscode && \
+     chown $USERNAME:$USERNAME /var/run/docker* && \
      apt-get -y upgrade
-COPY library-scripts/docker-debian.sh /home/vscode/
 
 # [Optional] Uncomment this line to install global node packages.
 # RUN su vscode -c "source /usr/local/share/nvm/nvm.sh && npm install -g <your-package-here>" 2>&1
