@@ -11,30 +11,13 @@
 ENABLE_NONROOT_DOCKER=${1:-"true"}
 SOURCE_SOCKET=${2:-"/var/run/docker-host.sock"}
 TARGET_SOCKET=${3:-"/var/run/docker.sock"}
-USERNAME=${4:-"automatic"}
+USERNAME=${4:-"vscode"}
 
 set -e
 
 if [ "$(id -u)" -ne 0 ]; then
     echo -e 'Script must be run as root. Use sudo, su, or add "USER root" to your Dockerfile before running this script.'
     exit 1
-fi
-
-# Determine the appropriate non-root user
-if [ "${USERNAME}" = "auto" ] || [ "${USERNAME}" = "automatic" ]; then
-    USERNAME=""
-    POSSIBLE_USERS=("vscode" "node" "codespace" "$(awk -v val=1000 -F ":" '$3==val{print $1}' /etc/passwd)")
-    for CURRENT_USER in ${POSSIBLE_USERS[@]}; do
-        if id -u ${CURRENT_USER} > /dev/null 2>&1; then
-            USERNAME=${CURRENT_USER}
-            break
-        fi
-    done
-    if [ "${USERNAME}" = "" ]; then
-        USERNAME=root
-    fi
-elif [ "${USERNAME}" = "none" ] || ! id -u ${USERNAME} > /dev/null 2>&1; then
-    USERNAME=root
 fi
 
 # Function to run apt-get if needed
@@ -54,33 +37,19 @@ export DEBIAN_FRONTEND=noninteractive
 # Install apt-transport-https, curl, lsb-release, gpg if missing
 if ! dpkg -s apt-transport-https curl ca-certificates lsb-release > /dev/null 2>&1 || ! type gpg > /dev/null 2>&1; then
     apt-get-update-if-needed
-    apt-get -y install --no-install-recommends apt-transport-https curl ca-certificates lsb-release gnupg2 
+    apt-get -y install --no-install-recommends apt-transport-https curl ca-certificates lsb-release gnupg2
 fi
 
 # Install Docker CLI if not already installed
-if type docker > /dev/null 2>&1; then
-    echo "Docker CLI already installed."
-else
-    curl -fsSL https://download.docker.com/linux/$(lsb_release -is | tr '[:upper:]' '[:lower:]')/gpg | (OUT=$(apt-key add - 2>&1) || echo $OUT)
-    echo "deb [arch=amd64] https://download.docker.com/linux/$(lsb_release -is | tr '[:upper:]' '[:lower:]') $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list
-    apt-get update
-    apt-get -y install --no-install-recommends docker-ce-cli
-fi
+curl -fsSL https://download.docker.com/linux/$(lsb_release -is | tr '[:upper:]' '[:lower:]')/gpg | (OUT=$(apt-key add - 2>&1) || echo $OUT)
+echo "deb [arch=amd64] https://download.docker.com/linux/$(lsb_release -is | tr '[:upper:]' '[:lower:]') $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list
+apt-get update
+apt-get -y install --no-install-recommends docker-ce-cli
 
 # Install Docker Compose if not already installed 
-if type docker-compose > /dev/null 2>&1; then
-    echo "Docker Compose already installed."
-else
-
-    LATEST_COMPOSE_VERSION=$(curl -sSL "https://api.github.com/repos/docker/compose/releases/latest" | grep -o -P '(?<="tag_name": ").+(?=")')
-    curl -sSL "https://github.com/docker/compose/releases/download/${LATEST_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-    chmod +x /usr/local/bin/docker-compose
-fi
-
-# If init file already exists, exit
-if [ -f "/usr/local/share/docker-init.sh" ]; then
-    exit 0
-fi
+LATEST_COMPOSE_VERSION=$(curl -sSL "https://api.github.com/repos/docker/compose/releases/latest" | grep -o -P '(?<="tag_name": ").+(?=")')
+curl -sSL "https://github.com/docker/compose/releases/download/${LATEST_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+chmod +x /usr/local/bin/docker-compose
 
 # By default, make the source and target sockets the same
 if [ "${SOURCE_SOCKET}" != "${TARGET_SOCKET}" ]; then
@@ -96,13 +65,11 @@ if [ "${ENABLE_NONROOT_DOCKER}" = "false" ] || [ "${USERNAME}" = "root" ]; then
 fi
 
 # If enabling non-root access and specified user is found, setup socat and add script
-chown -h "${USERNAME}":root "${TARGET_SOCKET}"        
-if ! dpkg -s socat > /dev/null 2>&1; then
-    apt-get-update-if-needed
-    apt-get -y install socat
-fi
+chown -h "${USERNAME}":root "${TARGET_SOCKET}"
+apt-get -y install socat
+
 tee /usr/local/share/docker-init.sh > /dev/null \
-<< EOF 
+<< EOF
 #!/usr/bin/env bash
 #-------------------------------------------------------------------------------------------------------------
 # Copyright (c) Microsoft Corporation. All rights reserved.
@@ -128,14 +95,14 @@ sudoIf()
 # Log messages
 log()
 {
-    echo -e "[\$(date)] \$@" | sudoIf tee -a \${SOCAT_LOG} > /dev/null
+    echo -e "[\$(date)] \$@" | sudoIf tee -a \${SOCAT_LOG}
 }
 
-echo -e "\n** \$(date) **" | sudoIf tee -a \${SOCAT_LOG} > /dev/null
+echo -e "\n** \$(date) **" | sudoIf tee -a \${SOCAT_LOG}
 log "Ensuring ${USERNAME} has access to ${SOURCE_SOCKET} via ${TARGET_SOCKET}"
 
-# If enabled, try to add a docker group with the right GID. If the group is root, 
-# fall back on using socat to forward the docker socket to another unix socket so 
+# If enabled, try to add a docker group with the right GID. If the group is root,
+# fall back on using socat to forward the docker socket to another unix socket so
 # that we can set permissions on it without affecting the host.
 if [ "${ENABLE_NONROOT_DOCKER}" = "true" ] && [ "${SOURCE_SOCKET}" != "${TARGET_SOCKET}" ] && [ "${USERNAME}" != "root" ] && [ "${USERNAME}" != "0" ]; then
     SOCKET_GID=\$(stat -c '%g' ${SOURCE_SOCKET})
@@ -167,6 +134,9 @@ fi
 set +e
 exec "\$@"
 EOF
+
 chmod +x /usr/local/share/docker-init.sh
+
 chown ${USERNAME}:root /usr/local/share/docker-init.sh
+
 echo "Done!"
