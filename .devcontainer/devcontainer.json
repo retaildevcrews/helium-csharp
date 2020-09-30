@@ -1,12 +1,30 @@
 {
   "name": "helium-csharp",
-  "image": "retaildevcrew/codespaces-dotnet",
+  // "image": "retaildevcrew/codespaces-dotnet",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "args": {
+      "VARIANT": "3.1",
+      "INSTALL_NODE": "false",
+      "NODE_VERSION": "lts/*",
+      "INSTALL_AZURE_CLI": "true",
+      "INSTALL_DOCKER": "true"
+    }
+  },
+
   "mounts": [
     "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
   ],
-  "settings": { "terminal.integrated.shell.linux": "/bin/bash" },
 
-	// Open port 4120 by default
+  // Set *default* container specific settings.json values on container create.
+  "settings": {
+    "terminal.integrated.shell.linux": "/bin/bash"
+//    "terminal.integrated.shell.linux": "/bin/zsh"
+  },
+
+  "remoteUser": "vscode",
+
+  // Open port 4120 by default
   "forwardPorts": [4120],
 
   // Install extensions

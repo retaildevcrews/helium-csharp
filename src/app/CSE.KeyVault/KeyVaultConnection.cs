@@ -1,5 +1,4 @@
 ﻿using Microsoft.Azure.KeyVault;
-using System;
 
 namespace CSE.KeyVault
 {

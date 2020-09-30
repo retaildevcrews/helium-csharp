@@ -90,7 +90,6 @@ namespace tests
             var features = new FeatureCollection();
             features.Set<IQueryFeature>(query);
 
-            // todo: might not need to mock ilogger/idal to get the controller?
             controller.ControllerContext.HttpContext = new DefaultHttpContext(features);
 
             // Act
