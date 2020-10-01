@@ -30,9 +30,7 @@ RUN  if [ "$INSTALL_AZURE_CLI" = "true" ]; then bash /tmp/library-scripts/azcli-
 # Example: "docker run -v '/var/run/docker.sock:/var/run/docker.sock' ..."
 ARG  INSTALL_DOCKER="true"
 COPY .devcontainer/library-scripts/docker-debian.sh /tmp/library-scripts/
-RUN  if [ "${INSTALL_DOCKER}" = "true" ]; then \
-        bash /tmp/library-scripts/docker-debian.sh $USERNAME; \
-     fi
+RUN  if [ "${INSTALL_DOCKER}" = "true" ]; then bash /tmp/library-scripts/docker-debian.sh $USERNAME; fi
 
 RUN  apt-get -y upgrade
 
