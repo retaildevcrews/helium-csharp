@@ -10,7 +10,8 @@
       "INSTALL_NODE": "false",
       "NODE_VERSION": "lts/*",
       "INSTALL_AZURE_CLI": "true",
-      "INSTALL_DOCKER": "true"
+      "INSTALL_DOCKER": "true",
+      "USERNAME": "testing"
     }
   },
 
