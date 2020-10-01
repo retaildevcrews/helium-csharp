@@ -1,8 +1,6 @@
 {
   "name": "helium-csharp",
   // Using upstream image by default, uncomment build field below to use local Dockerfile instead
-  // "image": "retaildevcrew/codespaces-dotnet",
-
   // Build based on local Dockerfile
   "build": {
     "dockerfile": "Dockerfile",
