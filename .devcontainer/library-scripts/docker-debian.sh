@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
-
-# To use the docker cli inside a container, use the bind mount option to add the docker socket to the container.
+#-------------------------------------------------------------------------------------------------------------
+# Copyright (c) Microsoft Corporation. All rights reserved.
+# Licensed under the MIT License. See https://go.microsoft.com/fwlink/?linkid=2090316 for license information.
+#-------------------------------------------------------------------------------------------------------------
+#
+# To use the Docker CLI inside a container, use the bind mount option to add the docker socket to the container.
 # Example: "docker run -v '/var/run/docker.sock:/var/run/docker.sock' ..."
 
 USERNAME=${1:-"vscode"}
@@ -27,11 +31,6 @@ if [ "${USERNAME}" = "auto" ] || [ "${USERNAME}" = "automatic" ]; then
     fi
 elif [ "${USERNAME}" = "none" ] || ! id -u ${USERNAME} > /dev/null 2>&1; then
     USERNAME=root
-fi
-
-if [ "$(id -u)" -ne 0 ]; then
-    echo -e 'Script must be run as root. Use sudo, su, or add "USER root" to your Dockerfile before running this script.'
-    exit 1
 fi
 
 # Install Docker CLI

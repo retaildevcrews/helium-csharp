@@ -1,6 +1,3 @@
-# To use the docker cli inside a container, use the bind mount option to add the docker socket to the container.
-# Example: "docker run -v '/var/run/docker.sock:/var/run/docker.sock' ..."
-
 # [Choice] .NET Core version: 3.1, 2.1
 ARG VARIANT=3.1
 FROM mcr.microsoft.com/vscode/devcontainers/dotnetcore:${VARIANT}
@@ -29,6 +26,8 @@ COPY .devcontainer/library-scripts/azcli-debian.sh /tmp/library-scripts/
 RUN  if [ "$INSTALL_AZURE_CLI" = "true" ]; then bash /tmp/library-scripts/azcli-debian.sh; fi
 
 # [Option] Install Docker CLI
+# To use the Docker CLI inside a container, use the bind mount option to add the docker socket to the container.
+# Example: "docker run -v '/var/run/docker.sock:/var/run/docker.sock' ..."
 ARG  INSTALL_DOCKER="true"
 COPY .devcontainer/library-scripts/docker-debian.sh /tmp/library-scripts/
 RUN  if [ "${INSTALL_DOCKER}" = "true" ]; then \
