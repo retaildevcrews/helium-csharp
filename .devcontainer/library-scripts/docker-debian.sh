@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+USERNAME=${1:-"vscode"}
+
 set -e
 
 if [ "$(id -u)" -ne 0 ]; then
@@ -17,5 +19,8 @@ apt-get -y install --no-install-recommends docker-ce-cli
 LATEST_COMPOSE_VERSION=$(curl -sSL "https://api.github.com/repos/docker/compose/releases/latest" | grep -o -P '(?<="tag_name": ").+(?=")')
 curl -sSL "https://github.com/docker/compose/releases/download/${LATEST_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 chmod +x /usr/local/bin/docker-compose
+
+groupadd -g 800 docker
+usermod -a -G docker $USERNAME
 
 echo "Done!"

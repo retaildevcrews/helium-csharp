@@ -29,14 +29,9 @@ RUN  if [ "$INSTALL_AZURE_CLI" = "true" ]; then bash /tmp/library-scripts/azcli-
 ARG  INSTALL_DOCKER="true"
 COPY .devcontainer/library-scripts/docker-debian.sh /tmp/library-scripts/
 RUN  if [ "${INSTALL_DOCKER}" = "true" ]; then \
-        bash /tmp/library-scripts/docker-debian.sh "true" "vscode"; \
-     else \
-        echo '#!/bin/bash\nexec "$@"' > /usr/local/share/docker-init.sh && chmod +x /usr/local/share/docker-init.sh; \
+        bash /tmp/library-scripts/docker-debian.sh $USERNAME; \
      fi
 
-RUN  groupadd -g 800 docker && \
-     usermod -a -G docker $USERNAME && \
-     apt-get -y upgrade && \
-     apt-get -y dist-upgrade
+RUN  apt-get -y upgrade
 
 USER $USERNAME
