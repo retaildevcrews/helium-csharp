@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# To use the docker cli inside a container, use the bind mount option to add the docker socket to the container.
+# Example: "docker run -v '/var/run/docker.sock:/var/run/docker.sock' ..."
+
 USERNAME=${1:-"vscode"}
 
 set -e
