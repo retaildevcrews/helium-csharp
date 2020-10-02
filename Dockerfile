@@ -1,8 +1,11 @@
 ### Build and Test the App
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS test
 
+SHELL ["/bin/bash", "-c"]
+
 # dotnet compiler options
 ARG CONFIGURATION=
+ARG TAG=false
 
 ENV DEBIAN_FRONTEND=noninteractive
 # Install the Azure CLI
@@ -26,7 +29,7 @@ COPY src /src
 WORKDIR /src/app
 
 # build the app
-RUN dotnet publish -c Release -o /app ${CONFIGURATION}
+RUN if [ "$TAG" == "true" ]; then dotnet publish -c Release -o /app --version-suffix '' ${CONFIGURATION}; else dotnet publish -c Release -o /app ${CONFIGURATION}; fi
 
 WORKDIR /src/tests
 

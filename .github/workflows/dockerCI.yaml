@@ -168,9 +168,14 @@ jobs:
     - name: Docker Build Release
       if: ${{ env.DOCKER_SET == 'true' || env.ACR_SET == 'true' }}
       run: |
-        # build release image
-        docker build . -t helium
-
+        # build image
+        if [[ "${{ github.ref }}" == "refs/tags/"* ]]
+        then
+          docker build . -t helium --build-arg TAG=true
+        else
+          docker build . -t helium
+        fi
+        
     - name: Docker Tag and Push
       if: ${{ env.DOCKER_SET == 'true' }}
       run: |
