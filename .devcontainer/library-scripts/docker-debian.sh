@@ -45,6 +45,6 @@ curl -sSL "https://github.com/docker/compose/releases/download/${LATEST_COMPOSE_
 chmod +x /usr/local/bin/docker-compose
 
 groupadd -g 800 docker
-usermod -a -G docker $USERNAME
+if [ "${USERNAME}" != "root" ]; then usermod -a -G docker $USERNAME; fi
 
 echo "Done!"
