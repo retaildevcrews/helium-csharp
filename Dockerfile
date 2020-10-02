@@ -29,7 +29,7 @@ COPY src /src
 WORKDIR /src/app
 
 # build the app
-RUN if [ "$TAG" == "TRUE" ]; then dotnet publish -c Release -o /app --version-suffix '' ${CONFIGURATION}; else dotnet publish -c Release -o /app ${CONFIGURATION}; fi
+RUN if [ "$TAG" == "true" ]; then dotnet publish -c Release -o /app --version-suffix '' ${CONFIGURATION}; else dotnet publish -c Release -o /app ${CONFIGURATION}; fi
 
 WORKDIR /src/tests
 
