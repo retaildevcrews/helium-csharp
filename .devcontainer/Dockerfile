@@ -10,33 +10,26 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
     apt-get -y install --no-install-recommends apt-transport-https ca-certificates software-properties-common libssl-dev libffi-dev \
         build-essential gnupg-agent dnsutils httpie bash-completion curl wget git unzip jq lsb-release procps gnupg2
 
+COPY .devcontainer/library-scripts /tmp/library-scripts/
+
 # [Option] Install Node.js
 ARG  INSTALL_NODE="false"
 ARG  NODE_VERSION="none"
 ENV  NVM_DIR=/usr/local/share/nvm
 ENV  NVM_SYMLINK_CURRENT=true \
      PATH=${NVM_DIR}/current/bin:${PATH}
-COPY library-scripts/node-debian.sh /tmp/library-scripts/
 RUN  if [ "$INSTALL_NODE" = "true" ]; then bash /tmp/library-scripts/node-debian.sh "${NVM_DIR}" "${NODE_VERSION}" "${USERNAME}"; fi
-
 
 # [Option] Install Azure CLI
 ARG  INSTALL_AZURE_CLI="true"
-COPY library-scripts/azcli-debian.sh /tmp/library-scripts/
 RUN  if [ "$INSTALL_AZURE_CLI" = "true" ]; then bash /tmp/library-scripts/azcli-debian.sh; fi
 
 # [Option] Install Docker CLI
+# To use the Docker CLI inside a container, use the bind mount option to add the docker socket to the container.
+# Example: "docker run -v '/var/run/docker.sock:/var/run/docker.sock' ..."
 ARG  INSTALL_DOCKER="true"
-COPY library-scripts/docker-debian.sh /tmp/library-scripts/
-RUN  if [ "${INSTALL_DOCKER}" = "true" ]; then \
-        bash /tmp/library-scripts/docker-debian.sh "true" "vscode"; \
-     else \
-        echo '#!/bin/bash\nexec "$@"' > /usr/local/share/docker-init.sh && chmod +x /usr/local/share/docker-init.sh; \
-     fi
+RUN  if [ "${INSTALL_DOCKER}" = "true" ]; then bash /tmp/library-scripts/docker-debian.sh $USERNAME; fi
 
-RUN  groupadd -g 800 docker && \
-     usermod -a -G docker $USERNAME && \
-     apt-get -y upgrade && \
-     apt-get -y dist-upgrade
+RUN  apt-get -y upgrade
 
 USER $USERNAME
