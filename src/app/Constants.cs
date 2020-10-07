@@ -4,7 +4,7 @@
 namespace CSE.Helium
 {
     /// <summary>
-    /// String constants
+    /// Application constants
     /// </summary>
     public sealed class Constants
     {

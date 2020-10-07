@@ -6,6 +6,9 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace CSE.KeyVault
 {
+    /// <summary>
+    /// Extension for DI
+    /// </summary>
     public static class KeyVaultConnectionExtension
     {
         /// <summary>

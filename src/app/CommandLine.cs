@@ -15,6 +15,9 @@ using System.Threading.Tasks;
 
 namespace CSE.Helium
 {
+    /// <summary>
+    /// Main application class
+    /// </summary>
     public sealed partial class App
     {
         /// <summary>
