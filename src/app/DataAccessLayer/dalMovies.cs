@@ -13,9 +13,9 @@ namespace CSE.Helium.DataAccessLayer
     public partial class DAL
     {
         // select template for Movies
-        private const string movieSelect = "select m.id, m.partitionKey, m.movieId, m.type, m.textSearch, m.title, m.year, m.runtime, m.rating, m.votes, m.totalScore, m.genres, m.roles from m where m.type = 'Movie' ";
-        private const string movieOrderBy = " order by m.textSearch ASC, m.movieId ASC";
-        private const string movieOffset = " offset {0} limit {1}";
+        private const string MovieSelect = "select m.id, m.partitionKey, m.movieId, m.type, m.textSearch, m.title, m.year, m.runtime, m.rating, m.votes, m.totalScore, m.genres, m.roles from m where m.type = 'Movie' ";
+        private const string MovieOrderBy = " order by m.textSearch ASC, m.movieId ASC";
+        private const string MovieOffset = " offset {0} limit {1}";
 
         /// <summary>
         /// Retrieve a single Movie from CosmosDB by movieId
@@ -44,12 +44,12 @@ namespace CSE.Helium.DataAccessLayer
         {
             _ = movieQueryParameters ?? throw new ArgumentNullException(nameof(movieQueryParameters));
 
-            string sql = movieSelect;
+            string sql = MovieSelect;
 
             int offset = movieQueryParameters.GetOffset();
             int limit = movieQueryParameters.PageSize;
 
-            string offsetLimit = string.Format(CultureInfo.InvariantCulture, movieOffset, offset, limit);
+            string offsetLimit = string.Format(CultureInfo.InvariantCulture, MovieOffset, offset, limit);
 
             if (!string.IsNullOrWhiteSpace(movieQueryParameters.Q))
             {
@@ -80,7 +80,7 @@ namespace CSE.Helium.DataAccessLayer
                 sql += " and contains(m.genreSearch, @genre, true) ";
             }
 
-            sql += movieOrderBy + offsetLimit;
+            sql += MovieOrderBy + offsetLimit;
 
             // Parameterize fields
             QueryDefinition queryDefinition = new QueryDefinition(sql);
