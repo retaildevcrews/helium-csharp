@@ -110,7 +110,7 @@ namespace CSE.KeyVault
                 {
                     logger.LogWarning(warningMsg);
                 }
-                
+
                 return null;
             }
 #endif
@@ -151,7 +151,7 @@ namespace CSE.KeyVault
 
                         return null;
 #else
-                        if(logger == null) 
+                        if (logger == null)
                         {
                             Console.WriteLine($"KeyVault:Retry");
                         }
@@ -159,6 +159,7 @@ namespace CSE.KeyVault
                         {
                             logger.LogInformation($"KeyVault:Retry");
                         }
+
                         await Task.Delay(1000).ConfigureAwait(false);
 #endif
                     }
