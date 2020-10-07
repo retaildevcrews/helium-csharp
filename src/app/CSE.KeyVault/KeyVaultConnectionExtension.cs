@@ -1,6 +1,5 @@
 ﻿using Microsoft.Azure.KeyVault;
 using Microsoft.Extensions.DependencyInjection;
-using System;
 
 namespace CSE.KeyVault
 {

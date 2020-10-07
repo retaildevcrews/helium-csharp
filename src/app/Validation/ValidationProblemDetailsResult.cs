@@ -19,7 +19,6 @@ namespace CSE.Helium.Validation
 
         public ValidationProblemDetailsResult()
         {
-            // todo: consider changing this to use alternate suggested approach
             using var serviceScope = ServiceActivator.GetScope();
             logger = serviceScope.ServiceProvider.GetService<ILogger<ValidationProblemDetailsResult>>();
         }
