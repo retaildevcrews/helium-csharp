@@ -84,7 +84,7 @@ namespace CSE.Middleware
         /// Check log level to determine if request should be logged
         /// </summary>
         /// <param name="response">HttpResponse</param>
-        /// <returns></returns>
+        /// <returns>bool</returns>
         private bool ShouldLogRequest(HttpResponse response)
         {
             // check for logging by response level
@@ -125,7 +125,7 @@ namespace CSE.Middleware
         /// </summary>
         /// <param name="context">HttpContext</param>
         /// <param name="duration">double</param>
-        /// <returns></returns>
+        /// <returns>bool</returns>
         private static bool LogHealthzHandled(HttpContext context, double duration)
         {
             if (context == null)

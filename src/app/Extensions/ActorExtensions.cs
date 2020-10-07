@@ -11,7 +11,7 @@ namespace Helium.Extensions
         /// </summary>
         /// <param name="actorQueryParameters">Actor query parameters</param>
         /// <param name="httpContext">HttpContext</param>
-        /// <returns></returns>
+        /// <returns>method name</returns>
         public static string GetMethodText(this ActorQueryParameters actorQueryParameters, HttpContext httpContext)
         {
             _ = actorQueryParameters ?? throw new ArgumentNullException(nameof(actorQueryParameters));

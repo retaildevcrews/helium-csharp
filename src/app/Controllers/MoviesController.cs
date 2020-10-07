@@ -45,10 +45,10 @@ namespace CSE.Helium.Controllers
         /// <summary>
         /// Returns a single JSON Movie by movieIdParameter
         /// </summary>
-        /// <param name="movieIdParameter"></param>
-        /// <returns></returns>
+        /// <param name="movieIdParameter">Movie ID</param>
+        /// <returns>IActionResult</returns>
         [HttpGet("{movieId}")]
-        public async System.Threading.Tasks.Task<IActionResult> GetMovieByIdAsync([FromRoute] MovieIdParameter movieIdParameter)
+        public async Task<IActionResult> GetMovieByIdAsync([FromRoute] MovieIdParameter movieIdParameter)
         {
             _ = movieIdParameter ?? throw new ArgumentNullException(nameof(movieIdParameter));
 

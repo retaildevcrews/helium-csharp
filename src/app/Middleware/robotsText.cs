@@ -18,7 +18,7 @@ namespace CSE.Middleware
         /// this also handles a real /robots.txt request to prevent indexing
         /// </summary>
         /// <param name="builder">this IApplicationBuilder</param>
-        /// <returns></returns>
+        /// <returns>ApplicationBuilder</returns>
         public static IApplicationBuilder UseRobots(this IApplicationBuilder builder)
         {
             // implement the middleware

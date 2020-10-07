@@ -77,7 +77,7 @@ namespace CSE.Helium.Controllers
         /// </summary>
         /// <param name="message">string</param>
         /// <param name="statusCode">int</param>
-        /// <returns></returns>
+        /// <returns>JsonResult</returns>
         public static JsonResult CreateResult(string message, HttpStatusCode statusCode)
         {
             return new JsonResult(new ErrorResult { Error = statusCode, Message = message })

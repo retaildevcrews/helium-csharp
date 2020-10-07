@@ -16,7 +16,7 @@ namespace CSE.Helium.DataAccessLayer
         /// <param name="cosmosKey">Cosmos Key</param>
         /// <param name="cosmosDatabase">Cosmos Database</param>
         /// <param name="cosmosCollection">Cosmos Collection</param>
-        /// <returns></returns>
+        /// <returns>ServiceCollection</returns>
         public static IServiceCollection AddDal(this IServiceCollection services, Uri cosmosUrl, string cosmosKey, string cosmosDatabase, string cosmosCollection)
         {
             // add the data access layer as a singleton

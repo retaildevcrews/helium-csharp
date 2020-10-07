@@ -57,7 +57,7 @@ namespace CSE.Helium
         /// </summary>
         /// <param name="context">HealthCheckContext</param>
         /// <param name="cancellationToken">CancellationToken</param>
-        /// <returns></returns>
+        /// <returns>HealthCheckResult</returns>
         public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
         {
             // dictionary

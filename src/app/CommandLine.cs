@@ -109,7 +109,7 @@ namespace CSE.Helium
         /// <param name="authType">Authentication Type</param>
         /// <param name="logLevel">Log Level</param>
         /// <param name="dryRun">Dry Run flag</param>
-        /// <returns></returns>
+        /// <returns>status</returns>
         public static async Task<int> RunApp(string keyvaultName, AuthenticationType authType, LogLevel logLevel, bool dryRun)
         {
             // validate keyvaultName and convert to URL

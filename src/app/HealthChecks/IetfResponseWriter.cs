@@ -72,7 +72,7 @@ namespace CSE.Helium
         /// <param name="httpContext">HttpContext</param>
         /// <param name="res">HealthCheckResult</param>
         /// <param name="totalTime">TimeSpan</param>
-        /// <returns></returns>
+        /// <returns>Task</returns>
         public static Task IetfResponseWriter(HttpContext httpContext, HealthCheckResult res, TimeSpan totalTime)
         {
             if (httpContext == null)

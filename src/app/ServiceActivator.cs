@@ -22,8 +22,8 @@ namespace Helium
         /// <summary>
         /// Create a scope where use this ServiceActivator
         /// </summary>
-        /// <param name="serviceProvider"></param>
-        /// <returns></returns>
+        /// <param name="serviceProvider">IServiceProvider</param>
+        /// <returns>IServiceScope</returns>
         public static IServiceScope GetScope(IServiceProvider serviceProvider = null)
         {
             IServiceProvider provider = serviceProvider ?? ServiceActivator.serviceProvider;
