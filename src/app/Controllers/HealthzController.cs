@@ -1,4 +1,7 @@
-﻿using CSE.Helium.DataAccessLayer;
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See LICENSE in the project root for license information.
+
+using CSE.Helium.DataAccessLayer;
 using CSE.Helium.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Diagnostics.HealthChecks;

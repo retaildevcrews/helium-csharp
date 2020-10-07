@@ -13,7 +13,7 @@ dotnet_diagnostic.SA1402.severity = suggestion
 dotnet_diagnostic.SA1649.severity = suggestion
 
 # SA1633: File should have header
-dotnet_diagnostic.SA1633.severity = suggestion
+dotnet_diagnostic.SA1633.severity = warning
 
 # SA1629: Documentation text should end with a period
 dotnet_diagnostic.SA1629.severity = none
