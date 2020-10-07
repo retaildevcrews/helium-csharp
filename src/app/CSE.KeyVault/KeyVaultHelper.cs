@@ -15,6 +15,7 @@ namespace CSE.KeyVault
         /// Build the Key Vault URL from the name
         /// </summary>
         /// <param name="name">Key Vault Name</param>
+        /// <param name="keyvaultConnection">KeyVault URL</param>
         /// <returns>URL to Key Vault</returns>
         public static bool BuildKeyVaultConnectionString(string name, out string keyvaultConnection)
         {
@@ -75,6 +76,7 @@ namespace CSE.KeyVault
         /// <param name="kvUrl">URL of the key vault</param>
         /// <param name="authType">MI, CLI or VS</param>
         /// <param name="keyVaultTestKey">Keyvault key to test the connection</param>
+        /// <param name="logger">ILogger</param>
         /// <returns>KeyVaultClient</returns>
         public static async Task<KeyVaultClient> GetKeyVaultClient(string kvUrl, AuthenticationType authType, string keyVaultTestKey, ILogger logger = null)
         {
