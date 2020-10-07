@@ -19,7 +19,7 @@ namespace CSE.Helium.Validation
 
         public ValidationProblemDetailsResult()
         {
-            using var serviceScope = ServiceActivator.GetScope();
+            using IServiceScope serviceScope = ServiceActivator.GetScope();
             logger = serviceScope.ServiceProvider.GetService<ILogger<ValidationProblemDetailsResult>>();
         }
 
@@ -42,18 +42,17 @@ namespace CSE.Helium.Validation
         private static string WriteJsonOutput(ActionContext context, ILogger logger)
         {
             // create problem details response
-            var problemDetails = new ValidationProblemDetails(
+            ValidationProblemDetails problemDetails = new ValidationProblemDetails(
                 type: FormatProblemType(context),
                 title: "Parameter validation error",
                 detail: "One or more invalid parameters were specified.",
                 status: (int)HttpStatusCode.BadRequest,
-                instance: context.HttpContext.Request.GetEncodedPathAndQuery()
-            );
+                instance: context.HttpContext.Request.GetEncodedPathAndQuery());
 
             // collect all errors for iterative string/json representation
-            var validationErrors = context.ModelState.Where(m => m.Value.Errors.Count > 0).ToArray();
+            System.Collections.Generic.KeyValuePair<string, Microsoft.AspNetCore.Mvc.ModelBinding.ModelStateEntry>[] validationErrors = context.ModelState.Where(m => m.Value.Errors.Count > 0).ToArray();
 
-            foreach (var validationError in validationErrors)
+            foreach (System.Collections.Generic.KeyValuePair<string, Microsoft.AspNetCore.Mvc.ModelBinding.ModelStateEntry> validationError in validationErrors)
             {
                 // skip empty validation error
                 if (string.IsNullOrEmpty(validationError.Key))
@@ -64,13 +63,13 @@ namespace CSE.Helium.Validation
                 // log each validation error in the collection
                 logger.LogWarning($"InvalidParameter|{context.HttpContext.Request.Path}|{validationError.Value.Errors[0].ErrorMessage}");
 
-                var error = new ValidationError("InvalidValue", validationError.Key, validationError.Value.Errors[0].ErrorMessage);
+                ValidationError error = new ValidationError("InvalidValue", validationError.Key, validationError.Value.Errors[0].ErrorMessage);
 
                 // add error object to problemDetails
                 problemDetails.ValidationErrors.Add(error);
             }
 
-            var jsonOptions = new JsonSerializerOptions
+            JsonSerializerOptions jsonOptions = new JsonSerializerOptions
             {
                 IgnoreNullValues = true,
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -91,7 +90,7 @@ namespace CSE.Helium.Validation
         {
             const string baseUri = "https://github.com/retaildevcrews/helium/blob/main/docs/ParameterValidation.md";
 
-            var instance = context.HttpContext.Request.GetEncodedPathAndQuery();
+            string instance = context.HttpContext.Request.GetEncodedPathAndQuery();
 
             if (instance.Contains("?", StringComparison.InvariantCulture))
             {
@@ -123,6 +122,5 @@ namespace CSE.Helium.Validation
             // no match, return parameter validation main page
             return baseUri;
         }
-
     }
 }

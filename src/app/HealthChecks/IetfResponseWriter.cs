@@ -38,10 +38,10 @@ namespace CSE.Helium
             result.Add("description", CosmosHealthCheck.Description);
 
             // add all the entries
-            foreach (var e in healthReport.Entries.Values)
+            foreach (HealthReportEntry e in healthReport.Entries.Values)
             {
                 // add all the data elements
-                foreach (var d in e.Data)
+                foreach (KeyValuePair<string, object> d in e.Data)
                 {
                     // transform HealthzCheck into IetfCheck
                     if (d.Value is HealthzCheck r)
@@ -87,7 +87,6 @@ namespace CSE.Helium
 
             // call the response writer
             return IetfResponseWriter(httpContext, rpt);
-
         }
     }
 }

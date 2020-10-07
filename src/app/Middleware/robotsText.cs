@@ -9,7 +9,7 @@ namespace CSE.Middleware
     public static class RobotsExtensions
     {
         // response that prevents all indexing
-        static readonly byte[] responseBytes = System.Text.Encoding.UTF8.GetBytes("# Prevent indexing\r\nUser-agent: *\r\nDisallow: /\r\n");
+        private static readonly byte[] responseBytes = System.Text.Encoding.UTF8.GetBytes("# Prevent indexing\r\nUser-agent: *\r\nDisallow: /\r\n");
 
         /// <summary>
         /// aspnet middleware extension method to handle /robots*.txt request

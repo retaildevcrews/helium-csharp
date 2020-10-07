@@ -10,9 +10,8 @@ namespace CSE.Helium
 {
     public partial class CosmosHealthCheck : IHealthCheck
     {
-        private readonly Stopwatch stopwatch = new Stopwatch();
         private const int MaxResponseTime = 200;
-
+        private readonly Stopwatch stopwatch = new Stopwatch();
 
         /// <summary>
         /// Build the response
@@ -28,14 +27,14 @@ namespace CSE.Helium
             stopwatch.Stop();
 
             // create the result
-            var result = new HealthzCheck
+            HealthzCheck result = new HealthzCheck
             {
                 Endpoint = uri,
                 Status = HealthStatus.Healthy,
                 Duration = stopwatch.Elapsed,
                 TargetDuration = new System.TimeSpan(0, 0, 0, 0, (int)targetDurationMs),
                 ComponentId = testName,
-                ComponentType = "datastore"
+                ComponentType = "datastore",
             };
 
             // check duration
@@ -121,7 +120,7 @@ namespace CSE.Helium
         {
             const string name = "searchMovies";
 
-            var movieQuery = new MovieQueryParameters { Q = query };
+            MovieQueryParameters movieQuery = new MovieQueryParameters { Q = query };
 
             string path = "/api/movies?q=" + movieQuery.Q;
 
@@ -175,7 +174,7 @@ namespace CSE.Helium
         {
             const string name = "searchActors";
 
-            var actorQuery = new ActorQueryParameters { Q = query };
+            ActorQueryParameters actorQuery = new ActorQueryParameters { Q = query };
 
             string path = "/api/actors?q=" + actorQuery.Q;
 

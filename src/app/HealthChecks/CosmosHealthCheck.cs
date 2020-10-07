@@ -41,7 +41,7 @@ namespace CSE.Helium
                 {
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
                     IgnoreNullValues = true,
-                    DictionaryKeyPolicy = JsonNamingPolicy.CamelCase
+                    DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
                 };
 
                 // serialize enums as strings
@@ -61,7 +61,7 @@ namespace CSE.Helium
         public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
         {
             // dictionary
-            var data = new Dictionary<string, object>();
+            Dictionary<string, object> data = new Dictionary<string, object>();
 
             try
             {
@@ -79,7 +79,7 @@ namespace CSE.Helium
                 await SearchActorsAsync("nicole", data).ConfigureAwait(false);
 
                 // overall health is the worst status
-                foreach (var d in data.Values)
+                foreach (object d in data.Values)
                 {
                     if (d is HealthzCheck h && h.Status != HealthStatus.Healthy)
                     {
@@ -95,7 +95,6 @@ namespace CSE.Helium
                 // return the result
                 return new HealthCheckResult(status, Description, data: data);
             }
-
             catch (CosmosException ce)
             {
                 // log and return Unhealthy
@@ -105,7 +104,6 @@ namespace CSE.Helium
 
                 return new HealthCheckResult(HealthStatus.Unhealthy, Description, ce, data);
             }
-
             catch (Exception ex)
             {
                 // log and return unhealthy

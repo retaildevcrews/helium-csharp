@@ -8,7 +8,7 @@ namespace Helium
     /// </summary>
     public static class ServiceActivator
     {
-        private static IServiceProvider _serviceProvider;
+        private static IServiceProvider serviceProvider;
 
         /// <summary>
         /// Configure ServiceActivator with full serviceProvider
@@ -16,7 +16,7 @@ namespace Helium
         /// <param name="serviceProvider"></param>
         public static void Configure(IServiceProvider serviceProvider)
         {
-            _serviceProvider = serviceProvider;
+            ServiceActivator.serviceProvider = serviceProvider;
         }
 
         /// <summary>
@@ -26,7 +26,7 @@ namespace Helium
         /// <returns></returns>
         public static IServiceScope GetScope(IServiceProvider serviceProvider = null)
         {
-            var provider = serviceProvider ?? _serviceProvider;
+            IServiceProvider provider = serviceProvider ?? ServiceActivator.serviceProvider;
             return provider?
                 .GetRequiredService<IServiceScopeFactory>()
                 .CreateScope();

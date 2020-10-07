@@ -1,0 +1,34 @@
+﻿[*.cs]
+
+# SA1642: Constructor summary documentation should begin with standard text
+dotnet_diagnostic.SA1642.severity = suggestion
+
+# SA1402: File may only contain a single type
+dotnet_diagnostic.SA1402.severity = suggestion
+
+# SA1649: File name should match first type name
+dotnet_diagnostic.SA1649.severity = suggestion
+
+# SA1633: File should have header
+dotnet_diagnostic.SA1633.severity = suggestion
+
+# SA1629: Documentation text should end with a period
+dotnet_diagnostic.SA1629.severity = none
+
+# SA1101: Prefix local calls with this
+dotnet_diagnostic.SA1101.severity = suggestion
+
+# SA1208: System using directives should be placed before other using directives
+dotnet_diagnostic.SA1208.severity = none
+
+# SA1200: Using directives should be placed correctly
+dotnet_diagnostic.SA1200.severity = suggestion
+
+# SA1516: Elements should be separated by blank line
+dotnet_diagnostic.SA1516.severity = suggestion
+
+# SA1502: Element should not be on a single line
+dotnet_diagnostic.SA1502.severity = suggestion
+
+# SA1201: Elements should appear in the correct order
+dotnet_diagnostic.SA1201.severity = none

@@ -22,9 +22,9 @@ namespace CSE.Helium.Model
 
         /// <summary>
         /// Compute the partition key based on the movieId or actorId
-        /// 
+        ///
         /// For this sample, the partitionkey is the id mod 10
-        /// 
+        ///
         /// In a full implementation, you would update the logic to determine the partition key
         /// </summary>
         /// <param name="id">document id</param>
@@ -34,7 +34,7 @@ namespace CSE.Helium.Model
             // validate id
             if (!string.IsNullOrEmpty(id) &&
                 id.Length > 5 &&
-                (id.StartsWith("tt", StringComparison.OrdinalIgnoreCase)) &&
+                id.StartsWith("tt", StringComparison.OrdinalIgnoreCase) &&
                 int.TryParse(id.Substring(2), out int idInt))
             {
                 return (idInt % 10).ToString(CultureInfo.InvariantCulture);

@@ -71,14 +71,14 @@ namespace CSE.Helium
             {
                 Name = "helium",
                 Description = "helium-csharp web app",
-                TreatUnmatchedTokensAsErrors = true
+                TreatUnmatchedTokensAsErrors = true,
             };
 
             // add options
             Option optKv = new Option<string>(new string[] { "-k", "--keyvault-name" }, "The name or URL of the Azure Keyvault")
             {
                 Argument = new Argument<string>(),
-                IsRequired = true
+                IsRequired = true,
             };
 
             optKv.AddValidator(v =>
@@ -107,6 +107,7 @@ namespace CSE.Helium
         /// </summary>
         /// <param name="keyvaultName">Keyvault Name</param>
         /// <param name="authType">Authentication Type</param>
+        /// <param name="logLevel">Log Level</param>
         /// <param name="dryRun">Dry Run flag</param>
         /// <returns></returns>
         public static async Task<int> RunApp(string keyvaultName, AuthenticationType authType, LogLevel logLevel, bool dryRun)
@@ -142,22 +143,21 @@ namespace CSE.Helium
                 LogStartup();
 
                 // verify key vault access
-                var kvConnection = host.Services.GetService<IKeyVaultConnection>();
-                var secret = kvConnection.Client.GetSecretAsync(kvConnection.Address, Constants.CosmosDatabase);
+                IKeyVaultConnection kvConnection = host.Services.GetService<IKeyVaultConnection>();
+                Task<Microsoft.Azure.KeyVault.Models.SecretBundle> secret = kvConnection.Client.GetSecretAsync(kvConnection.Address, Constants.CosmosDatabase);
 
                 // start the webserver
-                var w = host.RunAsync();
+                Task w = host.RunAsync();
 
                 // this doesn't return except on ctl-c
                 await w.ConfigureAwait(false);
 
                 // use this line instead if you want to re-read the Cosmos connection info on a timer
-                //await RunKeyRotationCheck(ctCancel, Constants.KeyVaultChangeCheckSeconds).ConfigureAwait(false);
+                // await RunKeyRotationCheck(ctCancel, Constants.KeyVaultChangeCheckSeconds).ConfigureAwait(false);
 
                 // if not cancelled, app exit -1
                 return ctCancel.IsCancellationRequested ? 0 : -1;
             }
-
             catch (Exception ex)
             {
                 // end app on error
@@ -180,7 +180,7 @@ namespace CSE.Helium
         /// <param name="kvUrl">keyvault url</param>
         /// <param name="authType">authentication type</param>
         /// <returns>0</returns>
-        static int DoDryRun(string kvUrl, AuthenticationType authType)
+        private static int DoDryRun(string kvUrl, AuthenticationType authType)
         {
             Console.WriteLine($"Version            {Middleware.VersionExtensions.Version}");
             Console.WriteLine($"Keyvault           {kvUrl}");

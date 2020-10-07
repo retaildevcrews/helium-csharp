@@ -36,7 +36,6 @@ namespace CSE.Helium
         /// <param name="services">The services in the web host</param>
         public void ConfigureServices(IServiceCollection services)
         {
-
             // set json serialization defaults and api behavior
             services.AddControllers()
                 .ConfigureApiBehaviorOptions(o =>
@@ -62,7 +61,6 @@ namespace CSE.Helium
             {
                 services.AddApplicationInsightsTelemetry(appInsightsKey);
             }
-
         }
 
         /// <summary>
@@ -85,9 +83,10 @@ namespace CSE.Helium
                     Log2xx = App.AppLogLevel <= LogLevel.Information,
                     Log3xx = App.AppLogLevel <= LogLevel.Information,
                     Log4xx = App.AppLogLevel <= LogLevel.Warning,
-                    Log5xx = true
+                    Log5xx = true,
                 });
             }
+
             // differences based on dev or prod
             if (env.IsDevelopment())
             {

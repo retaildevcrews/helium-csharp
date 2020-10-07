@@ -19,9 +19,9 @@ namespace CSE.Helium.Model
 
         /// <summary>
         /// Compute the partition key based on the movieId or actorId
-        /// 
+        ///
         /// For this sample, the partitionkey is the id mod 10
-        /// 
+        ///
         /// In a full implementation, you would update the logic to determine the partition key
         /// </summary>
         /// <param name="id">document id</param>

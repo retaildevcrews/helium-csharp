@@ -39,8 +39,7 @@ namespace CSE.Helium.Controllers
             _ = actorQueryParameters ?? throw new ArgumentNullException(nameof(actorQueryParameters));
 
             return await ResultHandler.Handle(
-                    dal.GetActorsAsync(actorQueryParameters), actorQueryParameters.GetMethodText(HttpContext), Constants.ActorsControllerException,
-                    logger)
+                    dal.GetActorsAsync(actorQueryParameters), actorQueryParameters.GetMethodText(HttpContext), Constants.ActorsControllerException, logger)
                 .ConfigureAwait(false);
         }
 

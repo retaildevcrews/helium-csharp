@@ -18,7 +18,7 @@ namespace CSE.KeyVault
             services.AddSingleton<IKeyVaultConnection>(new KeyVaultConnection
             {
                 Client = client,
-                Address = uri
+                Address = uri,
             });
 
             return services;

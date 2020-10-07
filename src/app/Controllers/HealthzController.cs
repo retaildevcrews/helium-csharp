@@ -52,7 +52,7 @@ namespace CSE.Helium.Controllers
             return new ContentResult
             {
                 Content = IetfCheck.ToIetfStatus(res.Status),
-                StatusCode = res.Status == HealthStatus.Unhealthy ? (int)System.Net.HttpStatusCode.ServiceUnavailable : (int)System.Net.HttpStatusCode.OK
+                StatusCode = res.Status == HealthStatus.Unhealthy ? (int)System.Net.HttpStatusCode.ServiceUnavailable : (int)System.Net.HttpStatusCode.OK,
             };
         }
 

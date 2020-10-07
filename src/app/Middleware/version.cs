@@ -12,7 +12,29 @@ namespace CSE.Middleware
     public static class VersionExtensions
     {
         // cached response
-        static byte[] responseBytes;
+        private static byte[] responseBytes;
+
+        // cache version info as it doesn't change
+        private static string version = string.Empty;
+
+        /// <summary>
+        /// Gets the app version
+        /// </summary>
+        public static string Version
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(version))
+                {
+                    if (Attribute.GetCustomAttribute(Assembly.GetEntryAssembly(), typeof(AssemblyInformationalVersionAttribute)) is AssemblyInformationalVersionAttribute v)
+                    {
+                        version = v.InformationalVersion;
+                    }
+                }
+
+                return version;
+            }
+        }
 
         /// <summary>
         /// Middleware extension method to handle /version request
@@ -35,7 +57,7 @@ namespace CSE.Middleware
                         try
                         {
                             // read swagger version from swagger.json
-                            using var sw = JsonDocument.Parse(File.ReadAllText("wwwroot/swagger/helium.json"));
+                            using JsonDocument sw = JsonDocument.Parse(File.ReadAllText("wwwroot/swagger/helium.json"));
                             swaggerVersion = sw.RootElement.GetProperty("info").GetProperty("version").ToString();
                         }
                         catch (Exception ex)
@@ -62,28 +84,6 @@ namespace CSE.Middleware
             });
 
             return builder;
-        }
-
-        // cache version info as it doesn't change
-        static string version = string.Empty;
-
-        /// <summary>
-        /// Get the app version
-        /// </summary>
-        public static string Version
-        {
-            get
-            {
-                if (string.IsNullOrEmpty(version))
-                {
-                    if (Attribute.GetCustomAttribute(Assembly.GetEntryAssembly(), typeof(AssemblyInformationalVersionAttribute)) is AssemblyInformationalVersionAttribute v)
-                    {
-                        version = v.InformationalVersion;
-                    }
-                }
-
-                return version;
-            }
         }
     }
 }
