@@ -20,7 +20,7 @@ namespace CSE.Helium
         /// <param name="targetDurationMs">double (ms)</param>
         /// <param name="ex">Exception (default = null)</param>
         /// <param name="data">Dictionary(string, object)</param>
-        /// <param name="testName">string</param>
+        /// <param name="testName">Test Name</param>
         /// <returns>HealthzCheck</returns>
         private HealthzCheck BuildHealthzCheck(string uri, double targetDurationMs, Exception ex = null, Dictionary<string, object> data = null, string testName = null)
         {
