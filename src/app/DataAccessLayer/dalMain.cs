@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See LICENSE in the project root for license information.
+
 using Microsoft.Azure.Cosmos;
 using System;
 using System.Collections.Generic;
@@ -12,11 +15,6 @@ namespace CSE.Helium.DataAccessLayer
     public partial class DAL : IDAL
     {
         private CosmosConfig cosmosDetails;
-
-        public int DefaultPageSize { get; set; } = 100;
-        public int MaxPageSize { get; set; } = 1000;
-        public int CosmosTimeout { get; set; } = 60;
-        public int CosmosMaxRetries { get; set; } = 10;
 
         /// <summary>
         /// Data Access Layer Constructor
@@ -47,6 +45,11 @@ namespace CSE.Helium.DataAccessLayer
             cosmosDetails.Client = OpenAndTestCosmosClient(cosmosUrl, cosmosKey, cosmosDatabase, cosmosCollection).GetAwaiter().GetResult();
             cosmosDetails.Container = cosmosDetails.Client.GetContainer(cosmosDatabase, cosmosCollection);
         }
+
+        public int DefaultPageSize { get; set; } = 100;
+        public int MaxPageSize { get; set; } = 1000;
+        public int CosmosTimeout { get; set; } = 60;
+        public int CosmosMaxRetries { get; set; } = 10;
 
         /// <summary>
         /// Recreate the Cosmos Client / Container (after a key rotation)

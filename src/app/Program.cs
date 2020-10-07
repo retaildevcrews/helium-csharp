@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See LICENSE in the project root for license information.
+
 using CSE.Helium.DataAccessLayer;
 using CSE.KeyVault;
 using Microsoft.ApplicationInsights;
@@ -18,6 +21,9 @@ using System.Threading.Tasks;
 
 namespace CSE.Helium
 {
+    /// <summary>
+    /// Main application class
+    /// </summary>
     public sealed partial class App
     {
         // ILogger instance
@@ -31,7 +37,14 @@ namespace CSE.Helium
 
         private static CancellationTokenSource ctCancel;
 
+        /// <summary>
+        /// Gets or sets LogLevel
+        /// </summary>
         public static LogLevel AppLogLevel { get; set; } = LogLevel.Warning;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether LogLevel is set in command line or env var
+        /// </summary>
         public static bool IsLogLevelSet { get; set; }
 
         /// <summary>

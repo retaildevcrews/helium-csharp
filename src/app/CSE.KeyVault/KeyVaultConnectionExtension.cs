@@ -1,8 +1,14 @@
-﻿using Microsoft.Azure.KeyVault;
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See LICENSE in the project root for license information.
+
+using Microsoft.Azure.KeyVault;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CSE.KeyVault
 {
+    /// <summary>
+    /// Extension for DI
+    /// </summary>
     public static class KeyVaultConnectionExtension
     {
         /// <summary>

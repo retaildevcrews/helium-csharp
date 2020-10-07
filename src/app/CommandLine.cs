@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See LICENSE in the project root for license information.
+
 using CSE.KeyVault;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Azure.KeyVault;
@@ -12,6 +15,9 @@ using System.Threading.Tasks;
 
 namespace CSE.Helium
 {
+    /// <summary>
+    /// Main application class
+    /// </summary>
     public sealed partial class App
     {
         /// <summary>
