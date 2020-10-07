@@ -11,12 +11,12 @@ namespace CSE.Helium.DataAccessLayer
     /// </summary>
     public partial class DAL : IDAL
     {
+        private CosmosConfig cosmosDetails;
+
         public int DefaultPageSize { get; set; } = 100;
         public int MaxPageSize { get; set; } = 1000;
         public int CosmosTimeout { get; set; } = 60;
         public int CosmosMaxRetries { get; set; } = 10;
-
-        private CosmosConfig cosmosDetails;
 
         /// <summary>
         /// Data Access Layer Constructor
@@ -36,12 +36,11 @@ namespace CSE.Helium.DataAccessLayer
             {
                 MaxRows = MaxPageSize,
 
-
                 Timeout = CosmosTimeout,
                 CosmosCollection = cosmosCollection,
                 CosmosDatabase = cosmosDatabase,
                 CosmosKey = cosmosKey,
-                CosmosUrl = cosmosUrl.AbsoluteUri
+                CosmosUrl = cosmosUrl.AbsoluteUri,
             };
 
             // create the CosmosDB client and container
@@ -76,7 +75,7 @@ namespace CSE.Helium.DataAccessLayer
                     CosmosCollection = cosmosCollection,
                     CosmosDatabase = cosmosDatabase,
                     CosmosKey = cosmosKey,
-                    CosmosUrl = cosmosUrl.AbsoluteUri
+                    CosmosUrl = cosmosUrl.AbsoluteUri,
                 };
 
                 // open and test a new client / container
@@ -120,8 +119,8 @@ namespace CSE.Helium.DataAccessLayer
             }
 
             // open and test a new client / container
-            var c = new CosmosClient(cosmosUrl.AbsoluteUri, cosmosKey, cosmosDetails.CosmosClientOptions);
-            var con = c.GetContainer(cosmosDatabase, cosmosCollection);
+            CosmosClient c = new CosmosClient(cosmosUrl.AbsoluteUri, cosmosKey, cosmosDetails.CosmosClientOptions);
+            Container con = c.GetContainer(cosmosDatabase, cosmosCollection);
             await con.ReadItemAsync<dynamic>("action", new PartitionKey("0")).ConfigureAwait(false);
 
             return c;
@@ -136,7 +135,7 @@ namespace CSE.Helium.DataAccessLayer
         private async Task<IEnumerable<T>> InternalCosmosDBSqlQuery<T>(QueryDefinition queryDefinition)
         {
             // run query
-            var query = cosmosDetails.Container.GetItemQueryIterator<T>(queryDefinition, requestOptions: cosmosDetails.QueryRequestOptions);
+            FeedIterator<T> query = cosmosDetails.Container.GetItemQueryIterator<T>(queryDefinition, requestOptions: cosmosDetails.QueryRequestOptions);
 
             // return results
             return await InternalCosmosDbResults<T>(query).ConfigureAwait(false);
@@ -151,7 +150,7 @@ namespace CSE.Helium.DataAccessLayer
         private async Task<IEnumerable<T>> InternalCosmosDBSqlQuery<T>(string sql)
         {
             // run query
-            var query = cosmosDetails.Container.GetItemQueryIterator<T>(sql, requestOptions: cosmosDetails.QueryRequestOptions);
+            FeedIterator<T> query = cosmosDetails.Container.GetItemQueryIterator<T>(sql, requestOptions: cosmosDetails.QueryRequestOptions);
 
             // return results
             return await InternalCosmosDbResults<T>(query).ConfigureAwait(false);
@@ -165,11 +164,11 @@ namespace CSE.Helium.DataAccessLayer
         /// <returns>IEnumerable T</returns>
         private static async Task<IEnumerable<T>> InternalCosmosDbResults<T>(FeedIterator<T> query)
         {
-            var results = new List<T>();
+            List<T> results = new List<T>();
 
             while (query.HasMoreResults)
             {
-                foreach (var doc in await query.ReadNextAsync().ConfigureAwait(false))
+                foreach (T doc in await query.ReadNextAsync().ConfigureAwait(false))
                 {
                     results.Add(doc);
                 }

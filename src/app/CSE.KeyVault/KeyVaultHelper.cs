@@ -11,11 +11,11 @@ namespace CSE.KeyVault
     /// </summary>
     public sealed class KeyVaultHelper
     {
-
         /// <summary>
         /// Build the Key Vault URL from the name
         /// </summary>
         /// <param name="name">Key Vault Name</param>
+        /// <param name="keyvaultConnection">KeyVault URL</param>
         /// <returns>URL to Key Vault</returns>
         public static bool BuildKeyVaultConnectionString(string name, out string keyvaultConnection)
         {
@@ -57,6 +57,7 @@ namespace CSE.KeyVault
             {
                 return false;
             }
+
             name = name.Trim();
 
             if (name.Length < 3 || name.Length > 24)
@@ -72,10 +73,11 @@ namespace CSE.KeyVault
         /// AKS takes time to spin up the first pod identity, so
         ///   we retry for up to 90 seconds
         /// </summary>
-        /// <param name="kvUri">URL of the key vault</param>
+        /// <param name="kvUrl">URL of the key vault</param>
         /// <param name="authType">MI, CLI or VS</param>
         /// <param name="keyVaultTestKey">Keyvault key to test the connection</param>
-        /// <returns></returns>
+        /// <param name="logger">ILogger</param>
+        /// <returns>KeyVaultClient</returns>
         public static async Task<KeyVaultClient> GetKeyVaultClient(string kvUrl, AuthenticationType authType, string keyVaultTestKey, ILogger logger = null)
         {
             // retry Managed Identity for 90 seconds
@@ -85,7 +87,7 @@ namespace CSE.KeyVault
             // use MI as default
             string authString = "RunAs=App";
 
-#if (DEBUG)
+#if DEBUG
             // Only support CLI and VS credentials in debug mode
             switch (authType)
             {
@@ -95,7 +97,6 @@ namespace CSE.KeyVault
                 case AuthenticationType.VS:
                     authString = "RunAs=Developer; DeveloperTool=VisualStudio";
                     break;
-
             }
 #else
             if (authType != AuthenticationType.MI)
@@ -109,7 +110,7 @@ namespace CSE.KeyVault
                 {
                     logger.LogWarning(warningMsg);
                 }
-                
+
                 return null;
             }
 #endif
@@ -120,12 +121,12 @@ namespace CSE.KeyVault
             {
                 try
                 {
-                    var tokenProvider = new AzureServiceTokenProvider(authString);
+                    AzureServiceTokenProvider tokenProvider = new AzureServiceTokenProvider(authString);
 
                     // use Managed Identity (MI) for secure access to Key Vault
                     keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(tokenProvider.KeyVaultTokenCallback));
 
-                    // read a key to make sure the connection is valid 
+                    // read a key to make sure the connection is valid
                     await keyVaultClient.GetSecretAsync(kvUrl, keyVaultTestKey).ConfigureAwait(false);
 
                     // return the client
@@ -136,10 +137,9 @@ namespace CSE.KeyVault
                     if (DateTime.Now <= timeout && authType == AuthenticationType.MI)
                     {
                         // retry MI connections for pod identity
-
-#if (DEBUG)
+#if DEBUG
                         // Don't retry in debug mode
-                        var message = $"KeyVault:Exception: Unable to connect to Key Vault using MI";
+                        string message = $"KeyVault:Exception: Unable to connect to Key Vault using MI";
                         if (logger == null)
                         {
                             Console.WriteLine(message);
@@ -148,9 +148,10 @@ namespace CSE.KeyVault
                         {
                             logger.LogError(message);
                         }
+
                         return null;
 #else
-                        if(logger == null) 
+                        if (logger == null)
                         {
                             Console.WriteLine($"KeyVault:Retry");
                         }
@@ -158,13 +159,14 @@ namespace CSE.KeyVault
                         {
                             logger.LogInformation($"KeyVault:Retry");
                         }
+
                         await Task.Delay(1000).ConfigureAwait(false);
 #endif
                     }
                     else
                     {
                         // log and fail
-                        var error = $"{ex}\nKeyVault:Exception: {ex.Message}";
+                        string error = $"{ex}\nKeyVault:Exception: {ex.Message}";
                         if (logger == null)
                         {
                             Console.WriteLine(error);

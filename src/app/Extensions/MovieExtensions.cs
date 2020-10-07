@@ -11,7 +11,7 @@ namespace Helium.Extensions
         /// </summary>
         /// <param name="movieQueryParameters">movie query parameters</param>
         /// <param name="httpContext">HttpContext</param>
-        /// <returns></returns>
+        /// <returns>method name</returns>
         public static string GetMethodText(this MovieQueryParameters movieQueryParameters, HttpContext httpContext)
         {
             _ = movieQueryParameters ?? throw new ArgumentNullException(nameof(movieQueryParameters));

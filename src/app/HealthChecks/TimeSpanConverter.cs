@@ -7,7 +7,7 @@ namespace CSE.Helium
 {
     /// <summary>
     /// Custom TimeSpan Converter
-    /// 
+    ///
     /// 00:00:00.123
     /// </summary>
     public class TimeSpanConverter : JsonConverter<TimeSpan>
@@ -28,5 +28,4 @@ namespace CSE.Helium
             writer.WriteStringValue(value.ToString(@"hh\:mm\:ss\.fff", CultureInfo.InvariantCulture));
         }
     }
-
 }

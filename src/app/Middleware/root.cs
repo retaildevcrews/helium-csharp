@@ -14,7 +14,7 @@ namespace CSE.Middleware
         /// This has to be before UseSwaggerUI() in startup
         /// </summary>
         /// <param name="builder">this IApplicationBuilder</param>
-        /// <returns></returns>
+        /// <returns>ApplicationBuilder</returns>
         public static IApplicationBuilder UseSwaggerRoot(this IApplicationBuilder builder)
         {
             // implement the middleware

@@ -32,15 +32,15 @@ namespace CSE.Helium.Controllers
         /// <summary>
         /// Returns a JSON array of Actor objects based on query parameters
         /// </summary>
-        /// <param name="actorQueryParameters"></param>
+        /// <param name="actorQueryParameters">query parameters</param>
+        /// <returns>IActionResult</returns>
         [HttpGet]
         public async Task<IActionResult> GetActorsAsync([FromQuery] ActorQueryParameters actorQueryParameters)
         {
             _ = actorQueryParameters ?? throw new ArgumentNullException(nameof(actorQueryParameters));
 
             return await ResultHandler.Handle(
-                    dal.GetActorsAsync(actorQueryParameters), actorQueryParameters.GetMethodText(HttpContext), Constants.ActorsControllerException,
-                    logger)
+                    dal.GetActorsAsync(actorQueryParameters), actorQueryParameters.GetMethodText(HttpContext), Constants.ActorsControllerException, logger)
                 .ConfigureAwait(false);
         }
 
@@ -49,6 +49,7 @@ namespace CSE.Helium.Controllers
         /// </summary>
         /// <param name="actorIdParameter">The actorId</param>
         /// <response code="404">actorId not found</response>
+        /// <returns>IActionResult</returns>
         [HttpGet("{actorId}")]
         public async Task<IActionResult> GetActorByIdAsync([FromRoute] ActorIdParameter actorIdParameter)
         {

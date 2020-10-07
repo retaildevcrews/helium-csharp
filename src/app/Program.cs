@@ -36,10 +36,11 @@ namespace CSE.Helium
 
         /// <summary>
         /// Main entry point
-        /// 
+        ///
         /// Configure and run the web server
         /// </summary>
         /// <param name="args">command line args</param>
+        /// <returns>IActionResult</returns>
         public static async Task<int> Main(string[] args)
         {
             // build the System.CommandLine.RootCommand
@@ -69,7 +70,7 @@ namespace CSE.Helium
         {
             CancellationTokenSource ctCancel = new CancellationTokenSource();
 
-            Console.CancelKeyPress += async delegate (object sender, ConsoleCancelEventArgs e)
+            Console.CancelKeyPress += async (sender, e) =>
             {
                 e.Cancel = true;
                 ctCancel.Cancel();
@@ -98,7 +99,7 @@ namespace CSE.Helium
             if (logger != null)
             {
                 // get the IConfigurationRoot from DI
-                var cfg = host.Services.GetService<IConfigurationRoot>();
+                IConfigurationRoot cfg = host.Services.GetService<IConfigurationRoot>();
 
                 // log a not using app insights warning
                 if (string.IsNullOrEmpty(cfg.GetValue<string>(Constants.AppInsightsKey)))
@@ -127,20 +128,21 @@ namespace CSE.Helium
 
         /// <summary>
         /// Builds the config for the web server
-        /// 
+        ///
         /// Uses Key Vault via Managed Identity (MI)
         /// </summary>
         /// <param name="kvClient">Key Vault Client</param>
         /// <param name="kvUrl">Key Vault URL</param>
         /// <returns>Root Configuration</returns>
-        static IConfigurationRoot BuildConfig(KeyVaultClient kvClient, string kvUrl)
+        private static IConfigurationRoot BuildConfig(KeyVaultClient kvClient, string kvUrl)
         {
             try
             {
                 // standard config builder
-                var cfgBuilder = new ConfigurationBuilder()
+                IConfigurationBuilder cfgBuilder = new ConfigurationBuilder()
                     .SetBasePath(Directory.GetCurrentDirectory())
                     .AddJsonFile("appsettings.json", optional: false)
+
                     // use Azure Key Vault
                     .AddAzureKeyVault(kvUrl, kvClient, new DefaultKeyVaultSecretManager());
 
@@ -150,7 +152,6 @@ namespace CSE.Helium
             catch (Exception ex)
             {
                 // log and fail
-
                 Console.WriteLine($"{ex}\nBuildConfig:Exception: {ex.Message}");
                 Environment.Exit(-1);
             }
@@ -164,10 +165,10 @@ namespace CSE.Helium
         /// <param name="kvUrl">URL of the Key Vault</param>
         /// <param name="authType">MI, CLI, VS</param>
         /// <returns>Web Host ready to run</returns>
-        static async Task<IWebHost> BuildHost(string kvUrl, AuthenticationType authType)
+        private static async Task<IWebHost> BuildHost(string kvUrl, AuthenticationType authType)
         {
             // create the Key Vault Client
-            var kvClient = await KeyVaultHelper.GetKeyVaultClient(kvUrl, authType, Constants.CosmosDatabase).ConfigureAwait(false);
+            KeyVaultClient kvClient = await KeyVaultHelper.GetKeyVaultClient(kvUrl, authType, Constants.CosmosDatabase).ConfigureAwait(false);
 
             if (kvClient == null)
             {
@@ -187,7 +188,8 @@ namespace CSE.Helium
                 .ConfigureServices(services =>
                 {
                     // add the data access layer via DI
-                    services.AddDal(new Uri(config.GetValue<string>(Constants.CosmosUrl)),
+                    services.AddDal(
+                        new Uri(config.GetValue<string>(Constants.CosmosUrl)),
                         config.GetValue<string>(Constants.CosmosKey),
                         config.GetValue<string>(Constants.CosmosDatabase),
                         config.GetValue<string>(Constants.CosmosCollection));
@@ -222,15 +224,13 @@ namespace CSE.Helium
             return builder.Build();
         }
 
-
-
         /// <summary>
         /// Check for Cosmos key rotation
         /// Currently not used - safe to ignore fxcop warning
         /// </summary>
         /// <param name="ctCancel">CancellationTokenSource</param>
         /// <returns>Only returns when ctl-c is pressed and cancellation token is cancelled</returns>
-        static async Task RunKeyRotationCheck(CancellationTokenSource ctCancel, int checkEverySeconds)
+        private static async Task RunKeyRotationCheck(CancellationTokenSource ctCancel, int checkEverySeconds)
         {
             string key = config[Constants.CosmosKey];
 
@@ -250,7 +250,7 @@ namespace CSE.Helium
                         if (!ctCancel.IsCancellationRequested)
                         {
                             // reconnect the DAL
-                            var dal = host.Services.GetService<IDAL>();
+                            IDAL dal = host.Services.GetService<IDAL>();
 
                             if (dal != null)
                             {
@@ -265,7 +265,7 @@ namespace CSE.Helium
                                     // send a NewKeyLoadedMetric to App Insights
                                     if (!string.IsNullOrEmpty(config[Constants.AppInsightsKey]))
                                     {
-                                        var telemetryClient = host.Services.GetService<TelemetryClient>();
+                                        TelemetryClient telemetryClient = host.Services.GetService<TelemetryClient>();
 
                                         if (telemetryClient != null)
                                         {

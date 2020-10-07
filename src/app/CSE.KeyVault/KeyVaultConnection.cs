@@ -4,7 +4,7 @@ namespace CSE.KeyVault
 {
     /// <summary>
     /// IKeyVault Connection Interface
-    /// 
+    ///
     /// Stores the KeyVaultClient and Uri
     /// </summary>
     public interface IKeyVaultConnection

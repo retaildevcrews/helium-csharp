@@ -29,6 +29,7 @@ namespace CSE.Helium.Controllers
         /// Returns a JSON string array of Genre
         /// </summary>
         /// <response code="200">JSON array of strings or empty array if not found</response>
+        /// <returns>IActionResult</returns>
         [HttpGet]
         public async Task<IActionResult> GetGenresAsync()
         {

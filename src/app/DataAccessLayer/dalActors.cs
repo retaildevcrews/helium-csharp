@@ -13,15 +13,15 @@ namespace CSE.Helium.DataAccessLayer
     public partial class DAL
     {
         // select template for Actors
-        const string actorSelect = "select m.id, m.partitionKey, m.actorId, m.type, m.name, m.birthYear, m.deathYear, m.profession, m.textSearch, m.movies from m where m.type = 'Actor' ";
-        const string actorOrderBy = " order by m.textSearch ASC, m.actorId ASC";
-        const string actorOffset = " offset {0} limit {1}";
+        private const string ActorSelect = "select m.id, m.partitionKey, m.actorId, m.type, m.name, m.birthYear, m.deathYear, m.profession, m.textSearch, m.movies from m where m.type = 'Actor' ";
+        private const string ActorOrderBy = " order by m.textSearch ASC, m.actorId ASC";
+        private const string ActorOffset = " offset {0} limit {1}";
 
         /// <summary>
         /// Retrieve a single Actor from CosmosDB by actorId
-        /// 
+        ///
         /// Uses the CosmosDB single document read API which is 1 RU if less than 1K doc size
-        /// 
+        ///
         /// Throws an exception if not found
         /// </summary>
         /// <param name="actorId">Actor ID</param>
@@ -37,7 +37,7 @@ namespace CSE.Helium.DataAccessLayer
 
         /// <summary>
         /// Get a list of Actors by search string
-        /// 
+        ///
         /// The search is a "contains" search on actor name
         /// If q is empty, all actors are returned
         /// </summary>
@@ -47,12 +47,12 @@ namespace CSE.Helium.DataAccessLayer
         {
             _ = actorQueryParameters ?? throw new ArgumentNullException(nameof(actorQueryParameters));
 
-            string sql = actorSelect;
+            string sql = ActorSelect;
 
             int offset = actorQueryParameters.GetOffset();
             int limit = actorQueryParameters.PageSize;
 
-            string offsetLimit = string.Format(CultureInfo.InvariantCulture, actorOffset, offset, limit);
+            string offsetLimit = string.Format(CultureInfo.InvariantCulture, ActorOffset, offset, limit);
 
             if (!string.IsNullOrEmpty(actorQueryParameters.Q))
             {
@@ -66,7 +66,7 @@ namespace CSE.Helium.DataAccessLayer
                 }
             }
 
-            sql += actorOrderBy + offsetLimit;
+            sql += ActorOrderBy + offsetLimit;
 
             QueryDefinition queryDefinition = new QueryDefinition(sql);
 
@@ -77,6 +77,5 @@ namespace CSE.Helium.DataAccessLayer
 
             return await InternalCosmosDBSqlQuery<Actor>(queryDefinition).ConfigureAwait(false);
         }
-
     }
 }

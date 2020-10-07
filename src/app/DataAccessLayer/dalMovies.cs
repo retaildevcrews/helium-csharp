@@ -13,15 +13,15 @@ namespace CSE.Helium.DataAccessLayer
     public partial class DAL
     {
         // select template for Movies
-        const string movieSelect = "select m.id, m.partitionKey, m.movieId, m.type, m.textSearch, m.title, m.year, m.runtime, m.rating, m.votes, m.totalScore, m.genres, m.roles from m where m.type = 'Movie' ";
-        const string movieOrderBy = " order by m.textSearch ASC, m.movieId ASC";
-        const string movieOffset = " offset {0} limit {1}";
+        private const string MovieSelect = "select m.id, m.partitionKey, m.movieId, m.type, m.textSearch, m.title, m.year, m.runtime, m.rating, m.votes, m.totalScore, m.genres, m.roles from m where m.type = 'Movie' ";
+        private const string MovieOrderBy = " order by m.textSearch ASC, m.movieId ASC";
+        private const string MovieOffset = " offset {0} limit {1}";
 
         /// <summary>
         /// Retrieve a single Movie from CosmosDB by movieId
-        /// 
+        ///
         /// Uses the CosmosDB single document read API which is 1 RU if less than 1K doc size
-        /// 
+        ///
         /// Throws an exception if not found
         /// </summary>
         /// <param name="movieId">Movie ID</param>
@@ -44,12 +44,12 @@ namespace CSE.Helium.DataAccessLayer
         {
             _ = movieQueryParameters ?? throw new ArgumentNullException(nameof(movieQueryParameters));
 
-            string sql = movieSelect;
+            string sql = MovieSelect;
 
             int offset = movieQueryParameters.GetOffset();
             int limit = movieQueryParameters.PageSize;
 
-            string offsetLimit = string.Format(CultureInfo.InvariantCulture, movieOffset, offset, limit);
+            string offsetLimit = string.Format(CultureInfo.InvariantCulture, MovieOffset, offset, limit);
 
             if (!string.IsNullOrWhiteSpace(movieQueryParameters.Q))
             {
@@ -80,7 +80,7 @@ namespace CSE.Helium.DataAccessLayer
                 sql += " and contains(m.genreSearch, @genre, true) ";
             }
 
-            sql += movieOrderBy + offsetLimit;
+            sql += MovieOrderBy + offsetLimit;
 
             // Parameterize fields
             QueryDefinition queryDefinition = new QueryDefinition(sql);
@@ -89,19 +89,23 @@ namespace CSE.Helium.DataAccessLayer
             {
                 queryDefinition.WithParameter("@q", movieQueryParameters.Q);
             }
+
             if (!string.IsNullOrWhiteSpace(movieQueryParameters.ActorId))
             {
                 queryDefinition.WithParameter("@actorId", movieQueryParameters.ActorId);
             }
+
             if (!string.IsNullOrWhiteSpace(movieQueryParameters.Genre))
             {
                 // genreSearch is stored delimited with :
                 queryDefinition.WithParameter("@genre", "|" + movieQueryParameters.Genre + "|");
             }
+
             if (movieQueryParameters.Year > 0)
             {
                 queryDefinition.WithParameter("@year", movieQueryParameters.Year);
             }
+
             if (movieQueryParameters.Rating > 0)
             {
                 queryDefinition.WithParameter("@rating", movieQueryParameters.Rating);
@@ -122,7 +126,7 @@ namespace CSE.Helium.DataAccessLayer
 
             try
             {
-                var query = await InternalCosmosDBSqlQuery<FeaturedMovie>(sql).ConfigureAwait(false);
+                IEnumerable<FeaturedMovie> query = await InternalCosmosDBSqlQuery<FeaturedMovie>(sql).ConfigureAwait(false);
 
                 foreach (FeaturedMovie f in query)
                 {
@@ -133,8 +137,11 @@ namespace CSE.Helium.DataAccessLayer
                     }
                 }
             }
+
             // ignore error and return default
-            catch { }
+            catch
+            {
+            }
 
             // default to The Matrix
             if (list.Count == 0)
@@ -144,7 +151,5 @@ namespace CSE.Helium.DataAccessLayer
 
             return list;
         }
-
     }
-
 }
