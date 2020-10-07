@@ -31,7 +31,7 @@ namespace CSE.Helium.Controllers
         /// <summary>
         /// Returns a JSON array of Movie objects
         /// </summary>
-        /// <param name="movieQueryParameters"></param>
+        /// <param name="movieQueryParameters">query parameters</param>
         [HttpGet]
         public async Task<IActionResult> GetMoviesAsync([FromQuery] MovieQueryParameters movieQueryParameters)
         {

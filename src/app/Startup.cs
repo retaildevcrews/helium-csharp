@@ -66,8 +66,8 @@ namespace CSE.Helium
         /// <summary>
         /// Configure the application builder
         /// </summary>
-        /// <param name="app"></param>
-        /// <param name="env"></param>
+        /// <param name="app">IApplicationBuilder</param>
+        /// <param name="env">IWebHostEnvironment</param>
         public static void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             _ = app ?? throw new ArgumentNullException(nameof(app));

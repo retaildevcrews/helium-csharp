@@ -13,7 +13,7 @@ namespace Helium
         /// <summary>
         /// Configure ServiceActivator with full serviceProvider
         /// </summary>
-        /// <param name="serviceProvider"></param>
+        /// <param name="serviceProvider">IServiceProvider</param>
         public static void Configure(IServiceProvider serviceProvider)
         {
             ServiceActivator.serviceProvider = serviceProvider;

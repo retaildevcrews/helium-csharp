@@ -37,8 +37,8 @@ namespace CSE.Helium.Validation
         /// <summary>
         /// Creates JSON response using ValidationProblemDetails given inputs
         /// </summary>
-        /// <param name="context"></param>
-        /// <param name="logger"></param>
+        /// <param name="context">ActionContext</param>
+        /// <param name="logger">ILogger</param>
         private static string WriteJsonOutput(ActionContext context, ILogger logger)
         {
             // create problem details response
@@ -85,7 +85,7 @@ namespace CSE.Helium.Validation
         /// <summary>
         /// Determines the correct Type property to set in JSON response
         /// </summary>
-        /// <param name="context"></param>
+        /// <param name="context">ActionContext</param>
         private static string FormatProblemType(ActionContext context)
         {
             const string baseUri = "https://github.com/retaildevcrews/helium/blob/main/docs/ParameterValidation.md";

@@ -32,7 +32,7 @@ namespace CSE.Helium.Controllers
         /// <summary>
         /// Returns a JSON array of Actor objects based on query parameters
         /// </summary>
-        /// <param name="actorQueryParameters"></param>
+        /// <param name="actorQueryParameters">query parameters</param>
         [HttpGet]
         public async Task<IActionResult> GetActorsAsync([FromQuery] ActorQueryParameters actorQueryParameters)
         {
