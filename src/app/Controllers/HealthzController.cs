@@ -37,6 +37,7 @@ namespace CSE.Helium.Controllers
         /// <summary>
         /// Returns a plain text health status (Healthy, Degraded or Unhealthy)
         /// </summary>
+        /// <returns>IActionResult</returns>
         [HttpGet]
         [Produces("text/plain")]
         [ProducesResponseType(typeof(string), 200)]
@@ -59,6 +60,7 @@ namespace CSE.Helium.Controllers
         /// <summary>
         /// Returns an IETF (draft) health+json representation of the full Health Check
         /// </summary>
+        /// <returns>IActionResult</returns>
         [HttpGet("ietf")]
         [Produces("application/health+json")]
         [ProducesResponseType(typeof(CosmosHealthCheck), 200)]

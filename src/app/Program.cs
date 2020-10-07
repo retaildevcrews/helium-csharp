@@ -40,6 +40,7 @@ namespace CSE.Helium
         /// Configure and run the web server
         /// </summary>
         /// <param name="args">command line args</param>
+        /// <returns>IActionResult</returns>
         public static async Task<int> Main(string[] args)
         {
             // build the System.CommandLine.RootCommand

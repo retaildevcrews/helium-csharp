@@ -32,6 +32,7 @@ namespace CSE.Helium.Controllers
         /// Returns a random movie from the featured movie list as a JSON Movie
         /// </summary>
         /// <response code="200">OK</response>
+        /// <returns>IActionResult</returns>
         [HttpGet("movie")]
         public async Task<IActionResult> GetFeaturedMovieAsync()
         {
