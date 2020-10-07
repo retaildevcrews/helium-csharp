@@ -21,7 +21,7 @@ namespace CSE.Helium.Validation
 
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
-            if (validationContext == null || allowNulls && value == null)
+            if (validationContext == null || (allowNulls && value == null))
             {
                 return ValidationResult.Success;
             }
