@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See LICENSE in the project root for license information.
+
 using Microsoft.AspNetCore.Builder;
 using System;
 
@@ -9,7 +12,7 @@ namespace CSE.Middleware
     public static class RobotsExtensions
     {
         // response that prevents all indexing
-        static readonly byte[] responseBytes = System.Text.Encoding.UTF8.GetBytes("# Prevent indexing\r\nUser-agent: *\r\nDisallow: /\r\n");
+        private static readonly byte[] ResponseBytes = System.Text.Encoding.UTF8.GetBytes("# Prevent indexing\r\nUser-agent: *\r\nDisallow: /\r\n");
 
         /// <summary>
         /// aspnet middleware extension method to handle /robots*.txt request
@@ -18,7 +21,7 @@ namespace CSE.Middleware
         /// this also handles a real /robots.txt request to prevent indexing
         /// </summary>
         /// <param name="builder">this IApplicationBuilder</param>
-        /// <returns></returns>
+        /// <returns>ApplicationBuilder</returns>
         public static IApplicationBuilder UseRobots(this IApplicationBuilder builder)
         {
             // implement the middleware
@@ -33,7 +36,7 @@ namespace CSE.Middleware
                 {
                     // return the content
                     context.Response.ContentType = "text/plain";
-                    await context.Response.Body.WriteAsync(responseBytes).ConfigureAwait(false);
+                    await context.Response.Body.WriteAsync(ResponseBytes).ConfigureAwait(false);
                 }
                 else
                 {

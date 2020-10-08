@@ -1,7 +1,10 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See LICENSE in the project root for license information.
+
 namespace CSE.Helium
 {
     /// <summary>
-    /// String constants
+    /// Application constants
     /// </summary>
     public sealed class Constants
     {
@@ -40,5 +43,4 @@ namespace CSE.Helium
         // If cosmos key is rotatated, number of retries with new key.
         public const int RetryCount = 1;
     }
-
 }

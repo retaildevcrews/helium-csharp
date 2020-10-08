@@ -1,4 +1,7 @@
-﻿using CSE.Helium.DataAccessLayer;
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See LICENSE in the project root for license information.
+
+using CSE.Helium.DataAccessLayer;
 using CSE.Helium.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -37,6 +40,7 @@ namespace CSE.Helium.Controllers
         /// <summary>
         /// Returns a plain text health status (Healthy, Degraded or Unhealthy)
         /// </summary>
+        /// <returns>IActionResult</returns>
         [HttpGet]
         [Produces("text/plain")]
         [ProducesResponseType(typeof(string), 200)]
@@ -52,13 +56,14 @@ namespace CSE.Helium.Controllers
             return new ContentResult
             {
                 Content = IetfCheck.ToIetfStatus(res.Status),
-                StatusCode = res.Status == HealthStatus.Unhealthy ? (int)System.Net.HttpStatusCode.ServiceUnavailable : (int)System.Net.HttpStatusCode.OK
+                StatusCode = res.Status == HealthStatus.Unhealthy ? (int)System.Net.HttpStatusCode.ServiceUnavailable : (int)System.Net.HttpStatusCode.OK,
             };
         }
 
         /// <summary>
         /// Returns an IETF (draft) health+json representation of the full Health Check
         /// </summary>
+        /// <returns>IActionResult</returns>
         [HttpGet("ietf")]
         [Produces("application/health+json")]
         [ProducesResponseType(typeof(CosmosHealthCheck), 200)]

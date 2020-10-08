@@ -1,4 +1,7 @@
-﻿using CSE.Helium;
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See LICENSE in the project root for license information.
+
+using CSE.Helium;
 using CSE.Helium.DataAccessLayer;
 using CSE.KeyVault;
 using Microsoft.Azure.Cosmos;
@@ -29,26 +32,24 @@ namespace CSE.KeyRotation
             this.keyVaultConnection = keyVaultConnection;
             this.configuration = configuration;
             this.logger = logger;
-            RetryCosmosPolicy = GetCosmosRetryPolicy();
+            this.RetryCosmosPolicy = this.GetCosmosRetryPolicy();
         }
 
         /// <summary>
         /// This method creates a Polly retry policy when there is cosmos exception with code Unauthorized.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The AsyncRetryPolicy</returns>
         private AsyncRetryPolicy GetCosmosRetryPolicy()
         {
             return Policy.Handle<CosmosException>(e => e.StatusCode == HttpStatusCode.Unauthorized)
-                .RetryAsync(Constants.RetryCount, async(exception, retryCount)  =>
+                .RetryAsync(Constants.RetryCount, async (exception, retryCount) =>
                 {
-
                     try
                     {
-                        
                         await semaphoreSlim.WaitAsync().ConfigureAwait(false);
                         logger.LogInformation("Read the cosmos key from KeyVault.");
-                        
-                        //Get the latest cosmos key.                    
+
+                        // Get the latest cosmos key.
                         var cosmosKeySecret = await keyVaultConnection.Client.GetSecretAsync(keyVaultConnection.Address, Constants.CosmosKey).ConfigureAwait(false);
 
                         logger.LogInformation("Refresh cosmos connection with upadated secret.");
@@ -62,5 +63,4 @@ namespace CSE.KeyRotation
                 });
         }
     }
-
 }

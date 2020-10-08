@@ -1,4 +1,7 @@
-﻿using CSE.Helium.DataAccessLayer;
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See LICENSE in the project root for license information.
+
+using CSE.Helium.DataAccessLayer;
 using Helium.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -31,7 +34,8 @@ namespace CSE.Helium.Controllers
         /// <summary>
         /// Returns a JSON array of Movie objects
         /// </summary>
-        /// <param name="movieQueryParameters"></param>
+        /// <param name="movieQueryParameters">query parameters</param>
+        /// <returns>IActionResult</returns>
         [HttpGet]
         public async Task<IActionResult> GetMoviesAsync([FromQuery] MovieQueryParameters movieQueryParameters)
         {
@@ -45,10 +49,10 @@ namespace CSE.Helium.Controllers
         /// <summary>
         /// Returns a single JSON Movie by movieIdParameter
         /// </summary>
-        /// <param name="movieIdParameter"></param>
-        /// <returns></returns>
+        /// <param name="movieIdParameter">Movie ID</param>
+        /// <returns>IActionResult</returns>
         [HttpGet("{movieId}")]
-        public async System.Threading.Tasks.Task<IActionResult> GetMovieByIdAsync([FromRoute] MovieIdParameter movieIdParameter)
+        public async Task<IActionResult> GetMovieByIdAsync([FromRoute] MovieIdParameter movieIdParameter)
         {
             _ = movieIdParameter ?? throw new ArgumentNullException(nameof(movieIdParameter));
 

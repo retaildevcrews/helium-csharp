@@ -1,4 +1,26 @@
-﻿namespace CSE.KeyVault
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See LICENSE in the project root for license information.
+
+namespace CSE.KeyVault
 {
-    public enum AuthenticationType { MI, CLI, VS }
+    /// <summary>
+    /// Authentication Type Enum
+    /// </summary>
+    public enum AuthenticationType
+    {
+        /// <summary>
+        /// Managed Identity
+        /// </summary>
+        MI,
+
+        /// <summary>
+        /// Azure CLI
+        /// </summary>
+        CLI,
+
+        /// <summary>
+        /// Visual Studio
+        /// </summary>
+        VS,
+    }
 }

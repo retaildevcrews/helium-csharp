@@ -1,4 +1,7 @@
-﻿using CSE.Helium;
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See LICENSE in the project root for license information.
+
+using CSE.Helium;
 using Microsoft.AspNetCore.Http;
 using System;
 
@@ -11,7 +14,7 @@ namespace Helium.Extensions
         /// </summary>
         /// <param name="movieQueryParameters">movie query parameters</param>
         /// <param name="httpContext">HttpContext</param>
-        /// <returns></returns>
+        /// <returns>method name</returns>
         public static string GetMethodText(this MovieQueryParameters movieQueryParameters, HttpContext httpContext)
         {
             _ = movieQueryParameters ?? throw new ArgumentNullException(nameof(movieQueryParameters));

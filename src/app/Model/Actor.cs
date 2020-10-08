@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See LICENSE in the project root for license information.
+
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 
@@ -19,9 +22,9 @@ namespace CSE.Helium.Model
 
         /// <summary>
         /// Compute the partition key based on the movieId or actorId
-        /// 
+        ///
         /// For this sample, the partitionkey is the id mod 10
-        /// 
+        ///
         /// In a full implementation, you would update the logic to determine the partition key
         /// </summary>
         /// <param name="id">document id</param>

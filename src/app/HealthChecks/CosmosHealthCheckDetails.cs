@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See LICENSE in the project root for license information.
+
 using CSE.Helium.Model;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System;
@@ -10,9 +13,8 @@ namespace CSE.Helium
 {
     public partial class CosmosHealthCheck : IHealthCheck
     {
-        private readonly Stopwatch stopwatch = new Stopwatch();
         private const int MaxResponseTime = 200;
-
+        private readonly Stopwatch stopwatch = new Stopwatch();
 
         /// <summary>
         /// Build the response
@@ -21,21 +23,21 @@ namespace CSE.Helium
         /// <param name="targetDurationMs">double (ms)</param>
         /// <param name="ex">Exception (default = null)</param>
         /// <param name="data">Dictionary(string, object)</param>
-        /// <param name="testName">string</param>
+        /// <param name="testName">Test Name</param>
         /// <returns>HealthzCheck</returns>
         private HealthzCheck BuildHealthzCheck(string uri, double targetDurationMs, Exception ex = null, Dictionary<string, object> data = null, string testName = null)
         {
             stopwatch.Stop();
 
             // create the result
-            var result = new HealthzCheck
+            HealthzCheck result = new HealthzCheck
             {
                 Endpoint = uri,
                 Status = HealthStatus.Healthy,
                 Duration = stopwatch.Elapsed,
                 TargetDuration = new System.TimeSpan(0, 0, 0, 0, (int)targetDurationMs),
                 ComponentId = testName,
-                ComponentType = "datastore"
+                ComponentType = "datastore",
             };
 
             // check duration
@@ -121,7 +123,7 @@ namespace CSE.Helium
         {
             const string name = "searchMovies";
 
-            var movieQuery = new MovieQueryParameters { Q = query };
+            MovieQueryParameters movieQuery = new MovieQueryParameters { Q = query };
 
             string path = "/api/movies?q=" + movieQuery.Q;
 
@@ -175,7 +177,7 @@ namespace CSE.Helium
         {
             const string name = "searchActors";
 
-            var actorQuery = new ActorQueryParameters { Q = query };
+            ActorQueryParameters actorQuery = new ActorQueryParameters { Q = query };
 
             string path = "/api/actors?q=" + actorQuery.Q;
 

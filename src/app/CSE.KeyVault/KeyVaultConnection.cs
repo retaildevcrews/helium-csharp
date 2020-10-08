@@ -1,18 +1,10 @@
-﻿using Microsoft.Azure.KeyVault;
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See LICENSE in the project root for license information.
+
+using Microsoft.Azure.KeyVault;
 
 namespace CSE.KeyVault
 {
-    /// <summary>
-    /// IKeyVault Connection Interface
-    /// 
-    /// Stores the KeyVaultClient and Uri
-    /// </summary>
-    public interface IKeyVaultConnection
-    {
-        IKeyVaultClient Client { get; set; }
-        string Address { get; set; }
-    }
-
     /// <summary>
     /// IKeyVaultConnection implementation
     /// </summary>
