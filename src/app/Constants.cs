@@ -39,5 +39,8 @@ namespace CSE.Helium
 
         public const int HealthzCacheDuration = 60;
         public const int GracefulShutdownTimeout = 10;
+
+        // If cosmos key is rotatated, number of retries with new key.
+        public const int RetryCount = 1;
     }
 }

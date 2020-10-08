@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using CSE.Helium.DataAccessLayer;
+using CSE.KeyRotation;
 using CSE.KeyVault;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore;
@@ -14,7 +15,6 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;
-using System.CommandLine.Parsing;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -212,7 +212,7 @@ namespace CSE.Helium
 
                     // add IConfigurationRoot
                     services.AddSingleton<IConfigurationRoot>(config);
-
+                    services.AddKeyRotation();
                     services.AddResponseCaching();
                 });
 
