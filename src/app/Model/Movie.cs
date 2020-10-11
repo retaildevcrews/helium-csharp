@@ -46,15 +46,4 @@ namespace CSE.Helium.Model
             throw new ArgumentException("Invalid Partition Key");
         }
     }
-
-    public class Role
-    {
-        public int Order { get; set; }
-        public string ActorId { get; set; }
-        public string Name { get; set; }
-        public int? BirthYear { get; set; }
-        public int? DeathYear { get; set; }
-        public string Category { get; set; }
-        public List<string> Characters { get; set; }
-    }
 }
