@@ -1,17 +1,17 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
+using System;
+using System.Collections.Generic;
+using System.CommandLine;
+using System.Globalization;
+using System.Threading.Tasks;
 using CSE.KeyVault;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Azure.KeyVault;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.CommandLine;
-using System.Globalization;
-using System.Threading.Tasks;
 
 namespace CSE.Helium
 {
@@ -188,7 +188,7 @@ namespace CSE.Helium
         /// <returns>0</returns>
         private static int DoDryRun(string kvUrl, AuthenticationType authType)
         {
-            Console.WriteLine($"Version            {Middleware.VersionExtensions.Version}");
+            Console.WriteLine($"Version            {Middleware.VersionExtension.Version}");
             Console.WriteLine($"Keyvault           {kvUrl}");
             Console.WriteLine($"Auth Type          {authType}");
             Console.WriteLine($"Log Level          {AppLogLevel}");

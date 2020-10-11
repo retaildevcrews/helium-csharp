@@ -16,9 +16,9 @@ namespace CSE.Helium
         /// <param name="message">Error Message</param>
         public ValidationError(string code, string target, string message)
         {
-            this.Code = code;
-            this.Target = target;
-            this.Message = message;
+            Code = code;
+            Target = target;
+            Message = message;
         }
 
         /// <summary>
