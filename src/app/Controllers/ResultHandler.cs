@@ -1,24 +1,15 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.Cosmos;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Net;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Cosmos;
+using Microsoft.Extensions.Logging;
 
 namespace CSE.Helium.Controllers
 {
-    public class ErrorResult
-    {
-        public int Status => (int)Error;
-
-        public string Message { get; set; }
-
-        public HttpStatusCode Error { get; set; }
-    }
-
     /// <summary>
     /// Handles query requests from the controllers
     /// </summary>
