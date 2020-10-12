@@ -23,6 +23,9 @@ namespace CSE.Helium
         public const string AppInsightsKey = "AppInsightsKey";
         public const string NewKeyLoadedMetric = "newKeyLoaded";
 
+        public const string CosmosTimeout = "CosmosOptions:Timeout";
+        public const string CosmosRetry = "CosmosOptions:Retries";
+
         // if port is changed, also update value in the Dockerfiles
         public const string Port = "4120";
 
