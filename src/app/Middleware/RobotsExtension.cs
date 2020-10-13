@@ -1,15 +1,15 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
-using Microsoft.AspNetCore.Builder;
 using System;
+using Microsoft.AspNetCore.Builder;
 
 namespace CSE.Middleware
 {
     /// <summary>
     /// Register robots middleware
     /// </summary>
-    public static class RobotsExtensions
+    public static class RobotsExtension
     {
         // response that prevents all indexing
         private static readonly byte[] ResponseBytes = System.Text.Encoding.UTF8.GetBytes("# Prevent indexing\r\nUser-agent: *\r\nDisallow: /\r\n");

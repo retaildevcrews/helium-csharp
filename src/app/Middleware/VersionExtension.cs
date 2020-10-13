@@ -1,18 +1,18 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
-using Microsoft.AspNetCore.Builder;
 using System;
 using System.IO;
 using System.Reflection;
 using System.Text.Json;
+using Microsoft.AspNetCore.Builder;
 
 namespace CSE.Middleware
 {
     /// <summary>
     /// Registers aspnet middleware handler that handles /version
     /// </summary>
-    public static class VersionExtensions
+    public static class VersionExtension
     {
         // cached response
         private static byte[] responseBytes;
@@ -71,7 +71,7 @@ namespace CSE.Middleware
                         }
 
                         // build and cache the json string
-                        string json = $"{{ \"apiVersion\": \"{swaggerVersion}\", \"appVersion\": \"{Middleware.VersionExtensions.Version}\", \"language\": \"C#\" }}";
+                        string json = $"{{ \"apiVersion\": \"{swaggerVersion}\", \"appVersion\": \"{Middleware.VersionExtension.Version}\", \"language\": \"C#\" }}";
                         responseBytes = System.Text.Encoding.UTF8.GetBytes(json);
                     }
 
