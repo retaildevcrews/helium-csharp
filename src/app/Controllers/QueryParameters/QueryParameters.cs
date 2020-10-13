@@ -26,7 +26,7 @@ namespace CSE.Helium
         /// <summary>
         /// gets or sets a valid query (search) string
         /// </summary>
-        [StringLength(maximumLength: 20, MinimumLength = 2, ErrorMessage = "The parameter 'q' should be between {2} and {1} characters.")]
+        [StringLength(maximumLength: 20, MinimumLength = 2)]
         public string Q { get; set; }
 
         /// <summary>

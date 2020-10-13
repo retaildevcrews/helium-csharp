@@ -11,13 +11,13 @@ namespace CSE.Helium
         [IdValidation(startingCharacters: "nm", minimumCharacters: 7, maximumCharacters: 11, true)]
         public string ActorId { get; set; }
 
-        [StringLength(maximumLength: 20, MinimumLength = 3, ErrorMessage = "The parameter 'Genre' should be between {2} and {1} characters.")]
+        [StringLength(maximumLength: 20, MinimumLength = 3)]
         public string Genre { get; set; }
 
         [YearValidation]
         public int Year { get; set; }
 
-        [Range(minimum: 0, maximum: 10.0, ErrorMessage = "The parameter 'Rating' should be between {1} and {2}.")]
+        [Range(minimum: 0.0, maximum: 10.0)]
         public double Rating { get; set; }
     }
 }
