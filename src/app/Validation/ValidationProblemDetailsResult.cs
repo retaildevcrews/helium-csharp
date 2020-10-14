@@ -90,32 +90,30 @@ namespace CSE.Helium.Validation
         /// <returns>standardized ValidationError</returns>
         private static ValidationError CreateValidationError(string key)
         {
-            return new ValidationError("InvalidValue", ToCamelCase(key), GetErrorMessage(key));
+            return new ValidationError("InvalidValue", PascalToCamelCase(key), GetErrorMessage(key));
         }
 
         /// <summary>
-        /// Convert key to camel case
+        /// Convert Pascal case to camel case
+        ///   value must be a valid Pascal case word
+        ///   no validation / changes are made other than lower case the first letter
         /// </summary>
-        /// <param name="key">validation error key</param>
+        /// <param name="value">value to convert</param>
         /// <returns>string</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1308:Normalize strings to uppercase", Justification = "tolower is correct")]
-        private static string ToCamelCase(string key)
+        private static string PascalToCamelCase(string value)
         {
-            string s = string.Empty;
-
-            if (!string.IsNullOrEmpty(key))
+            if (string.IsNullOrEmpty(value))
             {
-                if (key.Length == 1)
-                {
-                    s = key.ToLowerInvariant();
-                }
-                else
-                {
-                    s = key.Substring(0, 1).ToLowerInvariant() + key.Substring(1);
-                }
+                return value;
             }
 
-            return s;
+            if (value.Length == 1)
+            {
+                return value.ToLowerInvariant();
+            }
+
+            return value.Substring(0, 1).ToLowerInvariant() + value.Substring(1);
         }
 
         /// <summary>
