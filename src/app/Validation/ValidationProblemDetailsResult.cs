@@ -75,6 +75,7 @@ namespace CSE.Helium.Validation
                 IgnoreNullValues = true,
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
                 DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
+                WriteIndented = true,
             };
 
             jsonOptions.Converters.Add(new JsonStringEnumConverter());
