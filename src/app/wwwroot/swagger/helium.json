@@ -277,10 +277,9 @@
           "400": {
             "description": "Invalid parameter",
             "content": {
-              "text/plain": {
+              "application/json": {
                 "schema": {
-                  "type": "application/json",
-                  "$ref": "#/components/schemas/ParameterErrorResponse"
+                  "$ref": "#/components/schemas/ParameterErrorResponse"        
                 },
                 "example": {
                   "type": "https://github.com/retaildevcrews/helium/blob/main/docs/ParameterValidation.md#movies-query-string-parameters",
@@ -1046,49 +1045,6 @@
         },
         "additionalProperties": false
       },
-      "ParameterErrorResponse": {
-        "type": "object",
-        "properties": {
-          "type": {
-            "type": "string"
-          },
-          "title": {
-            "type": "string"
-          },
-          "status": {
-            "type": "integer"
-          },
-          "detail": {
-            "type": "string"
-          },
-          "instance": {
-            "type": "string"
-          },
-          "validationErrors": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ValidationError"
-            }
-          }
-        },
-        "additionalProperties": false
-      },
-      "ValidationError": {
-        "type": "object",
-        "properties": {
-          "code": {
-            "type": "string",
-            "enum": ["NullValue", "InvalidValue"]
-          },
-          "target": {
-            "type": "string"
-          },
-          "message": {
-            "type": "string"
-          }
-        },
-        "additionalProperties": false
-      },
       "IetfHealthCheck": {
         "type": "object",
         "properties": {
@@ -1301,6 +1257,49 @@
                 }
               }
             }
+          }
+        },
+        "additionalProperties": false
+      },
+      "ParameterErrorResponse": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "status": {
+            "type": "integer"
+          },
+          "detail": {
+            "type": "string"
+          },
+          "instance": {
+            "type": "string"
+          },
+          "validationErrors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "ValidationError": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "enum": ["NullValue", "InvalidValue"]
+          },
+          "target": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
           }
         },
         "additionalProperties": false
