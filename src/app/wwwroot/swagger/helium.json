@@ -277,28 +277,10 @@
           "400": {
             "description": "Invalid parameter",
             "content": {
-              "application/json": {
+              "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/ParameterErrorResponse"        
-                },
-                "example": {
-                  "type": "https://github.com/retaildevcrews/helium/blob/main/docs/ParameterValidation.md#movies-query-string-parameters",
-                  "title": "Parameter validation error",
-                  "status": 400,
-                  "detail": "One or more invalid parameters were specified.",
-                  "instance": "/api/movies?year=1800&genre=zz",
-                  "validationErrors": [
-                    {
-                      "code": "InvalidValue",
-                      "target": "year",
-                      "message": "The parameter 'year' should be between 1874 and 2025."
-                    },
-                    {
-                      "code": "InvalidValue",
-                      "target": "genre",
-                      "message": "The parameter 'genre' should be between 3 and 20 characters."
-                    }
-                  ]
+                  "type": "string",
+                  "example": "Invalid {queryString} parameter"
                 }
               }
             }
@@ -1257,49 +1239,6 @@
                 }
               }
             }
-          }
-        },
-        "additionalProperties": false
-      },
-      "ParameterErrorResponse": {
-        "type": "object",
-        "properties": {
-          "type": {
-            "type": "string"
-          },
-          "title": {
-            "type": "string"
-          },
-          "status": {
-            "type": "integer"
-          },
-          "detail": {
-            "type": "string"
-          },
-          "instance": {
-            "type": "string"
-          },
-          "validationErrors": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ValidationError"
-            }
-          }
-        },
-        "additionalProperties": false
-      },
-      "ValidationError": {
-        "type": "object",
-        "properties": {
-          "code": {
-            "type": "string",
-            "enum": ["NullValue", "InvalidValue"]
-          },
-          "target": {
-            "type": "string"
-          },
-          "message": {
-            "type": "string"
           }
         },
         "additionalProperties": false
