@@ -153,12 +153,12 @@ namespace CSE.Helium.Validation
                 // query parameter
                 if (instance.StartsWith("/api/movies", StringComparison.InvariantCulture))
                 {
-                    return baseUri + "#movies";
+                    return baseUri + "#movies-api";
                 }
 
                 if (instance.StartsWith("/api/actors", StringComparison.InvariantCulture))
                 {
-                    return baseUri + "#actors";
+                    return baseUri + "#actors-api";
                 }
             }
             else
@@ -166,12 +166,12 @@ namespace CSE.Helium.Validation
                 // direct read
                 if (instance.StartsWith("/api/movies", StringComparison.InvariantCulture))
                 {
-                    return baseUri + "#direct-read";
+                    return baseUri + "#movies-direct-read";
                 }
 
                 if (instance.StartsWith("/api/actors", StringComparison.InvariantCulture))
                 {
-                    return baseUri + "#direct-read-1";
+                    return baseUri + "#actors-direct-read";
                 }
             }
 
