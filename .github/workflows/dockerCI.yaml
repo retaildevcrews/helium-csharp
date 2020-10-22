@@ -141,7 +141,7 @@ jobs:
         # run web validation test
         # fail on any validation errors
         cd TestFiles
-        webv -s localhost:4120 --max-errors 0 -f e2e.json
+        webv -s localhost:4120 --max-errors 1 -f baseline.json
         cd ..
 
     - name: Display coverage results
