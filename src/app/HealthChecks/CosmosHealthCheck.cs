@@ -1,14 +1,17 @@
-using CSE.Helium.DataAccessLayer;
-using CSE.Helium.Model;
-using Microsoft.Azure.Cosmos;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Microsoft.Extensions.Logging;
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See LICENSE in the project root for license information.
+
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
+using CSE.Helium.DataAccessLayer;
+using CSE.Helium.Model;
+using Microsoft.Azure.Cosmos;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Logging;
 
 namespace CSE.Helium
 {
@@ -41,7 +44,7 @@ namespace CSE.Helium
                 {
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
                     IgnoreNullValues = true,
-                    DictionaryKeyPolicy = JsonNamingPolicy.CamelCase
+                    DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
                 };
 
                 // serialize enums as strings
@@ -57,11 +60,11 @@ namespace CSE.Helium
         /// </summary>
         /// <param name="context">HealthCheckContext</param>
         /// <param name="cancellationToken">CancellationToken</param>
-        /// <returns></returns>
+        /// <returns>HealthCheckResult</returns>
         public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
         {
             // dictionary
-            var data = new Dictionary<string, object>();
+            Dictionary<string, object> data = new Dictionary<string, object>();
 
             try
             {
@@ -69,7 +72,7 @@ namespace CSE.Helium
 
                 // add instance and version
                 data.Add("Instance", System.Environment.GetEnvironmentVariable("WEBSITE_ROLE_INSTANCE_ID") ?? "unknown");
-                data.Add("Version", Middleware.VersionExtensions.Version);
+                data.Add("Version", Middleware.VersionExtension.Version);
 
                 // Run each health check
                 await GetGenresAsync(data).ConfigureAwait(false);
@@ -79,7 +82,7 @@ namespace CSE.Helium
                 await SearchActorsAsync("nicole", data).ConfigureAwait(false);
 
                 // overall health is the worst status
-                foreach (var d in data.Values)
+                foreach (object d in data.Values)
                 {
                     if (d is HealthzCheck h && h.Status != HealthStatus.Healthy)
                     {
@@ -95,7 +98,6 @@ namespace CSE.Helium
                 // return the result
                 return new HealthCheckResult(status, Description, data: data);
             }
-
             catch (CosmosException ce)
             {
                 // log and return Unhealthy
@@ -105,7 +107,6 @@ namespace CSE.Helium
 
                 return new HealthCheckResult(HealthStatus.Unhealthy, Description, ce, data);
             }
-
             catch (Exception ex)
             {
                 // log and return unhealthy

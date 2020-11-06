@@ -1,24 +1,26 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See LICENSE in the project root for license information.
+
+using System;
+using System.Globalization;
+using System.Threading.Tasks;
 using CSE.Helium.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
-using System;
-using System.Globalization;
-using System.Threading.Tasks;
 
-namespace Middleware
+namespace CSE.Middleware
 {
     /// <summary>
     /// Simple aspnet core middleware that logs requests to the console
     /// </summary>
     public class Logger
     {
+        private const string IpHeader = "X-Client-IP";
 
         // next action to Invoke
         private readonly RequestDelegate next;
         private readonly LoggerOptions options;
-
-        private const string ipHeader = "X-Client-IP";
 
         /// <summary>
         /// Constructor
@@ -60,7 +62,7 @@ namespace Middleware
             }
 
             // compute request duration
-            var duration = DateTime.Now.Subtract(dtStart).TotalMilliseconds;
+            double duration = DateTime.Now.Subtract(dtStart).TotalMilliseconds;
 
             // don't log favicon.ico 404s
             if (context.Request.Path.StartsWithSegments("/favicon.ico", StringComparison.OrdinalIgnoreCase))
@@ -77,7 +79,7 @@ namespace Middleware
             // write the results to the console
             if (ShouldLogRequest(context.Response))
             {
-                Console.WriteLine($"{context.Response.StatusCode}\t{duration,6:0}\t{context.Request.Headers[ipHeader]}\t{GetPathAndQuerystring(context.Request)}");
+                Console.WriteLine($"{context.Response.StatusCode}\t{duration,6:0}\t{context.Request.Headers[IpHeader]}\t{GetPathAndQuerystring(context.Request)}");
             }
         }
 
@@ -85,10 +87,9 @@ namespace Middleware
         /// Check log level to determine if request should be logged
         /// </summary>
         /// <param name="response">HttpResponse</param>
-        /// <returns></returns>
+        /// <returns>bool</returns>
         private bool ShouldLogRequest(HttpResponse response)
         {
-
             // check for logging by response level
             if (response.StatusCode < 300)
             {
@@ -127,7 +128,7 @@ namespace Middleware
         /// </summary>
         /// <param name="context">HttpContext</param>
         /// <param name="duration">double</param>
-        /// <returns></returns>
+        /// <returns>bool</returns>
         private static bool LogHealthzHandled(HttpContext context, double duration)
         {
             if (context == null)
@@ -138,8 +139,7 @@ namespace Middleware
             // check if there is a HealthCheckResult item
             if (context.Items.Count > 0 && context.Items.ContainsKey(typeof(HealthCheckResult).ToString()))
             {
-                var hcr = (HealthCheckResult)context.Items[typeof(HealthCheckResult).ToString()];
-
+                HealthCheckResult hcr = (HealthCheckResult)context.Items[typeof(HealthCheckResult).ToString()];
 
                 // log not healthy requests
                 if (hcr.Status != HealthStatus.Healthy)
@@ -147,15 +147,14 @@ namespace Middleware
                     string log = string.Empty;
 
                     // build the log message
-                    log += string.Format(CultureInfo.InvariantCulture, $"{IetfCheck.ToIetfStatus(hcr.Status)}\t{duration,6:0}\t{context.Request.Headers[ipHeader]}\t{GetPathAndQuerystring(context.Request)}\n");
-
+                    log += string.Format(CultureInfo.InvariantCulture, $"{IetfCheck.ToIetfStatus(hcr.Status)}\t{duration,6:0}\t{context.Request.Headers[IpHeader]}\t{GetPathAndQuerystring(context.Request)}\n");
 
                     // add each not healthy check to the log message
-                    foreach (var d in hcr.Data.Values)
+                    foreach (object d in hcr.Data.Values)
                     {
                         if (d is HealthzCheck h && h.Status != HealthStatus.Healthy)
                         {
-                            log += string.Format(CultureInfo.InvariantCulture, $"{IetfCheck.ToIetfStatus(h.Status)}\t{(long)h.Duration.TotalMilliseconds,6}\t{context.Request.Headers[ipHeader]}\t{h.Endpoint}\t({h.TargetDuration.TotalMilliseconds,1:0})\n");
+                            log += string.Format(CultureInfo.InvariantCulture, $"{IetfCheck.ToIetfStatus(h.Status)}\t{(long)h.Duration.TotalMilliseconds,6}\t{context.Request.Headers[IpHeader]}\t{h.Endpoint}\t({h.TargetDuration.TotalMilliseconds,1:0})\n");
                         }
                     }
 

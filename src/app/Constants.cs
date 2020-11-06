@@ -1,7 +1,10 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See LICENSE in the project root for license information.
+
 namespace CSE.Helium
 {
     /// <summary>
-    /// String constants
+    /// Application constants
     /// </summary>
     public sealed class Constants
     {
@@ -11,7 +14,6 @@ namespace CSE.Helium
         public const string KeyVaultName = "KEYVAULT_NAME";
         public const string AuthType = "AUTH_TYPE";
         public const string LogLevel = "LOG_LEVEL";
-        public static bool IsLogLevelSet { get; set; }
 
         public const string CosmosCollection = "CosmosCollection";
         public const string CosmosDatabase = "CosmosDatabase";
@@ -37,6 +39,8 @@ namespace CSE.Helium
 
         public const int HealthzCacheDuration = 60;
         public const int GracefulShutdownTimeout = 10;
+
+        // If cosmos key is rotatated, number of retries with new key.
+        public const int RetryCount = 1;
     }
-    public enum AuthenticationType { MI, CLI, VS }
 }

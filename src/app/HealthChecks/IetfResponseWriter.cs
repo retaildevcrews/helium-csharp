@@ -1,10 +1,13 @@
-using CSE.Helium.Model;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See LICENSE in the project root for license information.
+
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
+using CSE.Helium.Model;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace CSE.Helium
 {
@@ -38,10 +41,10 @@ namespace CSE.Helium
             result.Add("description", CosmosHealthCheck.Description);
 
             // add all the entries
-            foreach (var e in healthReport.Entries.Values)
+            foreach (HealthReportEntry e in healthReport.Entries.Values)
             {
                 // add all the data elements
-                foreach (var d in e.Data)
+                foreach (KeyValuePair<string, object> d in e.Data)
                 {
                     // transform HealthzCheck into IetfCheck
                     if (d.Value is HealthzCheck r)
@@ -72,7 +75,7 @@ namespace CSE.Helium
         /// <param name="httpContext">HttpContext</param>
         /// <param name="res">HealthCheckResult</param>
         /// <param name="totalTime">TimeSpan</param>
-        /// <returns></returns>
+        /// <returns>Task</returns>
         public static Task IetfResponseWriter(HttpContext httpContext, HealthCheckResult res, TimeSpan totalTime)
         {
             if (httpContext == null)
@@ -87,7 +90,6 @@ namespace CSE.Helium
 
             // call the response writer
             return IetfResponseWriter(httpContext, rpt);
-
         }
     }
 }

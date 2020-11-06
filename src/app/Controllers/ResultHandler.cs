@@ -1,18 +1,15 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.Cosmos;
-using Microsoft.Extensions.Logging;
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See LICENSE in the project root for license information.
+
 using System;
 using System.Net;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Cosmos;
+using Microsoft.Extensions.Logging;
 
 namespace CSE.Helium.Controllers
 {
-    public class ErrorResult
-    {
-        public int Status => (int)Error;
-        public string Message { get; set; }
-        public HttpStatusCode Error { get; set; }
-    }
     /// <summary>
     /// Handles query requests from the controllers
     /// </summary>
@@ -26,7 +23,7 @@ namespace CSE.Helium.Controllers
         /// <param name="method">method name for logging</param>
         /// <param name="errorMessage">error message to log on error</param>
         /// <param name="logger">ILogger</param>
-        /// <returns></returns>
+        /// <returns>IActionResult</returns>
         public static async Task<IActionResult> Handle<T>(Task<T> task, string method, string errorMessage, ILogger logger)
         {
             // log the request
@@ -45,7 +42,6 @@ namespace CSE.Helium.Controllers
                 // return an OK object result
                 return new OkObjectResult(await task.ConfigureAwait(false));
             }
-
             catch (CosmosException ce)
             {
                 // log and return Cosmos status code
@@ -60,7 +56,6 @@ namespace CSE.Helium.Controllers
 
                 return CreateResult(errorMessage, ce.StatusCode);
             }
-
             catch (Exception ex)
             {
                 // log and return exception
@@ -76,12 +71,12 @@ namespace CSE.Helium.Controllers
         /// </summary>
         /// <param name="message">string</param>
         /// <param name="statusCode">int</param>
-        /// <returns></returns>
+        /// <returns>JsonResult</returns>
         public static JsonResult CreateResult(string message, HttpStatusCode statusCode)
         {
             return new JsonResult(new ErrorResult { Error = statusCode, Message = message })
             {
-                StatusCode = (int)statusCode
+                StatusCode = (int)statusCode,
             };
         }
     }

@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See LICENSE in the project root for license information.
+
 using System;
 using System.Globalization;
 using System.Text.Json;
@@ -7,7 +10,7 @@ namespace CSE.Helium
 {
     /// <summary>
     /// Custom TimeSpan Converter
-    /// 
+    ///
     /// 00:00:00.123
     /// </summary>
     public class TimeSpanConverter : JsonConverter<TimeSpan>
@@ -28,5 +31,4 @@ namespace CSE.Helium
             writer.WriteStringValue(value.ToString(@"hh\:mm\:ss\.fff", CultureInfo.InvariantCulture));
         }
     }
-
 }

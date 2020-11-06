@@ -1,8 +1,12 @@
-using CSE.Helium.Model;
-using Microsoft.Azure.Cosmos;
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See LICENSE in the project root for license information.
+
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Threading.Tasks;
+using CSE.Helium.Model;
+using Microsoft.Azure.Cosmos;
 
 namespace CSE.Helium.DataAccessLayer
 {
@@ -12,15 +16,15 @@ namespace CSE.Helium.DataAccessLayer
     public partial class DAL
     {
         // select template for Movies
-        const string movieSelect = "select m.id, m.partitionKey, m.movieId, m.type, m.textSearch, m.title, m.year, m.runtime, m.rating, m.votes, m.totalScore, m.genres, m.roles from m where m.type = 'Movie' ";
-        const string movieOrderBy = " order by m.textSearch ASC, m.movieId ASC";
-        const string movieOffset = " offset {0} limit {1}";
+        private const string MovieSelect = "select m.id, m.partitionKey, m.movieId, m.type, m.textSearch, m.title, m.year, m.runtime, m.rating, m.votes, m.totalScore, m.genres, m.roles from m where m.type = 'Movie' ";
+        private const string MovieOrderBy = " order by m.textSearch ASC, m.movieId ASC";
+        private const string MovieOffset = " offset {0} limit {1}";
 
         /// <summary>
         /// Retrieve a single Movie from CosmosDB by movieId
-        /// 
+        ///
         /// Uses the CosmosDB single document read API which is 1 RU if less than 1K doc size
-        /// 
+        ///
         /// Throws an exception if not found
         /// </summary>
         /// <param name="movieId">Movie ID</param>
@@ -37,84 +41,77 @@ namespace CSE.Helium.DataAccessLayer
         /// <summary>
         /// Get a list of Movies by search and/or filter terms
         /// </summary>
-        /// <param name="q">search term</param>
-        /// <param name="genre">get movies by genre</param>
-        /// <param name="year">get movies by year</param>
-        /// <param name="rating">get movies rated >= rating</param>
-        /// <param name="actorId">get movies by actorId</param>
-        /// <param name="offset">zero based offset for paging</param>
-        /// <param name="limit">number of documents for paging</param>
+        /// <param name="movieQueryParameters">movie search parameters</param>
         /// <returns>List of Movies or an empty list</returns>
-        public async Task<IEnumerable<Movie>> GetMoviesAsync(string q, string genre = "", int year = 0, double rating = 0, string actorId = "", int offset = 0, int limit = Constants.DefaultPageSize)
+        public async Task<IEnumerable<Movie>> GetMoviesAsync(MovieQueryParameters movieQueryParameters)
         {
+            _ = movieQueryParameters ?? throw new ArgumentNullException(nameof(movieQueryParameters));
 
-            string sql = movieSelect;
+            string sql = MovieSelect;
 
-            if (limit < 1)
+            int offset = movieQueryParameters.GetOffset();
+            int limit = movieQueryParameters.PageSize;
+
+            string offsetLimit = string.Format(CultureInfo.InvariantCulture, MovieOffset, offset, limit);
+
+            if (!string.IsNullOrWhiteSpace(movieQueryParameters.Q))
             {
-                limit = Constants.DefaultPageSize;
-            }
-            else if (limit > Constants.MaxPageSize)
-            {
-                limit = Constants.MaxPageSize;
-            }
-
-            string offsetLimit = string.Format(CultureInfo.InvariantCulture, movieOffset, offset, limit);
-
-            if (!string.IsNullOrWhiteSpace(q))
-            {
-                q = q.Trim();
+                movieQueryParameters.Q = movieQueryParameters.Q.Trim();
                 sql += " and contains(m.title, @q, true) ";
             }
 
-            if (year > 0)
+            if (movieQueryParameters.Year > 0)
             {
                 sql += " and m.year = @year ";
             }
 
-            if (rating > 0)
+            if (movieQueryParameters.Rating > 0)
             {
                 sql += " and m.rating >= @rating ";
             }
 
-            if (!string.IsNullOrWhiteSpace(actorId))
+            if (!string.IsNullOrWhiteSpace(movieQueryParameters.ActorId))
             {
                 // convert to lower
-                actorId = actorId.Trim().ToLowerInvariant();
+                movieQueryParameters.ActorId = movieQueryParameters.ActorId.Trim().ToLowerInvariant();
                 sql += " and array_contains(m.roles, { actorId: @actorId }, true) ";
             }
 
-            if (!string.IsNullOrWhiteSpace(genre))
+            if (!string.IsNullOrWhiteSpace(movieQueryParameters.Genre))
             {
-                genre = genre.Trim();
+                movieQueryParameters.Genre = movieQueryParameters.Genre.Trim();
                 sql += " and contains(m.genreSearch, @genre, true) ";
             }
 
-            sql += movieOrderBy + offsetLimit;
+            sql += MovieOrderBy + offsetLimit;
 
             // Parameterize fields
             QueryDefinition queryDefinition = new QueryDefinition(sql);
 
-            if (!string.IsNullOrWhiteSpace(q))
+            if (!string.IsNullOrWhiteSpace(movieQueryParameters.Q))
             {
-                queryDefinition.WithParameter("@q", q);
+                queryDefinition.WithParameter("@q", movieQueryParameters.Q);
             }
-            if (!string.IsNullOrWhiteSpace(actorId))
+
+            if (!string.IsNullOrWhiteSpace(movieQueryParameters.ActorId))
             {
-                queryDefinition.WithParameter("@actorId", actorId);
+                queryDefinition.WithParameter("@actorId", movieQueryParameters.ActorId);
             }
-            if (!string.IsNullOrWhiteSpace(genre))
+
+            if (!string.IsNullOrWhiteSpace(movieQueryParameters.Genre))
             {
                 // genreSearch is stored delimited with :
-                queryDefinition.WithParameter("@genre", "|" + genre + "|");
+                queryDefinition.WithParameter("@genre", "|" + movieQueryParameters.Genre + "|");
             }
-            if (year > 0)
+
+            if (movieQueryParameters.Year > 0)
             {
-                queryDefinition.WithParameter("@year", year);
+                queryDefinition.WithParameter("@year", movieQueryParameters.Year);
             }
-            if (rating > 0)
+
+            if (movieQueryParameters.Rating > 0)
             {
-                queryDefinition.WithParameter("@rating", rating);
+                queryDefinition.WithParameter("@rating", movieQueryParameters.Rating);
             }
 
             return await InternalCosmosDBSqlQuery<Movie>(queryDefinition).ConfigureAwait(false);
@@ -132,7 +129,7 @@ namespace CSE.Helium.DataAccessLayer
 
             try
             {
-                var query = await InternalCosmosDBSqlQuery<FeaturedMovie>(sql).ConfigureAwait(false);
+                IEnumerable<FeaturedMovie> query = await InternalCosmosDBSqlQuery<FeaturedMovie>(sql).ConfigureAwait(false);
 
                 foreach (FeaturedMovie f in query)
                 {
@@ -143,8 +140,11 @@ namespace CSE.Helium.DataAccessLayer
                     }
                 }
             }
+
             // ignore error and return default
-            catch { }
+            catch
+            {
+            }
 
             // default to The Matrix
             if (list.Count == 0)
@@ -154,7 +154,5 @@ namespace CSE.Helium.DataAccessLayer
 
             return list;
         }
-
     }
-
 }

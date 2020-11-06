@@ -1,6 +1,9 @@
-﻿using Microsoft.Extensions.Diagnostics.HealthChecks;
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See LICENSE in the project root for license information.
+
 using System;
 using System.Collections.Generic;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace CSE.Helium.Model
 {
@@ -9,16 +12,6 @@ namespace CSE.Helium.Model
     /// </summary>
     public class IetfCheck
     {
-        public string Status { get; set; }
-        public string ComponentId { get; set; }
-        public string ComponentType { get; set; }
-        public string ObservedUnit { get; set; }
-        public double ObservedValue { get; set; }
-        public double TargetValue { get; set; }
-        public string Time { get; set; }
-        public List<string> AffectedEndpoints { get; }
-        public string Message { get; set; }
-
         /// <summary>
         /// Constructor
         /// </summary>
@@ -49,6 +42,16 @@ namespace CSE.Helium.Model
                 AffectedEndpoints = new List<string> { hzCheck.Endpoint };
             }
         }
+
+        public string Status { get; set; }
+        public string ComponentId { get; set; }
+        public string ComponentType { get; set; }
+        public string ObservedUnit { get; set; }
+        public double ObservedValue { get; set; }
+        public double TargetValue { get; set; }
+        public string Time { get; set; }
+        public List<string> AffectedEndpoints { get; }
+        public string Message { get; set; }
 
         /// <summary>
         /// Convert the dotnet HealthStatus to the IETF Status

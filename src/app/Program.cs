@@ -1,24 +1,29 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See LICENSE in the project root for license information.
+
+using System;
+using System.CommandLine;
+using System.CommandLine.Invocation;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using CSE.Helium.DataAccessLayer;
-using KeyVault.Extensions;
+using CSE.KeyRotation;
+using CSE.KeyVault;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Azure.KeyVault;
-using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.AzureKeyVault;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System;
-using System.CommandLine;
-using System.CommandLine.Invocation;
-using System.CommandLine.Parsing;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace CSE.Helium
 {
+    /// <summary>
+    /// Main application class
+    /// </summary>
     public sealed partial class App
     {
         // ILogger instance
@@ -32,14 +37,23 @@ namespace CSE.Helium
 
         private static CancellationTokenSource ctCancel;
 
+        /// <summary>
+        /// Gets or sets LogLevel
+        /// </summary>
         public static LogLevel AppLogLevel { get; set; } = LogLevel.Warning;
 
         /// <summary>
+        /// Gets or sets a value indicating whether LogLevel is set in command line or env var
+        /// </summary>
+        public static bool IsLogLevelSet { get; set; }
+
+        /// <summary>
         /// Main entry point
-        /// 
+        ///
         /// Configure and run the web server
         /// </summary>
         /// <param name="args">command line args</param>
+        /// <returns>IActionResult</returns>
         public static async Task<int> Main(string[] args)
         {
             // build the System.CommandLine.RootCommand
@@ -62,6 +76,19 @@ namespace CSE.Helium
         }
 
         /// <summary>
+        /// Display the ASCII art file if it exists
+        /// </summary>
+        private static void DisplayAsciiArt()
+        {
+            const string file = "ascii-art.txt";
+
+            if (File.Exists(file))
+            {
+                Console.WriteLine(File.ReadAllText(file));
+            }
+        }
+
+        /// <summary>
         /// Creates a CancellationTokenSource that cancels on ctl-c pressed
         /// </summary>
         /// <returns>CancellationTokenSource</returns>
@@ -69,7 +96,7 @@ namespace CSE.Helium
         {
             CancellationTokenSource ctCancel = new CancellationTokenSource();
 
-            Console.CancelKeyPress += async delegate (object sender, ConsoleCancelEventArgs e)
+            Console.CancelKeyPress += async (sender, e) =>
             {
                 e.Cancel = true;
                 ctCancel.Cancel();
@@ -98,7 +125,7 @@ namespace CSE.Helium
             if (logger != null)
             {
                 // get the IConfigurationRoot from DI
-                var cfg = host.Services.GetService<IConfigurationRoot>();
+                IConfigurationRoot cfg = host.Services.GetService<IConfigurationRoot>();
 
                 // log a not using app insights warning
                 if (string.IsNullOrEmpty(cfg.GetValue<string>(Constants.AppInsightsKey)))
@@ -109,38 +136,28 @@ namespace CSE.Helium
                 logger.LogInformation("Web Server Started");
             }
 
-            Console.WriteLine("\n");
-            Console.WriteLine("                                ,-\"\"\"\"-.");
-            Console.WriteLine("                              ,'      _ `.");
-            Console.WriteLine("                             /       )_)  \\");
-            Console.WriteLine("                            :              :");
-            Console.WriteLine("                            \\              /");
-            Console.WriteLine(" _          _ _              \\            /");
-            Console.WriteLine("| |        | (_)              `.        ,'");
-            Console.WriteLine("| |__   ___| |_ _   _ _ __ ___  `.    ,'");
-            Console.WriteLine("| '_ \\ / _ \\ | | | | | '_ ` _ \\   `.,'");
-            Console.WriteLine("| | | |  __/ | | |_| | | | | | |   /\\`.   ,-._");
-            Console.WriteLine("|_| |_|\\___|_|_|\\__,_|_| |_| |_|        `-'");
+            DisplayAsciiArt();
 
-            Console.WriteLine($"\nVersion: {Middleware.VersionExtensions.Version}");
+            Console.WriteLine($"\nVersion: {Middleware.VersionExtension.Version}");
         }
 
         /// <summary>
         /// Builds the config for the web server
-        /// 
+        ///
         /// Uses Key Vault via Managed Identity (MI)
         /// </summary>
         /// <param name="kvClient">Key Vault Client</param>
         /// <param name="kvUrl">Key Vault URL</param>
         /// <returns>Root Configuration</returns>
-        static IConfigurationRoot BuildConfig(KeyVaultClient kvClient, string kvUrl)
+        private static IConfigurationRoot BuildConfig(KeyVaultClient kvClient, string kvUrl)
         {
             try
             {
                 // standard config builder
-                var cfgBuilder = new ConfigurationBuilder()
+                IConfigurationBuilder cfgBuilder = new ConfigurationBuilder()
                     .SetBasePath(Directory.GetCurrentDirectory())
                     .AddJsonFile("appsettings.json", optional: false)
+
                     // use Azure Key Vault
                     .AddAzureKeyVault(kvUrl, kvClient, new DefaultKeyVaultSecretManager());
 
@@ -150,7 +167,6 @@ namespace CSE.Helium
             catch (Exception ex)
             {
                 // log and fail
-
                 Console.WriteLine($"{ex}\nBuildConfig:Exception: {ex.Message}");
                 Environment.Exit(-1);
             }
@@ -164,10 +180,10 @@ namespace CSE.Helium
         /// <param name="kvUrl">URL of the Key Vault</param>
         /// <param name="authType">MI, CLI, VS</param>
         /// <returns>Web Host ready to run</returns>
-        static async Task<IWebHost> BuildHost(string kvUrl, AuthenticationType authType)
+        private static async Task<IWebHost> BuildHost(string kvUrl, AuthenticationType authType)
         {
             // create the Key Vault Client
-            var kvClient = await GetKeyVaultClient(kvUrl, authType).ConfigureAwait(false);
+            KeyVaultClient kvClient = await KeyVaultHelper.GetKeyVaultClient(kvUrl, authType, Constants.CosmosDatabase).ConfigureAwait(false);
 
             if (kvClient == null)
             {
@@ -187,17 +203,18 @@ namespace CSE.Helium
                 .ConfigureServices(services =>
                 {
                     // add the data access layer via DI
-                    services.AddDal(new Uri(config.GetValue<string>(Constants.CosmosUrl)),
+                    services.AddDal(
+                        new Uri(config.GetValue<string>(Constants.CosmosUrl)),
                         config.GetValue<string>(Constants.CosmosKey),
                         config.GetValue<string>(Constants.CosmosDatabase),
                         config.GetValue<string>(Constants.CosmosCollection));
 
                     // add the KeyVaultConnection via DI
-                    services.AddKeyVaultConnection(kvClient, new Uri(kvUrl));
+                    services.AddKeyVaultConnection(kvClient, kvUrl);
 
                     // add IConfigurationRoot
                     services.AddSingleton<IConfigurationRoot>(config);
-
+                    services.AddKeyRotation();
                     services.AddResponseCaching();
                 });
 
@@ -207,7 +224,9 @@ namespace CSE.Helium
                 logger.ClearProviders();
                 logger.AddConsole();
 
-                if (Constants.IsLogLevelSet)
+                // if you specify the --log-level option, it will override the appsettings.json options
+                // remove any or all of the code below that you don't want to override
+                if (App.IsLogLevelSet)
                 {
                     logger.AddFilter("Microsoft", AppLogLevel)
                     .AddFilter("System", AppLogLevel)
@@ -221,89 +240,12 @@ namespace CSE.Helium
         }
 
         /// <summary>
-        /// Get a valid key vault client
-        /// AKS takes time to spin up the first pod identity, so
-        ///   we retry for up to 90 seconds
-        /// </summary>
-        /// <param name="kvUrl">URL of the key vault</param>
-        /// <param name="authType">MI, CLI or VS</param>
-        /// <returns></returns>
-        static async Task<KeyVaultClient> GetKeyVaultClient(string kvUrl, AuthenticationType authType)
-        {
-            // retry Managed Identity for 90 seconds
-            //   AKS has to spin up an MI pod which can take a while the first time on the pod
-            DateTime timeout = DateTime.Now.AddSeconds(90.0);
-
-            // use MI as default
-            string authString = "RunAs=App";
-
-#if (DEBUG)
-            // Only support CLI and VS credentials in debug mode
-            switch (authType)
-            {
-                case AuthenticationType.CLI:
-                    authString = "RunAs=Developer; DeveloperTool=AzureCli";
-                    break;
-                case AuthenticationType.VS:
-                    authString = "RunAs=Developer; DeveloperTool=VisualStudio";
-                    break;
-            }
-#else
-            if (authType != AuthenticationType.MI)
-            {
-                Console.WriteLine("Release builds require MI authentication for Key Vault");
-                return null;
-            }
-#endif
-
-            while (true)
-            {
-                try
-                {
-                    var tokenProvider = new AzureServiceTokenProvider(authString);
-
-                    // use Managed Identity (MI) for secure access to Key Vault
-                    var keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(tokenProvider.KeyVaultTokenCallback));
-
-                    // read a key to make sure the connection is valid 
-                    await keyVaultClient.GetSecretAsync(kvUrl, Constants.CosmosUrl).ConfigureAwait(false);
-
-                    // return the client
-                    return keyVaultClient;
-                }
-                catch (Exception ex)
-                {
-                    if (DateTime.Now <= timeout && authType == AuthenticationType.MI)
-                    {
-                        // retry MI connections for pod identity
-
-#if (DEBUG)
-                        // Don't retry in debug mode
-                        Console.WriteLine($"KeyVault:Exception: Unable to connect to Key Vault using MI");
-                        return null;
-#else
-                        Console.WriteLine($"KeyVault:Retry");
-                        await Task.Delay(1000).ConfigureAwait(false);
-#endif
-                    }
-                    else
-                    {
-                        // log and fail
-
-                        Console.WriteLine($"{ex}\nKeyVault:Exception: {ex.Message}");
-                        return null;
-                    }
-                }
-            }
-        }
-
-        /// <summary>
         /// Check for Cosmos key rotation
         /// Currently not used - safe to ignore fxcop warning
         /// </summary>
         /// <param name="ctCancel">CancellationTokenSource</param>
         /// <returns>Only returns when ctl-c is pressed and cancellation token is cancelled</returns>
-        static async Task RunKeyRotationCheck(CancellationTokenSource ctCancel, int checkEverySeconds)
+        private static async Task RunKeyRotationCheck(CancellationTokenSource ctCancel, int checkEverySeconds)
         {
             string key = config[Constants.CosmosKey];
 
@@ -323,7 +265,7 @@ namespace CSE.Helium
                         if (!ctCancel.IsCancellationRequested)
                         {
                             // reconnect the DAL
-                            var dal = host.Services.GetService<IDAL>();
+                            IDAL dal = host.Services.GetService<IDAL>();
 
                             if (dal != null)
                             {
@@ -338,7 +280,7 @@ namespace CSE.Helium
                                     // send a NewKeyLoadedMetric to App Insights
                                     if (!string.IsNullOrEmpty(config[Constants.AppInsightsKey]))
                                     {
-                                        var telemetryClient = host.Services.GetService<TelemetryClient>();
+                                        TelemetryClient telemetryClient = host.Services.GetService<TelemetryClient>();
 
                                         if (telemetryClient != null)
                                         {

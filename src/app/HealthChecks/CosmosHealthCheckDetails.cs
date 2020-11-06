@@ -1,17 +1,20 @@
-using CSE.Helium.Model;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See LICENSE in the project root for license information.
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using CSE.Helium.Model;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace CSE.Helium
 {
     public partial class CosmosHealthCheck : IHealthCheck
     {
+        private const int MaxResponseTime = 200;
         private readonly Stopwatch stopwatch = new Stopwatch();
-
 
         /// <summary>
         /// Build the response
@@ -20,21 +23,21 @@ namespace CSE.Helium
         /// <param name="targetDurationMs">double (ms)</param>
         /// <param name="ex">Exception (default = null)</param>
         /// <param name="data">Dictionary(string, object)</param>
-        /// <param name="testName">string</param>
+        /// <param name="testName">Test Name</param>
         /// <returns>HealthzCheck</returns>
         private HealthzCheck BuildHealthzCheck(string uri, double targetDurationMs, Exception ex = null, Dictionary<string, object> data = null, string testName = null)
         {
             stopwatch.Stop();
 
             // create the result
-            var result = new HealthzCheck
+            HealthzCheck result = new HealthzCheck
             {
                 Endpoint = uri,
                 Status = HealthStatus.Healthy,
                 Duration = stopwatch.Elapsed,
                 TargetDuration = new System.TimeSpan(0, 0, 0, 0, (int)targetDurationMs),
                 ComponentId = testName,
-                ComponentType = "datastore"
+                ComponentType = "datastore",
             };
 
             // check duration
@@ -67,7 +70,6 @@ namespace CSE.Helium
         private async Task<HealthzCheck> GetGenresAsync(Dictionary<string, object> data = null)
         {
             const string name = "getGenres";
-            const int maxMilliseconds = 400;
             const string path = "/api/genres";
 
             stopwatch.Restart();
@@ -76,11 +78,11 @@ namespace CSE.Helium
             {
                 _ = (await dal.GetGenresAsync().ConfigureAwait(false)).ToList<string>();
 
-                return BuildHealthzCheck(path, maxMilliseconds, null, data, name);
+                return BuildHealthzCheck(path, MaxResponseTime, null, data, name);
             }
             catch (Exception ex)
             {
-                BuildHealthzCheck(path, maxMilliseconds, ex, data, name);
+                BuildHealthzCheck(path, MaxResponseTime, ex, data, name);
 
                 // throw the exception so that HealthCheck logs
                 throw;
@@ -94,7 +96,6 @@ namespace CSE.Helium
         private async Task<HealthzCheck> GetMovieByIdAsync(string movieId, Dictionary<string, object> data = null)
         {
             const string name = "getMovieById";
-            const int maxMilliseconds = 250;
             string path = "/api/movies/" + movieId;
 
             stopwatch.Restart();
@@ -103,11 +104,11 @@ namespace CSE.Helium
             {
                 await dal.GetMovieAsync(movieId).ConfigureAwait(false);
 
-                return BuildHealthzCheck(path, maxMilliseconds, null, data, name);
+                return BuildHealthzCheck(path, MaxResponseTime / 2, null, data, name);
             }
             catch (Exception ex)
             {
-                BuildHealthzCheck(path, maxMilliseconds, ex, data, name);
+                BuildHealthzCheck(path, MaxResponseTime / 2, ex, data, name);
 
                 // throw the exception so that HealthCheck logs
                 throw;
@@ -121,20 +122,22 @@ namespace CSE.Helium
         private async Task<HealthzCheck> SearchMoviesAsync(string query, Dictionary<string, object> data = null)
         {
             const string name = "searchMovies";
-            const int maxMilliseconds = 400;
-            string path = "/api/movies?q=" + query;
+
+            MovieQueryParameters movieQuery = new MovieQueryParameters { Q = query };
+
+            string path = "/api/movies?q=" + movieQuery.Q;
 
             stopwatch.Restart();
 
             try
             {
-                _ = (await dal.GetMoviesAsync(query).ConfigureAwait(false)).ToList<Movie>();
+                _ = (await dal.GetMoviesAsync(movieQuery).ConfigureAwait(false)).ToList<Movie>();
 
-                return BuildHealthzCheck(path, maxMilliseconds, null, data, name);
+                return BuildHealthzCheck(path, MaxResponseTime, null, data, name);
             }
             catch (Exception ex)
             {
-                BuildHealthzCheck(path, maxMilliseconds, ex, data, name);
+                BuildHealthzCheck(path, MaxResponseTime, ex, data, name);
 
                 // throw the exception so that HealthCheck logs
                 throw;
@@ -148,7 +151,6 @@ namespace CSE.Helium
         private async Task<HealthzCheck> GetActorByIdAsync(string actorId, Dictionary<string, object> data = null)
         {
             const string name = "getActorById";
-            const int maxMilliseconds = 250;
             string path = "/api/actors/" + actorId;
 
             stopwatch.Restart();
@@ -156,11 +158,11 @@ namespace CSE.Helium
             try
             {
                 await dal.GetActorAsync(actorId).ConfigureAwait(false);
-                return BuildHealthzCheck(path, maxMilliseconds, null, data, name);
+                return BuildHealthzCheck(path, MaxResponseTime / 2, null, data, name);
             }
             catch (Exception ex)
             {
-                BuildHealthzCheck(path, maxMilliseconds, ex, data, name);
+                BuildHealthzCheck(path, MaxResponseTime / 2, ex, data, name);
 
                 // throw the exception so that HealthCheck logs
                 throw;
@@ -174,20 +176,22 @@ namespace CSE.Helium
         private async Task<HealthzCheck> SearchActorsAsync(string query, Dictionary<string, object> data = null)
         {
             const string name = "searchActors";
-            const int maxMilliseconds = 400;
-            string path = "/api/actors?q=" + query;
+
+            ActorQueryParameters actorQuery = new ActorQueryParameters { Q = query };
+
+            string path = "/api/actors?q=" + actorQuery.Q;
 
             stopwatch.Restart();
 
             try
             {
-                _ = (await dal.GetActorsAsync(query).ConfigureAwait(false)).ToList<Actor>();
+                _ = (await dal.GetActorsAsync(actorQuery).ConfigureAwait(false)).ToList<Actor>();
 
-                return BuildHealthzCheck(path, maxMilliseconds, null, data, name);
+                return BuildHealthzCheck(path, MaxResponseTime, null, data, name);
             }
             catch (Exception ex)
             {
-                BuildHealthzCheck(path, maxMilliseconds, ex, data, name);
+                BuildHealthzCheck(path, MaxResponseTime, ex, data, name);
 
                 // throw the exception so that HealthCheck logs
                 throw;

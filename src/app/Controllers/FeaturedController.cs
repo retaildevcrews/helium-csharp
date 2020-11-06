@@ -1,9 +1,12 @@
-﻿using CSE.Helium.DataAccessLayer;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See LICENSE in the project root for license information.
+
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using CSE.Helium.DataAccessLayer;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace CSE.Helium.Controllers
 {
@@ -32,6 +35,7 @@ namespace CSE.Helium.Controllers
         /// Returns a random movie from the featured movie list as a JSON Movie
         /// </summary>
         /// <response code="200">OK</response>
+        /// <returns>IActionResult</returns>
         [HttpGet("movie")]
         public async Task<IActionResult> GetFeaturedMovieAsync()
         {
