@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
+using System;
+using System.Threading.Tasks;
 using Microsoft.Azure.KeyVault;
 using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Threading.Tasks;
 
 namespace CSE.KeyVault
 {
@@ -104,7 +104,7 @@ namespace CSE.KeyVault
 #else
             if (authType != AuthenticationType.MI)
             {
-                var warningMsg = "Release builds require MI authentication for Key Vault";
+                string warningMsg = "Release builds require MI authentication for Key Vault";
                 if (logger == null)
                 {
                     Console.WriteLine(warningMsg);

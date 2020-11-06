@@ -1,17 +1,17 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
-using CSE.Helium.DataAccessLayer;
-using CSE.Helium.Model;
-using Microsoft.Azure.Cosmos;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
+using CSE.Helium.DataAccessLayer;
+using CSE.Helium.Model;
+using Microsoft.Azure.Cosmos;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Logging;
 
 namespace CSE.Helium
 {
@@ -72,7 +72,7 @@ namespace CSE.Helium
 
                 // add instance and version
                 data.Add("Instance", System.Environment.GetEnvironmentVariable("WEBSITE_ROLE_INSTANCE_ID") ?? "unknown");
-                data.Add("Version", Middleware.VersionExtensions.Version);
+                data.Add("Version", Middleware.VersionExtension.Version);
 
                 // Run each health check
                 await GetGenresAsync(data).ConfigureAwait(false);

@@ -1,6 +1,9 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
+using System;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using CSE.Helium.Validation;
 using CSE.Middleware;
 using Helium;
@@ -10,9 +13,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace CSE.Helium
 {
@@ -28,7 +28,7 @@ namespace CSE.Helium
         public Startup(IConfiguration configuration)
         {
             // keep a local reference
-            this.Configuration = configuration;
+            Configuration = configuration;
         }
 
         /// <summary>
@@ -123,7 +123,7 @@ namespace CSE.Helium
             services.AddHealthChecks().AddCosmosHealthCheck(CosmosHealthCheck.ServiceId);
 
             // add App Insights if key set
-            string appInsightsKey = this.Configuration.GetValue<string>(Constants.AppInsightsKey);
+            string appInsightsKey = Configuration.GetValue<string>(Constants.AppInsightsKey);
 
             if (!string.IsNullOrEmpty(appInsightsKey))
             {

@@ -1,3 +1,0 @@
-[
-  {"Path":"/api/featured/movie","PerfTarget":{"Category": "SearchMovies"},"Validation":{"JsonObject":[{"Field":"type","Value":"Movie"},{"Field":"id","Value":null},{"Field":"movieId","Value":null},{"Field":"title","Value":null},{"Field":"year","Value":null}]}},
-]

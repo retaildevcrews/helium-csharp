@@ -50,19 +50,19 @@ jobs:
         # check that all Azure secrets are set
         if [[ "${{ secrets.SERVICE_PRINCIPAL_SECRET }}" != "" && "${{ secrets.TENANT }}" != "" && "${{ secrets.SERVICE_PRINCIPAL }}" != "" && "${{ secrets.KEYVAULT_NAME }}" != "" ]];
         then
-          echo "::set-env name=AZURE_SET::true"
+          echo "AZURE_SET=true" >> $GITHUB_ENV
         fi
 
         # check that all Docker secrets are set
         if [[ "${{ secrets.DOCKER_PAT }}" != "" && "${{ secrets.DOCKER_REPO }}" != "" && "${{ secrets.DOCKER_USER }}" != "" ]];
         then
-          echo "::set-env name=DOCKER_SET::true"
+          echo "DOCKER_SET=true" >> $GITHUB_ENV
         fi
-        
+
         # check that all ACR secrets are set
         if [[ "${{ secrets.ACR_REG }}" != "" && "${{ secrets.ACR_REPO }}" != "" && "${{ secrets.ACR_IMAGE }}" != "" ]];
         then
-          echo "::set-env name=ACR_SET::true"
+          echo "ACR_SET=true" >> $GITHUB_ENV
         fi
 
     - name: PR Closed
@@ -71,7 +71,7 @@ jobs:
       run: |
 
         # handle PR Closed event by building / pushing main branch
-        
+
         # checkout parent branch (usually "main")
         git config pull.ff only
         git fetch --all
@@ -84,9 +84,9 @@ jobs:
       run: |
 
         # Skip remaining steps - do not build on PR merge - will build on main merge
-        echo "::set-env name=AZURE_SET::false"
-        echo "::set-env name=DOCKER_SET::false"
-        echo "::set-env name=ACR_SET::false"
+        echo "AZURE_SET=false" >> $GITHUB_ENV
+        echo "DOCKER_SET=false" >> $GITHUB_ENV
+        echo "ACR_SET=false" >> $GITHUB_ENV
 
     - name: Validate Azure Access
       if: ${{ env.AZURE_SET == 'true' }}
@@ -126,7 +126,7 @@ jobs:
       run: |
         # run the app
         docker run -d --name hcs -p 4120:4120 --env KEYVAULT_NAME=$KEYVAULT_NAME --env AUTH_TYPE=CLI -v ~/.azure:/root/.azure --env CONFIGURATION="/p:Configuration=Experimental" test
-        
+
         echo "Waiting for web server to start and run initial tests ..."
         sleep 25
 
@@ -174,7 +174,7 @@ jobs:
 
         # Push to the repo
         docker push $DOCKER_REPO
-    
+
     - name: ACR Push
       if: ${{ env.ACR_SET == 'true' && env.AZURE_SET == 'true' }}
       run: |

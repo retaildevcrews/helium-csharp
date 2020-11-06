@@ -1,6 +1,9 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
+using System;
+using System.Net;
+using System.Threading;
 using CSE.Helium;
 using CSE.Helium.DataAccessLayer;
 using CSE.KeyVault;
@@ -12,9 +15,6 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Polly;
 using Polly.Retry;
-using System;
-using System.Net;
-using System.Threading;
 
 namespace CSE.KeyRotation
 {
@@ -24,8 +24,9 @@ namespace CSE.KeyRotation
         private readonly IKeyVaultConnection keyVaultConnection;
         private readonly IConfiguration configuration;
         private readonly ILogger logger;
+
         private IServiceCollection services;
-        private static SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1);
+        private static readonly SemaphoreSlim SemaphoreSlim = new SemaphoreSlim(1);
 
         public AsyncRetryPolicy RetryCosmosPolicy { get; private set; }
 
@@ -35,8 +36,9 @@ namespace CSE.KeyRotation
             this.keyVaultConnection = keyVaultConnection;
             this.configuration = configuration;
             this.logger = logger;
+
             this.services = services;
-            this.RetryCosmosPolicy = this.GetCosmosRetryPolicy();
+            RetryCosmosPolicy = GetCosmosRetryPolicy();
         }
 
         /// <summary>
@@ -50,11 +52,11 @@ namespace CSE.KeyRotation
                 {
                     try
                     {
-                        await semaphoreSlim.WaitAsync().ConfigureAwait(false);
+                        await SemaphoreSlim.WaitAsync().ConfigureAwait(false);
                         logger.LogInformation("Read the cosmos key from KeyVault.");
 
                         // Get the latest cosmos key.
-                        var cosmosKeySecret = await keyVaultConnection.Client.GetSecretAsync(keyVaultConnection.Address, Constants.CosmosKey).ConfigureAwait(false);
+                        Microsoft.Azure.KeyVault.Models.SecretBundle cosmosKeySecret = await keyVaultConnection.Client.GetSecretAsync(keyVaultConnection.Address, Constants.CosmosKey).ConfigureAwait(false);
 
                         CosmosClientOptions options = new CosmosClientOptions
                         {
@@ -71,7 +73,7 @@ namespace CSE.KeyRotation
                     finally
                     {
                         // release the semaphore
-                        semaphoreSlim.Release();
+                        SemaphoreSlim.Release();
                     }
                 });
         }

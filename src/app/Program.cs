@@ -1,6 +1,12 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
+using System;
+using System.CommandLine;
+using System.CommandLine.Invocation;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using CSE.Helium.DataAccessLayer;
 using CSE.KeyRotation;
 using CSE.KeyVault;
@@ -13,12 +19,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.AzureKeyVault;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System;
-using System.CommandLine;
-using System.CommandLine.Invocation;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace CSE.Helium
 {
@@ -77,6 +77,19 @@ namespace CSE.Helium
         }
 
         /// <summary>
+        /// Display the ASCII art file if it exists
+        /// </summary>
+        private static void DisplayAsciiArt()
+        {
+            const string file = "ascii-art.txt";
+
+            if (File.Exists(file))
+            {
+                Console.WriteLine(File.ReadAllText(file));
+            }
+        }
+
+        /// <summary>
         /// Creates a CancellationTokenSource that cancels on ctl-c pressed
         /// </summary>
         /// <returns>CancellationTokenSource</returns>
@@ -124,20 +137,9 @@ namespace CSE.Helium
                 logger.LogInformation("Web Server Started");
             }
 
-            Console.WriteLine("\n");
-            Console.WriteLine("                                ,-\"\"\"\"-.");
-            Console.WriteLine("                              ,'      _ `.");
-            Console.WriteLine("                             /       )_)  \\");
-            Console.WriteLine("                            :              :");
-            Console.WriteLine("                            \\              /");
-            Console.WriteLine(" _          _ _              \\            /");
-            Console.WriteLine("| |        | (_)              `.        ,'");
-            Console.WriteLine("| |__   ___| |_ _   _ _ __ ___  `.    ,'");
-            Console.WriteLine("| '_ \\ / _ \\ | | | | | '_ ` _ \\   `.,'");
-            Console.WriteLine("| | | |  __/ | | |_| | | | | | |   /\\`.   ,-._");
-            Console.WriteLine("|_| |_|\\___|_|_|\\__,_|_| |_| |_|        `-'");
+            DisplayAsciiArt();
 
-            Console.WriteLine($"\nVersion: {Middleware.VersionExtensions.Version}");
+            Console.WriteLine($"\nVersion: {Middleware.VersionExtension.Version}");
         }
 
         /// <summary>

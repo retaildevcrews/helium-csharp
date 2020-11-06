@@ -43,13 +43,4 @@ namespace CSE.Helium.Model
             throw new ArgumentException("Invalid Partition Key");
         }
     }
-
-    public class ActorMovie
-    {
-        public string MovieId { get; set; }
-        public string Title { get; set; }
-        public int Year { get; set; }
-        public int Runtime { get; set; }
-        public List<string> Genres { get; set; }
-    }
 }
