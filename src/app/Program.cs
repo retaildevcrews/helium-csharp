@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using CSE.Helium.DataAccessLayer;
 using CSE.KeyRotation;
 using CSE.KeyVault;
+using Helium.DataAccessLayer;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
@@ -37,6 +38,8 @@ namespace CSE.Helium
         private static IConfigurationRoot config;
 
         private static CancellationTokenSource ctCancel;
+
+        private static IServiceCollection serviceCollection;
 
         /// <summary>
         /// Gets or sets LogLevel
@@ -205,16 +208,20 @@ namespace CSE.Helium
                 {
                     services.AddSingleton<IServiceCollection>(services);
 
+                    serviceCollection = services;
+
                     services.AddKeyRotation();
+
+                    services.AddCosmosClient(
+                        new Uri(config.GetValue<string>(Constants.CosmosUrl)),
+                        config.GetValue<string>(Constants.CosmosKey));
 
                     // add the data access layer via DI
                     services.AddDal(
                         new Uri(config.GetValue<string>(Constants.CosmosUrl)),
                         config.GetValue<string>(Constants.CosmosKey),
                         config.GetValue<string>(Constants.CosmosDatabase),
-                        config.GetValue<string>(Constants.CosmosCollection),
-                        config.GetValue<int>(Constants.CosmosTimeout),
-                        config.GetValue<int>(Constants.CosmosRetry));
+                        config.GetValue<string>(Constants.CosmosCollection));
 
                     // add the KeyVaultConnection via DI
                     services.AddKeyVaultConnection(kvClient, kvUrl);
@@ -243,6 +250,69 @@ namespace CSE.Helium
 
             // build the host
             return builder.Build();
+        }
+
+        /// <summary>
+        /// Check for Cosmos key rotation
+        /// Currently not used - safe to ignore fxcop warning
+        /// </summary>
+        /// <param name="ctCancel">CancellationTokenSource</param>
+        /// <returns>Only returns when ctl-c is pressed and cancellation token is cancelled</returns>
+        private static async Task RunKeyRotationCheck(CancellationTokenSource ctCancel, int checkEverySeconds)
+        {
+            string key = config[Constants.CosmosKey];
+
+            // reload Key Vault values
+            while (!ctCancel.IsCancellationRequested)
+            {
+                try
+                {
+                    await Task.Delay(checkEverySeconds * 1000, ctCancel.Token).ConfigureAwait(false);
+
+                    if (!ctCancel.IsCancellationRequested)
+                    {
+                        // reload the config from Key Vault
+                        config.Reload();
+
+                        // if the key changed
+                        if (!ctCancel.IsCancellationRequested)
+                        {
+                            CosmosClient cosmosClient = serviceCollection.BuildServiceProvider().GetService<CosmosClient>();
+
+                            // reconnect the DAL
+                            IDAL dal = host.Services.GetService<IDAL>();
+
+                            if (dal != null)
+                            {
+                                // this will only reconnect if the variables changed
+                                await dal.Reconnect(new Uri(config[Constants.CosmosUrl]), config[Constants.CosmosKey], config[Constants.CosmosDatabase], config[Constants.CosmosCollection], cosmosClient).ConfigureAwait(false);
+
+                                if (key != config[Constants.CosmosKey])
+                                {
+                                    key = config[Constants.CosmosKey];
+                                    Console.WriteLine("Cosmos Key Rotated");
+
+                                    // send a NewKeyLoadedMetric to App Insights
+                                    if (!string.IsNullOrEmpty(config[Constants.AppInsightsKey]))
+                                    {
+                                        TelemetryClient telemetryClient = host.Services.GetService<TelemetryClient>();
+
+                                        if (telemetryClient != null)
+                                        {
+                                            telemetryClient.TrackMetric(Constants.NewKeyLoadedMetric, 1);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                catch
+                {
+                    // continue running with existing key
+                    Console.WriteLine($"Cosmos Key Rotate Exception - using existing connection");
+                }
+            }
         }
     }
 }

@@ -58,11 +58,13 @@ namespace CSE.KeyRotation
                         // Get the latest cosmos key.
                         Microsoft.Azure.KeyVault.Models.SecretBundle cosmosKeySecret = await keyVaultConnection.Client.GetSecretAsync(keyVaultConnection.Address, Constants.CosmosKey).ConfigureAwait(false);
 
+                        CosmosConfig config = new CosmosConfig();
+
                         CosmosClientOptions options = new CosmosClientOptions
                         {
-                            RequestTimeout = TimeSpan.FromSeconds(configuration.GetValue<int>(Constants.CosmosTimeout)),
-                            MaxRetryAttemptsOnRateLimitedRequests = configuration.GetValue<int>(Constants.CosmosRetry),
-                            MaxRetryWaitTimeOnRateLimitedRequests = TimeSpan.FromSeconds(configuration.GetValue<int>(Constants.CosmosTimeout)),
+                            RequestTimeout = TimeSpan.FromSeconds(config.Timeout),
+                            MaxRetryAttemptsOnRateLimitedRequests = config.Retries,
+                            MaxRetryWaitTimeOnRateLimitedRequests = TimeSpan.FromSeconds(config.Timeout),
                         };
 
                         services.AddSingleton<CosmosClient>(new CosmosClient(configuration[Constants.CosmosUrl], cosmosKeySecret.Value));
