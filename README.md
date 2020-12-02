@@ -101,7 +101,7 @@ Stop helium by typing Ctrl-C or the stop button if run via F5
 
 ### Deep Testing
 
-We use [Web Validate](https://github.com/retaildevcrews/webvalidate) to run deep verification tests on the Web API
+We use [Web Validate](https://github.com/microsoft/webvalidate) to run deep verification tests on the Web API
 
 ```bash
 
