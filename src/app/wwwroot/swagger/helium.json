@@ -38,7 +38,7 @@
           {
             "name": "year",
             "in": "query",
-            "description": "Filter by year<br><br>`valid: 1874 - currentYear + 5`",
+            "description": "Filter by year<br><br>`valid: 1874 - 2025`",
             "required": false,
             "style": "form",
             "explode": true,
