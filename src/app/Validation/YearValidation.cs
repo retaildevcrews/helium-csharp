@@ -10,7 +10,7 @@ namespace CSE.Helium.Validation
     public sealed class YearValidation : ValidationAttribute
     {
         private const int StartYear = 1874;
-        private static readonly int EndYear = DateTime.UtcNow.AddYears(5).Year;
+        private const int EndYear = 2025;
 
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
