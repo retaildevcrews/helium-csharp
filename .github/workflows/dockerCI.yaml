@@ -195,7 +195,7 @@ jobs:
         fi
 
         # Push to the repo
-        docker push $DOCKER_REPO
+        docker push -a $DOCKER_REPO
 
     - name: ACR Push
       if: ${{ env.ACR_SET == 'true' && env.AZURE_SET == 'true' }}
@@ -225,4 +225,4 @@ jobs:
         fi
 
         # push the repo
-        docker push $ACR_IMAGE
+        docker push -a $ACR_IMAGE
