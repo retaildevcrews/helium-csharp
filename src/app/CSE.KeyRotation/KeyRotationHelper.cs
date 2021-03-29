@@ -10,6 +10,8 @@ using CSE.KeyVault;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.KeyVault;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Polly;
 using Polly.Retry;
@@ -22,16 +24,20 @@ namespace CSE.KeyRotation
         private readonly IKeyVaultConnection keyVaultConnection;
         private readonly IConfiguration configuration;
         private readonly ILogger logger;
+
+        private IServiceCollection services;
         private static readonly SemaphoreSlim SemaphoreSlim = new SemaphoreSlim(1);
 
         public AsyncRetryPolicy RetryCosmosPolicy { get; private set; }
 
-        public KeyRotationHelper(IDAL dal, IKeyVaultConnection keyVaultConnection, IConfiguration configuration, ILogger<KeyRotationHelper> logger)
+        public KeyRotationHelper(IDAL dal, IKeyVaultConnection keyVaultConnection, IConfiguration configuration, ILogger<KeyRotationHelper> logger, IServiceCollection services)
         {
             this.dal = dal;
             this.keyVaultConnection = keyVaultConnection;
             this.configuration = configuration;
             this.logger = logger;
+
+            this.services = services;
             RetryCosmosPolicy = GetCosmosRetryPolicy();
         }
 
@@ -52,8 +58,19 @@ namespace CSE.KeyRotation
                         // Get the latest cosmos key.
                         Microsoft.Azure.KeyVault.Models.SecretBundle cosmosKeySecret = await keyVaultConnection.Client.GetSecretAsync(keyVaultConnection.Address, Constants.CosmosKey).ConfigureAwait(false);
 
+                        CosmosConfig config = new CosmosConfig();
+
+                        CosmosClientOptions options = new CosmosClientOptions
+                        {
+                            RequestTimeout = TimeSpan.FromSeconds(config.Timeout),
+                            MaxRetryAttemptsOnRateLimitedRequests = config.Retries,
+                            MaxRetryWaitTimeOnRateLimitedRequests = TimeSpan.FromSeconds(config.Timeout),
+                        };
+
+                        services.AddSingleton<CosmosClient>(new CosmosClient(configuration[Constants.CosmosUrl], cosmosKeySecret.Value));
+
                         logger.LogInformation("Refresh cosmos connection with upadated secret.");
-                        await dal.Reconnect(new Uri(configuration[Constants.CosmosUrl]), cosmosKeySecret.Value, configuration[Constants.CosmosDatabase], configuration[Constants.CosmosCollection]).ConfigureAwait(false);
+                        await dal.Reconnect(new Uri(configuration[Constants.CosmosUrl]), cosmosKeySecret.Value, configuration[Constants.CosmosDatabase], configuration[Constants.CosmosCollection], services.BuildServiceProvider().GetService<CosmosClient>()).ConfigureAwait(false);
                     }
                     finally
                     {
