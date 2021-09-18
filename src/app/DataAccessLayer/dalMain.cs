@@ -23,7 +23,8 @@ namespace CSE.Helium.DataAccessLayer
         /// <param name="cosmosKey">CosmosDB connection key</param>
         /// <param name="cosmosDatabase">CosmosDB Database</param>
         /// <param name="cosmosCollection">CosmosDB Collection</param>
-        public DAL(Uri cosmosUrl, string cosmosKey, string cosmosDatabase, string cosmosCollection)
+        /// <param name="cosmosClient">CosmosDB client</param>
+        public DAL(Uri cosmosUrl, string cosmosKey, string cosmosDatabase, string cosmosCollection, CosmosClient cosmosClient)
         {
             if (cosmosUrl == null)
             {
@@ -42,7 +43,7 @@ namespace CSE.Helium.DataAccessLayer
             };
 
             // create the CosmosDB client and container
-            cosmosDetails.Client = OpenAndTestCosmosClient(cosmosUrl, cosmosKey, cosmosDatabase, cosmosCollection).GetAwaiter().GetResult();
+            cosmosDetails.Client = OpenAndTestCosmosClient(cosmosUrl, cosmosKey, cosmosDatabase, cosmosCollection, cosmosClient).GetAwaiter().GetResult();
             cosmosDetails.Container = cosmosDetails.Client.GetContainer(cosmosDatabase, cosmosCollection);
         }
 
@@ -58,9 +59,10 @@ namespace CSE.Helium.DataAccessLayer
         /// <param name="cosmosKey">Cosmos Key</param>
         /// <param name="cosmosDatabase">Cosmos Database</param>
         /// <param name="cosmosCollection">Cosmos Collection</param>
+        /// <param name="cosmosClient">CosmosDB client</param>
         /// <param name="force">force reconnection even if no params changed</param>
         /// <returns>Task</returns>
-        public async Task Reconnect(Uri cosmosUrl, string cosmosKey, string cosmosDatabase, string cosmosCollection, bool force = false)
+        public async Task Reconnect(Uri cosmosUrl, string cosmosKey, string cosmosDatabase, string cosmosCollection, CosmosClient cosmosClient, bool force = false)
         {
             if (cosmosUrl == null)
             {
@@ -82,7 +84,7 @@ namespace CSE.Helium.DataAccessLayer
                 };
 
                 // open and test a new client / container
-                d.Client = await OpenAndTestCosmosClient(cosmosUrl, cosmosKey, cosmosDatabase, cosmosCollection).ConfigureAwait(false);
+                d.Client = await OpenAndTestCosmosClient(cosmosUrl, cosmosKey, cosmosDatabase, cosmosCollection, cosmosClient).ConfigureAwait(false);
                 d.Container = d.Client.GetContainer(cosmosDatabase, cosmosCollection);
 
                 // set the current CosmosDetail
@@ -97,8 +99,9 @@ namespace CSE.Helium.DataAccessLayer
         /// <param name="cosmosKey">Cosmos Key</param>
         /// <param name="cosmosDatabase">Cosmos Database</param>
         /// <param name="cosmosCollection">Cosmos Collection</param>
+        /// <param name="cosmosClient">CosmosDB client</param>
         /// <returns>An open and validated CosmosClient</returns>
-        private async Task<CosmosClient> OpenAndTestCosmosClient(Uri cosmosUrl, string cosmosKey, string cosmosDatabase, string cosmosCollection)
+        private async Task<CosmosClient> OpenAndTestCosmosClient(Uri cosmosUrl, string cosmosKey, string cosmosDatabase, string cosmosCollection, CosmosClient cosmosClient)
         {
             // validate required parameters
             if (cosmosUrl == null)
@@ -121,12 +124,15 @@ namespace CSE.Helium.DataAccessLayer
                 throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, $"CosmosCollection not set correctly {cosmosCollection}"));
             }
 
-            // open and test a new client / container
-            CosmosClient c = new CosmosClient(cosmosUrl.AbsoluteUri, cosmosKey, cosmosDetails.CosmosClientOptions);
-            Container con = c.GetContainer(cosmosDatabase, cosmosCollection);
+            if (cosmosClient == null)
+            {
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, $"Cosmos Client object not set correctly"));
+            }
+
+            Container con = cosmosClient.GetContainer(cosmosDatabase, cosmosCollection);
             await con.ReadItemAsync<dynamic>("action", new PartitionKey("0")).ConfigureAwait(false);
 
-            return c;
+            return cosmosClient;
         }
 
         /// <summary>

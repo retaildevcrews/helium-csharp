@@ -10,9 +10,11 @@ using System.Threading.Tasks;
 using CSE.Helium.DataAccessLayer;
 using CSE.KeyRotation;
 using CSE.KeyVault;
+using Helium.DataAccessLayer;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.KeyVault;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.AzureKeyVault;
@@ -36,6 +38,8 @@ namespace CSE.Helium
         private static IConfigurationRoot config;
 
         private static CancellationTokenSource ctCancel;
+
+        private static IServiceCollection serviceCollection;
 
         /// <summary>
         /// Gets or sets LogLevel
@@ -202,6 +206,16 @@ namespace CSE.Helium
                 .UseShutdownTimeout(TimeSpan.FromSeconds(Constants.GracefulShutdownTimeout))
                 .ConfigureServices(services =>
                 {
+                    services.AddSingleton<IServiceCollection>(services);
+
+                    serviceCollection = services;
+
+                    services.AddKeyRotation();
+
+                    services.AddCosmosClient(
+                        new Uri(config.GetValue<string>(Constants.CosmosUrl)),
+                        config.GetValue<string>(Constants.CosmosKey));
+
                     // add the data access layer via DI
                     services.AddDal(
                         new Uri(config.GetValue<string>(Constants.CosmosUrl)),
@@ -214,7 +228,6 @@ namespace CSE.Helium
 
                     // add IConfigurationRoot
                     services.AddSingleton<IConfigurationRoot>(config);
-                    services.AddKeyRotation();
                     services.AddResponseCaching();
                 });
 
@@ -264,13 +277,15 @@ namespace CSE.Helium
                         // if the key changed
                         if (!ctCancel.IsCancellationRequested)
                         {
+                            CosmosClient cosmosClient = serviceCollection.BuildServiceProvider().GetService<CosmosClient>();
+
                             // reconnect the DAL
                             IDAL dal = host.Services.GetService<IDAL>();
 
                             if (dal != null)
                             {
                                 // this will only reconnect if the variables changed
-                                await dal.Reconnect(new Uri(config[Constants.CosmosUrl]), config[Constants.CosmosKey], config[Constants.CosmosDatabase], config[Constants.CosmosCollection]).ConfigureAwait(false);
+                                await dal.Reconnect(new Uri(config[Constants.CosmosUrl]), config[Constants.CosmosKey], config[Constants.CosmosDatabase], config[Constants.CosmosCollection], cosmosClient).ConfigureAwait(false);
 
                                 if (key != config[Constants.CosmosKey])
                                 {
