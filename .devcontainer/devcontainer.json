@@ -3,9 +3,9 @@
 	"dockerFile": "Dockerfile",
 
 	// do not change these if you want Docker in Docker support
-	"runArgs": ["--init", "--privileged"],
-	"mounts": [ "source=/var/run/docker.sock,target=/var/run/docker-host.sock,type=bind" ],
-	"overrideCommand": false,
+	// "runArgs": ["--init", "--privileged"],
+	// "mounts": [ "source=/var/run/docker.sock,target=/var/run/docker-host.sock,type=bind" ],
+	// "overrideCommand": false,
 
 	// some base images require a specific user name
 	"remoteUser": "vscode",
