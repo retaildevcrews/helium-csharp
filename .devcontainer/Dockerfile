@@ -8,7 +8,7 @@ ARG USERNAME="vscode"
 #     apt-get -y install --no-install-recommends apt-transport-https ca-certificates software-properties-common libssl-dev libffi-dev \
 #         build-essential gnupg-agent dnsutils httpie bash-completion curl wget git unzip jq lsb-release procps gnupg2
 
-COPY library-scripts /tmp/library-scripts/
+# COPY library-scripts /tmp/library-scripts/
 
 # RUN  bash /tmp/library-scripts/azcli-debian.sh
 
