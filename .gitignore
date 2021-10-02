@@ -4,6 +4,7 @@
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
 dotFiles/.**
+.DS_STORE
 
 # User-specific files
 *.suo
@@ -11,7 +12,6 @@ dotFiles/.**
 *.userosscache
 *.sln.docstates
 
-.vscode/
 [Pp]roperties/
 
 # User-specific files (MonoDevelop/Xamarin Studio)
