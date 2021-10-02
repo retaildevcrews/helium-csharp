@@ -1,28 +1,33 @@
 # Change Log
 
+## 1.6.0
+
+- Oct 2021
+- updated dev container / Codespaces build
+
 ## v1.6.0
 
-- March 12, 2020
+- March 2020
 - added authentication type environment varible and command line requirements
   - supports MSI, Azure CLI or Visual Studio credentials
 - converted Swagger to not auto-generate swagger.json for fidelity
 
 ## v1.0.0
 
-- Dec 18, 2019
+- Dec 2019
 - converted /healthz to use dotnet HealthCheck
 - added IETF draft render to /healthz/ietf
 
-## Dec 5, 2019
+## Dec 2019
 
 - updated md docs
 
-## Nov 27, 2019
+## Nov 2019
 
 - Created a separate repo for the application
 - Upgraded to dotnet core 3.0
 
-## Oct 24, 2019
+## Oct 2019
 
 - added retry for AKS pod identity (it takes ~ 30 seconds to spin up the first time in the cluster)
 - added /version endpoint
@@ -34,12 +39,12 @@
   - /api/movies?toprated=true (returns the 10 top rated movies sorted by rating desc)
   - /api/featured/movie (returns a random movie from the featured movies)
 
-## Oct 10, 2019
+## Oct 2019
 
 - Enhanced exception logging to include CosmosDB information where available
 - Simplified dockerfile
 
-## Sept 27, 2019
+## Sept 2019
 
 - Added logic to support CosmosDB key rotation
 - Added middleware to handle /robots*.txt requests
