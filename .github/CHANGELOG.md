@@ -1,11 +1,11 @@
 # Change Log
 
-## 1.6.0
+## 1.1.1
 
 - Oct 2021
 - updated dev container / Codespaces build
 
-## v1.6.0
+## v1.1.0
 
 - March 2020
 - added authentication type environment varible and command line requirements
