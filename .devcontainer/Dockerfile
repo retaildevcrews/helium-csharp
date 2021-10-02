@@ -1,20 +1,9 @@
-FROM mcr.microsoft.com/vscode/devcontainers/dotnetcore:3.1
+# this image is built and updated weekly
+# https://github.com/cse-labs/codespaces-images
 
-ARG USERNAME="vscode"
+FROM ghcr.io/cse-labs/k3d:latest
 
-RUN export DEBIAN_FRONTEND=noninteractive && \
-    apt-get update && \
-    apt-get -y install --no-install-recommends apt-utils dialog && \
-    apt-get -y install --no-install-recommends apt-transport-https ca-certificates software-properties-common libssl-dev libffi-dev \
-        build-essential gnupg-agent dnsutils httpie bash-completion curl wget git unzip jq lsb-release procps gnupg2
+# some images require specific values
+ARG USERNAME=vscode
 
-COPY library-scripts /tmp/library-scripts/
-
-RUN  bash /tmp/library-scripts/azcli-debian.sh
-
-RUN  bash /tmp/library-scripts/docker-in-docker-debian.sh
-
-# RUN  apt-get -y upgrade
-
-ENV  PATH "$PATH:~/.dotnet/tools"
 ENV  AUTH_TYPE CLI
