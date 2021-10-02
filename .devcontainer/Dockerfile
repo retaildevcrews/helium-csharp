@@ -12,7 +12,7 @@ COPY library-scripts /tmp/library-scripts/
 
 RUN  bash /tmp/library-scripts/azcli-debian.sh
 
-RUN  bash /tmp/library-scripts/docker-debian.sh $USERNAME
+RUN  bash /tmp/library-scripts/docker-in-docker-debian.sh
 
 # RUN  apt-get -y upgrade
 
