@@ -8,4 +8,4 @@ ARG USERNAME=vscode
 
 ENV  AUTH_TYPE CLI
 
-RUN  apt-get install -y --no-recommends dotnet-sdk-3.1
+RUN  apt-get install -y --no-install-recommends dotnet-sdk-3.1
