@@ -10,7 +10,4 @@ cp .devcontainer/vscode-template/* .vscode
 dotnet restore src/helium.sln
 dotnet restore src/tests.sln
 
-# install WebV global tool
-dotnet tool install -g webvalidate
-
 echo "on-create complete" >> ~/status
