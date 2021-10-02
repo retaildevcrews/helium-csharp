@@ -7,3 +7,5 @@ FROM ghcr.io/cse-labs/dind:latest
 ARG USERNAME=vscode
 
 ENV  AUTH_TYPE CLI
+
+RUN  apt-get install -y --no-recommends dotnet-sdk-3.1
