@@ -15,13 +15,13 @@ This is an ASP.NET Core Web API reference application designed to "fork and code
 - Connect to and query Cosmos DB
 - Automatically send telemetry and logs to Azure Monitor
 
-> Visual Studio Codespaces is the easiest way to evaluate helium as all of the prerequisites are automatically installed
+> GitHub Codespaces is the easiest way to evaluate helium as all of the prerequisites are automatically installed
 >
 > Follow the setup steps in the [Helium readme](https://github.com/retaildevcrews/helium) to setup Codespaces
 
 ## Prerequisites
 
-- Bash shell (tested on Visual Studio Codespaces, Mac, Ubuntu, Windows with WSL2)
+- Bash shell (tested on GitHub Codespaces, Mac, Ubuntu, Windows with WSL2)
   - Will not work with WSL1 or Cloud Shell
 - .NET Core SDK 3.1 ([download](https://dotnet.microsoft.com/download))
 - Docker CLI ([download](https://docs.docker.com/install/))
@@ -35,7 +35,7 @@ This is an ASP.NET Core Web API reference application designed to "fork and code
 
 ### Validate az CLI works
 
-> In Visual Studio Codespaces, open a terminal by pressing ctl + `
+> In GitHub Codespaces, open a terminal by pressing ctl + `
 
 ```bash
 
@@ -56,7 +56,7 @@ az keyvault secret show --name CosmosDatabase --vault-name $He_Name
 
 ```
 
-### Using Visual Studio Codespaces
+### Using GitHub Codespaces
 
 - Open `launch.json` in the `.vscode` directory
 - Replace `{your key vault name}` with the name of your key vault
@@ -67,7 +67,7 @@ az keyvault secret show --name CosmosDatabase --vault-name $He_Name
 
 ### Using bash shell
 
-> This will work from a terminal in Visual Studio Codespaces as well
+> This will work from a terminal in GitHub Codespaces as well
 
 ```bash
 
@@ -83,7 +83,7 @@ wait for `Application started. Press Ctrl+C to shut down.`
 
 Open a new bash shell
 
-> Visual Studio Codespaces allows you to open multiple shells by clicking on the `Split Terminal` icon
+> GitHub Codespaces allows you to open multiple shells by clicking on the `Split Terminal` icon
 
 ```bash
 
