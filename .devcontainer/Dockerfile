@@ -1,6 +1,4 @@
-# [Choice] .NET Core version: 3.1, 2.1
-ARG VARIANT=3.1
-FROM mcr.microsoft.com/vscode/devcontainers/dotnetcore:${VARIANT}
+FROM mcr.microsoft.com/vscode/devcontainers/dotnetcore:3.1
 
 ARG USERNAME="vscode"
 
@@ -12,24 +10,11 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
 
 COPY .devcontainer/library-scripts /tmp/library-scripts/
 
-# [Option] Install Node.js
-ARG  INSTALL_NODE="false"
-ARG  NODE_VERSION="none"
-ENV  NVM_DIR=/usr/local/share/nvm
-ENV  NVM_SYMLINK_CURRENT=true \
-     PATH=${NVM_DIR}/current/bin:${PATH}
-RUN  if [ "$INSTALL_NODE" = "true" ]; then bash /tmp/library-scripts/node-debian.sh "${NVM_DIR}" "${NODE_VERSION}" "${USERNAME}"; fi
+RUN  bash /tmp/library-scripts/azcli-debian.sh
 
-# [Option] Install Azure CLI
-ARG  INSTALL_AZURE_CLI="true"
-RUN  if [ "$INSTALL_AZURE_CLI" = "true" ]; then bash /tmp/library-scripts/azcli-debian.sh; fi
-
-# [Option] Install Docker CLI
-# To use the Docker CLI inside a container, use the bind mount option to add the docker socket to the container.
-# Example: "docker run -v '/var/run/docker.sock:/var/run/docker.sock' ..."
-ARG  INSTALL_DOCKER="true"
-RUN  if [ "${INSTALL_DOCKER}" = "true" ]; then bash /tmp/library-scripts/docker-debian.sh $USERNAME; fi
+RUN  bash /tmp/library-scripts/docker-debian.sh $USERNAME
 
 RUN  apt-get -y upgrade
 
-USER $USERNAME
+ENV  PATH "$PATH:~/.dotnet/tools"
+ENV  AUTH_TYPE CLI
