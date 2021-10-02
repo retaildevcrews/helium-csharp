@@ -1,12 +1,15 @@
-#!/bin/sh
+#!/bin/bash
 
-# copy vscode files
-mkdir -p .vscode
-cp .devcontainer/vscode-template/* .vscode
+echo "post-create start" >> ~/status
 
-# run dotnet restore
-dotnet restore src/helium.sln
-dotnet restore src/tests.sln
+# this runs in background after UI is available
 
-# install WebV global tool
-dotnet tool install -g webvalidate
+# (optional) upgrade packages
+#sudo apt-get update
+#sudo apt-get upgrade -y
+#sudo apt-get autoremove -y
+#sudo apt-get clean -y
+
+# add your commands here
+
+echo "post-create complete" >> ~/status
