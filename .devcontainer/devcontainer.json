@@ -1,42 +1,64 @@
 {
   "name": "helium-csharp",
-  // Using upstream image by default, uncomment build field below to use local Dockerfile instead
-  // Build based on local Dockerfile
-  // "build": {
-  //   "dockerfile": "Dockerfile",
-  //   "context": "..",
-  //   "args": {
-  //     "VARIANT": "3.1",
-  //     "INSTALL_NODE": "false",
-  //     "NODE_VERSION": "lts/*",
-  //     "INSTALL_AZURE_CLI": "true",
-  //     "INSTALL_DOCKER": "true"
-  //   }
-  // },
-  // "mounts": [
-  //   "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
-  // ],
+  "dockerFile": "Dockerfile",
 
-  // Set *default* container specific settings.json values on container create.
-  "settings": {
-    "terminal.integrated.shell.linux": "/bin/bash"
-//    "terminal.integrated.shell.linux": "/bin/zsh"
-  },
+  // do not change these if you want Docker in Docker support
+  "runArgs": ["--init", "--privileged"],
+  "mounts": [ "source=/var/run/docker.sock,target=/var/run/docker-host.sock,type=bind" ],
+  "overrideCommand": false,
 
+  // some base images require a specific user name
   "remoteUser": "vscode",
 
-  // Open port 4120 by default
-  "forwardPorts": [4120],
+  // Set container specific settings
+  "settings": {
+	  "terminal.integrated.defaultProfile.linux": "zsh"
+  },
+
+  "hostRequirements": {
+	  "cpus": 4
+  },
+  
+  // forward ports for the app
+  "forwardPorts": [
+	  3500,
+	  5000,
+	  9411,
+	  30000,
+	  30080,
+	  30088,
+	  32000
+  ],
+
+  // add labels
+  "portsAttributes": {
+	  "3500": { "label": "dapr" },
+	  "5000": { "label": "weather" },
+	  "9411": { "label": "Zipkin" },
+	  "30000": { "label": "Prometheus" },
+	  "30080": { "label": "ngsa-app" },
+	  "30088": { "label": "WebV" },
+	  "32000": { "label": "Grafana" },
+  },
 
   // Install extensions
   "extensions": [
-    "ms-dotnettools.csharp",
-    "eamodio.gitlens",
-    "davidanson.vscode-markdownlint",
-    "gruntfuggly.todo-tree",
-    "ms-azuretools.vscode-docker"
+	  "ms-dotnettools.csharp",
+	  "ms-azuretools.vscode-docker",
+	  "ms-azuretools.vscode-dapr",
+	  "ms-kubernetes-tools.vscode-kubernetes-tools",
+	  "davidanson.vscode-markdownlint",
+	  "gruntfuggly.todo-tree",
+	  "mutantdino.resourcemonitor",
+	  "humao.rest-client"
   ],
 
-  // Run Bash script in .devcontainer directory
-  "postCreateCommand": "/bin/bash ./.devcontainer/post-install.sh"
+  // Use 'onCreateCommand' to run commands as part of container creation.
+  "onCreateCommand": "/bin/bash -c .devcontainer/on-create.sh",
+
+  // Use 'postCreateCommand' to run commands after the container is created.
+  "postCreateCommand": "/bin/bash -c .devcontainer/post-create.sh",
+
+  // Use 'postStartCommand' to run commands after the container starts.
+  "postStartCommand": "/bin/bash -c .devcontainer/post-start.sh"
 }
